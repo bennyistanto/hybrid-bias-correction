@@ -37,7 +37,7 @@ Author:
   - GOST/DECSC/DEC Data Group, The World Bank, United States (bistanto@worldbank.org)
   - Applied Climatology Study Program, Bogor Agricultural University, Indonesia (bistanto@ipb.ac.id)
 
-With supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
+  with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
 Update: 2025
 """

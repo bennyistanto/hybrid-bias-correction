@@ -10,11 +10,11 @@ It includes:
 It also uses utility functions for applying a land-sea mask and prompting the user for decisions.
 
 **Author**:
-Benny Istanto
-- GOST/DECSC/DEC Data Group, The World Bank, United States. Email: bistanto@worldbank.org
-- Applied Climatology Study Program, Bogor Agricultural University, Indonesia. Email: bennyistanto@ipb.ac.id
+  Benny Istanto
+  - GOST/DECSC/DEC Data Group, The World Bank, United States. Email: bistanto@worldbank.org
+  - Applied Climatology Study Program, Bogor Agricultural University, Indonesia. Email: bennyistanto@ipb.ac.id
 
-with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
+  with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
 Update: 2025
 """

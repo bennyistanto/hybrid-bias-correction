@@ -1,0 +1,63 @@
+# Hybrid Bias Correction for Satellite Precipitation
+
+Welcome to the documentation for the **Hybrid Bias Correction** project. This project aims to enhance the accuracy and reliability of satellite-based precipitation estimates by correcting systematic biases and aligning data distributions with ground observations.
+
+![LSEQM+DL](docs/images/lseqmdl.png "LSEQM+DL")
+
+The workflow integrates several key components:
+
+- **Linear Scaling (LS):**  
+  Corrects the mean bias between satellite estimates and observed data.
+  
+- **Empirical Quantile Mapping (EQM):**  
+  Aligns the entire distribution of the satellite data with that of the observations using a gamma distribution-based approach.
+  
+- **Tail Adjustment with Generalized Pareto Distribution (GPD):**  
+  Enhances the representation of extreme precipitation events.
+  
+- **Deep Learning (DL) Enhancement:**  
+  Refines the bias correction output by targeting extreme values and ensuring spatial consistency that traditional statistical methods might miss.
+
+This documentation is structured to guide you through the methodology, code structure, installation steps, and practical usage of the bias correction workflow. Whether you are a researcher, data scientist, or student, you'll find detailed explanations and usage examples, to help you effectively implement and understand the bias correction process.
+
+## Table of Contents
+
+- [Repository Structure](repository.md)
+- [Data](data.md)
+- [Methodology](methodology.md)
+- [Code Documentation](code_documentation.md)
+- [Setup](setup.md)
+- [Implementation](implementation.md)
+
+---
+
+Feel free to navigate the sections as needed. For more details on how the methods work under the hood, check out the **Methodology** section.
+
+## Notes & Limitations
+
+- **Data Format:**  
+  The hybrid bias correction workflow is designed to operate on gridded precipitation data for both the satellite estimates and the observations. This ensures that spatial consistency is maintained throughout the correction process.
+
+- **Test Case:**  
+  The current implementation has been tested using [CPC-UNI](https://psl.noaa.gov/data/gridded/data.cpc.globalprecip.html) as the gridded reference dataset and [IMERG-L](https://gpm.nasa.gov/data/imerg) as the satellite input. Users employing different datasets or resolutions may need to adjust parameters or perform additional preprocessing steps.
+
+- **Deep Learning Component:**  
+  While the DL enhancement refines the corrections for extreme events and spatial variability, its performance is dependent on the quality and representativeness of the training data. Users may need to retrain the model for significantly different data sources or regions.
+
+## Contributing
+
+Contributions and suggestions are welcome. Please open an issue or submit a pull request.
+
+## License
+
+This project is licensed under the Mozilla Public License 2.0.
+See LICENSE for the full license text or visit [https://www.mozilla.org/en-US/MPL/2.0/](https://www.mozilla.org/en-US/MPL/2.0/).
+
+## Authors
+
+[Benny Istanto](https://benny.istan.to)
+
+- Geospatial Operations Support Team, DECSC/DEC Data Group, The World Bank, United States ([bistanto@worldbank.org](mailto:bistanto@worldbank.org))
+- Applied Climatology Study Program, Graduate School, Bogor Agricultural University, Indonesia ([bistanto@ipb.ac.id](mailto:bistanto@ipb.ac.id))
+
+With supervision from [Prof. Rizaldi Boer](https://scholar.google.co.id/citations?user=jTPXEp8AAAAJ&hl=id) and [Dr. I Putu Santikayasa](https://scholar.google.com/citations?user=DcQ58z8AAAAJ&hl=en).

@@ -21,16 +21,17 @@ Author:
   Benny Istanto
   - GOST/DECSC/DEC Data Group, The World Bank, United States (bistanto@worldbank.org)
   - Applied Climatology Study Program, Bogor Agricultural University, Indonesia (bistanto@ipb.ac.id)
-with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
+
+  with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
+
 Update: 2025
 """
 # Import the library
 import xarray as xr
 import logging
 import numpy as np
-from .io import aggregate_data_across_years, save_corrected_precip
-from .io import get_max_day_in_month
-from .utility import gamma_quantile_mapping
+from .io import save_corrected_precip, get_max_day_in_month, aggregate_data_across_years
+from .distribution_fitting import gamma_quantile_mapping
 from .deep_learning import apply_deeplearning_model
 
 # +++++++++++++++++++++++++++++++++++++++++
