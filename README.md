@@ -8,6 +8,8 @@ Hybrid Bias Correction (LSEQM+DL) is a Python-based workflow for correcting bias
 
 Visit the documentation via this link: [https://bennyistanto.github.io/hybrid-bias-correction](https://bennyistanto.github.io/hybrid-bias-correction)
 
+*This is a living document that will be updated as we develop and refine our methodology for daily precipitation bias correction. Feedback and contributions are welcome.*
+
 ## Publication
 
 to be add
@@ -23,7 +25,7 @@ See LICENSE for the full license text or visit [https://www.mozilla.org/en-US/MP
 
 ## Authors
 
-[Benny Istanto](https://benny.istan.to)
+[Benny Istanto](https://benny.istan.to/about)
 
 * GOST/DECSC/DEC Data Group, The World Bank, United States ([bistanto@worldbank.org](mailto:bistanto@worldbank.org))
 * Applied Climatology Study Program, Bogor Agricultural University, Indonesia ([bennyistanto@ipb.ac.id](mailto:bennyistanto@ipb.ac.id))
