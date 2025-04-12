@@ -8,7 +8,7 @@
 # Book settings
 title: Hybrid Bias Correction
 author: Benny Istanto
-logo: docs/images/lseqmdl.png
+logo: docs/images/lseqmdl-logo.png
 copyright: "2025"
 # Patterns to skip when building the book. Can be glob-style (e.g. "*skip.ipynb")
 exclude_patterns: [_build, Thumbs.db, .DS_Store, "**.ipynb_checkpoints"]
@@ -76,7 +76,7 @@ bibtex_bibfiles:
 # HTML-specific settings
 # See https://jupyterbook.org/customize/config.html#add-a-link-to-your-repository
 html:
-  favicon: docs/images/favicon.ico # A path to a favicon image
+  favicon: docs/images/favicon.png # A path to a favicon image
   home_page_in_navbar: true  # Whether to include your home page in the left Navigation Bar
   use_edit_page_button: true  # Whether to add an "edit this page" button to pages. If `true`, repository information in repository: must be filled in
   use_repository_button: true # Whether to add a link to your repository button

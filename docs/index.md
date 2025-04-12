@@ -2,7 +2,7 @@
 
 Welcome to the documentation for the **Hybrid Bias Correction** project. This project aims to enhance the accuracy and reliability of satellite-based precipitation estimates by correcting systematic biases and aligning data distributions with ground observations.
 
-![LSEQM+DL](docs/images/lseqmdl.png "LSEQM+DL")
+![LSEQM+DL](./images/lseqmdl.png "LSEQM+DL")
 
 The workflow integrates several key components:
 
