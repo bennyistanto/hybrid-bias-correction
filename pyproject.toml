@@ -3,23 +3,16 @@ requires = ["hatchling>=1.21.0", "hatch-vcs>=0.3.0"]
 build-backend = "hatchling.build"
 
 [project]
-name = "template"
-description = "A template Python package from the World Bank Data Lab"
+name = "hybrid-bias-correction"  # Updated project name
+description = "A hybrid bias correction workflow for satellite precipitation"
 readme = { file = "README.md", content-type = "text/markdown" }
 license = { file = "LICENSE" }
-keywords = ["template", "reproducibility"]
-authors = [{ name = "Development Data Group", email = "datalab@worldbank.org" }]
+keywords = ["bias correction", "satellite precipitation estimates", "deep learning", "empirical quantile mapping", "linear scaling"]
+authors = [{ name = "Benny Istanto", email = "bistanto@worldbank.org" }]
 classifiers = [
 	"Programming Language :: Python :: 3",
-	"Programming Language :: Python :: 3.7",
-	"Programming Language :: Python :: 3.8",
-	"Programming Language :: Python :: 3.9",
-	"Programming Language :: Python :: 3.10",
-	"Programming Language :: Python :: 3.11",
-	"Programming Language :: Python :: 3 :: Only",
 	"License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
 	"Operating System :: OS Independent",
-	"Intended Audience :: Developers",
 	"Topic :: Scientific/Engineering",
 ]
 dynamic = ["version"]
@@ -31,26 +24,27 @@ dependencies = [
 	"pandas>=2",
 	"pycountry>=22.3.5",
 ]
+
 [project.optional-dependencies]
 docs = [
-	"docutils==0.17.1", # pinned to docutils==0.17.1 due to https://github.com/worldbank/template/issues/60. See also: https://jupyterbook.org/en/stable/content/citations.html?highlight=docutils#citations-and-bibliographies
+	"docutils==0.17.1",
 	"jupyter-book>=1,<2",
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/worldbank/template"
-"Bug Reports" = "https://github.com/worldbank/template/issues"
-"Source" = "https://github.com/worldbank/template"
-
-[tool.codespell]
-skip = 'docs/_build,docs/bibliography.bib,*.png,*.gz,*.whl'
-ignore-regex = '^\s*"image\/png":\s.*'
-ignore-words-list = "gost,Nd"
+Homepage = "https://github.com/bennyistanto/hybrid-bias-correction"
+"Bug Reports" = "https://github.com/bennyistanto/hybrid-bias-correction/issues"
+Source = "https://github.com/bennyistanto/hybrid-bias-correction"
 
 [tool.hatch.build.targets.sdist]
 include = [
     "src/**/*"
 ]
+
+# Add explicit configuration for building a wheel:
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+only-include = ["src/**/*"]
 
 [tool.hatch.version]
 source = "vcs"
