@@ -36,7 +36,10 @@ Feel free to navigate the sections as needed. For more details on how the method
 ## Notes & Limitations
 
 - **Data Format:**  
-  The hybrid bias correction workflow is designed to operate on gridded precipitation data for both the satellite estimates and the observations. This ensures that spatial consistency is maintained throughout the correction process.
+  The hybrid bias correction workflow is designed to operate on gridded precipitation daily timeseries in single file with NetCDF format. This format supports multidimensional computations across both space and time, ensuring that essential metadata (e.g., units, coordinate information, and temporal resolution) is preserved for proper analysis.
+
+- **Data Structure:**  
+  Consistency in data structure is critical. The workflow expects that both satellite estimates and ground observations are provided as gridded datasets with matching spatial and temporal dimensions. Preprocessing steps—such as regridding, aligning time indices, and ensuring a monotonic time series—are essential to ensure that the input data conforms to the expected structure for the bias correction process.
 
 - **Test Case:**  
   The current implementation has been tested using [CPC-UNI](https://psl.noaa.gov/data/gridded/data.cpc.globalprecip.html) as the gridded reference dataset and [IMERG-L](https://gpm.nasa.gov/data/imerg) as the satellite input. Users employing different datasets or resolutions may need to adjust parameters or perform additional preprocessing steps.
@@ -55,9 +58,9 @@ See LICENSE for the full license text or visit [https://www.mozilla.org/en-US/MP
 
 ## Authors
 
-[Benny Istanto](https://benny.istan.to)
+[Benny Istanto](https://benny.istan.to/about)
 
 - Geospatial Operations Support Team, DECSC/DEC Data Group, The World Bank, United States ([bistanto@worldbank.org](mailto:bistanto@worldbank.org))
-- Applied Climatology Study Program, Graduate School, Bogor Agricultural University, Indonesia ([bistanto@ipb.ac.id](mailto:bistanto@ipb.ac.id))
+- Applied Climatology Study Program, Graduate School, Bogor Agricultural University, Indonesia ([bennyistanto@ipb.ac.id](mailto:bennyistanto@ipb.ac.id))
 
-With supervision from [Prof. Rizaldi Boer](https://scholar.google.co.id/citations?user=jTPXEp8AAAAJ&hl=id) and [Dr. I Putu Santikayasa](https://scholar.google.com/citations?user=DcQ58z8AAAAJ&hl=en).
+With supervision from [Prof. Rizaldi Boer](https://scholar.google.co.id/citations?user=jTPXEp8AAAAJ&hl=id) and [Dr. I Putu Santikayasa](https://scholar.google.com/citations?user=DcQ58z8AAAAJ&hl=en) as part of the MSc theses.

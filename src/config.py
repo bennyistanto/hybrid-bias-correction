@@ -50,7 +50,7 @@ import numpy as np
 # +++++++++++++++++++++++++++++++++++++++++
 
 # Default directories (these can be overridden)
-main_dir = f'/content/drive/MyDrive/exercises/gfm1609'
+main_dir = f'/content/drive/MyDrive/hybrid-bias-correction'
 input_dir = f'{main_dir}/data/bc/input'
 output_dir = f'{main_dir}/data/bc/output'
 

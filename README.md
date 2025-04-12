@@ -26,6 +26,6 @@ See LICENSE for the full license text or visit [https://www.mozilla.org/en-US/MP
 [Benny Istanto](https://benny.istan.to)
 
 * GOST/DECSC/DEC Data Group, The World Bank, United States ([bistanto@worldbank.org](mailto:bistanto@worldbank.org))
-* Applied Climatology Study Program, Bogor Agricultural University, Indonesia ([bistanto@ipb.ac.id](mailto:bistanto@ipb.ac.id))
+* Applied Climatology Study Program, Bogor Agricultural University, Indonesia ([bennyistanto@ipb.ac.id](mailto:bennyistanto@ipb.ac.id))
 
-With supervision from [Prof. Rizaldi Boer](https://scholar.google.co.id/citations?user=jTPXEp8AAAAJ&hl=id) and [Dr. I Putu Santikayasa](https://scholar.google.com/citations?user=DcQ58z8AAAAJ&hl=en).
+With supervision from [Prof. Rizaldi Boer](https://scholar.google.co.id/citations?user=jTPXEp8AAAAJ&hl=id) and [Dr. I Putu Santikayasa](https://scholar.google.com/citations?user=DcQ58z8AAAAJ&hl=en) as part of the MSc theses.

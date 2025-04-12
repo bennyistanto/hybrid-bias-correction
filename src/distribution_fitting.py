@@ -27,7 +27,9 @@ import numpy as np
 import logging
 from scipy.stats import gamma, genpareto
 from sklearn.model_selection import KFold
-from .config import N_SPLITS_GPD_CROSSVALIDATE, GPD_THRESHOLD_PERCENTILE, UPPER_CAP_THRESHOLD_PERCENTILE
+from .config import (N_SPLITS_GPD_CROSSVALIDATE, 
+                     GPD_THRESHOLD_PERCENTILE, 
+                     UPPER_CAP_THRESHOLD_PERCENTILE)
 
 # +++++++++++++++++++++++++++++++++++++++++
 # Functions

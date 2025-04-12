@@ -23,9 +23,9 @@ import os
 import numpy as np
 import xarray as xr
 import logging
-from tensorflow.keras.models import load_model, Sequential
-from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, Dropout, Flatten, Dense, Reshape
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+from tensorflow.keras.models import load_model, Sequential # type: ignore
+from tensorflow.keras.layers import Input, Conv2D, MaxPooling2D, Dropout, Flatten, Dense, Reshape # type: ignore
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint # type: ignore
 from .config import (DL_EPOCHS, DL_BATCH_SIZE, DL_VALIDATION_SPLIT,
                     DL_EARLY_STOPPING_PATIENCE, DL_DROPOUT_RATE_1, DL_DROPOUT_RATE_2,
                     DL_DROPOUT_RATE_DENSE, DL_FILTER_SIZE_1, DL_FILTER_SIZE_2,
