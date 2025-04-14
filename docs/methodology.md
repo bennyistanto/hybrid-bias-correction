@@ -6,7 +6,7 @@ Bias correction of satellite-based precipitation estimates is crucial in climate
 
 The proposed bias correction framework sequentially improves satellite precipitation estimates through multiple processing steps. First, Linear Scaling (LS) adjusts the overall magnitude to match ground observations. Then, Empirical Quantile Mapping (EQM) with tail adjustment via a Generalized Pareto Distribution (GPD) is applied to align the entire distribution of the satellite data with the observed data. Finally, a Deep Learning (DL) model is incorporated to further refine the EQM-corrected output—specifically targeting extreme events and local spatial variability. This multi-step approach ensures both typical and exceptional rainfall behaviors are accurately represented.
 
-![lseqmdl_xkcd](docs/images/framework.png)
+![lseqmdl_xkcd](./images/framework.png)
 
 Figure 1. LSEQM+DL conceptual framework
 

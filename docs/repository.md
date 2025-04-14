@@ -1,5 +1,4 @@
-
-# Repository Structure and Code Organization
+# Repository Structure
 
 The source code for the Hybrid Bias Correction project is hosted on GitHub at [https://github.com/bennyistanto/hybrid-bias-correction](https://github.com/bennyistanto/hybrid-bias-correction). The repository is organized into several key folders:
 
@@ -7,8 +6,8 @@ The source code for the Hybrid Bias Correction project is hosted on GitHub at [h
 - **docs/**: Contains the documentation for the project.
 - **notebooks/**: Includes example notebooks demonstrating how to run the workflow in a practical setting.
 - **src/**: Contains the core Python modules that implement the bias correction workflow.
-- **README.md**: Provides an overview of the project and basic instructions.
-- **requirements.txt**: Lists the Python packages required for the project.
+- **README**: Provides an overview of the project and basic instructions.
+- **requirements**: Lists the Python packages required for the project.
 
 Below is a snapshot of the repository structure:
 

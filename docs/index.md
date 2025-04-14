@@ -1,8 +1,10 @@
-# Hybrid Bias Correction for Satellite Precipitation
+# Hybrid Bias Correction
+
+**Enhancing Daily Satellite Precipitation Estimates:** Adjusting Values, Aligning Distributions, and Preserving Extremes
+
+---
 
 Welcome to the documentation for the **Hybrid Bias Correction** project. This project aims to enhance the accuracy and reliability of satellite-based precipitation estimates by correcting systematic biases and aligning data distributions with ground observations.
-
-![LSEQM+DL](./images/lseqmdl.png "LSEQM+DL")
 
 The workflow integrates several key components:
 
@@ -58,9 +60,9 @@ See LICENSE for the full license text or visit [https://www.mozilla.org/en-US/MP
 
 ## Authors
 
-[Benny Istanto](https://benny.istan.to/about)
+**Benny Istanto** - [https://benny.istan.to/about](https://benny.istan.to/about)
 
-- Geospatial Operations Support Team, DECSC/DEC Data Group, The World Bank, United States ([bistanto@worldbank.org](mailto:bistanto@worldbank.org))
+- Geospatial Operations Support Team, DEC Data Group, The World Bank, United States ([bistanto@worldbank.org](mailto:bistanto@worldbank.org))
 - Applied Climatology Study Program, Graduate School, Bogor Agricultural University, Indonesia ([bennyistanto@ipb.ac.id](mailto:bennyistanto@ipb.ac.id))
 
 With supervision from [Prof. Rizaldi Boer](https://scholar.google.co.id/citations?user=jTPXEp8AAAAJ&hl=id) and [Dr. I Putu Santikayasa](https://scholar.google.com/citations?user=DcQ58z8AAAAJ&hl=en) as part of the MSc theses.
@@ -68,3 +70,5 @@ With supervision from [Prof. Rizaldi Boer](https://scholar.google.co.id/citation
 ---
 
 *This is a living document that will be updated as we develop and refine our methodology for daily precipitation bias correction. Feedback and contributions are welcome.*
+
+![LSEQM+DL](./images/lseqmdl.png "LSEQM+DL")

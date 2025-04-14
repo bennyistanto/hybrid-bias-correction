@@ -11,7 +11,7 @@ hybrid-bias-correction/
 │   ├── distribution_fitting.py  # Functions for calculating L-moments, gamma and GPD fitting, and quantile mapping
 │   ├── io.py                    # Functions for file I/O, saving NetCDF files, and data aggregation
 │   ├── deep_learning.py         # Functions for training and applying the deep learning model
-└ └── bias_correction.py       # High-level bias correction workflow (LS + EQM [+ DL])
+└── └── bias_correction.py       # High-level bias correction workflow (LS + EQM [+ DL])
 ```
 
 ## Initialization
@@ -310,7 +310,7 @@ __Key Functions/Content:__
 
     :::
 
-## io.py
+## Input/Output
 
 The `io.py` module focuses on file input/output operations for the workflow. It provides functions to save corrected precipitation datasets, handle time aggregation, and manage NetCDF file operations.
 
@@ -550,7 +550,7 @@ __Key Functions:__
 
   :::
 
-## utility.py
+## Utility
 
 The `utility.py` module provides helper functions that support data preparation and I/O management throughout the bias correction workflow.
 
@@ -1043,7 +1043,7 @@ __Key Functions:__
 
   :::
   
-## deep_learning.py
+## Deep Learning
 
 The `deep_learning.py` module handles all functions related to training and applying the deep learning (DL) model for bias correction. The DL component refines the EQM-corrected precipitation by further adjusting pixel-level extreme values.
 
@@ -1344,9 +1344,9 @@ __Key Functions:__
 
   :::
   
-## bias_correction.py
+## Bias Correction
 
-This module contains the high-level workflow function for bias correction. It orchestrates the process by combining the following steps:
+This `bias_correction.py` module contains the high-level workflow function for bias correction. It orchestrates the process by combining the following steps:
 
 - __Linear Scaling (LS):__ Adjusts the overall magnitude of the IMERG data using the ratio of CPC to IMERG means.
 - __Empirical Quantile Mapping (EQM):__ Aligns the distributions via gamma quantile mapping with tail adjustment.
