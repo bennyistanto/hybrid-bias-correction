@@ -33,7 +33,23 @@ This documentation is structured to guide you through the methodology, code stru
 
 ---
 
-Feel free to navigate the sections as needed. For more details on how the methods work under the hood, check out the **Methodology** section.
+## Prerequisites
+
+To effectively use this documentation and run the bias correction workflow, users should be familiar with:
+
+- **Python and Jupyter Notebook:**  
+  Basic programming in Python and navigating Jupyter notebooks are essential for running the provided code and modifying examples.
+  
+- **Basic Statistics:**  
+  An understanding of fundamental statistical concepts such as mean, variance, distribution functions, and quantile mapping will help you grasp the bias correction methods.
+  
+- **Climate Analytics & Earth Observation:**  
+  Familiarity with climate datasets, especially gridded, multidimensional data (e.g., NetCDF), is beneficial. The workflow is designed to work with daily precipitation timeseries from satellite (e.g., IMERG) and observational data (e.g., CPC-UNI).
+  
+- **Data Preprocessing:**  
+  Knowledge of geospatial data processing (e.g., regridding, aligning time series) is useful, since consistent data structure and formatting are crucial for bias correction.
+
+---
 
 ## Notes & Limitations
 
@@ -44,7 +60,7 @@ Feel free to navigate the sections as needed. For more details on how the method
   Consistency in data structure is critical. The workflow expects that both satellite estimates and ground observations are provided as gridded datasets with matching spatial and temporal dimensions. Preprocessing steps—such as regridding, aligning time indices, and ensuring a monotonic time series—are essential to ensure that the input data conforms to the expected structure for the bias correction process.
 
 - **Test Case:**  
-  The current implementation has been tested using [CPC-UNI](https://psl.noaa.gov/data/gridded/data.cpc.globalprecip.html) as the gridded reference dataset and [IMERG-L](https://gpm.nasa.gov/data/imerg) as the satellite input. Users employing different datasets or resolutions may need to adjust parameters or perform additional preprocessing steps.
+  The current implementation has been tested using [CPC-UNI](https://psl.noaa.gov/data/gridded/data.cpc.globalprecip.html) as the gridded reference dataset and [IMERG](https://gpm.nasa.gov/data/imerg) as the satellite input. Users employing different datasets or resolutions may need to adjust parameters or perform additional preprocessing steps.
 
 - **Deep Learning Component:**  
   While the DL enhancement refines the corrections for extreme events and spatial variability, its performance is dependent on the quality and representativeness of the training data. Users may need to retrain the model for significantly different data sources or regions.
@@ -69,6 +85,11 @@ With supervision from [Prof. Rizaldi Boer](https://scholar.google.co.id/citation
 
 ---
 
+:::{admonition} Note!
+:class: note
+
 *This is a living document that will be updated as we develop and refine our methodology for daily precipitation bias correction. Feedback and contributions are welcome.*
+
+:::
 
 ![LSEQM+DL](./images/lseqmdl.png "LSEQM+DL")

@@ -4,10 +4,10 @@ This research only use publicly available data on the internet and utilize free 
 
 There are two data will be used in this analysis.
 
-1. **IMERG-L:**
-   The Global Precipitation Measurement (GPM) Integrated Multi-satellite Retrievals for GPM ([IMERG](https://gpm.nasa.gov/data/imerg)) dataset is a high-resolution satellite product that estimates global precipitation. IMERG combines data from multiple satellites to offer near real-time precipitation measurements, with a spatial resolution of 0.1 degrees and a temporal resolution of 30-minutes, daily and monthly.
+1. **IMERG:**
+   The Global Precipitation Measurement (GPM) Integrated Multi-satellite Retrievals for GPM ([IMERG](https://gpm.nasa.gov/data/imerg)) dataset is a high-resolution satellite product that estimates global precipitation. IMERG combines data from multiple satellites to offer near real-time precipitation measurements, with a spatial resolution of 0.1-degrees and a temporal resolution of 30-minutes, daily and monthly.
 
-   This dataset is particularly valuable for monitoring and analyzing precipitation patterns, especially in regions with sparse ground-based observations. IMERG data are accessible via the NASA Goddard Earth Sciences Data and Information Services Center ([GES DISC](https://disc.gsfc.nasa.gov/#!)) and available in GEE Data Catalog for large-scale analyses. IMERG Late Run (IMERG-L), which has a latency of around 12-18 hours, will be used for the analysis.
+   This dataset is particularly valuable for monitoring and analyzing precipitation patterns, especially in regions with sparse ground-based observations. IMERG data are accessible via the NASA Goddard Earth Sciences Data and Information Services Center ([GES DISC](https://disc.gsfc.nasa.gov/#!)) and available in GEE Data Catalog for large-scale analyses. **IMERG Late Run** (IMERG-L), which has a latency of around 12-18 hours, will be used for the analysis.
 
    ![IMERG](./images/imerg-20250412.png)
 

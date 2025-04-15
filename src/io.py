@@ -11,7 +11,7 @@ It also uses utility functions for applying a land-sea mask and prompting the us
 
 **Author**:
   Benny Istanto
-  - GOST/DECSC/DEC Data Group, The World Bank, United States. Email: bistanto@worldbank.org
+  - Geospatial Operations Support Team, DEC Data Group, The World Bank, United States. Email: bistanto@worldbank.org
   - Applied Climatology Study Program, Bogor Agricultural University, Indonesia. Email: bennyistanto@ipb.ac.id
 
   with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
