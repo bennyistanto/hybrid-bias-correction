@@ -1,6 +1,6 @@
 # Hybrid Bias Correction
 
-Hybrid Bias Correction (LSEQM+DL) is a Python-based workflow for correcting biases in daily precipitation data. It combines traditional methods—Linear Scaling (LS) and Empirical Quantile Mapping (EQM)—with an optional Deep Learning (DL) component to improve the correction, particularly for extreme events.
+Hybrid Bias Correction (LSEQM+DL) is a Python-based workflow for correcting biases in gridded daily precipitation data. It combines traditional methods—Linear Scaling (LS) and Empirical Quantile Mapping (EQM)—with an optional Deep Learning (DL) component to improve the correction, particularly for extreme events.
 
 ![LSEQM+DL](docs/images/lseqmdl.png "LSEQM+DL")
 
@@ -8,12 +8,9 @@ Hybrid Bias Correction (LSEQM+DL) is a Python-based workflow for correcting bias
 
 Visit the documentation via this link: [https://bennyistanto.github.io/hybrid-bias-correction](https://bennyistanto.github.io/hybrid-bias-correction)
 
-:::{admonition} Note!
-:class: note
-
-*This is a living document that will be updated as we develop and refine our methodology for daily precipitation bias correction. Feedback and contributions are welcome.*
-
-:::
+> [!NOTE]
+>
+> *This is a living document that will be updated as we develop and refine our methodology for daily precipitation bias correction. Feedback and contributions are welcome.*
 
 ## Prerequisites
 
@@ -37,6 +34,8 @@ Contributions and suggestions are welcome. Please open an issue or submit a pull
 
 This project is licensed under the Mozilla Public License 2.0.
 See LICENSE for the full license text or visit [https://www.mozilla.org/en-US/MPL/2.0/](https://www.mozilla.org/en-US/MPL/2.0/).
+
+[![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-FF7139.svg?style=for-the-badge)](https://www.mozilla.org/en-US/MPL/2.0/)
 
 ## Authors
 

@@ -74,6 +74,8 @@ Contributions and suggestions are welcome. Please open an issue or submit a pull
 This project is licensed under the Mozilla Public License 2.0.
 See LICENSE for the full license text or visit [https://www.mozilla.org/en-US/MPL/2.0/](https://www.mozilla.org/en-US/MPL/2.0/).
 
+[![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-FF7139.svg?style=for-the-badge)](https://www.mozilla.org/en-US/MPL/2.0/)
+
 ## Authors
 
 **Benny Istanto** - [https://benny.istan.to/about](https://benny.istan.to/about)
