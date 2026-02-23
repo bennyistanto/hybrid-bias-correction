@@ -3,7 +3,8 @@ Module: utility.py
 
 This module provides utility functions used throughout the bias correction workflow.
 It includes functions for:
-  - Prompting the user for a decision when an output file already exists.
+  - Prompting the user for a decision when an output file already exists (with non-interactive support).
+  - Loading and caching the land-sea mask to avoid repeated I/O.
   - Applying a land-sea mask to xarray datasets.
   - Ensuring that the time index of a dataset is strictly monotonic and free of duplicates.
   - Reindexing and aligning datasets with a reference dataset.
@@ -29,71 +30,142 @@ import logging
 # +++++++++++++++++++++++++++++++++++++++++
 
 # Global variable to store user decision if a file already exists
-user_choice = None
+_user_choice = None
+
+# Cache for the land-sea mask to avoid repeated file I/O
+_mask_cache = {}
+
+
+def reset_user_choice():
+    """Reset the stored user choice (useful when processing a new batch)."""
+    global _user_choice
+    _user_choice = None
+
 
 # User decision on existing files
-def set_user_decision():
+def set_user_decision(interactive=None):
     """
-    Prompt the user for a decision when an output file already exists and return the decision.
+    Get the user's decision when an output file already exists.
+
+    In interactive mode, prompts the user once and remembers the choice for the session.
+    In non-interactive mode, returns the default action from config.
+
+    Parameters:
+    ----------
+    interactive : bool, optional
+        Override the config INTERACTIVE setting. If None, uses config value.
 
     Returns:
-      str: The user's decision - 'O' for Overwrite, 'S' for Skip, or 'A' for Abort.
+    ----------
+    str
+        The user's decision - 'O' for Overwrite, 'S' for Skip, or 'A' for Abort.
     """
-    global user_choice
-    if user_choice is None:
+    global _user_choice
+
+    # Determine interactive mode
+    if interactive is None:
+        from .config import INTERACTIVE
+        interactive = INTERACTIVE
+
+    if _user_choice is not None:
+        return _user_choice
+
+    if not interactive:
+        # Non-interactive: use default from config
+        from .config import EXISTING_FILE_ACTION
+        action_map = {
+            'overwrite': 'O',
+            'skip': 'S',
+            'abort': 'A'
+        }
+        _user_choice = action_map.get(EXISTING_FILE_ACTION.lower(), 'S')
+        logging.info(f"Non-interactive mode: using '{EXISTING_FILE_ACTION}' for existing files")
+        return _user_choice
+
+    # Interactive: prompt the user
+    decision = input(
+        "An output file already exists. Do you want to Overwrite (O), Skip (S), or Abort (A): "
+    ).upper()
+    while decision not in ['O', 'S', 'A']:
+        logging.info("Invalid choice. Please choose again.")
         decision = input(
-            "An output file already exists. Do you want to Overwrite (O), Skip (S), or Abort (A): "
+            "Choose an action - Overwrite (O), Skip (S), Abort (A): "
         ).upper()
-        while decision not in ['O', 'S', 'A']:
-            logging.info("Invalid choice. Please choose again.")
-            decision = input(
-                "Choose an action - Overwrite (O), Skip (S), Abort (A): "
-            ).upper()
-        user_choice = decision
-    return user_choice
+    _user_choice = decision
+    return _user_choice
+
+
+# ----
+# Load and cache the land-sea mask
+def load_mask(mask_file, mask_var=None):
+    """
+    Load the land-sea mask from a NetCDF file, with caching to avoid repeated I/O.
+
+    The mask is loaded once per unique file path and cached for subsequent calls.
+
+    Parameters:
+    ----------
+    mask_file : str
+        Path to the NetCDF file containing the land-sea mask.
+    mask_var : str, optional
+        Variable name for the land mask. If None, uses config.MASK_VAR.
+
+    Returns:
+    ----------
+    xarray.DataArray
+        The land-sea mask (1 = land, 0 = sea/ocean).
+    """
+    if mask_var is None:
+        from .config import MASK_VAR
+        mask_var = MASK_VAR
+
+    if mask_file not in _mask_cache:
+        logging.info(f"Loading land-sea mask from {mask_file} (will be cached)")
+        from .config import NETCDF_ENGINE
+        with xr.open_dataset(mask_file, engine=NETCDF_ENGINE) as mask_ds:
+            # Load into memory so the file handle can be closed
+            _mask_cache[mask_file] = mask_ds[mask_var].load()
+    return _mask_cache[mask_file]
+
 
 # ----
 # Apply the mask to take out the sea
 def apply_land_sea_mask(
         data,
-        mask_file
+        mask_file,
+        mask_var=None
     ):
     """
     Apply the land-sea mask to the input dataset.
 
+    Uses cached mask to avoid repeated file I/O. The mask is interpolated
+    (nearest-neighbor) to match the data resolution if needed.
+
     Parameters:
-    data (xarray.DataArray or xarray.Dataset): The data to which the land-sea mask should be applied.
-    mask_file (str): Path to the NetCDF file containing the land-sea mask.
+    ----------
+    data : xarray.DataArray or xarray.Dataset
+        The data to which the land-sea mask should be applied.
+    mask_file : str
+        Path to the NetCDF file containing the land-sea mask.
+    mask_var : str, optional
+        Variable name for the land mask. If None, uses config.MASK_VAR.
 
     Returns:
-    xarray.DataArray or xarray.Dataset: The data with the land-sea mask applied, keeping only land areas.
+    ----------
+    xarray.DataArray or xarray.Dataset
+        The data with the land-sea mask applied (ocean pixels set to NaN).
     """
-    # Load the land-sea mask from the external NetCDF file
-    mask_ds = xr.open_dataset(mask_file)
-
-    # Create a boolean mask from the 'land' variable
-    land_sea_mask = mask_ds['land']
-
-    # Log ranges and shapes
-    logging.info(f"Data shape: {data.shape}, Mask shape: {land_sea_mask.shape}")
-    logging.info(f"Data lat range: {data.lat.min().values} to {data.lat.max().values}")
-    logging.info(f"Mask lat range: {land_sea_mask.lat.min().values} to {land_sea_mask.lat.max().values}")
-    logging.info(f"Data lon range: {data.lon.min().values} to {data.lon.max().values}")
-    logging.info(f"Mask lon range: {land_sea_mask.lon.min().values} to {land_sea_mask.lon.max().values}")
+    # Load mask from cache
+    land_sea_mask = load_mask(mask_file, mask_var)
 
     # Interpolate the mask to match data resolution
-    land_sea_mask_reindexed = land_sea_mask.interp(lat=data.lat, lon=data.lon, method="nearest")
+    land_sea_mask_reindexed = land_sea_mask.interp(
+        lat=data.lat, lon=data.lon, method="nearest"
+    )
 
-    # Log interpolated mask shape
-    logging.info(f"Reindexed mask shape: {land_sea_mask_reindexed.shape}")
-
-    # Apply the mask
-    masked_data = data.where(land_sea_mask_reindexed == 1, drop=True)
-
-    # Log resulting data shape
-    logging.info(f"Masked data shape: {masked_data.shape}")
-
-    mask_ds.close()
+    # Apply the mask: set ocean pixels to NaN (not drop)
+    # Using drop=False preserves the grid structure while marking ocean as NaN
+    masked_data = data.where(land_sea_mask_reindexed == 1)
 
     return masked_data
 
@@ -106,10 +178,14 @@ def ensure_strict_monotonic_time(
     Ensure the time index in the dataset is strictly monotonic, sorted, and duplicates are removed.
 
     Parameters:
-    ds (xarray.Dataset): The dataset to process.
+    ----------
+    ds : xarray.Dataset
+        The dataset to process.
 
     Returns:
-    xarray.Dataset: The dataset with a cleaned and strictly monotonic time index.
+    ----------
+    xarray.Dataset
+        The dataset with a cleaned and strictly monotonic time index.
     """
     # Sort by time to ensure monotonicity
     ds = ds.sortby('time')

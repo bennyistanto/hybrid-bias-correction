@@ -94,4 +94,4 @@ With supervision from [Prof. Rizaldi Boer](https://scholar.google.co.id/citation
 
 :::
 
-![LSEQM+DL](./images/lseqmdl.png "LSEQM+DL")
+![LSEQM+DL](./images/lseqmdl-banner.png "LSEQM+DL")

@@ -17,18 +17,78 @@ classifiers = [
 ]
 dynamic = ["version"]
 
-requires-python = ">=3.7"
+requires-python = ">=3.10,<3.14"
 dependencies = [
-	"bokeh>=3,<4",
-	"requests>=2.28.1",
+	# Core scientific stack
+	"numpy>=1.24",
+	"scipy>=1.10",
 	"pandas>=2",
-	"pycountry>=22.3.5",
+	"xarray>=2023.1",
+	"dask>=2023.1",
+	# NetCDF / climate data I/O
+	"netCDF4>=1.6",
+	"h5netcdf>=1.1",
+	"cftime>=1.6",
+	"pyyaml>=6.0",
+	# Machine learning utilities
+	"scikit-learn>=1.2",
+	# Visualization
+	"matplotlib>=3.7",
+	"cartopy>=0.22",
+	"seaborn>=0.12",
+	"bokeh>=3,<4",
 ]
 
 [project.optional-dependencies]
+geo = [
+	# Geospatial data processing
+	"rasterio>=1.3",
+	"geopandas>=0.13",
+	"shapely>=2.0",
+	"fiona>=1.9",
+	"pyproj>=3.5",
+	"regionmask>=0.10",
+	# Regridding
+	"xesmf>=0.8",
+	# GRIB support
+	"cfgrib>=0.9",
+	# Extra colormaps
+	"cmocean>=3.0",
+]
+dl = [
+	# Deep Learning — only needed for the DL refinement step
+	"tensorflow>=2.16",
+]
+all = [
+	# Everything: geo + DL + extras
+	"hybrid-bias-correction[geo,dl]",
+	"requests>=2.28.1",
+	"pycountry>=22.3.5",
+]
+jupyter = [
+	# Core Jupyter interfaces
+	"jupyterlab>=4.0",
+	"notebook>=7.0",
+	"ipykernel>=6.0",
+	# Widgets and rich display
+	"ipywidgets>=8.0",
+	"nbformat>=5.9",
+	"nbconvert>=7.0",
+	# Productivity extensions
+	"tqdm>=4.65",
+	"jupyterlab-git>=0.50",
+	"jupyterlab-lsp>=5.0",
+	"python-lsp-server>=1.9",
+	"jupyter-contrib-nbextensions",
+]
 docs = [
 	"docutils==0.17.1",
 	"jupyter-book>=1,<2",
+]
+dev = [
+	# Everything for development: jupyter + linting
+	"hybrid-bias-correction[jupyter]",
+	"ruff",
 ]
 
 [project.urls]

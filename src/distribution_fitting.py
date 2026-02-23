@@ -3,11 +3,12 @@ Module: distribution_fitting.py
 
 This module contains functions for statistical distribution fitting and quantile mapping
 used in the bias correction workflow. It includes functions for:
-  - Calculating L-moments and L-moment ratios.
-  - Fitting a gamma distribution using L-moments.
+  - Calculating L-moments and L-moment ratios (using unbiased PWM estimators from Hosking 1990).
+  - Fitting a gamma distribution using MLE (scipy.stats.gamma.fit with floc=0).
   - Fitting a Generalized Pareto Distribution (GPD) to data above a threshold.
   - Performing K-Fold cross-validation to obtain stable GPD parameters.
-  - Applying gamma distribution-based quantile mapping with tail adjustment.
+  - Applying gamma distribution-based quantile mapping with GPD tail adjustment
+    using proper conditional probability mapping for extreme values.
 
 Dependencies:
   - Imports default parameters from the config module.
@@ -45,6 +46,10 @@ def calculate_l_moments(
     L-moments are statistics used to describe the shape of a probability distribution.
     They are analogous to conventional moments but can be more robust to outliers.
 
+    Uses the unbiased PWM estimators from Hosking (1990):
+        b_r = (1/n) * sum_{i=1}^{n} C(i-1,r)/C(n-1,r) * x_{i:n}
+    where x_{i:n} are the order statistics.
+
     Parameters:
     data (numpy.ndarray): The input data.
 
@@ -56,18 +61,28 @@ def calculate_l_moments(
     sorted_data = np.sort(data)
     n = len(data)
 
+    if n < 4:
+        logging.warning("Insufficient data points for L-moment calculation (need >= 4)")
+        return np.nan, np.nan, np.nan, np.nan, np.nan, np.nan, np.nan
+
     # Calculate the first four probability weighted moments (PWMs)
-    # PWMs are precursors to L-moments and are defined as:
-    # β_r = E[X * F^r(X)], where F is the cumulative distribution function
+    # Using unbiased estimators from Hosking (1990):
+    # b_r = (1/n) * sum_{i=0}^{n-1} [C(i,r) / C(n-1,r)] * x_{i:n}
+    # where i is zero-based index into sorted_data
+
+    i = np.arange(n)  # 0, 1, ..., n-1
 
     # b0 is simply the mean of the data
     b0 = np.mean(sorted_data)
 
-    # b1, b2, b3 are calculated using discrete estimators
-    # The formulas use combinatorial weights based on the sorted data
-    b1 = np.sum((np.arange(1, n) * sorted_data[1:]) / (n * (n - 1)))
-    b2 = np.sum((np.arange(1, n-1) * (np.arange(2, n) * sorted_data[2:])) / (n * (n - 1) * (n - 2)))
-    b3 = np.sum((np.arange(1, n-2) * (np.arange(2, n-1) * (np.arange(3, n) * sorted_data[3:]))) / (n * (n - 1) * (n - 2) * (n - 3)))
+    # b1: weights = i / (n-1)
+    b1 = np.sum(i / (n - 1) * sorted_data) / n
+
+    # b2: weights = i*(i-1) / ((n-1)*(n-2))
+    b2 = np.sum(i * (i - 1) / ((n - 1) * (n - 2)) * sorted_data) / n
+
+    # b3: weights = i*(i-1)*(i-2) / ((n-1)*(n-2)*(n-3))
+    b3 = np.sum(i * (i - 1) * (i - 2) / ((n - 1) * (n - 2) * (n - 3)) * sorted_data) / n
 
     # Calculate L-moments
     # L-moments are linear combinations of PWMs
@@ -85,15 +100,17 @@ def calculate_l_moments(
     return l1, l2, l3, l4, t2, t3, t4
 
 # ----
-# Function to fit a gamma distribution using L-moments
-def fit_gamma_with_l_moments(
+# Function to fit a gamma distribution
+def fit_gamma_distribution(
         data
     ):
     """
-    Fit a gamma distribution to the data using L-moments.
+    Fit a gamma distribution to the data using Maximum Likelihood Estimation (MLE)
+    via scipy.stats.gamma.fit with location fixed at zero.
 
-    The gamma distribution is a two-parameter continuous probability distribution.
-    It's often used to model positive-valued random variables.
+    For precipitation data, the gamma distribution is a natural choice as it models
+    positive-valued, right-skewed random variables. Fixing loc=0 ensures the distribution
+    starts at zero, which is physically meaningful for precipitation.
 
     Parameters:
     data (numpy.ndarray): Array of data values.
@@ -102,34 +119,35 @@ def fit_gamma_with_l_moments(
     tuple: Fitted parameters (shape, loc, scale) of the gamma distribution.
     """
     # Remove NaN values from data
-    # This is important because NaNs can affect the calculation of L-moments
     data = data[~np.isnan(data)]
 
     # If no data left after removing NaNs, return default values
-    # This prevents errors in case of all-NaN input
     if len(data) == 0:
+        logging.warning("No valid data for gamma fitting, returning defaults")
         return 1, 0, 1  # Default values: shape=1, loc=0, scale=1
 
-    # Calculate L-moments
-    # We only need l1 (mean), l2 (L-scale), and t2 (L-CV) for gamma fitting
-    l1, l2, _, _, t2, _, _ = calculate_l_moments(data)
+    # Filter to positive values only (gamma distribution requires positive data)
+    positive_data = data[data > 0]
 
-    # Estimate the gamma parameters using the L-moments
-    # The shape parameter (k) is estimated using the L-CV (t2)
-    # The relationship between shape and L-CV is: t2 = 1 / sqrt(k)
-    shape = (2 / t2) if t2 != 0 else 0.001
-    # We use a small positive value (0.001) if t2 is zero to avoid division by zero
+    if len(positive_data) < 5:
+        logging.warning(f"Only {len(positive_data)} positive values for gamma fitting, returning defaults")
+        return 1, 0, 1
 
-    # The scale parameter (θ) is estimated using L2 and the shape parameter
-    # For gamma distribution: L2 = θ * sqrt(k)
-    scale = l2 / shape if shape != 0 else l2
-    # If shape is zero (shouldn't happen due to the 0.001 safeguard), we use L2 as scale
+    try:
+        # Use scipy's MLE fitting with location fixed at 0
+        # floc=0 constrains the distribution to start at zero (appropriate for precipitation)
+        shape, loc, scale = gamma.fit(positive_data, floc=0)
 
-    # Location parameter
-    # For a standard gamma distribution, location is typically set to 0
-    loc = 0
+        # Validate fitted parameters
+        if shape <= 0 or scale <= 0 or np.isnan(shape) or np.isnan(scale):
+            logging.warning(f"Invalid gamma parameters (shape={shape}, scale={scale}), using defaults")
+            return 1, 0, 1
 
-    return shape, loc, scale
+        return shape, loc, scale
+
+    except Exception as e:
+        logging.warning(f"Gamma fitting failed: {e}, returning defaults")
+        return 1, 0, 1
 
 # ----
 # Fit a Generalized Pareto Distribution (GPD)
@@ -190,8 +208,10 @@ def cross_validate_gpd(
     if len(excesses) < n_splits:
         return fit_generalized_pareto_distribution(data, threshold)
 
-    # Initialize K-Fold cross-validator
-    kf = KFold(n_splits=n_splits)
+    # Initialize K-Fold cross-validator with shuffle for better stability
+    # Precipitation excesses have temporal ordering; shuffling ensures
+    # each fold samples across the full temporal range
+    kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)
     params_list = []
 
     # Perform cross-validation
@@ -210,9 +230,9 @@ def cross_validate_gpd(
 
 # ----
 # To address the issue of capturing extreme values in satellite data while performing EQM,
-# Tail Adjustment is use to improve fit for extreme value. Tail adjustment with
+# Tail Adjustment is used to improve fit for extreme values. Tail adjustment with
 # the Generalized Pareto Distribution (GPD) better captures the extreme values by specifically
-# modeling the tails of the distribution, which iscrucial for accurately representing
+# modeling the tails of the distribution, which is crucial for accurately representing
 # extreme precipitation events.
 
 # Gamma distribution-based quantile mapping
@@ -221,24 +241,28 @@ def gamma_quantile_mapping(
         cpc_values
     ):
     """
-    Apply gamma distribution-based quantile mapping with improved fitting and tail adjustment
+    Apply gamma distribution-based quantile mapping with tail adjustment
     to correct the distribution of precipitation data.
 
     This function fits gamma distributions to the IMERG and CPC precipitation values using
-    L-moments to improve the fitting accuracy. It then computes the cumulative distribution
-    function (CDF) of the IMERG values and applies the inverse CDF of the CPC values to obtain
-    the corrected precipitation values. Additionally, it adjusts the tails using the Generalized
-    Pareto Distribution (GPD) to better capture extreme values.
+    MLE (scipy.stats.gamma.fit). It then computes the cumulative distribution function (CDF) of
+    the IMERG values and applies the inverse CDF of the CPC values to obtain the corrected
+    precipitation values. Additionally, it adjusts the tails using the Generalized Pareto
+    Distribution (GPD) to better capture extreme values.
+
+    The GPD tail adjustment uses proper conditional probability mapping:
+    For values above the threshold, the unconditional CDF value is mapped to the conditional
+    exceedance probability before applying the GPD inverse CDF.
 
     Parameters:
     imerg_values (numpy.ndarray): Array of IMERG precipitation values.
     cpc_values (numpy.ndarray): Array of CPC precipitation values.
 
     Returns:
-    numpy.ndarray: Corrected precipitation values after gamma quantile mapping with improved
-    fitting and tail adjustment.
+    numpy.ndarray: Corrected precipitation values after gamma quantile mapping with
+    tail adjustment.
     """
-     # Store the original shape
+    # Store the original shape
     original_shape = imerg_values.shape
 
     # Flatten the arrays for processing
@@ -251,8 +275,8 @@ def gamma_quantile_mapping(
     cpc_valid = cpc_flat[valid_mask]
 
     # Add edge case checks here
+    # (No warning — this is expected for ocean/masked pixels)
     if imerg_valid.size == 0 or cpc_valid.size == 0:
-        logging.warning("No valid data found for quantile mapping")
         return np.full(original_shape, np.nan)
 
     # Check for constant values
@@ -266,10 +290,10 @@ def gamma_quantile_mapping(
             return np.full(original_shape, np.mean(cpc_valid))
 
     # Fit gamma distributions to the valid IMERG and CPC values
-    shape1, loc1, scale1 = fit_gamma_with_l_moments(imerg_valid)
+    shape1, loc1, scale1 = fit_gamma_distribution(imerg_valid)
     y = gamma.cdf(imerg_valid, shape1, loc=loc1, scale=scale1)
 
-    shape2, loc2, scale2 = fit_gamma_with_l_moments(cpc_valid)
+    shape2, loc2, scale2 = fit_gamma_distribution(cpc_valid)
     cpc_quantiles = gamma.ppf(y, shape2, loc=loc2, scale=scale2)
 
     # Ensure CPC quantiles are within realistic bounds
@@ -277,14 +301,25 @@ def gamma_quantile_mapping(
 
     # Fit GPD to the tails of the CPC values with cross-validation
     threshold = np.percentile(cpc_valid, GPD_THRESHOLD_PERCENTILE)
-    if not np.isnan(threshold):
+    if not np.isnan(threshold) and threshold > 0:
         cpc_gpd_params = cross_validate_gpd(cpc_valid, threshold)
 
-        # Adjust the tails using GPD if there are enough data points
+        # Adjust the tails using GPD with proper conditional probability mapping
         extreme_mask = imerg_valid > threshold
         if np.any(extreme_mask):
+            # Compute the CDF value at the threshold under the CPC gamma distribution
+            # This gives us the probability of not exceeding the threshold
+            p_threshold = gamma.cdf(threshold, shape2, loc=loc2, scale=scale2)
+
+            # Map unconditional CDF to conditional exceedance probability
+            # For values above threshold: P(X > x | X > threshold) = (F(x) - F(threshold)) / (1 - F(threshold))
+            # The GPD models the conditional distribution above the threshold,
+            # so its ppf expects probabilities in [0, 1] representing the conditional distribution
+            p_conditional = (y[extreme_mask] - p_threshold) / (1 - p_threshold)
+            p_conditional = np.clip(p_conditional, 1e-10, 1 - 1e-10)  # Avoid boundary issues
+
             cpc_quantiles[extreme_mask] = genpareto.ppf(
-                y[extreme_mask], *cpc_gpd_params
+                p_conditional, *cpc_gpd_params
             ) + threshold
 
     # Dynamically determine an upper cap

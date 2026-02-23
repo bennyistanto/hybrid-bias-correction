@@ -2,25 +2,27 @@
 Module: bias_correction.py
 
 This module provides the high-level bias correction workflow for daily precipitation data.
-It combines Linear Scaling (LS) and Empirical Quantile Mapping (EQM) with an optional Deep Learning (DL)
-adjustment to correct bias in IMERG data using CPC data as reference.
+It combines Linear Scaling (LS) and Empirical Quantile Mapping (EQM) with GPD tail adjustment
+to correct bias in IMERG data using CPC data as reference.
 
-The main function, lseqmdf, performs the following steps:
+The main function, lseqm, performs the following steps:
   1. Validates input datasets.
   2. Aggregates multi-year IMERG and CPC data for the specified dekad.
   3. Aligns the aggregated datasets.
   4. Applies LS by scaling the IMERG data with the ratio of CPC to IMERG means.
-  5. Applies EQM via gamma quantile mapping with tail adjustment.
-  6. Optionally applies a trained DL model to further correct extreme values.
-  7. Saves intermediate and final products if requested.
+  5. Applies EQM via gamma quantile mapping with GPD tail adjustment.
+  6. Saves intermediate LS and LSEQM products if requested.
+  7. Returns the LSEQM-corrected data along with the CPC dekad data
+     (needed as training target for the optional DL refinement step).
 
-Output directories for LS, LSEQM, and DL-corrected products are passed as parameters,
-allowing for flexible configuration.
+The Deep Learning (DL) refinement is handled separately in deep_learning.py.
+This two-step design eliminates domain shift: the DL model is trained on
+LSEQM-corrected data (not raw IMERG), matching what it receives at inference.
 
-Author:
+**Author**:
   Benny Istanto
-  - Geospatial Operations Support Team, DEC Data Group, The World Bank, United States (bistanto@worldbank.org)
-  - Applied Climatology Study Program, Bogor Agricultural University, Indonesia (bistanto@ipb.ac.id)
+  - Geospatial Operations Support Team, DEC Data Group, The World Bank, United States. Email: bistanto@worldbank.org
+  - Applied Climatology Study Program, Bogor Agricultural University, Indonesia. Email: bennyistanto@ipb.ac.id
 
   with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
@@ -32,36 +34,34 @@ import logging
 import numpy as np
 from .io import save_corrected_precip, get_max_day_in_month, aggregate_data_across_years
 from .distribution_fitting import gamma_quantile_mapping
-from .deep_learning import apply_deeplearning_model
 
 # +++++++++++++++++++++++++++++++++++++++++
 # Functions
 # +++++++++++++++++++++++++++++++++++++++++
 
 # ----
-# LSEQM+DL method for bias correction
-def lseqmdf(
+# LSEQM method for bias correction
+def lseqm(
         imerg_ds,
         cpc_ds,
         month,
         dekad_start_day,
         dekad_end_day,
-        method_abbr="lseqm",
-        method_full="Linear Scaling and Empirical Quantile Mapping",
-        model=None,
         save_ls_result=True,
         save_lseqm_result=True,
-        save_dl_result=True,
         month_str=None,
-        dekad_str=None, 
-        ls_corrected_precip_path=None, 
-        lseqm_corrected_precip_path=None, 
-        lseqmdl_corrected_precip_path=None
+        dekad_str=None,
+        ls_corrected_precip_path=None,
+        lseqm_corrected_precip_path=None
     ):
     """
-    Apply Linear Scaling (LS) and Empirical Quantile Mapping (EQM) for bias correction of daily precipitation data,
-    using data aggregated across years for the specified dekad. Optionally, apply a Deep Learning (DL) model for further
-    correction on extreme values.
+    Apply Linear Scaling (LS) and Empirical Quantile Mapping (EQM) with GPD tail
+    adjustment for bias correction of daily precipitation data, using data aggregated
+    across years for the specified dekad.
+
+    This is Step 1 of the two-step workflow. The returned LSEQM result and CPC dekad
+    data can be passed to train_bias_correction_model() and apply_deeplearning_model()
+    for the optional DL refinement (Step 2).
 
     Parameters:
     ----------
@@ -75,18 +75,10 @@ def lseqmdf(
         Start day of the dekad (e.g., 1, 11, 21).
     dekad_end_day : int
         End day of the dekad (e.g., 10, 20, last day of month).
-    method_abbr : str, optional
-        Abbreviation for the correction method (e.g., 'ls', 'lseqm'). Default is "lseqm".
-    method_full : str, optional
-        Full name of the correction method for file metadata. Default is "Linear Scaling and Empirical Quantile Mapping".
-    model : object, optional
-        Trained deep learning model for bias correction. If None, DL-based adjustments are skipped. Default is None.
     save_ls_result : bool, optional
         If True, saves the Linear Scaling (LS) corrected precipitation data. Default is True.
     save_lseqm_result : bool, optional
         If True, saves the LSEQM corrected precipitation data. Default is True.
-    save_dl_result : bool, optional
-        If True, saves the DL-corrected precipitation data. Default is True.
     month_str : str, optional
         Two-digit string representing the month (e.g., '01', '02', ..., '12').
     dekad_str : str, optional
@@ -95,21 +87,27 @@ def lseqmdf(
         Directory where LS-corrected data will be saved.
     lseqm_corrected_precip_path : str, optional
         Directory where LSEQM-corrected data will be saved.
-    lseqmdl_corrected_precip_path : str, optional
-        Directory where DL-corrected data will be saved.
 
     Returns:
     ----------
-    xarray.DataArray
-        The final bias-corrected precipitation data for the specified dekad.
+    tuple of (xarray.DataArray, xarray.DataArray)
+        (lseqm_corrected_precip, cpc_dekad_data)
+        The LSEQM-corrected precipitation and the aggregated CPC dekad data.
+        The CPC dekad data is returned so it can be used as the training target
+        for the DL refinement step.
     """
     # Ensure that month_str and dekad_str are provided
     if month_str is None or dekad_str is None:
         raise ValueError("month_str and dekad_str must be provided.")
 
-    # Add data validation at the start
-    if np.all(np.isnan(imerg_ds)) or np.all(np.isnan(cpc_ds)):
-        logging.error("Invalid input data - all NaN values")
+    # Add data validation at the start (xarray-compatible NaN check).
+    # Check only the precipitation variable — the land-sea mask sets ocean
+    # pixels to NaN, so checking the whole Dataset would wrongly trigger this.
+    from .config import IMERG_PRECIP_VAR, CPC_PRECIP_VAR
+    _imerg_var = imerg_ds[IMERG_PRECIP_VAR] if isinstance(imerg_ds, xr.Dataset) else imerg_ds
+    _cpc_var = cpc_ds[CPC_PRECIP_VAR] if isinstance(cpc_ds, xr.Dataset) else cpc_ds
+    if _imerg_var.isnull().all().item() or _cpc_var.isnull().all().item():
+        logging.error("Invalid input data - all NaN values in precipitation variable")
         raise ValueError("Invalid input data")
 
     # Aggregate data across all years for the specified dekad
@@ -153,21 +151,50 @@ def lseqmdf(
         )
 
     # Perform Empirical Quantile Mapping (EQM)
-    logging.info("Applying Empirical Quantile Mapping (EQM)...")
-    # Apply gamma quantile mapping
-    eqm_corrected_precip = xr.apply_ufunc(
-        gamma_quantile_mapping,
-        ls_corrected_precip,
-        cpc_dekad_data,
-        input_core_dims=[['time'], ['time']],
-        output_core_dims=[['time']],
-        vectorize=True,
-        output_dtypes=[ls_corrected_precip.dtype],
-        keep_attrs=True
-    ).compute()
+    import time as _time
+    n_lat = len(ls_corrected_precip.lat)
+    n_lon = len(ls_corrected_precip.lon)
+    n_time = len(ls_corrected_precip.time)
+    logging.info(f"Applying Empirical Quantile Mapping (EQM) on {n_lat}x{n_lon} grid...")
+
+    eqm_data = np.full_like(ls_corrected_precip.values, np.nan)
+    _t0 = _time.time()
+    _land_count = 0
+
+    for i in range(n_lat):
+        for j in range(n_lon):
+            imerg_ts = ls_corrected_precip.values[:, i, j]
+            cpc_ts = cpc_dekad_data.values[:, i, j]
+            # Skip all-NaN pixels (ocean) without calling the function
+            if np.all(np.isnan(imerg_ts)) or np.all(np.isnan(cpc_ts)):
+                continue
+            _land_count += 1
+            eqm_data[:, i, j] = gamma_quantile_mapping(imerg_ts, cpc_ts)
+
+        # Progress every 10 rows
+        if (i + 1) % 10 == 0 or (i + 1) == n_lat:
+            elapsed = _time.time() - _t0
+            pct = (i + 1) / n_lat * 100
+            eta = elapsed / (i + 1) * (n_lat - i - 1) if i > 0 else 0
+            logging.info(f"  EQM progress: row {i+1}/{n_lat} ({pct:.0f}%) "
+                         f"| {_land_count} land pixels done "
+                         f"| elapsed {elapsed:.0f}s, ETA {eta:.0f}s")
+
+    eqm_corrected_precip = xr.DataArray(
+        eqm_data,
+        coords=ls_corrected_precip.coords,
+        dims=ls_corrected_precip.dims,
+        attrs=ls_corrected_precip.attrs,
+    )
 
     # Ensure non-negative precipitation values
     eqm_corrected_precip = eqm_corrected_precip.clip(min=0)
+
+    # Log summary of quantile mapping coverage
+    _total_px = int(np.prod(eqm_corrected_precip.isel(time=0).shape))
+    _valid_px = int((~eqm_corrected_precip.isel(time=0).isnull()).sum().item())
+    logging.info(f"EQM complete: {_valid_px}/{_total_px} grid points corrected "
+                 f"({_total_px - _valid_px} masked/ocean pixels skipped)")
 
     # Save LSEQM result if requested
     if save_lseqm_result:
@@ -182,28 +209,4 @@ def lseqmdf(
             month_str=month_str
         )
 
-    # Apply DL model for bias correction if provided
-    if model is not None:
-        logging.info("Applying DL model for bias correction...")
-        # Prepare input data for the model
-        corrected_precip = apply_deeplearning_model(model, eqm_corrected_precip)
-
-        # Ensure non-negative precipitation values
-        corrected_precip = corrected_precip.clip(min=0)
-
-        # Save DL corrected precipitation
-        if save_dl_result:
-            logging.info("Saving DL corrected precipitation...")
-            save_corrected_precip(
-                corrected_precip,
-                eqm_corrected_precip,
-                method_abbr="lseqmdl",
-                method_full="Hybrid Deep Learning-Physical (Linear Scaling and Empirical Quantile Mapping) Approach",
-                folder=lseqmdl_corrected_precip_path,
-                dekad_str=dekad_str,
-                month_str=month_str
-            )
-
-        return corrected_precip
-    else:
-        return eqm_corrected_precip
+    return eqm_corrected_precip, cpc_dekad_data

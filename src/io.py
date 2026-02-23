@@ -25,12 +25,18 @@ import numpy as np
 import pandas as pd
 import calendar
 import logging
-from .config import cf18_f32, mask_file, output_filename_template
+from .config import cf18_f32, mask_file, output_filename_template, IMERG_PRECIP_VAR, CPC_PRECIP_VAR, NETCDF_ENGINE
 from .utility import apply_land_sea_mask, set_user_decision
 
 # +++++++++++++++++++++++++++++++++++++++++
 # Functions
 # +++++++++++++++++++++++++++++++++++++++++
+
+
+class BiasCorrectAbort(Exception):
+    """Raised when the user chooses to abort the bias correction process."""
+    pass
+
 
 # ----
 # Helper function to save precipitation data to NetCDF with consistent metadata
@@ -47,18 +53,26 @@ def save_corrected_precip(
     Save precipitation data to NetCDF with metadata and proper filename formatting.
 
     Parameters:
-    precip_data (xarray.DataArray): Precipitation data to be saved.
-    ds (xarray.Dataset): Original dataset for coordinates and attributes.
-    method_abbr (str): Abbreviation of the method (e.g., 'ls', 'lseqm', 'lseqmdl').
-    method_full (str): Full name of the method (e.g., 'Linear Scaling', 'LSEQM').
-    folder (str): Directory where the corrected precipitation will be saved.
-    dekad_str (str): String representing the dekad (e.g., '01', '11', '21').
-    month_str (str):  Two-digit string representing the month (e.g., '01', '02', ..., '12').
+    ----------
+    precip_data : xarray.DataArray
+        Precipitation data to be saved.
+    ds : xarray.Dataset
+        Original dataset for coordinates and attributes.
+    method_abbr : str
+        Abbreviation of the method (e.g., 'ls', 'lseqm', 'lseqmdl').
+    method_full : str
+        Full name of the method (e.g., 'Linear Scaling', 'LSEQM').
+    folder : str
+        Directory where the corrected precipitation will be saved.
+    dekad_str : str
+        String representing the dekad (e.g., '01', '11', '21').
+    month_str : str
+        Two-digit string representing the month (e.g., '01', '02', ..., '12').
 
     Returns:
     -------
     str or None
-        Path to the saved file, or None if saving failed.
+        Path to the saved file, or None if saving failed or skipped.
     """
     # Generate output filename
     output_file = output_filename_template.format(
@@ -71,14 +85,14 @@ def save_corrected_precip(
     # Check if output file exists
     if os.path.exists(output_file):
         logging.info(f"File {output_file} already exists.")
-        decision = set_user_decision()  # Now returns the decision.
+        decision = set_user_decision()
 
         if decision == 'S':
             logging.info(f"Skipping file {output_file}")
-            return  # Skip saving
+            return None  # Skip saving
         elif decision == 'A':
             logging.info("Aborting process.")
-            raise SystemExit  # Abort the process if the user decides to stop
+            raise BiasCorrectAbort("User chose to abort the bias correction process.")
         elif decision == 'O':
             logging.info(f"Overwriting file {output_file}")
 
@@ -93,7 +107,6 @@ def save_corrected_precip(
         precip_data = precip_data.expand_dims(dim={'time': [pd.Timestamp.now()]}, axis=0)
 
     # Ensure lat, lon, time are in correct order
-    # If user already has (time, lat, lon), no problem
     missing_dims = [d for d in expected_dims if d not in precip_data.dims]
     if missing_dims:
         logging.warning(f"Missing dims {missing_dims}, cannot reorder precisely.")
@@ -150,7 +163,7 @@ def save_corrected_precip(
 
     # Save to NetCDF following CF Convention
     try:
-        corrected_ds.to_netcdf(output_file, encoding=cf18_f32, engine='netcdf4')
+        corrected_ds.to_netcdf(output_file, encoding=cf18_f32, engine=NETCDF_ENGINE)
         logging.info(f"Saved {method_full} corrected precipitation for month {month_str}, dekad {dekad_str} at {output_file}")
         return output_file
     except IOError as e:
@@ -167,6 +180,18 @@ def get_max_day_in_month(
     Scan all years in the dataset `ds`, and find the maximum day
     for the specified month. For example, if month=2 (February) and
     there's at least one leap year in ds, this returns 29; otherwise 28.
+
+    Parameters:
+    ----------
+    ds : xarray.Dataset
+        Dataset with a 'time' dimension.
+    month : int
+        Month number (1-12).
+
+    Returns:
+    ----------
+    int
+        Maximum number of days in the specified month across all years in the dataset.
     """
     unique_years = np.unique(ds['time.year'].values)
     max_day = 0
@@ -183,12 +208,15 @@ def aggregate_data_across_years(
         cpc_ds,
         month,
         dekad_start_day,
-        dekad_end_day
+        dekad_end_day,
+        imerg_var=None,
+        cpc_var=None
     ):
     """
     Aggregate IMERG and CPC data across all years for the specified dekad.
 
     Parameters:
+    ----------
     imerg_ds : xarray.Dataset
         IMERG precipitation dataset with dimensions ('time', 'lat', 'lon').
     cpc_ds : xarray.Dataset
@@ -199,14 +227,54 @@ def aggregate_data_across_years(
         Start day of the dekad (e.g., 1, 11, 21).
     dekad_end_day : int
         End day of the dekad (e.g., 10, 20, last day of month).
+    imerg_var : str, optional
+        Variable name for precipitation in IMERG dataset. If None, uses config default.
+    cpc_var : str, optional
+        Variable name for precipitation in CPC dataset. If None, uses config default.
 
     Returns:
+    ----------
     tuple of xarray.DataArray
         Aggregated IMERG and CPC data for the specified dekad across all years.
     """
-    # Align datasets before applying masks
+    # Use config defaults if variable names not provided
+    if imerg_var is None:
+        imerg_var = IMERG_PRECIP_VAR
+    if cpc_var is None:
+        cpc_var = CPC_PRECIP_VAR
+
+    # Align datasets on their shared coordinates (time, lat, lon).
+    # Uses join="inner" so only coordinates present in BOTH datasets are kept.
+    # IMPORTANT: The caller must ensure the two datasets are already on the
+    # same spatial grid (e.g., via reindex_and_align_with_monotonicity).
+    # If IMERG and CPC have different native grids, the inner join will
+    # find zero overlapping lat/lon values and produce empty arrays.
     logging.info("Aligning IMERG and CPC datasets...")
+    n_lat_imerg_before = len(imerg_ds.lat)
+    n_lat_cpc_before = len(cpc_ds.lat)
+
     imerg_ds, cpc_ds = xr.align(imerg_ds, cpc_ds, join="inner")
+
+    # Diagnostic: detect spatial coordinate mismatch early
+    n_lat_after = len(imerg_ds.lat)
+    n_lon_after = len(imerg_ds.lon)
+    if n_lat_after == 0 or n_lon_after == 0:
+        logging.error(
+            "Spatial coordinate mismatch detected! "
+            f"IMERG had {n_lat_imerg_before} lats, CPC had {n_lat_cpc_before} lats, "
+            f"but inner join produced {n_lat_after} lats and {n_lon_after} lons. "
+            "This usually means the CPC dataset was not spatially aligned to IMERG "
+            "before calling this function. Use reindex_and_align_with_monotonicity() "
+            "first, then pass the aligned CPC dataset here."
+        )
+        raise ValueError(
+            "No overlapping spatial coordinates between IMERG and CPC. "
+            "Did you pass cpc_ds_aligned (from reindex_and_align_with_monotonicity) "
+            "instead of the original cpc_ds?"
+        )
+
+    # Log time step counts after alignment
+    logging.info(f"After alignment: IMERG has {len(imerg_ds.time)} time steps, CPC has {len(cpc_ds.time)} time steps")
 
     # Create time masks
     logging.info("Creating time-based masks...")
@@ -224,8 +292,13 @@ def aggregate_data_across_years(
     # Apply time masks
     try:
         logging.info("Applying time masks...")
-        imerg_dekad_data = imerg_ds['precipitation'].where(imerg_time_mask, drop=True)
-        cpc_dekad_data = cpc_ds['precip'].where(cpc_time_mask, drop=True)
+        imerg_dekad_data = imerg_ds[imerg_var].where(imerg_time_mask, drop=True)
+        cpc_dekad_data = cpc_ds[cpc_var].where(cpc_time_mask, drop=True)
+    except KeyError as e:
+        logging.error(f"Variable not found in dataset: {e}")
+        logging.info(f"IMERG variables: {list(imerg_ds.data_vars)}")
+        logging.info(f"CPC variables: {list(cpc_ds.data_vars)}")
+        raise ValueError(f"Variable not found. Check IMERG_PRECIP_VAR='{imerg_var}' and CPC_PRECIP_VAR='{cpc_var}' in config.")
     except Exception as e:
         logging.error("Error during masking:", exc_info=True)
         raise ValueError(f"Failed to apply time masks: {str(e)}")

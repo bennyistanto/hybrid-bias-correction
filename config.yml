@@ -1,0 +1,345 @@
+# =============================================================================
+# Hybrid Bias Correction (LSEQM+DL) Configuration
+# =============================================================================
+#
+# This file centralizes all configurable parameters and file paths for the
+# bias correction workflow. Edit this file for your environment before running.
+#
+# Usage:
+#   from src.config import initialize_config
+#   initialize_config('config.yml')
+#
+# =============================================================================
+
+# -------------------------------------------
+# Directory Settings
+# -------------------------------------------
+# Uncomment ONE main_dir line that matches your environment.
+# All other paths are derived from main_dir using {main_dir} substitution.
+directories:
+  # --- Windows (native) ---
+  # main_dir: "C:/Users/benny/OneDrive/Documents/Github/hybrid-bias-correction"
+
+  # --- Windows Subsystem for Linux (WSL) ---
+  main_dir: "/mnt/c/Users/benny/OneDrive/Documents/Github/hybrid-bias-correction"
+
+  # --- Linux ---
+  # main_dir: "/home/benny/projects/hybrid-bias-correction"
+
+  # --- macOS ---
+  # main_dir: "/Users/benny/projects/hybrid-bias-correction"
+
+  # --- Google Colab (with Google Drive mounted) ---
+  # main_dir: "/content/drive/MyDrive/hybrid-bias-correction"
+
+  # Subdirectories (relative to main_dir via template substitution)
+  input_dir: "{main_dir}/data/input"
+  output_dir: "{main_dir}/data/output"
+
+# -------------------------------------------
+# Input File Paths
+# -------------------------------------------
+# All paths support {main_dir} and {input_dir} template tokens.
+input_files:
+  # IMERG Late Run (IMERG-L) V07 - daily precipitation from NASA GPM
+  # Pure satellite product without gauge adjustment; ideal for independent bias correction.
+  # DOI: 10.5067/GPM/IMERGDL/DAY/07
+  imergl_file: "{input_dir}/imergl/idn_imergl.nc4"
+
+  # CPC Unified Gauge-Based Analysis of Daily Precipitation (CPC-UNI)
+  # Gauge-based global daily precipitation at 0.5 deg, regridded to 0.1 deg (nearest-neighbor).
+  # Used as the reference (ground truth) for bias correction training.
+  # Source: NOAA Physical Sciences Laboratory
+  cpc_file: "{input_dir}/cpcuni/idn_cpcuni.nc4"
+
+  # Land-sea mask NetCDF file
+  # Binary mask (1 = land, 0 = sea). Applied once at data loading to set ocean
+  # pixels to NaN, preventing ocean zeros from contaminating mean calculations.
+  mask_file: "{main_dir}/data/subset/iso3/idn_subset.nc"
+
+# -------------------------------------------
+# Variable Names in Input Datasets
+# -------------------------------------------
+# These must match the actual variable names in your NetCDF input files.
+# Use `ncdump -h <file>` or `xr.open_dataset(<file>)` to verify.
+variable_names:
+  imerg_precip_var: "precipitation"    # IMERG Late Run precipitation variable
+  cpc_precip_var: "precip"             # CPC-UNI precipitation variable
+  mask_var: "land"                     # Land-sea mask variable (1=land, 0=sea)
+
+# -------------------------------------------
+# Output Directories
+# -------------------------------------------
+# Intermediate and final products are stored in separate directories
+# for traceability. Each correction stage has its own output folder.
+output_dirs:
+  ls_corrected: "{output_dir}/corrected_ls"            # Step 1: Linear Scaling output
+  lseqm_corrected: "{output_dir}/corrected_lseqm"      # Step 2: LS + EQM output
+  lseqmdl_corrected: "{output_dir}/corrected_lseqmdl"  # Step 3: LS + EQM + DL output
+  trained_models: "{output_dir}/trained_models"         # Saved DL models and normalization constants
+  metrics: "{output_dir}/metrics_{method}"              # Performance metrics per method
+  quality: "{output_dir}/quality_{method}"              # QA framework output per method
+
+# -------------------------------------------
+# Output Filename Convention
+# -------------------------------------------
+# Template tokens: {folder}, {method_abbr}, {month_str}, {dekad_str}
+# Convention: idn = Indonesia, cli = climate, corrected = bias-corrected, imergl = IMERG Late Run
+output_filename_template: "{folder}/idn_cli_{method_abbr}_corrected_imergl_month{month_str}_dekad{dekad_str}.nc4"
+
+# -------------------------------------------
+# Statistical Parameters: GPD and Quantile Mapping
+# -------------------------------------------
+statistical_params:
+  # Number of K-Fold cross-validation splits for GPD parameter stability.
+  #   - Lower (3): faster, less stable estimates; use for small datasets (<50 exceedances).
+  #   - Default (5): good balance of stability and computational cost.
+  #   - Higher (10): more stable estimates; use for large datasets (>200 exceedances).
+  # Impact: Higher values reduce variance in GPD shape/scale estimates but increase runtime.
+  # Reference: Hosking & Wallis (1997), Regional Frequency Analysis.
+  n_splits_gpd_crossvalidate: 5
+
+  # Percentile threshold for GPD tail fitting.
+  # Values ABOVE this percentile are modeled by GPD instead of the gamma distribution.
+  #   - Lower (75): broader extreme range captured; more data for GPD fitting but may
+  #     overfit moderate rainfall and blur the EQM-GPD boundary.
+  #   - Default (80): standard in precipitation studies; ~20% of wet days treated as extreme.
+  #   - Higher (90-95): only the most extreme events; fewer data points for GPD fitting,
+  #     which may produce unstable parameter estimates.
+  # Impact on results:
+  #   - Too low: distorts moderate precipitation (GPD not appropriate for bulk distribution).
+  #   - Too high: insufficient exceedances for reliable GPD fitting (<30 points).
+  # Recommendation: 80 for tropical regions with frequent heavy rainfall (e.g., Indonesia).
+  # Reference: Coles (2001), An Introduction to Statistical Modeling of Extreme Values.
+  gpd_threshold_percentile: 80
+
+  # Upper cap percentile to prevent physically unrealistic extreme values.
+  # After quantile mapping + GPD adjustment, values are capped at this percentile
+  # of the reference (CPC) distribution.
+  #   - 99.0: conservative; clips ~1% of extremes. Use if you see unrealistic spikes.
+  #   - 99.9 (default): retains nearly all natural variability while preventing
+  #     numerical artifacts from GPD extrapolation.
+  #   - 99.99: minimal clipping; only removes clear numerical outliers.
+  # Impact: Lower values suppress legitimate extreme rainfall events.
+  upper_cap_threshold_percentile: 99.9
+
+# -------------------------------------------
+# Deep Learning Model Parameters
+# -------------------------------------------
+deep_learning:
+  # Number of training epochs (full passes through the dataset).
+  #   - Lower (20): faster training, may underfit spatial correction patterns.
+  #   - Default (50): sufficient for convergence with early stopping.
+  #   - Higher (100+): risk of overfitting; early stopping mitigates this.
+  # Impact: More epochs allow finer corrections but increase training time.
+  # Actual epochs used may be less due to early_stopping_patience.
+  epochs: 50
+
+  # Batch size: number of spatial fields processed per gradient update.
+  #   - Smaller (16-32): noisier gradients, may generalize better but slower training.
+  #   - Default (64): stable gradients for ~220 samples (22 years x 10 days).
+  #   - Larger (128+): smoother gradients but may miss fine-scale patterns.
+  # Rule of thumb: batch_size should be << total number of training samples.
+  batch_size: 64
+
+  # Fraction of training data held out for validation (not used for weight updates).
+  #   - 0.1: more training data, less reliable validation loss estimate.
+  #   - 0.2 (default): ~44 samples for validation from 220 total; good balance.
+  #   - 0.3: fewer training samples but more reliable validation signal.
+  # Impact: Affects early stopping trigger. Too small = noisy val_loss.
+  validation_split: 0.2
+
+  # Patience for early stopping: epochs without improvement before stopping.
+  #   - Lower (3): aggressive stopping, may halt before optimal convergence.
+  #   - Default (5): allows temporary loss plateaus before stopping.
+  #   - Higher (10+): rarely stops early; approaches training for full epoch count.
+  # Impact: Lower patience avoids overfitting; higher patience risks it.
+  early_stopping_patience: 5
+
+  # Optimizer: algorithm for weight updates.
+  # "adam" (default): adaptive learning rate; robust default for most problems.
+  # Alternatives: "sgd" (manual LR tuning needed), "rmsprop" (similar to adam).
+  optimizer: "adam"
+
+  # Dropout rates: fraction of neurons randomly zeroed during each training step.
+  # Regularization technique to prevent overfitting by forcing redundant representations.
+  #   - 0.0: no regularization; highest risk of overfitting.
+  #   - 0.1-0.2: light regularization; use when training data is abundant.
+  #   - 0.3-0.5: strong regularization; use when training data is limited.
+  #   - >0.5: excessive; model may underfit.
+  # Increasing dropout through the network (0.2 -> 0.3 -> 0.4) is a common practice
+  # because deeper layers have more parameters and are more prone to overfitting.
+  dropout_rate_1: 0.2      # After first Conv2D: light - preserve spatial features
+  dropout_rate_2: 0.3      # After second Conv2D: moderate - reduce feature co-adaptation
+  dropout_rate_dense: 0.4  # After dense layer: strong - most parameters here
+
+  # Convolution filter sizes (height, width in pixels).
+  # Defines the spatial receptive field of each convolution kernel.
+  #   - [3, 3] (default): captures local 3x3 pixel neighborhoods (~30 km at 0.1 deg).
+  #     Standard choice for geospatial CNN; balances local detail with computation.
+  #   - [5, 5]: wider receptive field (~50 km); captures broader spatial patterns
+  #     but increases parameter count 2.8x per layer.
+  #   - [7, 7]: used for coarser resolution data or when large-scale patterns dominate.
+  filter_size_1: [3, 3]
+  filter_size_2: [3, 3]
+
+  # Number of convolutional filters (feature detectors) per layer.
+  # Each filter learns one spatial pattern (e.g., orographic enhancement, coastal effects).
+  #   - Fewer (16): fewer features extracted; faster but may miss important patterns.
+  #   - Default (32/64): progressive increase captures hierarchical spatial features.
+  #     First layer: low-level patterns (gradients, edges).
+  #     Second layer: higher-level combinations (rain shadows, convergence zones).
+  #   - More (128/256): richer representations but higher memory and overfitting risk.
+  num_filters_1: 32
+  num_filters_2: 64
+
+  # Dense layer neurons: capacity of the fully-connected layer after flattening.
+  #   - Smaller (64): limits representational capacity; may underfit.
+  #   - Default (128): good balance for Indonesia grid (~600 lat x 1000 lon).
+  #   - Larger (256+): more capacity but significantly more parameters.
+  # WARNING: For large spatial grids, the Flatten -> Dense creates a very large weight
+  # matrix (e.g., 60,000 flattened features x 128 neurons = 7.7M parameters).
+  # Future improvement: replace with a convolutional decoder (U-Net architecture).
+  dense_layer_size: 128
+
+  # Alpha-blending weight for the DL refinement step.
+  # Controls how much the DL prediction influences extreme pixels:
+  #   final = alpha * LSEQM + (1 - alpha) * DL_predicted
+  #   - 1.0: pure LSEQM (DL disabled) — physical-statistical only.
+  #   - 0.7 (default): 70% physical, 30% DL — DL refines spatial patterns.
+  #   - 0.5: equal weight — more DL influence on extremes.
+  #   - 0.0: pure DL (not recommended — loses physical constraints).
+  # Non-extreme pixels (below GPD threshold) always keep LSEQM values.
+  # Recommended range: 0.5–0.8. Higher = more trust in physics.
+  blend_alpha: 0.7
+
+# -------------------------------------------
+# Station Density Confidence Mask
+# -------------------------------------------
+# Spatially modulates the DL blending alpha based on CPC-UNI gauge station
+# density. Where CPC has many stations, DL gets more influence (trust CPC as
+# training target). Where CPC has no stations, the result reverts to pure LSEQM.
+#
+# Set station_file to null or remove this section to disable the feature
+# (uniform blend_alpha everywhere, backward compatible).
+station_density:
+  # Master toggle for the confidence mask feature.
+  # Set to true to enable spatial modulation of DL blending alpha based on
+  # gauge station density. Set to false (default) to use uniform blend_alpha
+  # everywhere. Even when true, the feature is only active if station_file exists.
+  use_confidence_mask: true
+
+  # Path to gauge station CSV (columns: ID, ID_WMO, Station, Lon, Lat, Elevation)
+  station_file: "{main_dir}/data/input/stations/idn_cli_weatherstation_location_bmkg.csv"
+
+  # Pre-computed confidence mask NetCDF (created on first run, loaded thereafter)
+  confidence_mask_file: "{output_dir}/confidence_mask_station_density.nc4"
+
+  # CPC native grid resolution in degrees (determines counting cell size)
+  cpc_resolution: 0.5
+
+  # Gaussian smoothing sigma in grid-cell units (prevents hard cell boundaries)
+  #   - 0.5: minimal smoothing
+  #   - 1.0 (default): ~55 km e-folding distance at 0.5 deg
+  #   - 2.0: broader smoothing (~110 km)
+  smoothing_sigma: 1.0
+
+  # Number of (smoothed) stations for full confidence (1.0)
+  #   - 1: aggressive — any station presence = full confidence
+  #   - 3 (default): moderate — requires several nearby stations
+  #   - 5: conservative — only dense station clusters get full confidence
+  saturation_count: 3
+
+  # Grid bounds for station counting
+  lat_range: [-11.0, 6.0]
+  lon_range: [95.0, 141.0]
+
+# -------------------------------------------
+# Station Validation
+# -------------------------------------------
+# Independent validation of bias-corrected products against BMKG weather
+# station observations. These stations provide ground-truth daily
+# precipitation that is independent from the CPC-UNI reference used
+# in the bias correction pipeline.
+#
+# Station location file is shared with station_density.station_file above.
+station_validation:
+  # Path to daily precipitation observation CSV
+  # Columns: ID, Date (DD-MM-YYYY), JD, then WMO station ID columns
+  # Missing data encoded as 8888.0 (BMKG convention) or empty cells
+  station_data_file: "{main_dir}/data/input/stations/idn_cli_weatherstation_data_bmkg.csv"
+
+  # Output directory for validation results (CSV files)
+  output_dir: "{output_dir}/station_validation"
+
+# -------------------------------------------
+# Performance Metrics Configuration
+# -------------------------------------------
+metrics:
+  # Wet-day threshold for categorical metrics (POD, FAR, CSI).
+  # A day is classified as "wet" if precipitation >= this value.
+  #   - 0.1 mm/day: includes trace precipitation; standard WMO definition.
+  #   - 1.0 mm/day (default): practical threshold; filters out drizzle and measurement noise.
+  #     Recommended for tropical regions where light rain is frequent.
+  #   - 2.0 mm/day: stricter; focuses on significant rainfall events.
+  # Reference: WMO (2008), Guide to Meteorological Instruments and Methods of Observation.
+  wet_day_threshold: 1.0
+
+# -------------------------------------------
+# Quality Assessment Framework Weights
+# -------------------------------------------
+# The Continuous Quality Index (CQI) combines three component scores.
+# Each component is a weighted sum of normalized metrics, scored 0-1.
+# CQI = basic_weight * BasicScore + distribution_weight * DistScore + temporal_weight * TemporalScore
+quality_assessment:
+  component_weights:
+    # Basic statistical quality (mean bias, correlation, error, efficiency).
+    # Highest weight because these are the most fundamental indicators of
+    # bias correction effectiveness.
+    basic_stats: 0.4
+
+    # Distribution quality (percentile matching, variability preservation).
+    # Tests whether the full rainfall distribution is corrected, not just the mean.
+    distribution: 0.3
+
+    # Temporal quality (event detection, dry spell preservation).
+    # Tests whether the timing and sequencing of rainfall events is preserved.
+    temporal: 0.3
+
+  # Categorical classification thresholds for CQI
+  #   CQI >= 0.8: Excellent - correction closely reproduces reference
+  #   CQI >= 0.6: Good - correction captures main features with minor discrepancies
+  #   CQI >= 0.4: Fair - correction improves on raw satellite but significant biases remain
+  #   CQI <  0.4: Poor - correction fails to improve or degrades the satellite estimate
+  categorical_thresholds:
+    excellent: 0.8
+    good: 0.6
+    fair: 0.4
+
+# -------------------------------------------
+# Runtime Settings
+# -------------------------------------------
+runtime:
+  # Interactive mode: if true, prompts user for decisions on existing files/models.
+  # Set to false for batch processing, automated pipelines, or CI/CD.
+  interactive: true
+
+  # Default action when an output file already exists (used in non-interactive mode).
+  # Options: "overwrite", "skip", "abort"
+  existing_file_action: "skip"
+
+  # Default action when a trained model already exists (used in non-interactive mode).
+  # Options: "use_existing", "overwrite", "abort"
+  existing_model_action: "use_existing"
+
+# -------------------------------------------
+# NetCDF CF Convention Encoding
+# -------------------------------------------
+# CF-1.8 compliant encoding for all output files.
+# zlib=true enables compression (typically 3-5x size reduction).
+# float32 is sufficient precision for precipitation (mm) while halving storage vs float64.
+netcdf_encoding:
+  precipitation:
+    dtype: "float32"
+    zlib: true
+    _FillValue: .nan

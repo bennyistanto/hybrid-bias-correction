@@ -2,7 +2,7 @@
 
 Hybrid Bias Correction (LSEQM+DL) is a Python-based workflow for correcting biases in gridded daily precipitation data. It combines traditional methods—Linear Scaling (LS) and Empirical Quantile Mapping (EQM)—with an optional Deep Learning (DL) component to improve the correction, particularly for extreme events.
 
-![LSEQM+DL](docs/images/lseqmdl.png "LSEQM+DL")
+![LSEQM+DL](docs/images/lseqmdl-banner.png "LSEQM+DL")
 
 ## Documentation
 

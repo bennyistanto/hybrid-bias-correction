@@ -1,0 +1,142 @@
+# =============================================================================
+# Hybrid Bias Correction (LSEQM+DL) — Python Dependencies
+# =============================================================================
+#
+# ---- Option A: pip (works everywhere) ----
+#   pip install -r requirements.txt
+#
+# ---- Option B: mamba/conda (recommended for geospatial packages) ----
+#   Use environment.yml instead — it handles conda channels, ESMPy, and
+#   CLI tools (nco, cdo) that pip cannot install:
+#
+#   mamba env create -f environment.yml
+#   mamba activate biascorr
+#   python -m ipykernel install --user --name biascorr --display-name "Python (biascorr)"
+#
+# ---- Option C: pip inside a mamba env ----
+#   mamba create -n biascorr python=3.12
+#   mamba activate biascorr
+#   pip install -r requirements.txt
+#
+# Tested with Python 3.10–3.12 (recommended: 3.12)
+# TensorFlow 2.19 supports Python 3.9–3.13
+# =============================================================================
+
+
+# ---------------------------------------------------------------------------
+# Core scientific stack
+# ---------------------------------------------------------------------------
+# Required for ALL workflows (LS, EQM, metrics, QA).
+
+numpy>=1.24                 # Array operations, numerical computing
+scipy>=1.10                 # Gamma/GPD distribution fitting, statistical tests
+pandas>=2.0                 # Time series handling, DataFrame operations
+xarray>=2023.1              # Labeled multi-dimensional arrays for NetCDF data
+dask>=2023.1                # Parallel/chunked computation for large xarray datasets
+
+
+# ---------------------------------------------------------------------------
+# NetCDF / climate data I/O
+# ---------------------------------------------------------------------------
+# For reading, writing, and manipulating gridded climate data files.
+
+netCDF4>=1.6                # Engine for reading/writing NetCDF4/HDF5 files via xarray
+h5netcdf>=1.1               # Alternative lightweight NetCDF4 engine (HDF5-based)
+cfgrib>=0.9                 # GRIB file support via xarray (for ECMWF/reanalysis data)
+pyyaml>=6.0                 # Configuration file parsing (config.yml)
+cftime>=1.6                 # CF-compliant time handling for climate calendar types
+
+
+# ---------------------------------------------------------------------------
+# Geospatial data processing
+# ---------------------------------------------------------------------------
+# For working with vector boundaries, raster grids, and spatial operations.
+
+rasterio>=1.3               # Read/write geospatial raster data (GeoTIFF, etc.)
+geopandas>=0.13             # Spatial DataFrames for vector data (shapefiles, GeoJSON)
+shapely>=2.0                # Geometric operations (point-in-polygon, intersections)
+fiona>=1.9                  # Vector file I/O backend for geopandas
+pyproj>=3.5                 # Coordinate reference system transformations
+regionmask>=0.10            # Create geographic masks from shapefiles for xarray grids
+
+
+# ---------------------------------------------------------------------------
+# Regridding and spatial analysis
+# ---------------------------------------------------------------------------
+# For interpolating between different grid resolutions (IMERG 0.1 deg vs CPC 0.5 deg).
+
+xesmf>=0.8                  # Conservative/bilinear regridding for xarray (needs ESMPy)
+
+
+# ---------------------------------------------------------------------------
+# Machine learning utilities
+# ---------------------------------------------------------------------------
+
+scikit-learn>=1.2           # KFold cross-validation for GPD threshold selection
+
+
+# ---------------------------------------------------------------------------
+# Deep Learning (optional)
+# ---------------------------------------------------------------------------
+# TensorFlow is ONLY required for the DL refinement step (Step 7-8 in the
+# notebook). The LS + EQM bias correction pipeline works without it.
+#
+# Install options:
+#   pip install tensorflow              # CPU-only
+#   pip install tensorflow[and-cuda]    # GPU support (NVIDIA CUDA 12)
+#   mamba install tensorflow            # via conda-forge
+#
+# WSL users: if you get "cannot enable executable stack" errors, run:
+#   pip install patchelf
+#   patchelf --clear-execstack $(python -c "import tensorflow; print(tensorflow.__path__[0])")/libtensorflow_cc.so.2
+
+tensorflow>=2.16            # CNN model for extreme value refinement
+
+
+# ---------------------------------------------------------------------------
+# Visualization
+# ---------------------------------------------------------------------------
+# For plotting maps, spatial comparisons, and time series in notebooks.
+
+matplotlib>=3.7             # Core plotting library
+cartopy>=0.22               # Map projections, coastlines, country borders for geospatial plots
+seaborn>=0.12               # Statistical visualizations (heatmaps, distributions, pair plots)
+bokeh>=3,<4                 # Interactive plots (hover, zoom, pan)
+cmocean>=3.0                # Perceptually-uniform colormaps for oceanography/climate
+
+
+# ---------------------------------------------------------------------------
+# Climate/NetCDF command-line tools (Python wrappers)
+# ---------------------------------------------------------------------------
+# Useful for preprocessing or batch operations outside of Python scripts.
+# Install via mamba (not pip): mamba install nco cdo
+
+# nco                       # NetCDF Operators (ncks, ncea, ncra, etc.)
+# cdo                       # Climate Data Operators (remap, mergetime, etc.)
+# ------------------------- # cdo not available for Windows
+
+# ---------------------------------------------------------------------------
+# Jupyter ecosystem
+# ---------------------------------------------------------------------------
+# Core Jupyter interfaces — install at least one of notebook or jupyterlab.
+
+jupyterlab>=4.0             # JupyterLab IDE (recommended modern interface)
+notebook>=7.0               # Classic Jupyter Notebook interface (Notebook 7 uses JupyterLab core)
+ipykernel>=6.0              # Jupyter kernel registration (needed to use conda envs as kernels)
+
+# Jupyter extensions and widgets
+ipywidgets>=8.0             # Interactive widgets (sliders, progress bars, dropdowns)
+# Note: jupyterlab_widgets is auto-installed as a dependency of ipywidgets
+jupyter-contrib-nbextensions  # Collection of community notebook extensions
+
+# Rich display and output
+nbformat>=5.9               # Notebook file format library (read/write .ipynb programmatically)
+nbconvert>=7.0              # Convert notebooks to HTML, PDF, LaTeX, slides, etc.
+# To view notebooks as HTML: jupyter nbconvert --to html notebook.ipynb
+
+# Productivity and debugging
+tqdm>=4.65                  # Progress bars for long-running loops (auto-detects notebook)
+jupyterlab-git>=0.50        # Git integration sidebar for JupyterLab
+jupyterlab-lsp>=5.0         # Language Server Protocol for code intelligence in JupyterLab
+python-lsp-server>=1.9      # Python language server backend (autocomplete, linting)
+# Note: jupyterlab-toc is built into JupyterLab 4+ (no separate install needed)

@@ -9,20 +9,36 @@ This chapter describes how to set up the Hybrid Bias Correction project. The pro
 
 ## 1. Setting Up in Google Colab
 
-### Option A: Clone the Repository into Your Google Drive
+### Option A: Clone the Repository into Our Google Drive
 
 Cloning the repository into our Google Drive ensures that our work is persistent even if the Colab runtime is reset.
 
-1. **Mount Your Google Drive:**
+1. **Access Google Colab**
+
+   Access Google Colab via browser [https://colab.research.google.com/](https://colab.research.google.com/) then click New Notebook.
+
+2. **Mount Our Google Drive:**
 
    Run the following code in a new cell to mount our drive:
 
    ```python
    from google.colab import drive
+   import os
+   
+   # Check if the drive is mounted
+   if os.path.exists('/content/drive'):
+      # Try to unmount
+      try:
+         drive.flush_and_unmount()
+         print("Successfully unmounted")
+      except:
+         print("Unmount failed, the drive might not be mounted or busy")
+   
+   # Mount the drive
    drive.mount('/content/drive')
    ```
 
-2. **Clone the Repository:**
+3. **Clone the Repository:**
 
    Choose a folder in our Google Drive (for example, `/content/drive/MyDrive/hybrid-bias-correction`) and run:
 
@@ -30,7 +46,7 @@ Cloning the repository into our Google Drive ensures that our work is persistent
    !git clone https://github.com/bennyistanto/hybrid-bias-correction.git "/content/drive/MyDrive/hybrid-bias-correction"
    ```
 
-3. **Navigate to the Repository Folder:**
+4. **Navigate to the Repository Folder:**
 
    Change our working directory to the cloned repository:
 
@@ -40,7 +56,7 @@ Cloning the repository into our Google Drive ensures that our work is persistent
    !ls
    ```
 
-4. **Run the Notebooks:**
+5. **Run the Notebooks:**
 
    Open an example notebook from the `notebooks/` folder and execute the cells. The notebooks are designed to install packages on the fly if needed.
 
@@ -48,15 +64,25 @@ Cloning the repository into our Google Drive ensures that our work is persistent
 
 ### Option B: Clone the Repository Directly in Colab
 
-If we prefer not to use Google Drive, we can clone the repository directly into the Colab environment. Note that the environment is temporary and will be reset when the runtime is restarted.
+If we prefer not to use Google Drive, we can clone the repository directly into the Colab environment.
 
-1. **Clone the Repository:**
+> [!CAUTION]
+>
+> Note that the environment is temporary and will be reset when the runtime is restarted.
+
+1. **Access Google Colab**
+
+   Access Google Colab via browser [https://colab.research.google.com/](https://colab.research.google.com/) then click New Notebook.
+
+2. **Clone the Repository:**
+
+   Run the following code in a new cell to clone the repository.
 
    ```bash
    !git clone https://github.com/bennyistanto/hybrid-bias-correction.git
    ```
 
-2. **Navigate to the Repository Folder:**
+3. **Navigate to the Repository Folder:**
 
    ```python
    import os
@@ -64,7 +90,7 @@ If we prefer not to use Google Drive, we can clone the repository directly into 
    !ls
    ```
 
-3. **Run the Notebooks:**
+4. **Run the Notebooks:**
 
    Open and run the notebooks from the `notebooks/` folder.
 
