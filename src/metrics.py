@@ -181,8 +181,8 @@ def compute_pixel_metrics(ref_1d, test_1d, threshold=1.0):
     if n_valid < 2:
         return nan_result
 
-    ref_clean = ref_1d[valid]
-    test_clean = test_1d[valid]
+    ref_clean = ref_1d[valid].astype(np.float64)
+    test_clean = test_1d[valid].astype(np.float64)
 
     # --- Continuous metrics ---
 
@@ -222,7 +222,7 @@ def compute_pixel_metrics(ref_1d, test_1d, threshold=1.0):
         nse = np.nan
 
     # Kolmogorov-Smirnov two-sample test
-    ks_stat, ks_pvalue = stats.ks_2samp(ref_clean, test_clean)
+    ks_stat, ks_pvalue = stats.ks_2samp(ref_clean, test_clean, method='asymp')
 
     # --- Categorical metrics ---
 
