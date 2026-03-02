@@ -210,3 +210,108 @@ def lseqm(
         )
 
     return eqm_corrected_precip, cpc_dekad_data
+
+
+# ----
+# Full correction pipeline: LS → LSEQM → DL (Steps 7-10 of notebook 02)
+def run_correction_pipeline(imerg_ds, cpc_ds_aligned, month, dekad):
+    """
+    Run the full LS → LSEQM → LSEQMDL pipeline for one month/dekad period.
+
+    This wraps Steps 7–10 of notebook 02 into a single callable, designed
+    for batch processing where ``interactive=False`` is used so that existing
+    DL models are reloaded silently without prompting.
+
+    Parameters
+    ----------
+    imerg_ds : xarray.Dataset
+        Full IMERG precipitation dataset (all years, all months).
+    cpc_ds_aligned : xarray.Dataset
+        CPC dataset already aligned (reindexed) to the IMERG grid.
+    month : int
+        Month number (1–12).
+    dekad : int
+        Dekad number (1, 2, or 3).
+
+    Returns
+    -------
+    str
+        Path to the saved LSEQMDL-corrected NetCDF file.
+    """
+    import os
+    from . import config
+    from .deep_learning import train_bias_correction_model, apply_deeplearning_model
+
+    # Derive dekad variables
+    month_str = f"{month:02d}"
+    dekad_str = '01' if dekad == 1 else ('11' if dekad == 2 else '21')
+    dekad_start = int(dekad_str)
+    dekad_end = (
+        10 if dekad == 1
+        else 20 if dekad == 2
+        else get_max_day_in_month(imerg_ds, month)
+    )
+
+    # Step 7: LSEQM bias correction (LS + EQM + GPD)
+    logging.info("Pipeline [%s d%s]: Running LSEQM...", month_str, dekad)
+    lseqm_result, cpc_dekad_data = lseqm(
+        imerg_ds, cpc_ds_aligned, month, dekad_start, dekad_end,
+        month_str=month_str,
+        dekad_str=dekad_str,
+        ls_corrected_precip_path=config.ls_corrected_precip_path,
+        lseqm_corrected_precip_path=config.lseqm_corrected_precip_path,
+    )
+
+    # Step 8: Train (or reload) DL model — interactive=False for batch
+    model_name = f"bias_correction_model_month{month_str}_dekad{dekad_str}"
+    logging.info("Pipeline [%s d%s]: Training / loading DL model...", month_str, dekad)
+    model = train_bias_correction_model(
+        lseqm_result, cpc_dekad_data, model_name,
+        interactive=False,
+    )
+
+    # Step 9: Confidence mask (optional, controlled by config)
+    confidence_mask = None
+    if (config.USE_CONFIDENCE_MASK
+            and config.STATION_FILE
+            and os.path.isfile(config.STATION_FILE)):
+        from .station_density import get_or_create_confidence_mask
+        logging.info("Pipeline [%s d%s]: Loading confidence mask...", month_str, dekad)
+        confidence_mask = get_or_create_confidence_mask(
+            station_file=config.STATION_FILE,
+            confidence_mask_file=config.CONFIDENCE_MASK_FILE,
+            target_lat=lseqm_result.lat.values,
+            target_lon=lseqm_result.lon.values,
+            cpc_resolution=config.DENSITY_CPC_RESOLUTION,
+            smoothing_sigma=config.DENSITY_SMOOTHING_SIGMA,
+            saturation_count=config.DENSITY_SATURATION_COUNT,
+            lat_range=config.DENSITY_LAT_RANGE,
+            lon_range=config.DENSITY_LON_RANGE,
+        )
+
+    # Step 10: Apply DL refinement + save
+    logging.info("Pipeline [%s d%s]: Applying DL refinement...", month_str, dekad)
+    corrected_precip = apply_deeplearning_model(
+        model, lseqm_result, confidence_mask=confidence_mask
+    ).clip(min=0)
+
+    save_corrected_precip(
+        corrected_precip,
+        lseqm_result,
+        method_abbr="lseqmdl",
+        method_full=(
+            "Hybrid Deep Learning-Physical "
+            "(Linear Scaling and Empirical Quantile Mapping) Approach"
+        ),
+        folder=config.lseqmdl_corrected_precip_path,
+        dekad_str=dekad_str,
+        month_str=month_str,
+    )
+
+    logging.info("Pipeline [%s d%s]: Complete.", month_str, dekad)
+
+    out_fname = (
+        f"idn_cli_imergl_lseqmdl_corrected_precip"
+        f"_month{month_str}_dekad{dekad_str}.nc4"
+    )
+    return os.path.join(config.lseqmdl_corrected_precip_path, out_fname)

@@ -471,6 +471,13 @@ def save_metrics(metrics_ds, out_file, description="Bias Correction Metrics"):
     # Build encoding (only for variables present in the dataset)
     encoding = {var: CF18_METRICS[var] for var in metrics_ds.data_vars if var in CF18_METRICS}
 
+    # Time coordinate encoding: in timeseries mode the time dim holds integer
+    # years (e.g. 2001, 2002, ...) not datetime objects.  Encode as int32 to
+    # avoid the "overflow encountered in cast" warning that occurs when xarray
+    # auto-encodes plain integers through its datetime path.
+    if 'time' in metrics_ds.coords:
+        encoding['time'] = {'dtype': 'int32', 'zlib': True, '_FillValue': None}
+
     try:
         os.makedirs(os.path.dirname(out_file), exist_ok=True)
         metrics_ds.to_netcdf(out_file, engine=NETCDF_ENGINE, encoding=encoding)

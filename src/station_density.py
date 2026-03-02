@@ -81,7 +81,7 @@ def load_station_locations(station_file):
     if not os.path.isfile(station_file):
         raise FileNotFoundError(f"Station file not found: {station_file}")
 
-    df = pd.read_csv(station_file)
+    df = pd.read_csv(station_file, sep=None, engine='python')
 
     # Validate required columns
     for col in ('Lon', 'Lat'):

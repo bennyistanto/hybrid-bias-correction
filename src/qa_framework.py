@@ -556,3 +556,123 @@ def save_quality_assessment(quality_ds, out_file,
     except IOError as e:
         logging.error(f"Failed to save {out_file}: {e}")
         return None
+
+
+# +++++++++++++++++++++++++++++++++++++++++
+# Main Orchestration Pipeline
+# +++++++++++++++++++++++++++++++++++++++++
+
+def run_qa_pipeline(month, dekad, mode='single'):
+    """
+    Run quality assessment for all 9 reference-vs-test combinations.
+
+    Loads each metrics NetCDF produced by ``metrics.run_metrics_pipeline``,
+    runs :func:`compute_quality_assessment`, and saves the result via
+    :func:`save_quality_assessment`.
+
+    Combinations: {CPC, IMERGL, IMERGF} × {LS, LSEQM, LSEQM+DL}.
+
+    Parameters
+    ----------
+    month : int
+        Month number (1-12).
+    dekad : int
+        Dekad number (1, 2, or 3).
+    mode : str, optional
+        ``'single'`` (default) — aggregated across all years, dims=(lat, lon).
+        ``'timeseries'`` — per-year quality, dims=(time, lat, lon).
+
+    Returns
+    -------
+    list of str
+        Paths to the saved quality NetCDF files (None for skipped combos).
+    """
+    from . import config
+
+    if mode not in ('timeseries', 'single'):
+        raise ValueError(f"mode must be 'timeseries' or 'single', got '{mode}'")
+
+    # Format strings matching run_metrics_pipeline naming convention
+    month_str = f"{month:02d}"
+    if dekad == 1:
+        dekad_str = "01"
+    elif dekad == 2:
+        dekad_str = "11"
+    else:
+        dekad_str = "21"
+
+    metrics_prefix = 'metricsts' if mode == 'timeseries' else 'metricssd'
+    quality_prefix = 'qualityts' if mode == 'timeseries' else 'qualitysd'
+
+    ref_labels = ['cpc', 'imergl', 'imergf']
+    method_labels = ['ls', 'lseqm', 'lseqmdl']
+
+    output_files = []
+    combo_num = 0
+
+    for ref_label in ref_labels:
+        for method in method_labels:
+            combo_num += 1
+            test_label = f"imergl_{method}"
+
+            # Resolve paths from config templates
+            metrics_dir = config.metrics_path_template.replace('{method}', method)
+            quality_dir = config.quality_path_template.replace('{method}', method)
+
+            # Metrics input file (produced by run_metrics_pipeline)
+            metrics_fname = (
+                f"idn_cli_{metrics_prefix}_{ref_label}_{test_label}"
+                f"_month{month_str}_dekad{dekad_str}.nc4"
+            )
+            metrics_fpath = os.path.join(metrics_dir, metrics_fname)
+
+            if not os.path.isfile(metrics_fpath):
+                logging.info(
+                    f"[{combo_num}/9] Metrics not found: {metrics_fname} — skipping"
+                )
+                output_files.append(None)
+                continue
+
+            logging.info(f"[{combo_num}/9] {ref_label} vs {test_label} ({mode})")
+
+            try:
+                metrics_ds = xr.open_dataset(
+                    metrics_fpath, engine=NETCDF_ENGINE,
+                    decode_timedelta=False,
+                )
+
+                # Run full quality assessment
+                quality_ds = compute_quality_assessment(metrics_ds)
+
+                # Build output path
+                quality_fname = (
+                    f"idn_cli_{quality_prefix}_{ref_label}_{test_label}"
+                    f"_month{month_str}_dekad{dekad_str}.nc4"
+                )
+                os.makedirs(quality_dir, exist_ok=True)
+                quality_fpath = os.path.join(quality_dir, quality_fname)
+
+                desc = (
+                    f"{ref_label.upper()} vs {test_label.upper()} "
+                    f"— {mode} quality assessment"
+                )
+                result = save_quality_assessment(
+                    quality_ds, quality_fpath, description=desc
+                )
+                output_files.append(result)
+
+                metrics_ds.close()
+                logging.info(f"  Done: {quality_fname}")
+
+            except Exception as e:
+                logging.error(
+                    f"Error processing {ref_label} vs {test_label}: {e}"
+                )
+                output_files.append(None)
+
+    n_saved = sum(1 for f in output_files if f is not None)
+    logging.info(
+        f"QA pipeline complete: {n_saved}/9 files saved ({mode} mode)"
+    )
+
+    return output_files

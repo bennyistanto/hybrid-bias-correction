@@ -233,7 +233,7 @@ station_density:
   station_file: "{main_dir}/data/input/stations/idn_cli_weatherstation_location_bmkg.csv"
 
   # Pre-computed confidence mask NetCDF (created on first run, loaded thereafter)
-  confidence_mask_file: "{output_dir}/confidence_mask_station_density.nc4"
+  confidence_mask_file: "{output_dir}/station_density/confidence_mask_station_density.nc4"
 
   # CPC native grid resolution in degrees (determines counting cell size)
   cpc_resolution: 0.5
@@ -248,7 +248,7 @@ station_density:
   #   - 1: aggressive — any station presence = full confidence
   #   - 3 (default): moderate — requires several nearby stations
   #   - 5: conservative — only dense station clusters get full confidence
-  saturation_count: 3
+  saturation_count: 2
 
   # Grid bounds for station counting
   lat_range: [-11.0, 6.0]

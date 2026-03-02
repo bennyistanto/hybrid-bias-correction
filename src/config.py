@@ -146,7 +146,7 @@ STATION_FILE = None                  # Path to station CSV; None = disabled
 CONFIDENCE_MASK_FILE = None          # Path to pre-computed confidence mask
 DENSITY_CPC_RESOLUTION = 0.5        # CPC native grid spacing (degrees)
 DENSITY_SMOOTHING_SIGMA = 1.0       # Gaussian smoothing (grid-cell units)
-DENSITY_SATURATION_COUNT = 3        # Stations for full confidence (1.0)
+DENSITY_SATURATION_COUNT = 2        # Stations for full confidence (1.0)
 DENSITY_LAT_RANGE = (-11.0, 6.0)    # Grid bounds (south, north)
 DENSITY_LON_RANGE = (95.0, 141.0)   # Grid bounds (west, east)
 

@@ -725,9 +725,24 @@ def merge_station_metadata(metrics_df, station_df):
     if metrics_df.empty:
         return metrics_df
 
+    # Normalize common column name variants from station CSV
+    # (e.g., 'region' -> 'Region', 'a1name' -> 'Province', 'a2name' -> 'District')
+    rename_map = {}
+    for col in station_df.columns:
+        lc = col.lower()
+        if lc == 'region' and col != 'Region':
+            rename_map[col] = 'Region'
+        elif lc in ('a1name', 'province') and col != 'Province':
+            rename_map[col] = 'Province'
+        elif lc in ('a2name', 'district') and col != 'District':
+            rename_map[col] = 'District'
+    if rename_map:
+        station_df = station_df.rename(columns=rename_map)
+        logging.debug("Renamed station columns: %s", rename_map)
+
     # Determine which metadata columns are available
     meta_cols = ['ID_WMO', 'Station', 'Lon', 'Lat', 'Elevation']
-    for optional in ('Region', 'Province'):
+    for optional in ('Region', 'Province', 'District'):
         if optional in station_df.columns:
             meta_cols.append(optional)
 
@@ -909,6 +924,284 @@ def plot_station_scatter(obs_df, gridded_dict, station_id, station_df=None,
     plt.show()
 
     return fig
+
+
+# +++++++++++++++++++++++++++++++++++++++++
+# Per-Station Daily Precipitation Time Series
+# +++++++++++++++++++++++++++++++++++++++++
+
+def plot_station_timeseries(obs_df, gridded_dict, station_id, station_df=None,
+                            thresholds=(5, 10, 20, 50, 100),
+                            figsize=(16, 6)):
+    """
+    Generate a daily precipitation dot plot for a single station over time.
+
+    Each dataset (observed + gridded products) is plotted as semi-transparent
+    dots along the time axis. Horizontal dashed lines mark WMO rainfall
+    intensity thresholds for visual context.
+
+    Parameters
+    ----------
+    obs_df : pandas.DataFrame
+        Station observations (DatetimeIndex, WMO station ID columns).
+    gridded_dict : dict of {str: pandas.DataFrame}
+        Extracted gridded values keyed by method name (e.g.,
+        {'LS': df, 'LSEQM': df, 'LSEQMDL': df}).
+    station_id : int
+        WMO station ID to plot.
+    station_df : pandas.DataFrame, optional
+        Station metadata for title annotation.
+    thresholds : tuple of float, optional
+        Precipitation thresholds (mm/day) for horizontal reference lines.
+        Default: (5, 10, 20, 50, 100).
+    figsize : tuple, optional
+        Figure size (width, height) in inches.
+
+    Returns
+    -------
+    matplotlib.figure.Figure
+        The generated figure (also displayed via plt.show).
+    """
+    import matplotlib.pyplot as plt
+    import matplotlib.dates as mdates
+
+    # Color palette for datasets
+    dataset_colors = {
+        'BMKG': '#222222',
+        'IMERG': '#999999',
+        'CPC': '#666666',
+        'LS': '#e74c3c',
+        'LSEQM': '#f39c12',
+        'LSEQMDL': '#27ae60',
+    }
+
+    # Station name for title
+    station_name = f"WMO {station_id}"
+    province_str = ""
+    if station_df is not None and 'ID_WMO' in station_df.columns:
+        match = station_df[station_df['ID_WMO'].astype(int) == int(station_id)]
+        if len(match) > 0:
+            row = match.iloc[0]
+            station_name = f"{row.get('Station', '')} ({station_id})"
+            # Check for Province / a1name
+            for pcol in ('Province', 'a1name'):
+                if pcol in row.index and pd.notna(row[pcol]):
+                    province_str = str(row[pcol])
+                    break
+
+    fig, ax = plt.subplots(figsize=figsize)
+
+    # --- Plot observed data ---
+    if station_id in obs_df.columns:
+        obs_ts = obs_df[station_id].dropna()
+        if len(obs_ts) > 0:
+            ax.scatter(obs_ts.index, obs_ts.values, s=12, alpha=0.35,
+                       color=dataset_colors.get('BMKG', '#222222'),
+                       edgecolors='none', label='BMKG Observed', zorder=3)
+
+    # --- Plot gridded products ---
+    stats_lines = []
+    for method_name, gridded_df in gridded_dict.items():
+        if station_id not in gridded_df.columns:
+            continue
+
+        grid_ts = gridded_df[station_id].dropna()
+        if len(grid_ts) == 0:
+            continue
+
+        color = dataset_colors.get(method_name, '#333333')
+        ax.scatter(grid_ts.index, grid_ts.values, s=10, alpha=0.3,
+                   color=color, edgecolors='none', label=method_name, zorder=2)
+
+        # Compute quick stats against observations
+        if station_id in obs_df.columns:
+            obs_ts = obs_df[station_id]
+            common_idx = obs_ts.dropna().index.intersection(grid_ts.index)
+            if len(common_idx) >= MIN_VALID_DAYS:
+                obs_vals = obs_ts.loc[common_idx].values.astype(np.float64)
+                grid_vals = grid_ts.loc[common_idx].values.astype(np.float64)
+                from .metrics import compute_pixel_metrics
+                mt = compute_pixel_metrics(obs_vals, grid_vals, 1.0)
+                corr = mt[1]    # pearson_correlation
+                rmse = mt[2]    # rmse
+                nse = mt[14]    # nse
+                stats_lines.append(
+                    f"{method_name}: r={corr:.2f}  RMSE={rmse:.1f}  "
+                    f"NSE={nse:.2f}  (n={len(common_idx)})"
+                )
+
+    # --- WMO threshold reference lines ---
+    threshold_colors = {
+        5: '#4fc3f7', 10: '#29b6f6', 20: '#0288d1',
+        50: '#f57c00', 100: '#d32f2f',
+    }
+    for thr in thresholds:
+        color = threshold_colors.get(thr, '#888888')
+        ax.axhline(y=thr, color=color, linestyle='--', linewidth=0.8,
+                   alpha=0.6, zorder=1)
+        ax.text(ax.get_xlim()[1] if ax.get_xlim()[1] > 0 else 1.01, thr,
+                f' {thr} mm', color=color, fontsize=7,
+                va='center', ha='left',
+                transform=ax.get_yaxis_transform())
+
+    # --- Formatting ---
+    ax.set_xlabel('Date')
+    ax.set_ylabel('Daily Precipitation (mm/day)')
+    title = f'Daily Precipitation: {station_name}'
+    if province_str:
+        title += f', {province_str}'
+    ax.set_title(title, fontsize=13, fontweight='bold')
+    ax.set_ylim(bottom=0)
+    ax.grid(True, alpha=0.2)
+
+    # Date formatting
+    ax.xaxis.set_major_locator(mdates.YearLocator())
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
+    ax.xaxis.set_minor_locator(mdates.MonthLocator(bymonth=[1, 4, 7, 10]))
+    fig.autofmt_xdate(rotation=30)
+
+    # Legend
+    ax.legend(loc='upper right', fontsize=8, framealpha=0.8,
+              markerscale=2, scatterpoints=1)
+
+    # Stats annotation box
+    if stats_lines:
+        stats_text = '\n'.join(stats_lines)
+        ax.text(0.01, 0.98, stats_text, transform=ax.transAxes,
+                fontsize=7, verticalalignment='top', fontfamily='monospace',
+                bbox=dict(boxstyle='round,pad=0.4', facecolor='white',
+                          alpha=0.85, edgecolor='grey'))
+
+    plt.tight_layout()
+    plt.show()
+
+    return fig
+
+
+# +++++++++++++++++++++++++++++++++++++++++
+# Gridded Metrics / QA Extraction at Stations
+# +++++++++++++++++++++++++++++++++++++++++
+
+def extract_metrics_at_stations(metrics_file, station_df, metric_names=None):
+    """
+    Extract pixel-level gridded metrics at station locations.
+
+    Opens a metrics NetCDF file (output of ``run_metrics_pipeline``),
+    extracts variable values at each station's nearest grid cell, and
+    returns a DataFrame.
+
+    Parameters
+    ----------
+    metrics_file : str
+        Path to a metrics NetCDF file (2-D variables: lat × lon).
+    station_df : pandas.DataFrame
+        Station locations with 'ID_WMO', 'Lon', 'Lat' columns.
+    metric_names : list of str, optional
+        Variables to extract. If None, extracts all data variables.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Index = WMO station IDs, columns = metric names.
+    """
+    from .config import NETCDF_ENGINE
+
+    if not os.path.isfile(metrics_file):
+        logging.warning("Metrics file not found: %s", metrics_file)
+        return pd.DataFrame()
+
+    ds = xr.open_dataset(metrics_file, engine=NETCDF_ENGINE)
+
+    if metric_names is None:
+        metric_names = list(ds.data_vars)
+
+    results = {}
+    for _, row in station_df.iterrows():
+        wmo_id = int(row['ID_WMO'])
+        lat = float(row['Lat'])
+        lon = float(row['Lon'])
+
+        row_dict = {}
+        for var in metric_names:
+            if var not in ds:
+                continue
+            val = ds[var].sel(lat=lat, lon=lon, method='nearest')
+            row_dict[var] = float(val.values) if val.size == 1 else np.nan
+
+        results[wmo_id] = row_dict
+
+    ds.close()
+
+    result_df = pd.DataFrame.from_dict(results, orient='index')
+    result_df.index.name = 'station_id'
+    logging.info("Extracted %d metrics at %d stations from %s",
+                 len(metric_names), len(result_df), metrics_file)
+
+    return result_df
+
+
+def extract_qa_at_stations(qa_file, station_df, var_names=None):
+    """
+    Extract pixel-level gridded QA values at station locations.
+
+    Opens a QA NetCDF file (output of ``run_qa_pipeline``), extracts
+    variable values at each station's nearest grid cell. Handles both
+    numeric (score) and categorical (category) variables.
+
+    Parameters
+    ----------
+    qa_file : str
+        Path to a QA NetCDF file (2-D variables: lat × lon).
+    station_df : pandas.DataFrame
+        Station locations with 'ID_WMO', 'Lon', 'Lat' columns.
+    var_names : list of str, optional
+        Variables to extract. If None, extracts all data variables.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Index = WMO station IDs, columns = QA variable names.
+    """
+    from .config import NETCDF_ENGINE
+
+    if not os.path.isfile(qa_file):
+        logging.warning("QA file not found: %s", qa_file)
+        return pd.DataFrame()
+
+    ds = xr.open_dataset(qa_file, engine=NETCDF_ENGINE)
+
+    if var_names is None:
+        var_names = list(ds.data_vars)
+
+    results = {}
+    for _, row in station_df.iterrows():
+        wmo_id = int(row['ID_WMO'])
+        lat = float(row['Lat'])
+        lon = float(row['Lon'])
+
+        row_dict = {}
+        for var in var_names:
+            if var not in ds:
+                continue
+            val = ds[var].sel(lat=lat, lon=lon, method='nearest')
+            raw = val.values
+            if raw.size == 1:
+                raw = raw.item()
+                # Keep as-is (may be int category or float score)
+                row_dict[var] = raw
+            else:
+                row_dict[var] = np.nan
+
+        results[wmo_id] = row_dict
+
+    ds.close()
+
+    result_df = pd.DataFrame.from_dict(results, orient='index')
+    result_df.index.name = 'station_id'
+    logging.info("Extracted %d QA variables at %d stations from %s",
+                 len(var_names), len(result_df), qa_file)
+
+    return result_df
 
 
 # +++++++++++++++++++++++++++++++++++++++++

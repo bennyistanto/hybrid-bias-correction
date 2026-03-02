@@ -96,4 +96,7 @@ src/*/_version.py
 
 # folders
 colab/
-data/
+data/input/
+data/output/
+data/subset/adm0
+data/subset/world
