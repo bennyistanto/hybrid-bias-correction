@@ -25,11 +25,12 @@ Update: 2025
 """
 # Import the library
 import numpy as np
+import xarray as xr
 import logging
 from scipy.stats import gamma, genpareto
 from sklearn.model_selection import KFold
-from .config import (N_SPLITS_GPD_CROSSVALIDATE, 
-                     GPD_THRESHOLD_PERCENTILE, 
+from .config import (N_SPLITS_GPD_CROSSVALIDATE,
+                     GPD_THRESHOLD_PERCENTILE,
                      UPPER_CAP_THRESHOLD_PERCENTILE)
 
 # +++++++++++++++++++++++++++++++++++++++++
@@ -227,6 +228,300 @@ def cross_validate_gpd(
     scale_avg = np.mean([params[2] for params in params_list])
 
     return shape_avg, loc_avg, scale_avg
+
+
+# ----
+# Fit CPC distribution parameters at native 0.5° resolution
+def fit_cpc_parameters_on_native_grid(
+        cpc_native_dekad
+    ):
+    """
+    Fit gamma and GPD distribution parameters at each CPC native-resolution cell.
+
+    This avoids redundantly fitting the same CPC time series 25 times (as happens
+    when CPC is nearest-neighbour regridded to 0.1°). Instead, parameters are
+    fitted once per ~0.5° cell and later interpolated to the IMERG grid.
+
+    Based on the BCSD principle (Wood et al. 2004): correct at reference resolution,
+    then disaggregate smoothly.
+
+    Parameters
+    ----------
+    cpc_native_dekad : xarray.DataArray
+        CPC precipitation at native ~0.5° resolution for one dekad across all years.
+        Shape (n_time, n_lat_cpc, n_lon_cpc).
+
+    Returns
+    -------
+    dict of xarray.DataArray
+        Dictionary with 8 parameter arrays at CPC native resolution:
+        'gamma_shape', 'gamma_scale', 'gpd_threshold', 'gpd_shape',
+        'gpd_loc', 'gpd_scale', 'upper_cap', 'p_threshold'.
+        Ocean/invalid cells are NaN.
+    """
+    lat_cpc = cpc_native_dekad.lat.values
+    lon_cpc = cpc_native_dekad.lon.values
+    n_lat = len(lat_cpc)
+    n_lon = len(lon_cpc)
+
+    # Initialize parameter arrays with NaN
+    param_names = [
+        'gamma_shape', 'gamma_scale', 'gpd_threshold',
+        'gpd_shape', 'gpd_loc', 'gpd_scale',
+        'upper_cap', 'p_threshold'
+    ]
+    params = {
+        name: np.full((n_lat, n_lon), np.nan)
+        for name in param_names
+    }
+
+    import time as _time
+    _fitted = 0
+    _skipped = 0
+    _t0 = _time.time()
+
+    for i in range(n_lat):
+        for j in range(n_lon):
+            ts = cpc_native_dekad.values[:, i, j]
+
+            # Skip all-NaN cells (ocean)
+            if np.all(np.isnan(ts)):
+                _skipped += 1
+                continue
+
+            # Remove NaN and get valid data
+            valid = ts[~np.isnan(ts)]
+            positive = valid[valid > 0]
+
+            # Need sufficient wet-day data for fitting
+            if len(positive) < 10:
+                _skipped += 1
+                continue
+
+            # Fit gamma distribution
+            shape, _loc, scale = fit_gamma_distribution(valid)
+            if shape <= 0 or scale <= 0:
+                _skipped += 1
+                continue
+
+            params['gamma_shape'][i, j] = shape
+            params['gamma_scale'][i, j] = scale
+
+            # GPD threshold (80th percentile of all valid values)
+            threshold = np.percentile(valid, GPD_THRESHOLD_PERCENTILE)
+            params['gpd_threshold'][i, j] = threshold
+
+            # Fit GPD via cross-validation
+            if not np.isnan(threshold) and threshold > 0:
+                gpd_shape, gpd_loc, gpd_scale = cross_validate_gpd(valid, threshold)
+                params['gpd_shape'][i, j] = gpd_shape
+                params['gpd_loc'][i, j] = gpd_loc
+                params['gpd_scale'][i, j] = gpd_scale
+            else:
+                params['gpd_shape'][i, j] = 0
+                params['gpd_loc'][i, j] = 0
+                params['gpd_scale'][i, j] = 1
+
+            # Upper cap (99.9th percentile)
+            params['upper_cap'][i, j] = np.percentile(valid, UPPER_CAP_THRESHOLD_PERCENTILE)
+
+            # Pre-compute CDF at threshold for conditional probability mapping
+            params['p_threshold'][i, j] = gamma.cdf(threshold, shape, loc=0, scale=scale)
+
+            _fitted += 1
+
+        # Progress every 5 rows
+        if (i + 1) % 5 == 0 or (i + 1) == n_lat:
+            elapsed = _time.time() - _t0
+            pct = (i + 1) / n_lat * 100
+            eta = elapsed / (i + 1) * (n_lat - i - 1) if i > 0 else 0
+            logging.info(
+                f"  Native CPC fitting: row {i+1}/{n_lat} ({pct:.0f}%) "
+                f"| {_fitted} fitted, {_skipped} skipped "
+                f"| elapsed {elapsed:.0f}s, ETA {eta:.0f}s"
+            )
+
+    logging.info(f"Fitted CPC params on native grid: {_fitted}/{n_lat * n_lon} cells")
+
+    # Convert to xarray DataArrays
+    cpc_params = {}
+    for name in param_names:
+        cpc_params[name] = xr.DataArray(
+            params[name],
+            coords={'lat': lat_cpc, 'lon': lon_cpc},
+            dims=['lat', 'lon'],
+            name=name
+        )
+
+    return cpc_params
+
+
+# ----
+# Bilinearly interpolate CPC parameters to the IMERG grid
+def interpolate_cpc_params_to_imerg_grid(
+        cpc_params,
+        target_lat,
+        target_lon
+    ):
+    """
+    Bilinearly interpolate CPC distribution parameters from native ~0.5° to
+    the IMERG 0.1° grid. Uses a two-pass approach: bilinear first, then
+    nearest-neighbour to fill boundary NaN values.
+
+    Parameters
+    ----------
+    cpc_params : dict of xarray.DataArray
+        CPC distribution parameters at native resolution, as returned by
+        fit_cpc_parameters_on_native_grid().
+    target_lat : numpy.ndarray
+        Target latitude values (IMERG grid).
+    target_lon : numpy.ndarray
+        Target longitude values (IMERG grid).
+
+    Returns
+    -------
+    dict of xarray.DataArray
+        Interpolated parameters at IMERG resolution.
+    """
+    interp_params = {}
+
+    for name, param_da in cpc_params.items():
+        # Pass 1: bilinear interpolation
+        interp_da = param_da.interp(
+            lat=target_lat, lon=target_lon, method='linear'
+        )
+
+        # Pass 2: fill boundary NaN with nearest-neighbour
+        n_nan_before = int(interp_da.isnull().sum().item())
+        if n_nan_before > 0:
+            nearest_da = param_da.interp(
+                lat=target_lat, lon=target_lon, method='nearest'
+            )
+            interp_da = interp_da.fillna(nearest_da)
+
+        interp_params[name] = interp_da
+
+    # Validate: clip gamma shape/scale to small positive minimum
+    for key in ('gamma_shape', 'gamma_scale'):
+        if key in interp_params:
+            interp_params[key] = interp_params[key].clip(min=1e-6)
+
+    # Log summary
+    sample_key = 'gamma_shape'
+    n_valid = int((~interp_params[sample_key].isnull()).sum().item())
+    n_total = int(np.prod(interp_params[sample_key].shape))
+    logging.info(
+        f"Interpolated CPC params to IMERG grid: "
+        f"{n_valid}/{n_total} valid pixels"
+    )
+
+    return interp_params
+
+
+# ----
+# Gamma quantile mapping with pre-computed CPC parameters
+def gamma_quantile_mapping_precomputed(
+        imerg_values,
+        cpc_gamma_shape,
+        cpc_gamma_scale,
+        cpc_gpd_threshold,
+        cpc_gpd_shape,
+        cpc_gpd_loc,
+        cpc_gpd_scale,
+        cpc_upper_cap,
+        cpc_p_threshold
+    ):
+    """
+    Apply gamma distribution-based quantile mapping with GPD tail adjustment,
+    using pre-computed CPC-side parameters instead of fitting CPC per pixel.
+
+    This is identical to gamma_quantile_mapping() in statistical logic, but:
+    - Only fits the IMERG gamma distribution (pixel-specific)
+    - Uses smoothly interpolated CPC parameters (no per-pixel CPC fitting)
+    - Eliminates 0.5° block boundary artefacts
+
+    Parameters
+    ----------
+    imerg_values : numpy.ndarray
+        IMERG precipitation time series for one pixel.
+    cpc_gamma_shape : float
+        Pre-computed CPC gamma shape parameter.
+    cpc_gamma_scale : float
+        Pre-computed CPC gamma scale parameter.
+    cpc_gpd_threshold : float
+        Pre-computed CPC GPD threshold (e.g. 80th percentile).
+    cpc_gpd_shape : float
+        Pre-computed CPC GPD shape parameter.
+    cpc_gpd_loc : float
+        Pre-computed CPC GPD location parameter.
+    cpc_gpd_scale : float
+        Pre-computed CPC GPD scale parameter.
+    cpc_upper_cap : float
+        Pre-computed CPC upper cap (e.g. 99.9th percentile).
+    cpc_p_threshold : float
+        Pre-computed CPC gamma CDF value at the GPD threshold.
+
+    Returns
+    -------
+    numpy.ndarray
+        Corrected precipitation values after quantile mapping.
+    """
+    original_shape = imerg_values.shape
+    imerg_flat = imerg_values.flatten()
+
+    # Check if any CPC parameter is NaN → skip this pixel
+    if (np.isnan(cpc_gamma_shape) or np.isnan(cpc_gamma_scale) or
+            np.isnan(cpc_gpd_threshold)):
+        return np.full(original_shape, np.nan)
+
+    # Remove NaN from IMERG
+    valid_mask = ~np.isnan(imerg_flat)
+    imerg_valid = imerg_flat[valid_mask]
+
+    if imerg_valid.size == 0:
+        return np.full(original_shape, np.nan)
+
+    # Check for constant IMERG values
+    if np.all(imerg_valid == imerg_valid[0]):
+        if np.all(imerg_valid == 0):
+            return np.zeros(original_shape)
+
+    # Fit gamma to IMERG (pixel-specific)
+    shape1, loc1, scale1 = fit_gamma_distribution(imerg_valid)
+    y = gamma.cdf(imerg_valid, shape1, loc=loc1, scale=scale1)
+
+    # Apply inverse CPC gamma CDF (using pre-computed CPC params)
+    cpc_quantiles = gamma.ppf(y, cpc_gamma_shape, loc=0, scale=cpc_gamma_scale)
+    cpc_quantiles = np.maximum(cpc_quantiles, 0)
+
+    # GPD tail adjustment using pre-computed CPC GPD parameters
+    threshold = cpc_gpd_threshold
+    if not np.isnan(threshold) and threshold > 0:
+        extreme_mask = imerg_valid > threshold
+        if np.any(extreme_mask):
+            p_threshold = cpc_p_threshold
+            if not np.isnan(p_threshold) and p_threshold < 1.0:
+                # Conditional probability mapping
+                p_conditional = (y[extreme_mask] - p_threshold) / (1 - p_threshold)
+                p_conditional = np.clip(p_conditional, 1e-10, 1 - 1e-10)
+
+                cpc_quantiles[extreme_mask] = genpareto.ppf(
+                    p_conditional, cpc_gpd_shape, loc=cpc_gpd_loc, scale=cpc_gpd_scale
+                ) + threshold
+
+    # Apply upper cap
+    if not np.isnan(cpc_upper_cap):
+        cpc_quantiles = np.minimum(cpc_quantiles, cpc_upper_cap)
+
+    # Ensure non-negative
+    cpc_quantiles = np.maximum(cpc_quantiles, 0)
+
+    # Rebuild full array
+    corrected_flat = np.full_like(imerg_flat, np.nan)
+    corrected_flat[valid_mask] = cpc_quantiles
+
+    return corrected_flat.reshape(original_shape)
+
 
 # ----
 # To address the issue of capturing extreme values in satellite data while performing EQM,

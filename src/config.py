@@ -84,6 +84,7 @@ output_dir = os.path.join(main_dir, 'data', 'output')
 imergl_file = os.path.join(input_dir, 'imergl', 'idn_imergl.nc4')
 imergf_file = os.path.join(input_dir, 'imergf', 'idn_imergf.nc4')
 cpc_file = os.path.join(input_dir, 'cpcuni', 'idn_cpcuni.nc4')
+cpc_native_file = os.path.join(input_dir, 'cpcuni', 'idn_cpcuni_native05.nc4')
 mask_file = os.path.join(main_dir, 'data', 'subset', 'iso3', 'idn_subset.nc')
 
 # --- Variable Names ---
@@ -311,7 +312,7 @@ def initialize_config(config_path=None):
         The loaded configuration dictionary.
     """
     global main_dir, input_dir, output_dir
-    global imergl_file, imergf_file, cpc_file, mask_file
+    global imergl_file, imergf_file, cpc_file, cpc_native_file, mask_file
     global IMERG_PRECIP_VAR, CPC_PRECIP_VAR, MASK_VAR
     global ls_corrected_precip_path, lseqm_corrected_precip_path
     global lseqmdl_corrected_precip_path, trained_models_path
@@ -409,6 +410,9 @@ def initialize_config(config_path=None):
 
     raw_cpc = files.get('cpc_file', cpc_file)
     cpc_file = raw_cpc.replace('{input_dir}', input_dir).replace('{main_dir}', main_dir)
+
+    raw_cpc_native = files.get('cpc_native_file', cpc_native_file)
+    cpc_native_file = raw_cpc_native.replace('{input_dir}', input_dir).replace('{main_dir}', main_dir)
 
     raw_mask = files.get('mask_file', mask_file)
     mask_file = raw_mask.replace('{main_dir}', main_dir)

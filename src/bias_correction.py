@@ -32,8 +32,13 @@ Update: 2025
 import xarray as xr
 import logging
 import numpy as np
-from .io import save_corrected_precip, get_max_day_in_month, aggregate_data_across_years
-from .distribution_fitting import gamma_quantile_mapping
+from .io import save_corrected_precip, get_max_day_in_month, aggregate_data_across_years, aggregate_cpc_native_for_dekad
+from .distribution_fitting import (
+    gamma_quantile_mapping,
+    gamma_quantile_mapping_precomputed,
+    fit_cpc_parameters_on_native_grid,
+    interpolate_cpc_params_to_imerg_grid,
+)
 
 # +++++++++++++++++++++++++++++++++++++++++
 # Functions
@@ -52,7 +57,8 @@ def lseqm(
         month_str=None,
         dekad_str=None,
         ls_corrected_precip_path=None,
-        lseqm_corrected_precip_path=None
+        lseqm_corrected_precip_path=None,
+        cpc_native_ds=None
     ):
     """
     Apply Linear Scaling (LS) and Empirical Quantile Mapping (EQM) with GPD tail
@@ -68,7 +74,8 @@ def lseqm(
     imerg_ds : xarray.Dataset
         IMERG precipitation dataset with dimensions ('time', 'lat', 'lon').
     cpc_ds : xarray.Dataset
-        CPC precipitation dataset with dimensions ('time', 'lat', 'lon').
+        CPC precipitation dataset with dimensions ('time', 'lat', 'lon'),
+        already aligned (reindexed) to the IMERG grid.
     month : int
         The month number (1-12) for which the dekad is specified.
     dekad_start_day : int
@@ -87,6 +94,11 @@ def lseqm(
         Directory where LS-corrected data will be saved.
     lseqm_corrected_precip_path : str, optional
         Directory where LSEQM-corrected data will be saved.
+    cpc_native_ds : xarray.Dataset, optional
+        CPC dataset at native ~0.5° resolution (before regridding). When provided,
+        CPC distribution parameters are fitted at native resolution and bilinearly
+        interpolated to the IMERG grid, eliminating the 0.5° block boundary artefact.
+        When None, the original per-pixel fitting is used (backward compatible).
 
     Returns:
     ----------
@@ -123,10 +135,40 @@ def lseqm(
     # Ensure data alignment
     imerg_dekad_data, cpc_dekad_data = xr.align(imerg_dekad_data, cpc_dekad_data, join='inner')
 
+    # --- Native CPC parameter fitting (Option B) ---
+    _use_native_cpc = cpc_native_ds is not None
+    interp_cpc_params = None
+    if _use_native_cpc:
+        logging.info("Using native-resolution CPC parameter fitting (BCSD principle)...")
+        cpc_native_dekad = aggregate_cpc_native_for_dekad(
+            cpc_native_ds, month, dekad_start_day, dekad_end_day
+        )
+        cpc_params = fit_cpc_parameters_on_native_grid(cpc_native_dekad)
+        interp_cpc_params = interpolate_cpc_params_to_imerg_grid(
+            cpc_params,
+            imerg_dekad_data.lat.values,
+            imerg_dekad_data.lon.values
+        )
+
     # Perform Linear Scaling (LS)
     logging.info("Performing Linear Scaling (LS)...")
     imerg_mean = imerg_dekad_data.mean(dim='time')
-    cpc_mean = cpc_dekad_data.mean(dim='time')
+
+    if _use_native_cpc:
+        # Smooth LS: bilinearly interpolate CPC mean from native resolution
+        cpc_native_mean = cpc_native_dekad.mean(dim='time')
+        cpc_mean = cpc_native_mean.interp(
+            lat=imerg_dekad_data.lat, lon=imerg_dekad_data.lon, method='linear'
+        )
+        # Fill boundary NaN with nearest-neighbour
+        cpc_mean = cpc_mean.fillna(
+            cpc_native_mean.interp(
+                lat=imerg_dekad_data.lat, lon=imerg_dekad_data.lon, method='nearest'
+            )
+        )
+        logging.info("LS using bilinearly interpolated CPC mean (smooth).")
+    else:
+        cpc_mean = cpc_dekad_data.mean(dim='time')
 
     ls_scale_factor = xr.where(
         imerg_mean != 0,
@@ -164,12 +206,32 @@ def lseqm(
     for i in range(n_lat):
         for j in range(n_lon):
             imerg_ts = ls_corrected_precip.values[:, i, j]
-            cpc_ts = cpc_dekad_data.values[:, i, j]
-            # Skip all-NaN pixels (ocean) without calling the function
-            if np.all(np.isnan(imerg_ts)) or np.all(np.isnan(cpc_ts)):
+
+            # Skip all-NaN IMERG pixels (ocean)
+            if np.all(np.isnan(imerg_ts)):
                 continue
-            _land_count += 1
-            eqm_data[:, i, j] = gamma_quantile_mapping(imerg_ts, cpc_ts)
+
+            if _use_native_cpc:
+                # Use pre-computed, smoothly interpolated CPC parameters
+                _land_count += 1
+                eqm_data[:, i, j] = gamma_quantile_mapping_precomputed(
+                    imerg_ts,
+                    float(interp_cpc_params['gamma_shape'].values[i, j]),
+                    float(interp_cpc_params['gamma_scale'].values[i, j]),
+                    float(interp_cpc_params['gpd_threshold'].values[i, j]),
+                    float(interp_cpc_params['gpd_shape'].values[i, j]),
+                    float(interp_cpc_params['gpd_loc'].values[i, j]),
+                    float(interp_cpc_params['gpd_scale'].values[i, j]),
+                    float(interp_cpc_params['upper_cap'].values[i, j]),
+                    float(interp_cpc_params['p_threshold'].values[i, j]),
+                )
+            else:
+                # Original per-pixel fitting path (backward compatible)
+                cpc_ts = cpc_dekad_data.values[:, i, j]
+                if np.all(np.isnan(cpc_ts)):
+                    continue
+                _land_count += 1
+                eqm_data[:, i, j] = gamma_quantile_mapping(imerg_ts, cpc_ts)
 
         # Progress every 10 rows
         if (i + 1) % 10 == 0 or (i + 1) == n_lat:
@@ -214,7 +276,7 @@ def lseqm(
 
 # ----
 # Full correction pipeline: LS → LSEQM → DL (Steps 7-10 of notebook 02)
-def run_correction_pipeline(imerg_ds, cpc_ds_aligned, month, dekad):
+def run_correction_pipeline(imerg_ds, cpc_ds_aligned, month, dekad, cpc_native_ds=None):
     """
     Run the full LS → LSEQM → LSEQMDL pipeline for one month/dekad period.
 
@@ -232,6 +294,10 @@ def run_correction_pipeline(imerg_ds, cpc_ds_aligned, month, dekad):
         Month number (1–12).
     dekad : int
         Dekad number (1, 2, or 3).
+    cpc_native_ds : xarray.Dataset, optional
+        CPC dataset at native ~0.5° resolution (before regridding). When provided,
+        enables native-resolution CPC parameter fitting to eliminate the 0.5° block
+        boundary artefact. When None, uses the original per-pixel fitting.
 
     Returns
     -------
@@ -260,6 +326,7 @@ def run_correction_pipeline(imerg_ds, cpc_ds_aligned, month, dekad):
         dekad_str=dekad_str,
         ls_corrected_precip_path=config.ls_corrected_precip_path,
         lseqm_corrected_precip_path=config.lseqm_corrected_precip_path,
+        cpc_native_ds=cpc_native_ds,
     )
 
     # Step 8: Train (or reload) DL model — interactive=False for batch

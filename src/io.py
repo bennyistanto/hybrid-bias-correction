@@ -311,3 +311,76 @@ def aggregate_data_across_years(
         raise ValueError("No data found for the specified month and dekad.")
 
     return imerg_dekad_data, cpc_dekad_data
+
+
+# ----
+# Aggregate CPC at native 0.5° resolution for one dekad across all years
+def aggregate_cpc_native_for_dekad(
+        cpc_ds,
+        month,
+        dekad_start_day,
+        dekad_end_day,
+        cpc_var=None
+    ):
+    """
+    Aggregate CPC data at its native 0.5° resolution for a specified dekad
+    across all years. Unlike aggregate_data_across_years(), this function does
+    NOT align to the IMERG grid — it preserves the CPC native coordinates.
+
+    This is used by the native-resolution CPC parameter fitting (Option B)
+    to avoid the 5×5 block artefact introduced by nearest-neighbour regridding.
+
+    Parameters
+    ----------
+    cpc_ds : xarray.Dataset
+        CPC precipitation dataset at native ~0.5° resolution.
+    month : int
+        Month number (1–12).
+    dekad_start_day : int
+        Start day of the dekad (1, 11, or 21).
+    dekad_end_day : int
+        End day of the dekad (10, 20, or last day of month).
+    cpc_var : str, optional
+        Variable name for precipitation in CPC dataset. If None, uses config default.
+
+    Returns
+    -------
+    xarray.DataArray
+        CPC precipitation for the dekad across all years at native resolution.
+        Shape ~ (n_time, n_lat_cpc, n_lon_cpc).
+    """
+    if cpc_var is None:
+        cpc_var = CPC_PRECIP_VAR
+
+    # Ensure latitude is ascending (CPC sometimes has descending lat)
+    if len(cpc_ds.lat) > 1 and cpc_ds.lat.values[0] > cpc_ds.lat.values[-1]:
+        logging.info("CPC native lat is descending — flipping to ascending.")
+        cpc_ds = cpc_ds.reindex(lat=cpc_ds.lat[::-1])
+
+    # Create time mask for the specified dekad
+    cpc_time_mask = (
+        (cpc_ds['time.month'] == month) &
+        (cpc_ds['time.day'] >= dekad_start_day) &
+        (cpc_ds['time.day'] <= dekad_end_day)
+    )
+
+    # Apply time mask
+    try:
+        cpc_dekad_data = cpc_ds[cpc_var].where(cpc_time_mask, drop=True)
+    except KeyError as e:
+        logging.error(f"CPC variable not found: {e}")
+        logging.info(f"CPC variables: {list(cpc_ds.data_vars)}")
+        raise ValueError(f"Variable not found. Check CPC_PRECIP_VAR='{cpc_var}' in config.")
+
+    # Validate
+    if cpc_dekad_data.size == 0:
+        logging.error("No CPC data available after masking.")
+        raise ValueError("No CPC data found for the specified month and dekad.")
+
+    logging.info(
+        f"CPC native dekad data: {cpc_dekad_data.shape} "
+        f"(lat {cpc_dekad_data.lat.values[0]:.2f}–{cpc_dekad_data.lat.values[-1]:.2f}, "
+        f"lon {cpc_dekad_data.lon.values[0]:.2f}–{cpc_dekad_data.lon.values[-1]:.2f})"
+    )
+
+    return cpc_dekad_data

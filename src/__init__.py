@@ -56,8 +56,8 @@ Note
 # numpy, scipy, xarray, and pandas — all of which are required anyway.
 # ---------------------------------------------------------------------------
 from .config import initialize_config, setup_logging
-from .bias_correction import lseqm
-from .io import save_corrected_precip, get_max_day_in_month, aggregate_data_across_years
+from .bias_correction import lseqm, run_correction_pipeline
+from .io import save_corrected_precip, get_max_day_in_month, aggregate_data_across_years, aggregate_cpc_native_for_dekad
 from .utility import (
     apply_land_sea_mask,
     load_mask,
@@ -66,9 +66,12 @@ from .utility import (
 )
 from .distribution_fitting import (
     gamma_quantile_mapping,
+    gamma_quantile_mapping_precomputed,
     fit_gamma_distribution,
     calculate_l_moments,
     cross_validate_gpd,
+    fit_cpc_parameters_on_native_grid,
+    interpolate_cpc_params_to_imerg_grid,
 )
 from .station_density import (
     get_or_create_confidence_mask,
