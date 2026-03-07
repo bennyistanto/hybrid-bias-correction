@@ -49,7 +49,7 @@ Benny Istanto
 
   with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
-Update: 2025
+Update: 2026.03
 """
 import os
 import numpy as np
@@ -621,7 +621,7 @@ def run_qa_pipeline(month, dekad, mode='single'):
 
             # Metrics input file (produced by run_metrics_pipeline)
             metrics_fname = (
-                f"idn_cli_{metrics_prefix}_{ref_label}_{test_label}"
+                f"{config.FILENAME_PREFIX}_{metrics_prefix}_{ref_label}_{test_label}"
                 f"_month{month_str}_dekad{dekad_str}.nc4"
             )
             metrics_fpath = os.path.join(metrics_dir, metrics_fname)
@@ -646,7 +646,7 @@ def run_qa_pipeline(month, dekad, mode='single'):
 
                 # Build output path
                 quality_fname = (
-                    f"idn_cli_{quality_prefix}_{ref_label}_{test_label}"
+                    f"{config.FILENAME_PREFIX}_{quality_prefix}_{ref_label}_{test_label}"
                     f"_month{month_str}_dekad{dekad_str}.nc4"
                 )
                 os.makedirs(quality_dir, exist_ok=True)

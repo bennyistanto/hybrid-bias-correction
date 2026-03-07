@@ -46,7 +46,7 @@ Benny Istanto
 
   with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
-Update: 2025
+Update: 2026.03
 """
 import os
 import numpy as np
@@ -57,11 +57,17 @@ import logging
 from .metrics import compute_pixel_metrics, METRIC_NAMES
 from .station_density import load_station_locations
 
-# Sentinel value used by BMKG for "measurement unavailable"
-BMKG_MISSING_SENTINEL = 8888.0
+# Missing sentinel and minimum valid days are loaded from config at call time.
+# See config.yml → station_validation.missing_sentinel, station_validation.min_valid_days.
+def _missing_sentinel():
+    """Return BMKG missing-data sentinel from config."""
+    from . import config
+    return config.MISSING_SENTINEL
 
-# Minimum number of valid (non-NaN) paired observations required per station
-MIN_VALID_DAYS = 30
+def _min_valid_days():
+    """Return minimum valid days from config."""
+    from . import config
+    return config.MIN_VALID_DAYS
 
 # ---------------------------------------------------------------------------
 # WMO-compliant multi-threshold verification
@@ -150,7 +156,7 @@ def load_station_observations(station_data_file, station_location_file=None):
     df.columns = [int(c) for c in df.columns]
 
     # Replace BMKG missing sentinel (8888.0) with NaN
-    df = df.replace(BMKG_MISSING_SENTINEL, np.nan)
+    df = df.replace(_missing_sentinel(), np.nan)
 
     # Convert all columns to float (handles any remaining string values)
     df = df.apply(pd.to_numeric, errors='coerce')
@@ -266,7 +272,7 @@ def compute_station_metrics(obs_df, gridded_df, threshold=1.0):
         # Align to common dates
         common_idx = obs_ts.dropna().index.intersection(grid_ts.dropna().index)
 
-        if len(common_idx) < MIN_VALID_DAYS:
+        if len(common_idx) < _min_valid_days():
             skipped += 1
             continue
 
@@ -284,7 +290,7 @@ def compute_station_metrics(obs_df, gridded_df, threshold=1.0):
 
     if skipped > 0:
         logging.info("Skipped %d stations with < %d valid paired days",
-                     skipped, MIN_VALID_DAYS)
+                     skipped, _min_valid_days())
 
     if not results:
         logging.warning("No stations had sufficient data for validation")
@@ -469,7 +475,7 @@ def compute_multi_threshold_metrics(obs_df, gridded_df,
 
         # Align to common valid dates
         common_idx = obs_ts.dropna().index.intersection(grid_ts.dropna().index)
-        if len(common_idx) < MIN_VALID_DAYS:
+        if len(common_idx) < _min_valid_days():
             skipped += 1
             continue
 
@@ -499,7 +505,7 @@ def compute_multi_threshold_metrics(obs_df, gridded_df,
 
     if skipped > 0:
         logging.info("Skipped %d stations with < %d valid paired days",
-                     skipped, MIN_VALID_DAYS)
+                     skipped, _min_valid_days())
 
     if not results:
         logging.warning("No stations had sufficient data for multi-threshold "
@@ -666,38 +672,12 @@ def save_station_validation(metrics_df, station_df, output_file,
 # Regional Aggregation
 # +++++++++++++++++++++++++++++++++++++++++
 
-# Standard region mapping for Indonesian main islands.
-# Used as fallback when station CSV lacks a 'Region' column.
-PROVINCE_TO_REGION = {
-    # Sumatra
-    'Aceh': 'Sumatra', 'Sumatera Utara': 'Sumatra',
-    'Sumatera Barat': 'Sumatra', 'Riau': 'Sumatra',
-    'Jambi': 'Sumatra', 'Sumatera Selatan': 'Sumatra',
-    'Bengkulu': 'Sumatra', 'Lampung': 'Sumatra',
-    'Kep. Bangka Belitung': 'Sumatra', 'Kep. Riau': 'Sumatra',
-    # Jawa
-    'DKI Jakarta': 'Jawa', 'Jawa Barat': 'Jawa',
-    'Jawa Tengah': 'Jawa', 'DI Yogyakarta': 'Jawa',
-    'Jawa Timur': 'Jawa', 'Banten': 'Jawa',
-    # Kalimantan
-    'Kalimantan Barat': 'Kalimantan', 'Kalimantan Tengah': 'Kalimantan',
-    'Kalimantan Selatan': 'Kalimantan', 'Kalimantan Timur': 'Kalimantan',
-    'Kalimantan Utara': 'Kalimantan',
-    # Sulawesi
-    'Sulawesi Utara': 'Sulawesi', 'Sulawesi Tengah': 'Sulawesi',
-    'Sulawesi Selatan': 'Sulawesi', 'Sulawesi Tenggara': 'Sulawesi',
-    'Gorontalo': 'Sulawesi', 'Sulawesi Barat': 'Sulawesi',
-    # Bali & Nusa Tenggara
-    'Bali': 'Bali Nusa Tenggara',
-    'Nusa Tenggara Barat': 'Bali Nusa Tenggara',
-    'Nusa Tenggara Timur': 'Bali Nusa Tenggara',
-    # Maluku
-    'Maluku': 'Maluku', 'Maluku Utara': 'Maluku',
-    # Papua
-    'Papua': 'Papua', 'Papua Barat': 'Papua',
-    'Papua Selatan': 'Papua', 'Papua Tengah': 'Papua',
-    'Papua Pegunungan': 'Papua', 'Papua Barat Daya': 'Papua',
-}
+# Province-to-region mapping loaded from config at call time.
+# See config.yml → region_mapping section.
+def _region_mapping():
+    """Return province-to-region mapping from config."""
+    from . import config
+    return config.REGION_MAPPING
 
 
 def merge_station_metadata(metrics_df, station_df):
@@ -707,7 +687,7 @@ def merge_station_metadata(metrics_df, station_df):
 
     If the station location CSV contains 'Region' and/or 'Province' columns,
     they are included. If 'Province' exists but 'Region' does not, region is
-    inferred from ``PROVINCE_TO_REGION``.
+    inferred from ``config.REGION_MAPPING``.
 
     Parameters
     ----------
@@ -754,9 +734,9 @@ def merge_station_metadata(metrics_df, station_df):
 
     # Infer Region from Province if Province exists but Region does not
     if 'Province' in merged.columns and 'Region' not in merged.columns:
-        merged['Region'] = merged['Province'].map(PROVINCE_TO_REGION)
+        merged['Region'] = merged['Province'].map(_region_mapping())
         merged['Region'] = merged['Region'].fillna('Other')
-        logging.info("Inferred Region from Province using PROVINCE_TO_REGION")
+        logging.info("Inferred Region from Province using config.REGION_MAPPING")
 
     return merged
 
@@ -871,8 +851,8 @@ def plot_station_scatter(obs_df, gridded_dict, station_id, station_df=None,
         grid_ts = gridded_df[station_id]
         common_idx = obs_ts.dropna().index.intersection(grid_ts.dropna().index)
 
-        if len(common_idx) < MIN_VALID_DAYS:
-            ax.set_title(f'{method_name}\n(< {MIN_VALID_DAYS} paired days)')
+        if len(common_idx) < _min_valid_days():
+            ax.set_title(f'{method_name}\n(< {_min_valid_days()} paired days)')
             continue
 
         obs_vals = obs_ts.loc[common_idx].values
@@ -1017,7 +997,7 @@ def plot_station_timeseries(obs_df, gridded_dict, station_id, station_df=None,
         if station_id in obs_df.columns:
             obs_ts = obs_df[station_id]
             common_idx = obs_ts.dropna().index.intersection(grid_ts.index)
-            if len(common_idx) >= MIN_VALID_DAYS:
+            if len(common_idx) >= _min_valid_days():
                 obs_vals = obs_ts.loc[common_idx].values.astype(np.float64)
                 grid_vals = grid_ts.loc[common_idx].values.astype(np.float64)
                 from .metrics import compute_pixel_metrics

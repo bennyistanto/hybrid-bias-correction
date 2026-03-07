@@ -12,6 +12,26 @@
 # =============================================================================
 
 # -------------------------------------------
+# General Settings
+# -------------------------------------------
+# These settings control country/project-level identifiers used in filenames
+# and spatial bounds. Change these when adapting the framework for a new region.
+general:
+  # Prefix for all output filenames (e.g., "idn_cli" -> idn_cli_ls_corrected_...)
+  # Convention: ISO 3166-1 alpha-3 country code + domain abbreviation
+  # Examples: "idn_cli" (Indonesia climate), "phl_cli" (Philippines), "vnm_cli" (Vietnam)
+  filename_prefix: "idn_cli"
+
+# -------------------------------------------
+# Area of Interest (AOI)
+# -------------------------------------------
+# Spatial bounding box for the study domain. Used by visualization (plot extents),
+# station density mask, and any spatial subsetting operations.
+aoi:
+  lat_range: [-11.0, 6.0]    # [south, north] in decimal degrees
+  lon_range: [95.0, 141.0]   # [west, east] in decimal degrees
+
+# -------------------------------------------
 # Directory Settings
 # -------------------------------------------
 # Uncomment ONE main_dir line that matches your environment.
@@ -45,6 +65,11 @@ input_files:
   # Pure satellite product without gauge adjustment; ideal for independent bias correction.
   # DOI: 10.5067/GPM/IMERGDL/DAY/07
   imergl_file: "{input_dir}/imergl/idn_imergl.nc4"
+
+  # IMERG Final Run (IMERG-F) V07 - gauge-adjusted satellite precipitation
+  # Used as a baseline comparison in Taylor diagrams (not used for correction).
+  # DOI: 10.5067/GPM/IMERGDF/DAY/07
+  imergf_file: "{input_dir}/imergf/idn_imergf.nc4"
 
   # CPC Unified Gauge-Based Analysis of Daily Precipitation (CPC-UNI)
   # Gauge-based global daily precipitation at 0.5 deg, regridded to 0.1 deg (nearest-neighbor).
@@ -90,9 +115,9 @@ output_dirs:
 # -------------------------------------------
 # Output Filename Convention
 # -------------------------------------------
-# Template tokens: {folder}, {method_abbr}, {month_str}, {dekad_str}
+# Template tokens: {folder}, {filename_prefix}, {method_abbr}, {month_str}, {dekad_str}
 # Convention: idn = Indonesia, cli = climate, corrected = bias-corrected, imergl = IMERG Late Run
-output_filename_template: "{folder}/idn_cli_{method_abbr}_corrected_imergl_month{month_str}_dekad{dekad_str}.nc4"
+output_filename_template: "{folder}/{filename_prefix}_{method_abbr}_corrected_imergl_month{month_str}_dekad{dekad_str}.nc4"
 
 # -------------------------------------------
 # Statistical Parameters: GPD and Quantile Mapping
@@ -276,8 +301,83 @@ station_validation:
   # Missing data encoded as 8888.0 (BMKG convention) or empty cells
   station_data_file: "{main_dir}/data/input/stations/idn_cli_weatherstation_data_bmkg.csv"
 
+  # Missing data sentinel value in the station observation CSV.
+  # BMKG uses 8888.0 to indicate missing daily precipitation readings.
+  # Other agencies may use -999, -9999, etc.
+  missing_sentinel: 8888.0
+
+  # Minimum number of valid paired observation days required per station.
+  # Stations with fewer valid days are excluded from metrics computation.
+  # WMO guidance suggests at least 30 days for reliable verification statistics.
+  min_valid_days: 30
+
   # Output directory for validation results (CSV files)
   output_dir: "{output_dir}/station_validation"
+
+# -------------------------------------------
+# Region Mapping (Province → Island Group)
+# -------------------------------------------
+# Maps administrative provinces to major island groups for regional analysis.
+# Used by station validation and Taylor diagram modules to aggregate results.
+# When adapting to another country, replace with the appropriate administrative
+# division → region mapping (e.g., state → region, prefecture → island).
+#
+# Island order defines the display sequence in plots and tables.
+region_mapping:
+  island_order:
+    - Sumatra
+    - Jawa
+    - Kalimantan
+    - Sulawesi
+    - Bali Nusa Tenggara
+    - Maluku
+    - Papua
+  province_to_region:
+    # Sumatra (10 provinces)
+    Aceh: Sumatra
+    Sumatera Utara: Sumatra
+    Sumatera Barat: Sumatra
+    Riau: Sumatra
+    Jambi: Sumatra
+    Sumatera Selatan: Sumatra
+    Bengkulu: Sumatra
+    Lampung: Sumatra
+    Kep. Bangka Belitung: Sumatra
+    Kep. Riau: Sumatra
+    # Jawa (6 provinces)
+    DKI Jakarta: Jawa
+    Jawa Barat: Jawa
+    Jawa Tengah: Jawa
+    DI Yogyakarta: Jawa
+    Jawa Timur: Jawa
+    Banten: Jawa
+    # Kalimantan (5 provinces)
+    Kalimantan Barat: Kalimantan
+    Kalimantan Tengah: Kalimantan
+    Kalimantan Selatan: Kalimantan
+    Kalimantan Timur: Kalimantan
+    Kalimantan Utara: Kalimantan
+    # Sulawesi (6 provinces)
+    Sulawesi Utara: Sulawesi
+    Sulawesi Tengah: Sulawesi
+    Sulawesi Selatan: Sulawesi
+    Sulawesi Tenggara: Sulawesi
+    Gorontalo: Sulawesi
+    Sulawesi Barat: Sulawesi
+    # Bali & Nusa Tenggara (3 provinces)
+    Bali: Bali Nusa Tenggara
+    Nusa Tenggara Barat: Bali Nusa Tenggara
+    Nusa Tenggara Timur: Bali Nusa Tenggara
+    # Maluku (2 provinces)
+    Maluku: Maluku
+    Maluku Utara: Maluku
+    # Papua (6 provinces)
+    Papua: Papua
+    Papua Barat: Papua
+    Papua Selatan: Papua
+    Papua Tengah: Papua
+    Papua Pegunungan: Papua
+    Papua Barat Daya: Papua
 
 # -------------------------------------------
 # Performance Metrics Configuration

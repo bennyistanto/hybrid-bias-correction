@@ -26,7 +26,7 @@ LSEQM-corrected data (not raw IMERG), matching what it receives at inference.
 
   with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
-Update: 2025
+Update: 2026.03
 """
 # Import the library
 import xarray as xr
@@ -378,7 +378,7 @@ def run_correction_pipeline(imerg_ds, cpc_ds_aligned, month, dekad, cpc_native_d
     logging.info("Pipeline [%s d%s]: Complete.", month_str, dekad)
 
     out_fname = (
-        f"idn_cli_imergl_lseqmdl_corrected_precip"
+        f"{config.FILENAME_PREFIX}_imergl_lseqmdl_corrected_precip"
         f"_month{month_str}_dekad{dekad_str}.nc4"
     )
     return os.path.join(config.lseqmdl_corrected_precip_path, out_fname)

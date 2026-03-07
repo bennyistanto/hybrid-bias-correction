@@ -33,7 +33,7 @@ Benny Istanto
 
   with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
-Update: 2025
+Update: 2026.03
 """
 import os
 import numpy as np
@@ -623,7 +623,7 @@ def build_metric_combos(month_str, dekad_str):
             test_label = f"imergl_{method_abbr}"
             test_file = os.path.join(
                 corrected_path,
-                f"idn_cli_{method_abbr}_corrected_imergl_month{month_str}_dekad{dekad_str}.nc4"
+                f"{config.FILENAME_PREFIX}_{method_abbr}_corrected_imergl_month{month_str}_dekad{dekad_str}.nc4"
             )
             combos.append({
                 'ref_label': ref_label,
@@ -773,7 +773,7 @@ def run_metrics_pipeline(month, dekad, mode='timeseries'):
             metrics_ds = compute_single_dekad_metrics(ref_slice, test_slice)
 
         # Save
-        out_fname = f"idn_cli_{prefix}_{ref_label}_{test_label}_month{month_str}_dekad{dekad_str}.nc4"
+        out_fname = f"{config.FILENAME_PREFIX}_{prefix}_{ref_label}_{test_label}_month{month_str}_dekad{dekad_str}.nc4"
         os.makedirs(out_dir, exist_ok=True)
         out_fpath = os.path.join(out_dir, out_fname)
 

@@ -35,7 +35,7 @@ The module imports configuration parameters from config.py.
 
   with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
-Update: 2025
+Update: 2026.03
 """
 # Import the library
 import os

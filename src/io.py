@@ -16,7 +16,7 @@ It also uses utility functions for applying a land-sea mask and prompting the us
 
   with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
-Update: 2025
+Update: 2026.03
 """
 # Import the library
 import os
@@ -75,8 +75,10 @@ def save_corrected_precip(
         Path to the saved file, or None if saving failed or skipped.
     """
     # Generate output filename
+    from . import config as _cfg
     output_file = output_filename_template.format(
         folder=folder,
+        filename_prefix=_cfg.FILENAME_PREFIX,
         method_abbr=method_abbr,
         month_str=month_str,
         dekad_str=dekad_str

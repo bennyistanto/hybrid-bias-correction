@@ -110,6 +110,35 @@ from .qa_framework import (
     calculate_confidence,
     save_quality_assessment,
 )
+from .taylor_diagram import (
+    compute_all_taylor_stats,
+    plot_taylor_diagram,
+    generate_domain_taylor,
+    generate_island_taylor,
+    generate_province_taylor,
+    generate_station_taylor,
+    generate_all_taylor_diagrams,
+    print_taylor_stats,
+    save_taylor_stats_csv,
+)
+from .visualisation import (
+    load_quality_data,
+    plot_cqi_spatial,
+    plot_categorical_spatial,
+    plot_improvement,
+    plot_components,
+    plot_confidence,
+    plot_cqi_distribution,
+    plot_category_summary,
+    plot_component_boxplots,
+    run_qa_batch_viz,
+    print_batch_summary,
+    plot_station_metric_maps,
+    plot_multi_threshold_curves,
+    plot_regional_boxplots,
+    run_station_validation_batch_viz,
+    print_station_validation_viz_summary,
+)
 
 # ---------------------------------------------------------------------------
 # Lazily imported modules: these depend on TensorFlow via deep_learning.py.

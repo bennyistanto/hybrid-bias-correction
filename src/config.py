@@ -24,7 +24,7 @@ The configuration includes:
 
   with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
-Update: 2025
+Update: 2026.03
 """
 import os
 import sys
@@ -75,6 +75,13 @@ setup_logging()
 # These defaults work if no config.yml is loaded.
 # They can be overridden by calling initialize_config() with a YAML file path.
 
+# --- General ---
+FILENAME_PREFIX = 'idn_cli'             # Country/project prefix for all output filenames
+
+# --- Area of Interest ---
+AOI_LAT_RANGE = (-11.0, 6.0)            # Bounding box (south, north)
+AOI_LON_RANGE = (95.0, 141.0)           # Bounding box (west, east)
+
 # --- Directories ---
 main_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # Project root
 input_dir = os.path.join(main_dir, 'data', 'input')
@@ -101,7 +108,7 @@ metrics_path_template = os.path.join(output_dir, 'metrics_{method}')
 quality_path_template = os.path.join(output_dir, 'quality_{method}')
 
 # --- Output Filename Template ---
-output_filename_template = "{folder}/idn_cli_{method_abbr}_corrected_imergl_month{month_str}_dekad{dekad_str}.nc4"
+output_filename_template = "{folder}/{filename_prefix}_{method_abbr}_corrected_imergl_month{month_str}_dekad{dekad_str}.nc4"
 
 # --- NetCDF Encoding (CF 1.8) ---
 cf18_f32 = {'precipitation': {'dtype': 'float32', 'zlib': True, '_FillValue': np.nan}}
@@ -156,6 +163,14 @@ DENSITY_LON_RANGE = (95.0, 141.0)   # Grid bounds (west, east)
 # Uses the same station location file as station_density (STATION_FILE above).
 STATION_DATA_FILE = None             # Path to daily precipitation obs CSV
 STATION_VALIDATION_OUTPUT_DIR = None # Set during initialize_config()
+MISSING_SENTINEL = 8888.0            # Missing data sentinel in station CSV
+MIN_VALID_DAYS = 30                  # Min paired days for reliable station metrics
+
+# --- Region Mapping ---
+# Province-to-region dictionary for spatial aggregation.
+# Loaded from config.yml; empty dict means no regional grouping available.
+REGION_MAPPING = {}
+ISLAND_ORDER = []
 
 # --- Runtime Settings ---
 INTERACTIVE = True
@@ -311,6 +326,7 @@ def initialize_config(config_path=None):
     dict
         The loaded configuration dictionary.
     """
+    global FILENAME_PREFIX, AOI_LAT_RANGE, AOI_LON_RANGE
     global main_dir, input_dir, output_dir
     global imergl_file, imergf_file, cpc_file, cpc_native_file, mask_file
     global IMERG_PRECIP_VAR, CPC_PRECIP_VAR, MASK_VAR
@@ -328,6 +344,7 @@ def initialize_config(config_path=None):
     global USE_CONFIDENCE_MASK, STATION_FILE, CONFIDENCE_MASK_FILE
     global DENSITY_CPC_RESOLUTION, DENSITY_SMOOTHING_SIGMA, DENSITY_SATURATION_COUNT
     global DENSITY_LAT_RANGE, DENSITY_LON_RANGE
+    global MISSING_SENTINEL, MIN_VALID_DAYS, REGION_MAPPING, ISLAND_ORDER
     global STATION_DATA_FILE, STATION_VALIDATION_OUTPUT_DIR
     global INTERACTIVE, EXISTING_FILE_ACTION, EXISTING_MODEL_ACTION
     global NETCDF_ENGINE
@@ -358,6 +375,19 @@ def initialize_config(config_path=None):
         cfg = yaml.safe_load(f)
 
     logging.info(f"Loaded configuration from {config_path}")
+
+    # --- General settings ---
+    general = cfg.get('general', {})
+    FILENAME_PREFIX = general.get('filename_prefix', FILENAME_PREFIX)
+
+    # --- Area of interest ---
+    aoi = cfg.get('aoi', {})
+    aoi_lat = aoi.get('lat_range')
+    if aoi_lat:
+        AOI_LAT_RANGE = tuple(aoi_lat)
+    aoi_lon = aoi.get('lon_range')
+    if aoi_lon:
+        AOI_LON_RANGE = tuple(aoi_lon)
 
     # --- Resolve directories with template substitution ---
     # The auto-detected project root (where src/__init__.py lives) is the
@@ -498,9 +528,13 @@ def initialize_config(config_path=None):
     lat_range = density.get('lat_range')
     if lat_range:
         DENSITY_LAT_RANGE = tuple(lat_range)
+    else:
+        DENSITY_LAT_RANGE = AOI_LAT_RANGE  # Default to AOI if not set
     lon_range = density.get('lon_range')
     if lon_range:
         DENSITY_LON_RANGE = tuple(lon_range)
+    else:
+        DENSITY_LON_RANGE = AOI_LON_RANGE  # Default to AOI if not set
 
     # --- Station validation ---
     stn_val = cfg.get('station_validation', {})
@@ -516,6 +550,23 @@ def initialize_config(config_path=None):
         ).replace('{main_dir}', main_dir)
     else:
         STATION_VALIDATION_OUTPUT_DIR = os.path.join(output_dir, 'station_validation')
+    MISSING_SENTINEL = stn_val.get('missing_sentinel', MISSING_SENTINEL)
+    MIN_VALID_DAYS = stn_val.get('min_valid_days', MIN_VALID_DAYS)
+
+    # --- Region mapping ---
+    region_cfg = cfg.get('region_mapping', {})
+    p2r = region_cfg.get('province_to_region')
+    if p2r:
+        REGION_MAPPING = p2r
+    island_order = region_cfg.get('island_order')
+    if island_order:
+        ISLAND_ORDER = island_order
+    elif REGION_MAPPING:
+        # Derive from unique region values, preserving insertion order
+        seen = {}
+        for r in REGION_MAPPING.values():
+            seen.setdefault(r, None)
+        ISLAND_ORDER = list(seen.keys())
 
     # --- Runtime settings ---
     runtime = cfg.get('runtime', {})

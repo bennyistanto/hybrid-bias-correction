@@ -94,9 +94,14 @@ _build/
 # setuptools-scm/
 src/*/_version.py
 
+# Session continuity
+temp/
+HANDOFF.md
+
 # folders
 colab/
 data/input/
 data/output/
 data/subset/adm0
+data/subset/iso3/
 data/subset/world
