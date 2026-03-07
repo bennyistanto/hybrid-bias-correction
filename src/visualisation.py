@@ -948,12 +948,14 @@ def plot_station_metric_maps(metrics_df, station_df, month, dekad,
         logger.warning("plot_station_metric_maps: empty metrics_df, skipping.")
         return None
 
-    # Merge station coordinates
+    # Merge station coordinates (skip columns already present from CSV)
     viz_data = metrics_df.copy()
-    loc_info = station_df[["ID_WMO", "Lon", "Lat"]].copy()
-    loc_info["ID_WMO"] = loc_info["ID_WMO"].astype(int)
-    loc_info = loc_info.set_index("ID_WMO")
-    viz_data = viz_data.join(loc_info, how="left")
+    needed = [c for c in ["Lon", "Lat"] if c not in viz_data.columns]
+    if needed:
+        loc_info = station_df[["ID_WMO"] + needed].copy()
+        loc_info["ID_WMO"] = loc_info["ID_WMO"].astype(int)
+        loc_info = loc_info.set_index("ID_WMO")
+        viz_data = viz_data.join(loc_info, how="left")
 
     fig, axes = plt.subplots(2, 3, figsize=(18, 10))
     display_name = TITLES_MAP.get(method_name, method_name)
@@ -1385,3 +1387,571 @@ def print_station_validation_viz_summary(summary):
               f"min {min(n_methods_all)}, "
               f"max {max(n_methods_all)}")
     print()
+
+
+# ---------------------------------------------------------------------------
+# QA Regional Breakdown  (station-point extraction)
+# ---------------------------------------------------------------------------
+
+def _extract_qa_from_datasets(quality_data, station_df):
+    """Extract QA variable values from loaded Datasets at station locations.
+
+    Works directly with the ``xr.Dataset`` objects already in memory (the
+    return of :func:`load_quality_data`), avoiding re-opening files.
+
+    Parameters
+    ----------
+    quality_data : dict of {str: xr.Dataset}
+        Keyed by display name (``'LS'``, ``'LSEQM'``, ``'LSEQMDL'``).
+    station_df : pandas.DataFrame
+        Station metadata with ``'ID_WMO'``, ``'Lon'``, ``'Lat'`` columns.
+
+    Returns
+    -------
+    dict of {str: pandas.DataFrame}
+        ``{method_name: DataFrame}`` where each DataFrame has station IDs
+        as index and QA variable names as columns.
+    """
+    result = {}
+    for method_name, ds in quality_data.items():
+        rows = {}
+        var_names = list(ds.data_vars)
+        for _, row in station_df.iterrows():
+            wmo_id = int(row["ID_WMO"])
+            lat = float(row["Lat"])
+            lon = float(row["Lon"])
+            row_dict = {}
+            for var in var_names:
+                val = ds[var].sel(lat=lat, lon=lon, method="nearest")
+                raw = val.values
+                if raw.size == 1:
+                    row_dict[var] = raw.item()
+                elif raw.size > 1:
+                    # qualityts files have a time dimension (per-year);
+                    # average across years to get a single representative value
+                    finite = raw[np.isfinite(raw)]
+                    row_dict[var] = (
+                        float(np.nanmean(finite)) if len(finite) > 0
+                        else np.nan
+                    )
+                else:
+                    row_dict[var] = np.nan
+            rows[wmo_id] = row_dict
+        df = pd.DataFrame.from_dict(rows, orient="index")
+        df.index.name = "station_id"
+        result[method_name] = df
+    return result
+
+
+def plot_qa_regional_bars(quality_data, station_df, month, dekad,
+                          quality_prefix="qualitysd",
+                          output_dir=None, interactive=True):
+    """Grouped bar chart of median CQI per region for each correction method.
+
+    X-axis shows the 7 island regions (from ``config.ISLAND_ORDER``),
+    with one bar per method (LS, LSEQM, LSEQM+DL). Station count is
+    annotated above each group.
+
+    Parameters
+    ----------
+    quality_data : dict of {str: xr.Dataset}
+        Return of :func:`load_quality_data`.
+    station_df : pandas.DataFrame
+        Station metadata with ``'ID_WMO'``, ``'Lon'``, ``'Lat'`` columns.
+    month, dekad : int
+        Period identifiers.
+    quality_prefix : str
+        ``'qualitysd'`` or ``'qualityts'``.
+    output_dir : str or None
+        If given, save into ``{output_dir}/{quality_prefix}_qa_regional/``.
+    interactive : bool
+        ``True`` → ``plt.show()``;  ``False`` → ``plt.close()``.
+
+    Returns
+    -------
+    matplotlib.figure.Figure or None
+    """
+    from .station_validation import merge_station_metadata
+    from src import config as _cfg
+
+    month_str, dekad_str = _format_period(month, dekad)
+
+    # Extract QA values at station points
+    qa_at_stations = _extract_qa_from_datasets(quality_data, station_df)
+    if not qa_at_stations:
+        logger.warning("plot_qa_regional_bars: no QA data extracted.")
+        return None
+
+    # CQI variable name
+    cqi_var = "continuous_quality"
+
+    # Merge metadata and compute medians per region × method
+    island_order = _cfg.ISLAND_ORDER
+    methods = list(qa_at_stations.keys())
+    n_methods = len(methods)
+    n_regions = len(island_order)
+
+    medians = np.full((n_methods, n_regions), np.nan)
+    counts = np.zeros(n_regions, dtype=int)
+
+    for i, method in enumerate(methods):
+        df = qa_at_stations[method]
+        merged = merge_station_metadata(df, station_df)
+        if "Region" not in merged.columns:
+            logger.warning("plot_qa_regional_bars: Region column not "
+                           "available after merge.")
+            return None
+        for j, region in enumerate(island_order):
+            vals = merged.loc[merged["Region"] == region, cqi_var].dropna()
+            medians[i, j] = vals.median() if len(vals) > 0 else np.nan
+            if i == 0:
+                counts[j] = len(vals)
+
+    # Plot
+    x = np.arange(n_regions)
+    width = 0.7 / n_methods
+    fig, ax = plt.subplots(figsize=(12, 5), constrained_layout=True)
+
+    for i, method in enumerate(methods):
+        offset = (i - n_methods / 2 + 0.5) * width
+        display = TITLES_MAP.get(method, method)
+        color = METHOD_COLORS.get(method, "#333333")
+        ax.bar(x + offset, medians[i], width, label=display, color=color,
+               edgecolor="white", linewidth=0.5)
+
+    # Annotate station counts above each group
+    for j in range(n_regions):
+        y_max = np.nanmax(medians[:, j]) if not np.all(
+            np.isnan(medians[:, j])) else 0
+        ax.text(x[j], y_max + 0.02, f"n={counts[j]}", ha="center",
+                fontsize=8, color="#555555")
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(island_order, rotation=30, ha="right")
+    ax.set_ylabel("Median CQI")
+    ax.set_title(
+        f"QA Continuous Quality Index by Region\n"
+        f"Month {month}, Dekad {dekad} ({quality_prefix})",
+        fontsize=13, fontweight="bold",
+    )
+    ax.legend(loc="upper right")
+    ax.set_ylim(0, 1.15)
+    ax.grid(True, alpha=0.3, axis="y")
+
+    return _finish_fig(fig, output_dir, "qa_regional",
+                       quality_prefix, month_str, dekad_str, interactive)
+
+
+def plot_qa_component_by_region(quality_data, station_df, month, dekad,
+                                quality_prefix="qualitysd",
+                                output_dir=None, interactive=True):
+    """Box plots of QA component scores at stations, grouped by region.
+
+    Four subplots (CQI, basic statistical, distribution, temporal) show
+    the distribution of per-station QA values across the 7 island regions.
+    Only the best method (LSEQM+DL) is plotted for clarity.
+
+    Parameters
+    ----------
+    quality_data : dict of {str: xr.Dataset}
+    station_df : pandas.DataFrame
+    month, dekad : int
+    quality_prefix : str
+    output_dir : str or None
+    interactive : bool
+
+    Returns
+    -------
+    matplotlib.figure.Figure or None
+    """
+    from .station_validation import merge_station_metadata
+    from src import config as _cfg
+
+    month_str, dekad_str = _format_period(month, dekad)
+
+    # Extract QA at stations
+    qa_at_stations = _extract_qa_from_datasets(quality_data, station_df)
+
+    # Use best method
+    best = "LSEQMDL" if "LSEQMDL" in qa_at_stations else (
+        list(qa_at_stations.keys())[-1] if qa_at_stations else None)
+    if best is None:
+        return None
+
+    df = qa_at_stations[best]
+    merged = merge_station_metadata(df, station_df)
+    if "Region" not in merged.columns:
+        logger.warning("plot_qa_component_by_region: Region column missing.")
+        return None
+
+    island_order = _cfg.ISLAND_ORDER
+    # Filter to only components present in the data
+    components = [(var, label) for var, label in COMPONENT_VARS
+                  if var in merged.columns]
+    if not components:
+        logger.warning("plot_qa_component_by_region: no component vars found.")
+        return None
+
+    n_comp = len(components)
+    fig, axes = plt.subplots(1, n_comp, figsize=(5 * n_comp, 6),
+                             squeeze=False, constrained_layout=True)
+    axes = axes[0]
+
+    for ax, (var, label) in zip(axes, components):
+        data_list = []
+        labels = []
+        for region in island_order:
+            vals = merged.loc[merged["Region"] == region, var].dropna()
+            if len(vals) > 0:
+                data_list.append(vals.values)
+                labels.append(region)
+
+        if not data_list:
+            ax.set_visible(False)
+            continue
+
+        bp = ax.boxplot(data_list, labels=labels, patch_artist=True,
+                        medianprops=dict(color="black", linewidth=2))
+        colors = plt.cm.Set3(np.linspace(0, 1, len(labels)))
+        for patch, c in zip(bp["boxes"], colors):
+            patch.set_facecolor(c)
+
+        ax.set_title(label, fontsize=11)
+        ax.tick_params(axis="x", rotation=45)
+        ax.grid(True, alpha=0.3, axis="y")
+        ax.set_ylim(0, 1.05)
+
+    display = TITLES_MAP.get(best, best)
+    fig.suptitle(
+        f"QA Components by Region: {display}\n"
+        f"Month {month}, Dekad {dekad} ({quality_prefix})",
+        fontsize=13, fontweight="bold",
+    )
+
+    return _finish_fig(fig, output_dir, "qa_component_region",
+                       quality_prefix, month_str, dekad_str, interactive)
+
+
+def plot_qa_province_bars(quality_data, station_df, month, dekad,
+                          quality_prefix="qualitysd",
+                          output_dir=None, interactive=True):
+    """Horizontal bar chart of median CQI per province (best method).
+
+    Provinces are sorted by median CQI (descending). Station count and
+    parent region are annotated beside each bar.
+
+    Parameters
+    ----------
+    quality_data : dict of {str: xr.Dataset}
+    station_df : pandas.DataFrame
+    month, dekad : int
+    quality_prefix : str
+    output_dir : str or None
+    interactive : bool
+
+    Returns
+    -------
+    matplotlib.figure.Figure or None
+    """
+    from .station_validation import merge_station_metadata
+    from src import config as _cfg
+
+    month_str, dekad_str = _format_period(month, dekad)
+
+    qa_at_stations = _extract_qa_from_datasets(quality_data, station_df)
+    best = "LSEQMDL" if "LSEQMDL" in qa_at_stations else (
+        list(qa_at_stations.keys())[-1] if qa_at_stations else None)
+    if best is None:
+        return None
+
+    cqi_var = "continuous_quality"
+    df = qa_at_stations[best]
+    merged = merge_station_metadata(df, station_df)
+    if "Province" not in merged.columns or cqi_var not in merged.columns:
+        logger.warning("plot_qa_province_bars: Province or CQI column "
+                       "missing.")
+        return None
+
+    # Compute median CQI per province
+    prov_stats = (
+        merged.groupby("Province")[cqi_var]
+        .agg(["median", "count"])
+        .rename(columns={"median": "cqi_median", "count": "n"})
+        .sort_values("cqi_median", ascending=True)
+    )
+    prov_stats = prov_stats[prov_stats["n"] > 0]
+    if prov_stats.empty:
+        return None
+
+    # Map provinces to regions for colour coding
+    region_map = _cfg.REGION_MAPPING if hasattr(_cfg, "REGION_MAPPING") else {}
+    island_order = _cfg.ISLAND_ORDER
+    region_colors = dict(
+        zip(island_order,
+            plt.cm.Set2(np.linspace(0, 1, len(island_order))))
+    )
+
+    fig, ax = plt.subplots(
+        figsize=(10, max(4, len(prov_stats) * 0.35)),
+        constrained_layout=True,
+    )
+    y_pos = np.arange(len(prov_stats))
+    bar_colors = []
+    for prov in prov_stats.index:
+        reg = region_map.get(prov, "Other")
+        bar_colors.append(region_colors.get(reg, "#bbbbbb"))
+
+    ax.barh(y_pos, prov_stats["cqi_median"], color=bar_colors,
+            edgecolor="white", linewidth=0.5)
+    ax.set_yticks(y_pos)
+    ax.set_yticklabels(prov_stats.index, fontsize=9)
+    ax.set_xlabel("Median CQI")
+    ax.set_xlim(0, 1.1)
+
+    # Annotate counts
+    for i, (prov, row) in enumerate(prov_stats.iterrows()):
+        ax.text(row["cqi_median"] + 0.01, i, f"n={int(row['n'])}",
+                va="center", fontsize=7, color="#555555")
+
+    display = TITLES_MAP.get(best, best)
+    ax.set_title(
+        f"QA CQI by Province: {display}\n"
+        f"Month {month}, Dekad {dekad} ({quality_prefix})",
+        fontsize=13, fontweight="bold",
+    )
+    ax.grid(True, alpha=0.3, axis="x")
+
+    return _finish_fig(fig, output_dir, "qa_province",
+                       quality_prefix, month_str, dekad_str, interactive)
+
+
+def plot_qa_station_bars(quality_data, station_df, month, dekad,
+                         quality_prefix="qualitysd",
+                         region_filter=None, output_dir=None,
+                         interactive=True):
+    """Horizontal bar chart of CQI per individual station (best method).
+
+    When *region_filter* is given, only stations in that region are plotted
+    and a per-region figure is saved. Otherwise all stations are included
+    in one (possibly large) figure.
+
+    Filenames include ``ID_WMO`` identifiers; province names have spaces
+    replaced with underscores for filesystem safety.
+
+    Parameters
+    ----------
+    quality_data : dict of {str: xr.Dataset}
+    station_df : pandas.DataFrame
+    month, dekad : int
+    quality_prefix : str
+    region_filter : str or None
+        If set, only plot stations from this region.
+    output_dir : str or None
+    interactive : bool
+
+    Returns
+    -------
+    matplotlib.figure.Figure or None
+    """
+    from .station_validation import merge_station_metadata
+
+    month_str, dekad_str = _format_period(month, dekad)
+
+    qa_at_stations = _extract_qa_from_datasets(quality_data, station_df)
+    best = "LSEQMDL" if "LSEQMDL" in qa_at_stations else (
+        list(qa_at_stations.keys())[-1] if qa_at_stations else None)
+    if best is None:
+        return None
+
+    cqi_var = "continuous_quality"
+    df = qa_at_stations[best]
+    merged = merge_station_metadata(df, station_df)
+    if cqi_var not in merged.columns:
+        logger.warning("plot_qa_station_bars: CQI column missing.")
+        return None
+
+    if region_filter and "Region" in merged.columns:
+        merged = merged[merged["Region"] == region_filter]
+
+    if merged.empty:
+        return None
+
+    # Build labels: "Station (WMO_ID)"
+    if "Station" in merged.columns:
+        labels = [f"{row.get('Station', '')} ({idx})"
+                  for idx, row in merged.iterrows()]
+    else:
+        labels = [str(idx) for idx in merged.index]
+
+    sorted_df = merged[[cqi_var]].copy()
+    sorted_df["label"] = labels
+    sorted_df = sorted_df.sort_values(cqi_var, ascending=True)
+
+    fig, ax = plt.subplots(
+        figsize=(10, max(4, len(sorted_df) * 0.28)),
+        constrained_layout=True,
+    )
+    y_pos = np.arange(len(sorted_df))
+
+    # Color by CQI level
+    thresholds = _cat_thresholds()  # [poor, fair, good]
+    bar_colors = []
+    for val in sorted_df[cqi_var]:
+        if np.isnan(val) or val < thresholds[0]:
+            bar_colors.append(_CAT_COLORS[0])  # Poor
+        elif val < thresholds[1]:
+            bar_colors.append(_CAT_COLORS[1])  # Fair
+        elif val < thresholds[2]:
+            bar_colors.append(_CAT_COLORS[2])  # Good
+        else:
+            bar_colors.append(_CAT_COLORS[3])  # Excellent
+
+    ax.barh(y_pos, sorted_df[cqi_var], color=bar_colors,
+            edgecolor="white", linewidth=0.5)
+    ax.set_yticks(y_pos)
+    ax.set_yticklabels(sorted_df["label"], fontsize=7)
+    ax.set_xlabel("CQI")
+    ax.set_xlim(0, 1.1)
+    ax.grid(True, alpha=0.3, axis="x")
+
+    display = TITLES_MAP.get(best, best)
+    region_label = f" — {region_filter}" if region_filter else ""
+    ax.set_title(
+        f"QA CQI per Station: {display}{region_label}\n"
+        f"Month {month}, Dekad {dekad} ({quality_prefix})",
+        fontsize=13, fontweight="bold",
+    )
+
+    # Use region in filename (spaces removed) for per-region output
+    if region_filter:
+        region_slug = region_filter.replace(" ", "")
+        plot_type = f"qa_station_{region_slug}"
+    else:
+        plot_type = "qa_station_all"
+
+    return _finish_fig(fig, output_dir, plot_type,
+                       quality_prefix, month_str, dekad_str, interactive)
+
+
+def run_qa_regional_batch_viz(quality_prefix="qualitysd", output_dir=None,
+                              config=None, progress=True):
+    """Batch: QA regional/province/station plots for all 36 periods.
+
+    For each dekadal period, generates:
+
+    1. Regional grouped bar chart (CQI × method × 7 regions)
+    2. Component box plots by region (best method)
+    3. Province horizontal bars (best method)
+    4. Per-station bars for each region (best method)
+
+    Parameters
+    ----------
+    quality_prefix : str
+        ``'qualitysd'`` or ``'qualityts'``.
+    output_dir : str or None
+        Base figures directory.  Defaults to
+        ``{config.output_dir}/figures/qa``.
+    config : module or None
+    progress : bool
+        Print progress messages.
+
+    Returns
+    -------
+    dict
+        ``{(month, dekad): {'n_stations': int, 'n_methods': int}}``
+    """
+    if config is None:
+        from src import config  # noqa: F811
+
+    from .station_density import load_station_locations
+
+    if output_dir is None:
+        output_dir = os.path.join(config.output_dir, "figures", "qa")
+
+    station_df = load_station_locations(config.STATION_FILE)
+    island_order = config.ISLAND_ORDER
+
+    summary = {}
+    n_saved = 0
+    n_skipped = 0
+
+    for month, dekad in ALL_DEKADS:
+        tag = f"month {month:02d} dekad {dekad}"
+
+        qdata = load_quality_data(
+            month, dekad, quality_prefix=quality_prefix, config=config,
+        )
+        if not qdata:
+            n_skipped += 1
+            if progress:
+                print(f"  {tag} -- skipped (no data)")
+            continue
+
+        period_info = {"n_methods": len(qdata)}
+
+        # 1. Regional CQI bars
+        try:
+            plot_qa_regional_bars(
+                qdata, station_df, month, dekad,
+                quality_prefix=quality_prefix,
+                output_dir=output_dir, interactive=False,
+            )
+        except Exception as exc:
+            logger.warning("  %s / qa_regional failed: %s", tag, exc)
+
+        # 2. Component box plots by region
+        try:
+            plot_qa_component_by_region(
+                qdata, station_df, month, dekad,
+                quality_prefix=quality_prefix,
+                output_dir=output_dir, interactive=False,
+            )
+        except Exception as exc:
+            logger.warning("  %s / qa_component_region failed: %s", tag, exc)
+
+        # 3. Province bars
+        try:
+            plot_qa_province_bars(
+                qdata, station_df, month, dekad,
+                quality_prefix=quality_prefix,
+                output_dir=output_dir, interactive=False,
+            )
+        except Exception as exc:
+            logger.warning("  %s / qa_province failed: %s", tag, exc)
+
+        # 4. Per-station bars (one figure per region)
+        n_stations_total = 0
+        for region in island_order:
+            try:
+                plot_qa_station_bars(
+                    qdata, station_df, month, dekad,
+                    quality_prefix=quality_prefix,
+                    region_filter=region,
+                    output_dir=output_dir, interactive=False,
+                )
+            except Exception as exc:
+                logger.warning("  %s / qa_station_%s failed: %s",
+                               tag, region, exc)
+
+        # Count stations from any method
+        qa_ext = _extract_qa_from_datasets(qdata, station_df)
+        if qa_ext:
+            n_stations_total = len(next(iter(qa_ext.values())))
+        period_info["n_stations"] = n_stations_total
+
+        # Close datasets
+        for ds in qdata.values():
+            ds.close()
+
+        summary[(month, dekad)] = period_info
+        n_saved += 1
+        if progress:
+            print(f"  {tag} -- {len(qdata)} method(s), "
+                  f"{n_stations_total} stations, 4 plot types")
+
+    if progress:
+        print(f"\nQA regional batch complete: {n_saved} periods exported, "
+              f"{n_skipped} skipped.")
+        print(f"Output directory: {output_dir}")
+
+    return summary

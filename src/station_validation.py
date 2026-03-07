@@ -730,6 +730,11 @@ def merge_station_metadata(metrics_df, station_df):
     station_info['ID_WMO'] = station_info['ID_WMO'].astype(int)
     station_info = station_info.set_index('ID_WMO')
 
+    # Drop columns already present in metrics_df to avoid overlap errors
+    overlap = set(station_info.columns) & set(metrics_df.columns)
+    if overlap:
+        station_info = station_info.drop(columns=list(overlap))
+
     merged = metrics_df.join(station_info, how='left')
 
     # Infer Region from Province if Province exists but Region does not
@@ -1169,6 +1174,14 @@ def extract_qa_at_stations(qa_file, station_df, var_names=None):
                 raw = raw.item()
                 # Keep as-is (may be int category or float score)
                 row_dict[var] = raw
+            elif raw.size > 1:
+                # qualityts files have a time dimension (per-year);
+                # average across years for a representative value
+                finite = raw[np.isfinite(raw)]
+                row_dict[var] = (
+                    float(np.nanmean(finite)) if len(finite) > 0
+                    else np.nan
+                )
             else:
                 row_dict[var] = np.nan
 

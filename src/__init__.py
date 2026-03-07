@@ -138,6 +138,11 @@ from .visualisation import (
     plot_regional_boxplots,
     run_station_validation_batch_viz,
     print_station_validation_viz_summary,
+    plot_qa_regional_bars,
+    plot_qa_component_by_region,
+    plot_qa_province_bars,
+    plot_qa_station_bars,
+    run_qa_regional_batch_viz,
 )
 
 # ---------------------------------------------------------------------------

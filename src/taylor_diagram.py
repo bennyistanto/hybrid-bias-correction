@@ -313,9 +313,22 @@ def _load_station_data(config):
     station_obs : DataFrame
         DatetimeIndex rows, integer WMO-ID columns, values in mm/day.
     """
-    station_locs = pd.read_csv(config.STATION_FILE)
+    station_locs = pd.read_csv(config.STATION_FILE, sep=None, engine='python')
 
-    # Ensure Region is available
+    # Normalize column name variants from station CSV
+    rename_map = {}
+    for col in station_locs.columns:
+        lc = col.lower()
+        if lc == 'region' and col != 'Region':
+            rename_map[col] = 'Region'
+        elif lc in ('a1name', 'province') and col != 'Province':
+            rename_map[col] = 'Province'
+        elif lc in ('a2name', 'district') and col != 'District':
+            rename_map[col] = 'District'
+    if rename_map:
+        station_locs = station_locs.rename(columns=rename_map)
+
+    # Ensure Region is available (derive from Province if needed)
     if 'Province' in station_locs.columns and 'Region' not in station_locs.columns:
         station_locs['Region'] = station_locs['Province'].map(config.REGION_MAPPING)
 
@@ -332,7 +345,7 @@ def _load_station_data(config):
         raise FileNotFoundError(f"Station data file not found: {data_file}")
 
     station_obs = pd.read_csv(data_file, index_col=0, parse_dates=True,
-                              dayfirst=True)
+                              date_format='%d-%m-%Y')
 
     # Normalise column names to int (WMO IDs)
     new_cols = {}
@@ -424,7 +437,10 @@ def compute_all_taylor_stats(config=None, progress=True):
     if progress:
         print(f"  Matched {len(obs_col_map)}/{n_stations} stations to obs data")
 
-    # Process each dekad
+    # Process each dekad — each product paired independently with station obs
+    obs_index = station_obs.index
+    total_pairs = 0
+
     for di, (month, dekad_start) in enumerate(DEKADS):
         dekad_end = DEKAD_ENDS[dekad_start]
 
@@ -455,51 +471,48 @@ def compute_all_taylor_stats(config=None, progress=True):
                 if da is not None:
                     gridded[method] = da
 
-            # Common dates across all loaded products
-            date_sets = [
-                set(pd.DatetimeIndex(g.time.values)) for g in gridded.values()
-            ]
-            if not date_sets:
-                continue
-            common_dates = sorted(set.intersection(*date_sets))
+            # Pair each product independently with station observations.
+            # Corrected files may have different timestamps than CPC/IMERG
+            # (e.g., dummy timestamps from save_corrected_precip), so a
+            # global intersection across all products would fail.
+            for pi, key in enumerate(product_keys):
+                if key not in gridded:
+                    continue
+                g = gridded[key]
 
-            # Intersect with station observation dates
-            obs_index = station_obs.index
-            common_dates = pd.DatetimeIndex(
-                [d for d in common_dates if d in obs_index]
-            )
-            if len(common_dates) == 0:
-                continue
+                # Skip products without a time dimension
+                if 'time' not in g.dims:
+                    logger.debug("  Dekad %02d/%02d: %s has no time dim, "
+                                 "skipping", month, dekad_start, key)
+                    continue
 
-            # Extract at each station and accumulate
-            for si, col in obs_col_map.items():
-                obs_ts = station_obs.loc[common_dates, col].values.astype(
-                    np.float64
-                )
-                lat = float(station_lats[si])
-                lon = float(station_lons[si])
+                product_dates = pd.DatetimeIndex(g.time.values)
+                paired_dates = product_dates.intersection(obs_index)
+                if len(paired_dates) == 0:
+                    continue
 
-                for pi, key in enumerate(product_keys):
-                    if key not in gridded:
-                        continue
+                for si, col in obs_col_map.items():
+                    obs_ts = station_obs.loc[paired_dates, col].values.astype(
+                        np.float64
+                    )
+                    lat = float(station_lats[si])
+                    lon = float(station_lons[si])
                     prd_ts = (
-                        gridded[key]
-                        .sel(time=common_dates, lat=lat, lon=lon,
-                             method='nearest')
+                        g.sel(time=paired_dates, lat=lat, lon=lon,
+                              method='nearest')
                         .values.astype(np.float64)
                     )
                     acc.add(pi, si, obs_ts, prd_ts)
+                    total_pairs += len(paired_dates)
 
         except Exception as exc:
-            if progress:
-                print(
-                    f"\n  Warning: skipping dekad "
-                    f"{month:02d}/{dekad_start:02d}: {exc}"
-                )
+            logger.warning("  Dekad %02d/%02d failed: %s",
+                           month, dekad_start, exc)
             continue
 
     if progress:
-        print("\n  Done computing Taylor statistics.")
+        print(f"\n  Done computing Taylor statistics "
+              f"({total_pairs:,d} total paired observations).")
 
     # Close datasets
     cpc_ds.close()
@@ -520,27 +533,25 @@ def plot_taylor_diagram(
     normalize=True,
     figsize=(8, 8),
     ax=None,
-    show_rmse_contours=True,
     max_std_ratio=2.0,
     products_to_show=None,
     legend=True,
-    rmse_label_angle=None,
+    **_ignored,
 ):
-    """Plot a Taylor diagram from pre-computed statistics.
+    """Plot a Taylor diagram using the SkillMetrics package.
 
     Parameters
     ----------
     stats : list of dict
         Each dict must have ``key``, ``correlation``, ``std_obs``,
-        ``std_prd``.
+        ``std_prd``, ``crmse``.
     title : str, optional
     normalize : bool
         Divide all standard deviations by the reference std.
     figsize : tuple
         Only used when *ax* is ``None``.
     ax : PolarAxes, optional
-        Existing axes to draw on.
-    show_rmse_contours : bool
+        Existing axes to draw on (for subplot usage).
     max_std_ratio : float
         Upper limit for the radial axis (in normalised units if
         ``normalize=True``).
@@ -548,144 +559,121 @@ def plot_taylor_diagram(
         Restrict to these product keys.
     legend : bool
         Add a legend.
-    rmse_label_angle : float, optional
-        Angle (radians) at which to place RMSE contour labels.  Default
-        is a small positive angle.
 
     Returns
     -------
     fig, ax
     """
-    created_fig = ax is None
-    if created_fig:
-        fig = plt.figure(figsize=figsize)
-        ax = fig.add_subplot(111, polar=True)
-    else:
-        fig = ax.figure
+    import skill_metrics as sm
 
     # Filter products
     if products_to_show:
         stats = [s for s in stats if s['key'] in products_to_show]
-    stats = [s for s in stats if np.isfinite(s.get('correlation', np.nan))]
-    if not stats:
+    valid = [s for s in stats
+             if np.isfinite(s.get('correlation', np.nan))
+             and np.isfinite(s.get('std_prd', np.nan))
+             and s.get('n', 0) > 0]
+
+    if not valid:
         warnings.warn("No valid statistics to plot")
+        if ax is None:
+            fig = plt.figure(figsize=figsize)
+            ax = fig.add_subplot(111, polar=True)
+        else:
+            fig = ax.figure
         return fig, ax
 
-    # Reference standard deviation
+    # Find reference standard deviation (from first product with valid std_obs)
     ref_std = np.nan
-    for s in stats:
+    for s in valid:
         if np.isfinite(s['std_obs']) and s['std_obs'] > 0:
             ref_std = s['std_obs']
             break
     if not np.isfinite(ref_std):
         warnings.warn("Cannot determine reference std; skipping plot")
+        if ax is None:
+            fig = plt.figure(figsize=figsize)
+            ax = fig.add_subplot(111, polar=True)
+        else:
+            fig = ax.figure
         return fig, ax
 
-    # ── Axes configuration ──
-    ax.set_thetamin(0)
-    ax.set_thetamax(90)
+    # Build arrays for SkillMetrics (index 0 = reference point)
+    sdev_list = [1.0 if normalize else ref_std]   # reference
+    crmsd_list = [0.0]                             # zero for reference
+    ccoef_list = [1.0]                             # perfect self-correlation
+    labels = ['REF']
 
-    corr_ticks = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.99]
-    corr_angles = np.degrees(np.arccos(corr_ticks))
-    ax.set_thetagrids(corr_angles, labels=[f'{c:.2g}' for c in corr_ticks])
+    for s in valid:
+        sp = s['std_prd'] / ref_std if normalize else s['std_prd']
+        cr = s['crmse'] / ref_std if normalize else s['crmse']
+        sdev_list.append(sp)
+        crmsd_list.append(cr)
+        ccoef_list.append(s['correlation'])
+        style = PRODUCT_STYLES.get(s['key'], {'label': s['key']})
+        labels.append(style['label'])
 
-    max_r = max_std_ratio
-    ax.set_rlim(0, max_r)
-    ax.set_rlabel_position(0)
+    sdev = np.array(sdev_list)
+    crmsd = np.array(crmsd_list)
+    ccoef = np.array(ccoef_list)
 
-    # Std-dev axis label
-    rlabel = 'Normalized Std Dev' if normalize else 'Std Dev (mm day$^{-1}$)'
-    ax.set_ylabel(rlabel, labelpad=30, fontsize=9)
-
-    # ── Reference point ──
-    ref_r = 1.0 if normalize else ref_std
-    ax.plot(0, ref_r, 'ko', markersize=10, zorder=10, clip_on=False)
-    ax.annotate(
-        'REF', xy=(0, ref_r),
-        xytext=(np.radians(5), ref_r + max_r * 0.04),
-        fontsize=8, fontweight='bold', ha='left', va='bottom',
-    )
-
-    # ── RMSE contours ──
-    if show_rmse_contours:
-        if normalize:
-            rmse_vals = [v for v in [0.25, 0.5, 0.75, 1.0, 1.25, 1.5]
-                         if v < max_r * 1.5]
-        else:
-            rmse_vals = [v * ref_std for v in [0.25, 0.5, 0.75, 1.0, 1.25, 1.5]
-                         if v * ref_std < max_r * 1.5]
-
-        label_angle = rmse_label_angle if rmse_label_angle is not None else 0.03
-
-        for ev in rmse_vals:
-            phi = np.linspace(0, 2 * np.pi, 400)
-            x_cart = ref_r + ev * np.cos(phi)
-            y_cart = ev * np.sin(phi)
-            r_polar = np.sqrt(x_cart ** 2 + y_cart ** 2)
-            theta_polar = np.arctan2(y_cart, x_cart)
-
-            keep = (
-                (theta_polar >= -0.01)
-                & (theta_polar <= np.pi / 2 + 0.01)
-                & (r_polar >= 0)
-                & (r_polar <= max_r * 1.02)
-            )
-            if not keep.any():
-                continue
-
-            ax.plot(
-                theta_polar[keep], r_polar[keep],
-                '--', color='#aaaaaa', linewidth=0.7, alpha=0.6,
-            )
-
-            # Label where the arc crosses the zero-correlation axis
-            label_r = ref_r + ev
-            if label_r <= max_r * 0.98:
-                lbl = f'{ev:.2g}' if normalize else f'{ev:.1f}'
-                ax.text(
-                    label_angle, label_r, lbl,
-                    fontsize=7, color='#888888', ha='left', va='bottom',
-                )
-
-    # ── Product markers ──
-    for s in stats:
-        key = s['key']
-        style = PRODUCT_STYLES.get(key, {
-            'label': key, 'marker': 'o', 'color': 'gray',
-            'size': 8, 'zorder': 3,
+    # Build per-marker styling
+    marker_colors = ['black']  # reference
+    marker_symbols = ['o']     # reference
+    marker_sizes = [10]        # reference
+    for s in valid:
+        style = PRODUCT_STYLES.get(s['key'], {
+            'color': 'gray', 'marker': 'o', 'size': 10,
         })
+        marker_colors.append(style['color'])
+        marker_symbols.append(style['marker'])
+        marker_sizes.append(style['size'])
 
-        theta = np.arccos(np.clip(s['correlation'], 0, 1))
-        r = s['std_prd'] / ref_std if normalize else s['std_prd']
-
-        ax.plot(
-            theta, r,
-            marker=style['marker'], color=style['color'],
-            markersize=style['size'], markeredgecolor='black',
-            markeredgewidth=0.5, linestyle='none',
-            label=style['label'], zorder=style.get('zorder', 5),
-            clip_on=False,
-        )
-
-    # ── Correlation label along the arc ──
-    ax.text(
-        np.radians(45), max_r * 1.18, 'Correlation',
-        rotation=-45, ha='center', va='center', fontsize=11,
+    # Common SkillMetrics options
+    sm_options = dict(
+        markerLabel=labels,
+        markerLegend='on' if legend else 'off',
+        markerColor=marker_colors[1] if len(marker_colors) > 1 else 'blue',
+        styleRMS='--',
+        colRMS='#aaaaaa',
+        widthRMS=0.7,
+        titleRMS='on',
+        titleSTD='on',
+        titleCOR='on',
+        colSTD='black',
+        colCOR='black',
+        styleSTD='-',
+        styleCOR='--',
+        numberPanels=1,
+        axismax=max_std_ratio,
     )
 
-    # ── Title ──
+    # Handle individual marker styling via markers dict
+    markers = {}
+    for i, label in enumerate(labels):
+        markers[label] = {
+            'labelColor': 'black',
+            'symbol': marker_symbols[i],
+            'size': marker_sizes[i],
+            'faceColor': marker_colors[i],
+            'edgeColor': 'black',
+        }
+    sm_options['markers'] = markers
+
+    # Plot using SkillMetrics
+    if ax is not None:
+        # Subplot mode: pass existing axes
+        sm.taylor_diagram(ax, sdev, crmsd, ccoef, **sm_options)
+        fig = ax.figure
+    else:
+        # Standalone mode: SkillMetrics creates the figure
+        fig = plt.figure(figsize=figsize)
+        ax = fig.add_subplot(111, polar=True)
+        ax.set(adjustable='box', aspect='equal')
+        sm.taylor_diagram(ax, sdev, crmsd, ccoef, **sm_options)
+
     if title:
         ax.set_title(title, pad=25, fontsize=13, fontweight='bold')
-
-    # ── Legend ──
-    if legend:
-        ax.legend(
-            loc='upper left', bbox_to_anchor=(1.05, 1.0),
-            fontsize=9, framealpha=0.9, edgecolor='#cccccc',
-        )
-
-    if created_fig:
-        fig.tight_layout()
 
     return fig, ax
 
@@ -993,7 +981,7 @@ def generate_station_taylor(
 
     Individual station markers are shown as small semi-transparent
     points for each product, with domain-wide aggregates overlaid
-    as larger opaque markers.
+    as larger opaque markers via the SkillMetrics overlay feature.
 
     Parameters
     ----------
@@ -1021,46 +1009,20 @@ def generate_station_taylor(
         warnings.warn("Cannot determine reference std")
         return None
 
-    fig = plt.figure(figsize=(9, 9))
-    ax = fig.add_subplot(111, polar=True)
-
-    # Axes setup
-    ax.set_thetamin(0)
-    ax.set_thetamax(90)
-    corr_ticks = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.99]
-    ax.set_thetagrids(
-        np.degrees(np.arccos(corr_ticks)),
-        labels=[f'{c:.2g}' for c in corr_ticks],
-    )
-    ax.set_rlim(0, max_std_ratio)
-    ax.set_rlabel_position(0)
-
-    rlabel = 'Normalized Std Dev' if normalize else 'Std Dev (mm day$^{-1}$)'
-    ax.set_ylabel(rlabel, labelpad=30, fontsize=9)
-
-    ref_r = 1.0 if normalize else ref_std
-
-    # Reference point
-    ax.plot(0, ref_r, 'ko', markersize=10, zorder=10, clip_on=False)
-    ax.annotate(
-        'REF', xy=(0, ref_r),
-        xytext=(np.radians(5), ref_r + max_std_ratio * 0.04),
-        fontsize=8, fontweight='bold',
+    # First, plot the domain-wide aggregate via plot_taylor_diagram
+    fig, ax = plot_taylor_diagram(
+        domain_stats,
+        title=('Station-Level Taylor Diagram\n'
+               '(Individual stations + domain aggregate)'),
+        normalize=normalize,
+        figsize=(9, 9),
+        max_std_ratio=max_std_ratio,
+        products_to_show=products_to_show,
+        legend=True,
     )
 
-    # RMSE contours
-    for ev in [0.25, 0.5, 0.75, 1.0, 1.25]:
-        phi = np.linspace(0, 2 * np.pi, 400)
-        x_c = ref_r + ev * np.cos(phi)
-        y_c = ev * np.sin(phi)
-        r_p = np.sqrt(x_c ** 2 + y_c ** 2)
-        t_p = np.arctan2(y_c, x_c)
-        keep = (t_p >= 0) & (t_p <= np.pi / 2) & (r_p <= max_std_ratio)
-        if keep.any():
-            ax.plot(t_p[keep], r_p[keep], '--', color='#aaaaaa',
-                    linewidth=0.7, alpha=0.5)
-
-    # ── Per-station markers (small, semi-transparent) ──
+    # Overlay per-station markers (small, semi-transparent) using
+    # direct matplotlib scatter on the existing polar axes
     keys_to_plot = products_to_show or acc.product_keys
     for key in keys_to_plot:
         if key not in per_station:
@@ -1077,7 +1039,7 @@ def generate_station_taylor(
                     and np.isfinite(ss['std_obs'])
                     and ss['std_obs'] > 0):
                 theta = np.arccos(np.clip(ss['correlation'], 0, 1))
-                r = ss['std_prd'] / ss['std_obs'] if normalize else ss['std_prd']
+                r = ss['std_prd'] / ref_std if normalize else ss['std_prd']
                 if 0 <= r <= max_std_ratio:
                     thetas.append(theta)
                     rs.append(r)
@@ -1086,49 +1048,8 @@ def generate_station_taylor(
             ax.scatter(
                 thetas, rs,
                 marker=style['marker'], c=style['color'],
-                s=18, alpha=0.3, edgecolors='none', zorder=3,
+                s=18, alpha=0.3, edgecolors='none', zorder=2,
             )
-
-    # ── Domain-wide aggregate markers (large, opaque) ──
-    for s in domain_stats:
-        if not np.isfinite(s['correlation']):
-            continue
-        key = s['key']
-        if products_to_show and key not in products_to_show:
-            continue
-        style = PRODUCT_STYLES.get(key, {
-            'label': key, 'marker': 'o', 'color': 'gray',
-            'size': 10, 'zorder': 5,
-        })
-        theta = np.arccos(np.clip(s['correlation'], 0, 1))
-        r = s['std_prd'] / s['std_obs'] if normalize and s['std_obs'] > 0 else np.nan
-        if np.isfinite(r):
-            ax.plot(
-                theta, r,
-                marker=style['marker'], color=style['color'],
-                markersize=style['size'] + 2,
-                markeredgecolor='black', markeredgewidth=1.0,
-                linestyle='none', label=style['label'],
-                zorder=style.get('zorder', 5) + 5,
-                clip_on=False,
-            )
-
-    # Correlation label
-    ax.text(
-        np.radians(45), max_std_ratio * 1.18, 'Correlation',
-        rotation=-45, ha='center', va='center', fontsize=11,
-    )
-
-    ax.set_title(
-        'Station-Level Taylor Diagram\n'
-        '(Individual stations + domain aggregate)',
-        pad=25, fontsize=13, fontweight='bold',
-    )
-    ax.legend(
-        loc='upper left', bbox_to_anchor=(1.05, 1.0),
-        fontsize=9, framealpha=0.9, edgecolor='#cccccc',
-    )
-    fig.tight_layout()
 
     if output_dir:
         os.makedirs(output_dir, exist_ok=True)
