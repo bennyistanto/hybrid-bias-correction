@@ -31,7 +31,8 @@ from scipy.stats import gamma, genpareto
 from sklearn.model_selection import KFold
 from .config import (N_SPLITS_GPD_CROSSVALIDATE,
                      GPD_THRESHOLD_PERCENTILE,
-                     UPPER_CAP_THRESHOLD_PERCENTILE)
+                     UPPER_CAP_THRESHOLD_PERCENTILE,
+                     WET_DAY_THRESHOLD)
 
 # +++++++++++++++++++++++++++++++++++++++++
 # Functions
@@ -178,7 +179,13 @@ def fit_generalized_pareto_distribution(
 
     # Fit the GPD to the excesses
     # genpareto.fit returns (shape, loc, scale)
-    params = genpareto.fit(excesses)
+    # Fix A (Coles 2001): pin location to 0 because we are fitting excesses
+    # that are by construction non-negative. Allowing a free location can
+    # drift and produces a small systematic bias in the upper tail.
+    try:
+        params = genpareto.fit(excesses, floc=0)
+    except Exception:
+        return (0.0, 0.0, 1.0)
     return params
 
 # ----
@@ -218,9 +225,15 @@ def cross_validate_gpd(
     # Perform cross-validation
     for train_index, test_index in kf.split(excesses):
         train_data, test_data = excesses[train_index], excesses[test_index]
-        # Fit GPD to training data
-        params = genpareto.fit(train_data)
-        params_list.append(params)
+        # Fit GPD to training data with floc=0 (Fix A, Coles 2001)
+        try:
+            params = genpareto.fit(train_data, floc=0)
+            params_list.append(params)
+        except Exception:
+            continue
+
+    if not params_list:
+        return (0.0, 0.0, 1.0)
 
     # Calculate average parameters across all folds
     shape_avg = np.mean([params[0] for params in params_list])
@@ -254,10 +267,22 @@ def fit_cpc_parameters_on_native_grid(
     Returns
     -------
     dict of xarray.DataArray
-        Dictionary with 8 parameter arrays at CPC native resolution:
+        Dictionary with 9 parameter arrays at CPC native resolution:
         'gamma_shape', 'gamma_scale', 'gpd_threshold', 'gpd_shape',
-        'gpd_loc', 'gpd_scale', 'upper_cap', 'p_threshold'.
+        'gpd_loc', 'gpd_scale', 'upper_cap', 'p_threshold', 'p_dry_cpc'.
         Ocean/invalid cells are NaN.
+
+    Notes
+    -----
+    Fixes applied (2026.04):
+      * Fix C (Cannon 2015 §3.2): gamma distribution fitted on WET-day values
+        only (> WET_DAY_THRESHOLD), not on all values including zeros. The
+        GPD threshold is also computed from wet values only.
+      * Fix A (Coles 2001): GPD fitting inside cross_validate_gpd uses
+        floc=0 (see fit_generalized_pareto_distribution).
+      * New: p_dry_cpc is returned per cell so the downstream mapping
+        step can apply Cannon dry-day handling using the interpolated
+        dry-day frequency at each IMERG pixel.
     """
     lat_cpc = cpc_native_dekad.lat.values
     lon_cpc = cpc_native_dekad.lon.values
@@ -268,7 +293,7 @@ def fit_cpc_parameters_on_native_grid(
     param_names = [
         'gamma_shape', 'gamma_scale', 'gpd_threshold',
         'gpd_shape', 'gpd_loc', 'gpd_scale',
-        'upper_cap', 'p_threshold'
+        'upper_cap', 'p_threshold', 'p_dry_cpc'
     ]
     params = {
         name: np.full((n_lat, n_lon), np.nan)
@@ -289,17 +314,20 @@ def fit_cpc_parameters_on_native_grid(
                 _skipped += 1
                 continue
 
-            # Remove NaN and get valid data
+            # Remove NaN and split into wet-day sample (Fix C, Cannon 2015)
             valid = ts[~np.isnan(ts)]
-            positive = valid[valid > 0]
+            wet = valid[valid > WET_DAY_THRESHOLD]
 
             # Need sufficient wet-day data for fitting
-            if len(positive) < 10:
+            if len(wet) < 10:
                 _skipped += 1
                 continue
 
-            # Fit gamma distribution
-            shape, _loc, scale = fit_gamma_distribution(valid)
+            # Dry-day fraction (new: required by downstream Cannon mapping)
+            params['p_dry_cpc'][i, j] = 1.0 - (len(wet) / len(valid))
+
+            # Fit gamma on wet-day sample only
+            shape, _loc, scale = fit_gamma_distribution(wet)
             if shape <= 0 or scale <= 0:
                 _skipped += 1
                 continue
@@ -307,13 +335,13 @@ def fit_cpc_parameters_on_native_grid(
             params['gamma_shape'][i, j] = shape
             params['gamma_scale'][i, j] = scale
 
-            # GPD threshold (80th percentile of all valid values)
-            threshold = np.percentile(valid, GPD_THRESHOLD_PERCENTILE)
+            # GPD threshold (80th percentile of WET values, Fix C)
+            threshold = np.percentile(wet, GPD_THRESHOLD_PERCENTILE)
             params['gpd_threshold'][i, j] = threshold
 
-            # Fit GPD via cross-validation
+            # Fit GPD via cross-validation on the wet sample (Fix A inside)
             if not np.isnan(threshold) and threshold > 0:
-                gpd_shape, gpd_loc, gpd_scale = cross_validate_gpd(valid, threshold)
+                gpd_shape, gpd_loc, gpd_scale = cross_validate_gpd(wet, threshold)
                 params['gpd_shape'][i, j] = gpd_shape
                 params['gpd_loc'][i, j] = gpd_loc
                 params['gpd_scale'][i, j] = gpd_scale
@@ -322,8 +350,8 @@ def fit_cpc_parameters_on_native_grid(
                 params['gpd_loc'][i, j] = 0
                 params['gpd_scale'][i, j] = 1
 
-            # Upper cap (99.9th percentile)
-            params['upper_cap'][i, j] = np.percentile(valid, UPPER_CAP_THRESHOLD_PERCENTILE)
+            # Upper cap (99.9th percentile of wet values)
+            params['upper_cap'][i, j] = np.percentile(wet, UPPER_CAP_THRESHOLD_PERCENTILE)
 
             # Pre-compute CDF at threshold for conditional probability mapping
             params['p_threshold'][i, j] = gamma.cdf(threshold, shape, loc=0, scale=scale)
@@ -406,6 +434,11 @@ def interpolate_cpc_params_to_imerg_grid(
         if key in interp_params:
             interp_params[key] = interp_params[key].clip(min=1e-6)
 
+    # Clip p_dry_cpc to [0, 1] — bilinear interpolation of a probability
+    # can numerically drift slightly outside the valid range.
+    if 'p_dry_cpc' in interp_params:
+        interp_params['p_dry_cpc'] = interp_params['p_dry_cpc'].clip(min=0.0, max=1.0)
+
     # Log summary
     sample_key = 'gamma_shape'
     n_valid = int((~interp_params[sample_key].isnull()).sum().item())
@@ -429,49 +462,65 @@ def gamma_quantile_mapping_precomputed(
         cpc_gpd_loc,
         cpc_gpd_scale,
         cpc_upper_cap,
-        cpc_p_threshold
+        cpc_p_threshold,
+        p_dry_cpc
     ):
     """
     Apply gamma distribution-based quantile mapping with GPD tail adjustment,
     using pre-computed CPC-side parameters instead of fitting CPC per pixel.
 
-    This is identical to gamma_quantile_mapping() in statistical logic, but:
-    - Only fits the IMERG gamma distribution (pixel-specific)
-    - Uses smoothly interpolated CPC parameters (no per-pixel CPC fitting)
-    - Eliminates 0.5° block boundary artefacts
+    This is the BCSD-path counterpart to gamma_quantile_mapping(). Statistical
+    logic is identical, but CPC parameters come from the native-resolution fit
+    (fit_cpc_parameters_on_native_grid) and are bilinearly interpolated to the
+    IMERG grid, eliminating 0.5° block artefacts.
 
     Parameters
     ----------
     imerg_values : numpy.ndarray
         IMERG precipitation time series for one pixel.
     cpc_gamma_shape : float
-        Pre-computed CPC gamma shape parameter.
+        Pre-computed CPC gamma shape (fitted on wet values only, Fix C).
     cpc_gamma_scale : float
-        Pre-computed CPC gamma scale parameter.
+        Pre-computed CPC gamma scale (fitted on wet values only, Fix C).
     cpc_gpd_threshold : float
-        Pre-computed CPC GPD threshold (e.g. 80th percentile).
+        Pre-computed CPC GPD threshold (80th percentile of wet values).
     cpc_gpd_shape : float
-        Pre-computed CPC GPD shape parameter.
+        Pre-computed CPC GPD shape (fitted with floc=0, Fix A).
     cpc_gpd_loc : float
-        Pre-computed CPC GPD location parameter.
+        Pre-computed CPC GPD location.
     cpc_gpd_scale : float
-        Pre-computed CPC GPD scale parameter.
+        Pre-computed CPC GPD scale.
     cpc_upper_cap : float
-        Pre-computed CPC upper cap (e.g. 99.9th percentile).
+        Pre-computed CPC upper cap (99.9th percentile of wet values).
     cpc_p_threshold : float
         Pre-computed CPC gamma CDF value at the GPD threshold.
+    p_dry_cpc : float
+        Pre-computed CPC dry-day fraction (fraction of days <= WET_DAY_THRESHOLD).
+        Required for Cannon 2015 §3.2 dry-day handling (Fix C).
 
     Returns
     -------
     numpy.ndarray
         Corrected precipitation values after quantile mapping.
+
+    Notes
+    -----
+    Fixes applied (2026.04):
+      * Fix C (Cannon 2015 §3.2): IMERG gamma fitted on wet-day values only;
+        Cannon dry-day handling uses p_dry_imerg (per pixel) and p_dry_cpc
+        (interpolated from native CPC fit) to match dry-day frequencies.
+      * Fix B: GPD substitution triggered on IMERG-side 80th percentile of
+        wet values, with conditional probability computed in the unconditional
+        CDF space for consistency between gamma body and GPD tail.
+      * Fix A (Coles 2001): inherited via cpc_gpd_* which were fitted with
+        floc=0 upstream in cross_validate_gpd.
     """
     original_shape = imerg_values.shape
     imerg_flat = imerg_values.flatten()
 
     # Check if any CPC parameter is NaN → skip this pixel
     if (np.isnan(cpc_gamma_shape) or np.isnan(cpc_gamma_scale) or
-            np.isnan(cpc_gpd_threshold)):
+            np.isnan(cpc_gpd_threshold) or np.isnan(p_dry_cpc)):
         return np.full(original_shape, np.nan)
 
     # Remove NaN from IMERG
@@ -482,43 +531,76 @@ def gamma_quantile_mapping_precomputed(
         return np.full(original_shape, np.nan)
 
     # Check for constant IMERG values
-    if np.all(imerg_valid == imerg_valid[0]):
-        if np.all(imerg_valid == 0):
-            return np.zeros(original_shape)
+    if np.all(imerg_valid == imerg_valid[0]) and imerg_valid[0] == 0:
+        return np.zeros(original_shape)
 
-    # Fit gamma to IMERG (pixel-specific)
-    shape1, loc1, scale1 = fit_gamma_distribution(imerg_valid)
-    y = gamma.cdf(imerg_valid, shape1, loc=loc1, scale=scale1)
+    # ---- Fix C: wet-day sample and dry-day fraction ----
+    wd = WET_DAY_THRESHOLD
+    is_wet_imerg = imerg_valid > wd
+    p_dry_imerg = 1.0 - is_wet_imerg.mean()
 
-    # Apply inverse CPC gamma CDF (using pre-computed CPC params)
-    cpc_quantiles = gamma.ppf(y, cpc_gamma_shape, loc=0, scale=cpc_gamma_scale)
-    cpc_quantiles = np.maximum(cpc_quantiles, 0)
+    imerg_wet = imerg_valid[is_wet_imerg]
+    if len(imerg_wet) < 5:
+        # Too few wet days — output all zeros
+        corrected_flat = np.full_like(imerg_flat, np.nan)
+        corrected_flat[valid_mask] = 0.0
+        return corrected_flat.reshape(original_shape)
 
-    # GPD tail adjustment using pre-computed CPC GPD parameters
-    threshold = cpc_gpd_threshold
-    if not np.isnan(threshold) and threshold > 0:
-        extreme_mask = imerg_valid > threshold
-        if np.any(extreme_mask):
-            p_threshold = cpc_p_threshold
-            if not np.isnan(p_threshold) and p_threshold < 1.0:
-                # Conditional probability mapping
-                p_conditional = (y[extreme_mask] - p_threshold) / (1 - p_threshold)
-                p_conditional = np.clip(p_conditional, 1e-10, 1 - 1e-10)
+    # Fit IMERG gamma on wet-day sample only
+    shape1, _loc1, scale1 = fit_gamma_distribution(imerg_wet)
+    if shape1 <= 0 or scale1 <= 0:
+        return np.full(original_shape, np.nan)
 
-                cpc_quantiles[extreme_mask] = genpareto.ppf(
-                    p_conditional, cpc_gpd_shape, loc=cpc_gpd_loc, scale=cpc_gpd_scale
-                ) + threshold
+    # Initialise output (dry days and killed drizzle stay at 0)
+    out = np.zeros_like(imerg_valid)
 
-    # Apply upper cap
+    # Wet-CDF for imerg_wet -> unconditional CDF in the mixed dry/wet model
+    y_wet = gamma.cdf(imerg_wet, shape1, loc=0, scale=scale1)
+    y_uncond = p_dry_imerg + (1.0 - p_dry_imerg) * y_wet
+
+    # Cannon dry-day handling: kill drizzle below CPC dry-day frequency
+    kill = y_uncond < p_dry_cpc
+    keep = ~kill
+
+    y_cond = np.zeros_like(y_uncond)
+    if (1.0 - p_dry_cpc) > 1e-10:
+        y_cond[keep] = (y_uncond[keep] - p_dry_cpc) / (1.0 - p_dry_cpc)
+    y_cond = np.clip(y_cond, 1e-10, 1 - 1e-10)
+
+    # Map through precomputed CPC gamma (wet-only fit)
+    cpc_wet_q = gamma.ppf(y_cond, cpc_gamma_shape, loc=0, scale=cpc_gamma_scale)
+    out_wet = np.where(kill, 0.0, cpc_wet_q)
+
+    # ---- Fix B: GPD substitution on IMERG-side threshold ----
+    imerg_thr_wet = np.percentile(imerg_wet, GPD_THRESHOLD_PERCENTILE)
+    p_thr_wet = gamma.cdf(imerg_thr_wet, shape1, loc=0, scale=scale1)
+    y_thr_uncond = p_dry_imerg + (1.0 - p_dry_imerg) * p_thr_wet
+
+    extreme_mask_wet = imerg_wet > imerg_thr_wet
+    if np.any(extreme_mask_wet):
+        denom = 1.0 - y_thr_uncond
+        if denom > 1e-10:
+            y_ext = y_uncond[extreme_mask_wet]
+            p_cond = (y_ext - y_thr_uncond) / denom
+            p_cond = np.clip(p_cond, 1e-10, 1 - 1e-10)
+            gpd_excess = genpareto.ppf(
+                p_cond, cpc_gpd_shape, loc=cpc_gpd_loc, scale=cpc_gpd_scale
+            )
+            out_wet[extreme_mask_wet] = gpd_excess + cpc_gpd_threshold
+
+    # Place wet-day outputs back
+    out[is_wet_imerg] = out_wet
+
+    # Upper cap
     if not np.isnan(cpc_upper_cap):
-        cpc_quantiles = np.minimum(cpc_quantiles, cpc_upper_cap)
+        out = np.minimum(out, cpc_upper_cap)
 
-    # Ensure non-negative
-    cpc_quantiles = np.maximum(cpc_quantiles, 0)
+    # Non-negative
+    out = np.maximum(out, 0)
 
     # Rebuild full array
     corrected_flat = np.full_like(imerg_flat, np.nan)
-    corrected_flat[valid_mask] = cpc_quantiles
+    corrected_flat[valid_mask] = out
 
     return corrected_flat.reshape(original_shape)
 
@@ -556,6 +638,21 @@ def gamma_quantile_mapping(
     Returns:
     numpy.ndarray: Corrected precipitation values after gamma quantile mapping with
     tail adjustment.
+
+    Notes
+    -----
+    Fixes applied (2026.04):
+      * Fix C (Cannon 2015 §3.2): gamma distributions are fitted on wet-day
+        values only (> WET_DAY_THRESHOLD). The dry-day fraction is handled
+        explicitly via the unconditional CDF construction, and sub-threshold
+        IMERG values are mapped either to zero (when the unconditional
+        probability is below the CPC dry-day fraction) or through the
+        conditional wet CDF of CPC. This prevents drizzle days from
+        contaminating the gamma body and matches the CPC dry-day frequency.
+      * Fix B: GPD substitution is triggered on IMERG's own 80th percentile
+        of wet values, not on the CPC threshold, and the conditional
+        probability is computed consistently in unconditional CDF space.
+      * Fix A (Coles 2001): GPD fitting uses floc=0 internally.
     """
     # Store the original shape
     original_shape = imerg_values.shape
@@ -569,69 +666,91 @@ def gamma_quantile_mapping(
     imerg_valid = imerg_flat[valid_mask]
     cpc_valid = cpc_flat[valid_mask]
 
-    # Add edge case checks here
-    # (No warning — this is expected for ocean/masked pixels)
+    # Edge case: no data (ocean/masked pixels — no warning expected)
     if imerg_valid.size == 0 or cpc_valid.size == 0:
         return np.full(original_shape, np.nan)
 
-    # Check for constant values
-    if np.all(imerg_valid == imerg_valid[0]) or np.all(cpc_valid == cpc_valid[0]):
-        logging.warning("Constant values detected in data")
-        if np.all(imerg_valid == 0) and np.all(cpc_valid == 0):
-            # If both are zero, return zeros
+    # Edge case: constant values
+    if np.all(imerg_valid == imerg_valid[0]):
+        if np.all(imerg_valid == 0):
             return np.zeros(original_shape)
-        elif np.all(imerg_valid == 0):
-            # If only IMERG is zero, use CPC mean
-            return np.full(original_shape, np.mean(cpc_valid))
 
-    # Fit gamma distributions to the valid IMERG and CPC values
-    shape1, loc1, scale1 = fit_gamma_distribution(imerg_valid)
-    y = gamma.cdf(imerg_valid, shape1, loc=loc1, scale=scale1)
+    # ---- Fix C: split into wet-day samples ----
+    wd = WET_DAY_THRESHOLD
+    is_wet_imerg = imerg_valid > wd
+    is_wet_cpc = cpc_valid > wd
+    p_dry_imerg = 1.0 - is_wet_imerg.mean()
+    p_dry_cpc = 1.0 - is_wet_cpc.mean()
 
-    shape2, loc2, scale2 = fit_gamma_distribution(cpc_valid)
-    cpc_quantiles = gamma.ppf(y, shape2, loc=loc2, scale=scale2)
+    imerg_wet = imerg_valid[is_wet_imerg]
+    cpc_wet = cpc_valid[is_wet_cpc]
 
-    # Ensure CPC quantiles are within realistic bounds
-    cpc_quantiles = np.maximum(cpc_quantiles, 0)
+    if len(imerg_wet) < 5 or len(cpc_wet) < 5:
+        # Too few wet days for a reliable mapping — return all zeros (dry pixel).
+        corrected_values_flat = np.full_like(imerg_flat, np.nan)
+        corrected_values_flat[valid_mask] = 0.0
+        return corrected_values_flat.reshape(original_shape)
 
-    # Fit GPD to the tails of the CPC values with cross-validation
-    threshold = np.percentile(cpc_valid, GPD_THRESHOLD_PERCENTILE)
-    if not np.isnan(threshold) and threshold > 0:
-        cpc_gpd_params = cross_validate_gpd(cpc_valid, threshold)
+    # Fit gammas on wet-day samples only
+    shape1, _loc1, scale1 = fit_gamma_distribution(imerg_wet)
+    shape2, _loc2, scale2 = fit_gamma_distribution(cpc_wet)
+    if shape1 <= 0 or scale1 <= 0 or shape2 <= 0 or scale2 <= 0:
+        return np.full(original_shape, np.nan)
 
-        # Adjust the tails using GPD with proper conditional probability mapping
-        extreme_mask = imerg_valid > threshold
-        if np.any(extreme_mask):
-            # Compute the CDF value at the threshold under the CPC gamma distribution
-            # This gives us the probability of not exceeding the threshold
-            p_threshold = gamma.cdf(threshold, shape2, loc=loc2, scale=scale2)
+    # Initialise output to zero (dry days, and sub-drizzle days become 0)
+    out = np.zeros_like(imerg_valid)
 
-            # Map unconditional CDF to conditional exceedance probability
-            # For values above threshold: P(X > x | X > threshold) = (F(x) - F(threshold)) / (1 - F(threshold))
-            # The GPD models the conditional distribution above the threshold,
-            # so its ppf expects probabilities in [0, 1] representing the conditional distribution
-            p_conditional = (y[extreme_mask] - p_threshold) / (1 - p_threshold)
-            p_conditional = np.clip(p_conditional, 1e-10, 1 - 1e-10)  # Avoid boundary issues
+    # ---- Cannon 2015 §3.2 dry-day handling for WET IMERG values ----
+    # Wet-CDF for imerg_wet -> unconditional CDF in the mixed dry/wet model
+    y_wet = gamma.cdf(imerg_wet, shape1, loc=0, scale=scale1)
+    y_uncond = p_dry_imerg + (1.0 - p_dry_imerg) * y_wet
 
-            cpc_quantiles[extreme_mask] = genpareto.ppf(
-                p_conditional, *cpc_gpd_params
-            ) + threshold
+    # Values whose unconditional probability falls below CPC's dry-day
+    # frequency must come out as zero (kills over-detected drizzle).
+    kill = y_uncond < p_dry_cpc
+    keep = ~kill
 
-    # Dynamically determine an upper cap
-    dynamic_cap = np.percentile(cpc_valid, UPPER_CAP_THRESHOLD_PERCENTILE)
+    # Conditional probability in the CPC wet distribution
+    y_cond = np.zeros_like(y_uncond)
+    if (1.0 - p_dry_cpc) > 1e-10:
+        y_cond[keep] = (y_uncond[keep] - p_dry_cpc) / (1.0 - p_dry_cpc)
+    y_cond = np.clip(y_cond, 1e-10, 1 - 1e-10)
+
+    out_wet = gamma.ppf(y_cond, shape2, loc=0, scale=scale2)
+    out_wet = np.where(kill, 0.0, out_wet)
+
+    # ---- Fix B: GPD substitution on IMERG-side threshold ----
+    # IMERG's own 80th percentile of wet values (not CPC's)
+    imerg_thr_wet = np.percentile(imerg_wet, GPD_THRESHOLD_PERCENTILE)
+    p_thr_wet = gamma.cdf(imerg_thr_wet, shape1, loc=0, scale=scale1)
+    y_thr_uncond = p_dry_imerg + (1.0 - p_dry_imerg) * p_thr_wet
+
+    extreme_mask_wet = imerg_wet > imerg_thr_wet
+    if np.any(extreme_mask_wet) and len(cpc_wet) >= 10:
+        cpc_thr = np.percentile(cpc_wet, GPD_THRESHOLD_PERCENTILE)
+        cpc_gpd_params = cross_validate_gpd(cpc_wet, cpc_thr)
+
+        denom = 1.0 - y_thr_uncond
+        if denom > 1e-10 and not np.isnan(cpc_thr) and cpc_thr > 0:
+            y_ext = y_uncond[extreme_mask_wet]
+            p_cond = (y_ext - y_thr_uncond) / denom
+            p_cond = np.clip(p_cond, 1e-10, 1 - 1e-10)
+            gpd_excess = genpareto.ppf(p_cond, *cpc_gpd_params)
+            out_wet[extreme_mask_wet] = gpd_excess + cpc_thr
+
+    # Place wet-day outputs back into the full output array
+    out[is_wet_imerg] = out_wet
+
+    # ---- Upper cap at 99.9th percentile of CPC wet values ----
+    dynamic_cap = np.percentile(cpc_wet, UPPER_CAP_THRESHOLD_PERCENTILE)
     if not np.isnan(dynamic_cap):
-        cpc_quantiles = np.minimum(cpc_quantiles, dynamic_cap)
+        out = np.minimum(out, dynamic_cap)
 
-    # Ensure non-negative corrected values
-    cpc_quantiles = np.maximum(cpc_quantiles, 0)
+    # Ensure non-negative
+    out = np.maximum(out, 0)
 
-    # Create an output array filled with NaNs
+    # Rebuild full array
     corrected_values_flat = np.full_like(imerg_flat, np.nan)
-
-    # Assign the corrected values back to the valid positions
-    corrected_values_flat[valid_mask] = cpc_quantiles
-
-    # Reshape back to the original shape
+    corrected_values_flat[valid_mask] = out
     corrected_values = corrected_values_flat.reshape(original_shape)
-
     return corrected_values

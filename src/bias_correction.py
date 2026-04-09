@@ -224,6 +224,7 @@ def lseqm(
                     float(interp_cpc_params['gpd_scale'].values[i, j]),
                     float(interp_cpc_params['upper_cap'].values[i, j]),
                     float(interp_cpc_params['p_threshold'].values[i, j]),
+                    float(interp_cpc_params['p_dry_cpc'].values[i, j]),
                 )
             else:
                 # Original per-pixel fitting path (backward compatible)

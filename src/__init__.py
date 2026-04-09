@@ -117,9 +117,11 @@ from .taylor_diagram import (
     generate_island_taylor,
     generate_province_taylor,
     generate_station_taylor,
+    generate_per_dekad_taylor_diagrams,
     generate_all_taylor_diagrams,
     print_taylor_stats,
     save_taylor_stats_csv,
+    save_dekad_taylor_stats_csv,
 )
 from .visualisation import (
     load_quality_data,

@@ -112,14 +112,15 @@ def _format_period(month, dekad):
 
 
 def _save_fig(fig, output_dir, plot_type, quality_prefix, month_str,
-              dekad_str, dpi=150):
+              dekad_str, dpi=150, method_name=None):
     """Save *fig* into ``{output_dir}/{quality_prefix}_{plot_type}/``."""
     sub_dir = os.path.join(output_dir, f"{quality_prefix}_{plot_type}")
     os.makedirs(sub_dir, exist_ok=True)
     from src import config as _cfg
+    method_suffix = f"_{method_name.lower()}" if method_name else ""
     fname = (
         f"{_cfg.FILENAME_PREFIX}_qa_viz_{quality_prefix}_{plot_type}"
-        f"_month{month_str}_dekad{dekad_str}.png"
+        f"{method_suffix}_month{month_str}_dekad{dekad_str}.png"
     )
     fpath = os.path.join(sub_dir, fname)
     fig.savefig(fpath, dpi=dpi, bbox_inches="tight", facecolor="white")
@@ -135,12 +136,12 @@ def _squeeze_time(da):
 
 
 def _finish_fig(fig, output_dir, plot_type, quality_prefix, month_str,
-                dekad_str, interactive):
+                dekad_str, interactive, method_name=None):
     """Save (if *output_dir*) and show/close *fig*."""
     path = None
     if output_dir is not None:
         path = _save_fig(fig, output_dir, plot_type, quality_prefix,
-                         month_str, dekad_str)
+                         month_str, dekad_str, method_name=method_name)
     if interactive:
         plt.show()
     else:
@@ -988,7 +989,7 @@ def plot_station_metric_maps(metrics_df, station_df, month, dekad,
     plt.tight_layout()
     return _finish_fig(fig, output_dir, "metric_maps",
                        "station_validation", month_str, dekad_str,
-                       interactive)
+                       interactive, method_name=method_name)
 
 
 def plot_multi_threshold_curves(all_mt_summaries, month, dekad,
@@ -1199,7 +1200,7 @@ def plot_regional_boxplots(regional_df, month, dekad,
     plot_type = f"regional_{group_col.lower()}"
     return _finish_fig(fig, output_dir, plot_type,
                        "station_validation", month_str, dekad_str,
-                       interactive)
+                       interactive, method_name=method_name)
 
 
 # ---------------------------------------------------------------------------
@@ -1283,19 +1284,20 @@ def run_station_validation_batch_viz(output_dir=None, config=None,
 
             period_info = {"n_methods": len(all_metrics)}
 
-            # --- Plot 1: metric scatter maps (best method) ---
+            # --- Plot 1: metric scatter maps (ALL methods) ---
             best = "LSEQMDL" if "LSEQMDL" in all_metrics else list(
                 all_metrics.keys())[-1]
-            best_df = all_metrics[best]
-            period_info["n_stations"] = len(best_df)
-            try:
-                plot_station_metric_maps(
-                    best_df, station_df, month, dekad,
-                    method_name=best, output_dir=output_dir,
-                    interactive=False,
-                )
-            except Exception as exc:
-                logger.warning("  %s / metric_maps failed: %s", tag, exc)
+            period_info["n_stations"] = len(all_metrics[best])
+            for method_key, method_df in all_metrics.items():
+                try:
+                    plot_station_metric_maps(
+                        method_df, station_df, month, dekad,
+                        method_name=method_key, output_dir=output_dir,
+                        interactive=False,
+                    )
+                except Exception as exc:
+                    logger.warning("  %s / metric_maps/%s failed: %s",
+                                   tag, method_key, exc)
 
             # --- Plot 2: multi-threshold curves ---
             all_mt_summaries = {}
@@ -1319,17 +1321,20 @@ def run_station_validation_batch_viz(output_dir=None, config=None,
                     logger.warning("  %s / threshold_curves failed: %s",
                                    tag, exc)
 
-            # --- Plot 3: regional box plots ---
-            try:
-                regional_df = merge_station_metadata(best_df, station_df)
-                if "Region" in regional_df.columns:
-                    plot_regional_boxplots(
-                        regional_df, month, dekad,
-                        method_name=best, group_col="Region",
-                        output_dir=output_dir, interactive=False,
-                    )
-            except Exception as exc:
-                logger.warning("  %s / regional failed: %s", tag, exc)
+            # --- Plot 3: regional box plots (ALL methods) ---
+            for method_key, method_df in all_metrics.items():
+                try:
+                    regional_df = merge_station_metadata(
+                        method_df, station_df)
+                    if "Region" in regional_df.columns:
+                        plot_regional_boxplots(
+                            regional_df, month, dekad,
+                            method_name=method_key, group_col="Region",
+                            output_dir=output_dir, interactive=False,
+                        )
+                except Exception as exc:
+                    logger.warning("  %s / regional/%s failed: %s",
+                                   tag, method_key, exc)
 
             summary[(month, dekad)] = period_info
             n_saved += 1
@@ -1544,12 +1549,12 @@ def plot_qa_regional_bars(quality_data, station_df, month, dekad,
 
 def plot_qa_component_by_region(quality_data, station_df, month, dekad,
                                 quality_prefix="qualitysd",
-                                output_dir=None, interactive=True):
+                                method=None, output_dir=None,
+                                interactive=True):
     """Box plots of QA component scores at stations, grouped by region.
 
     Four subplots (CQI, basic statistical, distribution, temporal) show
     the distribution of per-station QA values across the 7 island regions.
-    Only the best method (LSEQM+DL) is plotted for clarity.
 
     Parameters
     ----------
@@ -1557,6 +1562,9 @@ def plot_qa_component_by_region(quality_data, station_df, month, dekad,
     station_df : pandas.DataFrame
     month, dekad : int
     quality_prefix : str
+    method : str or None
+        Method key (e.g. ``'LS'``, ``'LSEQM'``, ``'LSEQMDL'``).
+        If *None*, auto-picks best available.
     output_dir : str or None
     interactive : bool
 
@@ -1572,9 +1580,12 @@ def plot_qa_component_by_region(quality_data, station_df, month, dekad,
     # Extract QA at stations
     qa_at_stations = _extract_qa_from_datasets(quality_data, station_df)
 
-    # Use best method
-    best = "LSEQMDL" if "LSEQMDL" in qa_at_stations else (
-        list(qa_at_stations.keys())[-1] if qa_at_stations else None)
+    # Use specified method or best available
+    if method is not None and method in qa_at_stations:
+        best = method
+    else:
+        best = "LSEQMDL" if "LSEQMDL" in qa_at_stations else (
+            list(qa_at_stations.keys())[-1] if qa_at_stations else None)
     if best is None:
         return None
 
@@ -1629,13 +1640,14 @@ def plot_qa_component_by_region(quality_data, station_df, month, dekad,
     )
 
     return _finish_fig(fig, output_dir, "qa_component_region",
-                       quality_prefix, month_str, dekad_str, interactive)
+                       quality_prefix, month_str, dekad_str, interactive,
+                       method_name=best)
 
 
 def plot_qa_province_bars(quality_data, station_df, month, dekad,
                           quality_prefix="qualitysd",
-                          output_dir=None, interactive=True):
-    """Horizontal bar chart of median CQI per province (best method).
+                          method=None, output_dir=None, interactive=True):
+    """Horizontal bar chart of median CQI per province.
 
     Provinces are sorted by median CQI (descending). Station count and
     parent region are annotated beside each bar.
@@ -1646,6 +1658,9 @@ def plot_qa_province_bars(quality_data, station_df, month, dekad,
     station_df : pandas.DataFrame
     month, dekad : int
     quality_prefix : str
+    method : str or None
+        Method key (e.g. ``'LS'``, ``'LSEQM'``, ``'LSEQMDL'``).
+        If *None*, auto-picks best available.
     output_dir : str or None
     interactive : bool
 
@@ -1659,8 +1674,11 @@ def plot_qa_province_bars(quality_data, station_df, month, dekad,
     month_str, dekad_str = _format_period(month, dekad)
 
     qa_at_stations = _extract_qa_from_datasets(quality_data, station_df)
-    best = "LSEQMDL" if "LSEQMDL" in qa_at_stations else (
-        list(qa_at_stations.keys())[-1] if qa_at_stations else None)
+    if method is not None and method in qa_at_stations:
+        best = method
+    else:
+        best = "LSEQMDL" if "LSEQMDL" in qa_at_stations else (
+            list(qa_at_stations.keys())[-1] if qa_at_stations else None)
     if best is None:
         return None
 
@@ -1713,6 +1731,17 @@ def plot_qa_province_bars(quality_data, station_df, month, dekad,
         ax.text(row["cqi_median"] + 0.01, i, f"n={int(row['n'])}",
                 va="center", fontsize=7, color="#555555")
 
+    # Region legend (bars are color-coded by region)
+    from matplotlib.patches import Patch
+    legend_patches = [Patch(facecolor=region_colors.get(r, "#bbbbbb"),
+                            label=r)
+                      for r in island_order
+                      if r in set(region_map.get(p, "")
+                                  for p in prov_stats.index)]
+    if legend_patches:
+        ax.legend(handles=legend_patches, loc="lower right", fontsize=7,
+                  title="Region", title_fontsize=8)
+
     display = TITLES_MAP.get(best, best)
     ax.set_title(
         f"QA CQI by Province: {display}\n"
@@ -1722,21 +1751,19 @@ def plot_qa_province_bars(quality_data, station_df, month, dekad,
     ax.grid(True, alpha=0.3, axis="x")
 
     return _finish_fig(fig, output_dir, "qa_province",
-                       quality_prefix, month_str, dekad_str, interactive)
+                       quality_prefix, month_str, dekad_str, interactive,
+                       method_name=best)
 
 
 def plot_qa_station_bars(quality_data, station_df, month, dekad,
                          quality_prefix="qualitysd",
-                         region_filter=None, output_dir=None,
+                         method=None, region_filter=None, output_dir=None,
                          interactive=True):
-    """Horizontal bar chart of CQI per individual station (best method).
+    """Horizontal bar chart of CQI per individual station.
 
     When *region_filter* is given, only stations in that region are plotted
     and a per-region figure is saved. Otherwise all stations are included
     in one (possibly large) figure.
-
-    Filenames include ``ID_WMO`` identifiers; province names have spaces
-    replaced with underscores for filesystem safety.
 
     Parameters
     ----------
@@ -1744,6 +1771,9 @@ def plot_qa_station_bars(quality_data, station_df, month, dekad,
     station_df : pandas.DataFrame
     month, dekad : int
     quality_prefix : str
+    method : str or None
+        Method key (e.g. ``'LS'``, ``'LSEQM'``, ``'LSEQMDL'``).
+        If *None*, auto-picks best available.
     region_filter : str or None
         If set, only plot stations from this region.
     output_dir : str or None
@@ -1758,8 +1788,11 @@ def plot_qa_station_bars(quality_data, station_df, month, dekad,
     month_str, dekad_str = _format_period(month, dekad)
 
     qa_at_stations = _extract_qa_from_datasets(quality_data, station_df)
-    best = "LSEQMDL" if "LSEQMDL" in qa_at_stations else (
-        list(qa_at_stations.keys())[-1] if qa_at_stations else None)
+    if method is not None and method in qa_at_stations:
+        best = method
+    else:
+        best = "LSEQMDL" if "LSEQMDL" in qa_at_stations else (
+            list(qa_at_stations.keys())[-1] if qa_at_stations else None)
     if best is None:
         return None
 
@@ -1830,7 +1863,8 @@ def plot_qa_station_bars(quality_data, station_df, month, dekad,
         plot_type = "qa_station_all"
 
     return _finish_fig(fig, output_dir, plot_type,
-                       quality_prefix, month_str, dekad_str, interactive)
+                       quality_prefix, month_str, dekad_str, interactive,
+                       method_name=best)
 
 
 def run_qa_regional_batch_viz(quality_prefix="qualitysd", output_dir=None,
@@ -1899,42 +1933,50 @@ def run_qa_regional_batch_viz(quality_prefix="qualitysd", output_dir=None,
         except Exception as exc:
             logger.warning("  %s / qa_regional failed: %s", tag, exc)
 
-        # 2. Component box plots by region
-        try:
-            plot_qa_component_by_region(
-                qdata, station_df, month, dekad,
-                quality_prefix=quality_prefix,
-                output_dir=output_dir, interactive=False,
-            )
-        except Exception as exc:
-            logger.warning("  %s / qa_component_region failed: %s", tag, exc)
+        # Determine available methods for per-method plots
+        qa_ext = _extract_qa_from_datasets(qdata, station_df)
+        methods_available = list(qa_ext.keys()) if qa_ext else []
 
-        # 3. Province bars
-        try:
-            plot_qa_province_bars(
-                qdata, station_df, month, dekad,
-                quality_prefix=quality_prefix,
-                output_dir=output_dir, interactive=False,
-            )
-        except Exception as exc:
-            logger.warning("  %s / qa_province failed: %s", tag, exc)
-
-        # 4. Per-station bars (one figure per region)
-        n_stations_total = 0
-        for region in island_order:
+        # 2. Component box plots by region — ALL methods
+        for method in methods_available:
             try:
-                plot_qa_station_bars(
+                plot_qa_component_by_region(
                     qdata, station_df, month, dekad,
-                    quality_prefix=quality_prefix,
-                    region_filter=region,
+                    quality_prefix=quality_prefix, method=method,
                     output_dir=output_dir, interactive=False,
                 )
             except Exception as exc:
-                logger.warning("  %s / qa_station_%s failed: %s",
-                               tag, region, exc)
+                logger.warning("  %s / qa_component_region/%s failed: %s",
+                               tag, method, exc)
+
+        # 3. Province bars — ALL methods
+        for method in methods_available:
+            try:
+                plot_qa_province_bars(
+                    qdata, station_df, month, dekad,
+                    quality_prefix=quality_prefix, method=method,
+                    output_dir=output_dir, interactive=False,
+                )
+            except Exception as exc:
+                logger.warning("  %s / qa_province/%s failed: %s",
+                               tag, method, exc)
+
+        # 4. Per-station bars (one figure per region) — ALL methods
+        n_stations_total = 0
+        for method in methods_available:
+            for region in island_order:
+                try:
+                    plot_qa_station_bars(
+                        qdata, station_df, month, dekad,
+                        quality_prefix=quality_prefix, method=method,
+                        region_filter=region,
+                        output_dir=output_dir, interactive=False,
+                    )
+                except Exception as exc:
+                    logger.warning("  %s / qa_station_%s/%s failed: %s",
+                                   tag, region, method, exc)
 
         # Count stations from any method
-        qa_ext = _extract_qa_from_datasets(qdata, station_df)
         if qa_ext:
             n_stations_total = len(next(iter(qa_ext.values())))
         period_info["n_stations"] = n_stations_total
@@ -1946,7 +1988,7 @@ def run_qa_regional_batch_viz(quality_prefix="qualitysd", output_dir=None,
         summary[(month, dekad)] = period_info
         n_saved += 1
         if progress:
-            print(f"  {tag} -- {len(qdata)} method(s), "
+            print(f"  {tag} -- {len(methods_available)} method(s), "
                   f"{n_stations_total} stations, 4 plot types")
 
     if progress:

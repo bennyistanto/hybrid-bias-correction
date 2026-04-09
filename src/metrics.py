@@ -72,6 +72,10 @@ METRIC_LONG_NAMES = {
     'mdwp_ref': 'Mean Wet-Day Precipitation (Reference)',
     'mdwp_test': 'Mean Wet-Day Precipitation (Test)',
     'nse': 'Nash-Sutcliffe Efficiency',
+    'dsl_ref': 'Maximum Dry Spell Length (Reference)',
+    'dsl_test': 'Maximum Dry Spell Length (Test)',
+    'ks_stat': 'Kolmogorov-Smirnov Test Statistic',
+    'ks_pvalue': 'Kolmogorov-Smirnov Test P-Value',
     'p25_ref': '25th Percentile of Reference Data',
     'p25_test': '25th Percentile of Test Data',
     'p50_ref': '50th Percentile (Median) of Reference Data',
@@ -84,10 +88,6 @@ METRIC_LONG_NAMES = {
     'p95_test': '95th Percentile of Test Data',
     'p99_ref': '99th Percentile of Reference Data',
     'p99_test': '99th Percentile of Test Data',
-    'dsl_ref': 'Maximum Dry Spell Length (Reference)',
-    'dsl_test': 'Maximum Dry Spell Length (Test)',
-    'ks_stat': 'Kolmogorov-Smirnov Test Statistic',
-    'ks_pvalue': 'Kolmogorov-Smirnov Test P-Value',
 }
 
 METRIC_UNITS = {

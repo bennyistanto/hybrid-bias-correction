@@ -6,19 +6,19 @@ Quality Assessment (QA) framework for bias-corrected precipitation products.
 This module computes composite quality indices from the raw verification metrics
 produced by ``metrics.py``. It implements a three-tier quality assessment:
 
-1. **Basic Statistical Quality** (default weight 0.35):
+1. **Basic Statistical Quality** (config weight 0.4):
    Combines Relative Bias, RMSE, and NSE into a single normalized score [0, 1].
    Note: Pearson Correlation is intentionally excluded here because it is
    already embedded within NSE (Gupta et al., 2009). Including both would
    double-count the linear association component.
 
-2. **Distribution Quality** (default weight 0.35):
+2. **Distribution Quality** (config weight 0.3):
    Evaluates how well the corrected product preserves the full precipitation
    distribution: extreme percentiles (p90/p95/p99) with highest weight
    (primary target of GPD tail adjustment), general percentiles (p25/p50/p75),
    variability (std dev ratio), and KS p-value (formal distribution test).
 
-3. **Temporal Quality** (default weight 0.30):
+3. **Temporal Quality** (config weight 0.3):
    Assesses preservation of temporal patterns: CSI for balanced event detection
    skill, POD/FAR for detection vs false alarm trade-off, and dry spell length
    for sequencing. CSI is preferred over correlation to avoid double-counting
@@ -641,8 +641,11 @@ def run_qa_pipeline(month, dekad, mode='single'):
                     decode_timedelta=False,
                 )
 
-                # Run full quality assessment
-                quality_ds = compute_quality_assessment(metrics_ds)
+                # Run full quality assessment (use config weights if set)
+                quality_ds = compute_quality_assessment(
+                    metrics_ds,
+                    component_weights=config.QA_COMPONENT_WEIGHTS,
+                )
 
                 # Build output path
                 quality_fname = (
