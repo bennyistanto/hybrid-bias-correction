@@ -569,6 +569,12 @@ def gamma_quantile_mapping_precomputed(
 
     # Map through precomputed CPC gamma (wet-only fit)
     cpc_wet_q = gamma.ppf(y_cond, cpc_gamma_shape, loc=0, scale=cpc_gamma_scale)
+    # Enforce wet-day threshold: gamma(loc=0) can map low quantiles below
+    # WET_DAY_THRESHOLD even though it was fitted on wet-only data (>= 1mm).
+    # Values the Cannon construction designated as wet must stay >= 1mm.
+    cpc_wet_q[keep] = np.where(
+        cpc_wet_q[keep] < WET_DAY_THRESHOLD, WET_DAY_THRESHOLD, cpc_wet_q[keep]
+    )
     out_wet = np.where(kill, 0.0, cpc_wet_q)
 
     # ---- Fix B: GPD substitution on IMERG-side threshold ----
@@ -717,6 +723,12 @@ def gamma_quantile_mapping(
     y_cond = np.clip(y_cond, 1e-10, 1 - 1e-10)
 
     out_wet = gamma.ppf(y_cond, shape2, loc=0, scale=scale2)
+    # Enforce wet-day threshold: gamma(loc=0) can map low quantiles below
+    # WET_DAY_THRESHOLD even though it was fitted on wet-only data (>= 1mm).
+    # Values the Cannon construction designated as wet must stay >= 1mm.
+    out_wet[keep] = np.where(
+        out_wet[keep] < WET_DAY_THRESHOLD, WET_DAY_THRESHOLD, out_wet[keep]
+    )
     out_wet = np.where(kill, 0.0, out_wet)
 
     # ---- Fix B: GPD substitution on IMERG-side threshold ----
