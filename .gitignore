@@ -107,5 +107,6 @@ data/subset/iso3/
 data/subset/world
 
 # Claude
+CLAUDE.md
 .claude/
 .virtual_documents/
