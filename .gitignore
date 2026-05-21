@@ -1,11 +1,65 @@
-# Byte-compiled / optimized / DLL files
+# =============================================================================
+# Hybrid Bias Correction - .gitignore
+# =============================================================================
+# What ships in the public repo:
+#   src/, notebooks/, docs/, config*.yml, README, LICENSE, CITATION, deps,
+#   CLAUDE.md, .github/, data/example_bali/ (inputs only),
+#   data/mask/aoi/bali_subset.nc
+#
+# What stays local or lives on Zenodo:
+#   Indonesia operational input + output  -> Zenodo 20287847
+#   Indonesia boundary shapefiles         -> Zenodo (TBD) or fetch script
+#   Manuscript drafts                     -> local
+#   Colab mirror, scripts, temp           -> local working files only
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# Working / private folders (kept local, never committed)
+# ---------------------------------------------------------------------------
+colab/
+paper/
+scripts/
+temp/
+HANDOFF.md
+docs/_legacy/
+
+# ---------------------------------------------------------------------------
+# Build artefacts (auto-generated, never committed)
+# ---------------------------------------------------------------------------
+_site/
+docs/.quarto/
+docs/_freeze/
+docs/_build/
+_build/
+
+# ---------------------------------------------------------------------------
+# Data (committed: only the small Bali example bundle)
+# ---------------------------------------------------------------------------
+# Indonesia operational input + output -> Zenodo 20287847
+data/input/
+data/output/
+data/downloads/
+
+# Indonesia full mask + global masks -> not needed for Bali example
+data/mask/iso3/
+data/mask/world/
+
+# Boundary subsets (Indonesia adm levels + global) -> too large for Git
+data/subset/adm0/
+data/subset/adm1/
+data/subset/bnd/
+data/subset/iso3/
+data/subset/world/
+
+# Bali run outputs are regenerable -> users run the notebooks
+data/example_bali/output/
+
+# ---------------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------------
 __pycache__/
 *.py[cod]
-
-# C extensions
 *.so
-
-# Distribution / packaging
 .Python
 env/
 build/
@@ -22,10 +76,9 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+src/*/_version.py
 
 # PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
 
@@ -33,7 +86,7 @@ var/
 pip-log.txt
 pip-delete-this-directory.txt
 
-# Unit test / coverage reports
+# Coverage / tests
 htmlcov/
 .tox/
 .coverage
@@ -47,66 +100,34 @@ coverage.xml
 *.mo
 *.pot
 
-# Django stuff:
+# Logs / DBs
 *.log
-
-# Sphinx documentation
-docs/_build/
-
-# PyBuilder
-target/
-
-# DotEnv configuration
-.env
-
-# Database
 *.db
 *.rdb
-
-# Pycharm
-.idea
-
-# VS Code
-.vscode/
-
-# Spyder
-.spyproject/
-
-# Jupyter NB Checkpoints
-.ipynb_checkpoints/
-
-# Mac OS-specific storage files
-.DS_Store
-
-# vim
-*.swp
-*.swo
 
 # Mypy cache
 .mypy_cache/
 
-# Jupyter Book
-_build/
+# Jupyter
+.ipynb_checkpoints/
+.virtual_documents/
 
-# python-dotenv
+# ---------------------------------------------------------------------------
+# Editor / OS
+# ---------------------------------------------------------------------------
+.idea/
+.vscode/
+.spyproject/
+.DS_Store
+*.swp
+*.swo
+
+# ---------------------------------------------------------------------------
+# Secrets / env
+# ---------------------------------------------------------------------------
 .env
 
-# setuptools-scm/
-src/*/_version.py
-
-# Session continuity
-temp/
-HANDOFF.md
-
-# folders
-colab/
-data/input/
-data/output/
-data/subset/adm0
-data/subset/iso3/
-data/subset/world
-
-# Claude
-CLAUDE.md
+# ---------------------------------------------------------------------------
+# Claude Code session state (not the rules file)
+# ---------------------------------------------------------------------------
 .claude/
-.virtual_documents/
