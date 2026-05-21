@@ -1,0 +1,179 @@
+# io { #src.io }
+
+`io`
+
+Module: io.py
+
+This module provides functions for file input/output operations for the bias correction workflow.
+It includes:
+  - save_corrected_precip: Saves corrected precipitation data to a NetCDF file following CF metadata conventions.
+  - get_max_day_in_month: Finds the maximum day in a given month (accounting for leap years).
+  - aggregate_data_across_years: Aggregates IMERG and CPC data for a specified dekad over all years.
+
+It also uses utility functions for applying a land-sea mask and prompting the user for decisions.
+
+**Author**:
+  Benny Istanto
+  Applied Climatology Study Program, Department of Geophysics and Meteorology,
+  Bogor Agricultural University, Indonesia
+  Email: bennyistanto@apps.ipb.ac.id
+
+  with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
+
+Update: 2026.03
+
+## Classes
+
+| Name | Description |
+| --- | --- |
+| [BiasCorrectAbort](#src.io.BiasCorrectAbort) | Raised when the user chooses to abort the bias correction process. |
+
+### BiasCorrectAbort { #src.io.BiasCorrectAbort }
+
+```python
+io.BiasCorrectAbort()
+```
+
+Raised when the user chooses to abort the bias correction process.
+
+## Functions
+
+| Name | Description |
+| --- | --- |
+| [aggregate_cpc_native_for_dekad](#src.io.aggregate_cpc_native_for_dekad) | Aggregate CPC data at its native 0.5° resolution for a specified dekad |
+| [aggregate_data_across_years](#src.io.aggregate_data_across_years) | Aggregate IMERG and CPC data across all years for the specified dekad. |
+| [get_max_day_in_month](#src.io.get_max_day_in_month) | Scan all years in the dataset `ds`, and find the maximum day |
+| [save_corrected_precip](#src.io.save_corrected_precip) | Save precipitation data to NetCDF with metadata and proper filename formatting. |
+
+### aggregate_cpc_native_for_dekad { #src.io.aggregate_cpc_native_for_dekad }
+
+```python
+io.aggregate_cpc_native_for_dekad(
+    cpc_ds,
+    month,
+    dekad_start_day,
+    dekad_end_day,
+    cpc_var=None,
+)
+```
+
+Aggregate CPC data at its native 0.5° resolution for a specified dekad
+across all years. Unlike aggregate_data_across_years(), this function does
+NOT align to the IMERG grid - it preserves the CPC native coordinates.
+
+This is used by the native-resolution CPC parameter fitting (Option B)
+to avoid the 5×5 block artefact introduced by nearest-neighbour regridding.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name            | Type                                           | Description                                                                   | Default    |
+|-----------------|------------------------------------------------|-------------------------------------------------------------------------------|------------|
+| cpc_ds          | [xarray](`xarray`).[Dataset](`xarray.Dataset`) | CPC precipitation dataset at native ~0.5° resolution.                         | _required_ |
+| month           | [int](`int`)                                   | Month number (1–12).                                                          | _required_ |
+| dekad_start_day | [int](`int`)                                   | Start day of the dekad (1, 11, or 21).                                        | _required_ |
+| dekad_end_day   | [int](`int`)                                   | End day of the dekad (10, 20, or last day of month).                          | _required_ |
+| cpc_var         | [str](`str`)                                   | Variable name for precipitation in CPC dataset. If None, uses config default. | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                               | Description                                                                                                    |
+|--------|----------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
+|        | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | CPC precipitation for the dekad across all years at native resolution. Shape ~ (n_time, n_lat_cpc, n_lon_cpc). |
+
+### aggregate_data_across_years { #src.io.aggregate_data_across_years }
+
+```python
+io.aggregate_data_across_years(
+    imerg_ds,
+    cpc_ds,
+    month,
+    dekad_start_day,
+    dekad_end_day,
+    imerg_var=None,
+    cpc_var=None,
+)
+```
+
+Aggregate IMERG and CPC data across all years for the specified dekad.
+
+#### Parameters: {.doc-section .doc-section-parameters}
+
+imerg_ds : xarray.Dataset
+    IMERG precipitation dataset with dimensions ('time', 'lat', 'lon').
+cpc_ds : xarray.Dataset
+    CPC precipitation dataset with dimensions ('time', 'lat', 'lon').
+month : int
+    The month number (1-12) for which the dekad is specified.
+dekad_start_day : int
+    Start day of the dekad (e.g., 1, 11, 21).
+dekad_end_day : int
+    End day of the dekad (e.g., 10, 20, last day of month).
+imerg_var : str, optional
+    Variable name for precipitation in IMERG dataset. If None, uses config default.
+cpc_var : str, optional
+    Variable name for precipitation in CPC dataset. If None, uses config default.
+
+#### Returns: {.doc-section .doc-section-returns}
+
+tuple of xarray.DataArray
+    Aggregated IMERG and CPC data for the specified dekad across all years.
+
+### get_max_day_in_month { #src.io.get_max_day_in_month }
+
+```python
+io.get_max_day_in_month(ds, month)
+```
+
+Scan all years in the dataset `ds`, and find the maximum day
+for the specified month. For example, if month=2 (February) and
+there's at least one leap year in ds, this returns 29; otherwise 28.
+
+#### Parameters: {.doc-section .doc-section-parameters}
+
+ds : xarray.Dataset
+    Dataset with a 'time' dimension.
+month : int
+    Month number (1-12).
+
+#### Returns: {.doc-section .doc-section-returns}
+
+int
+    Maximum number of days in the specified month across all years in the dataset.
+
+### save_corrected_precip { #src.io.save_corrected_precip }
+
+```python
+io.save_corrected_precip(
+    precip_data,
+    ds,
+    method_abbr,
+    method_full,
+    folder,
+    dekad_str,
+    month_str,
+)
+```
+
+Save precipitation data to NetCDF with metadata and proper filename formatting.
+
+#### Parameters: {.doc-section .doc-section-parameters}
+
+precip_data : xarray.DataArray
+    Precipitation data to be saved.
+ds : xarray.Dataset
+    Original dataset for coordinates and attributes.
+method_abbr : str
+    Abbreviation of the method (e.g., 'ls', 'lseqm', 'lseqmdl').
+method_full : str
+    Full name of the method (e.g., 'Linear Scaling', 'LSEQM').
+folder : str
+    Directory where the corrected precipitation will be saved.
+dekad_str : str
+    String representing the dekad (e.g., '01', '11', '21').
+month_str : str
+    Two-digit string representing the month (e.g., '01', '02', ..., '12').
+
+#### Returns: {.doc-section .doc-section-returns}
+
+str or None
+    Path to the saved file, or None if saving failed or skipped.

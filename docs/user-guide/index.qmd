@@ -1,0 +1,24 @@
+---
+title: "User Guide"
+description: "Practical recipes for configuration, AOI setup, outputs, and troubleshooting."
+---
+
+This section is for people who already understand the methodology and want recipes for getting work done. If you are new, start with [Get Started](../get-started/installation.qmd) and the [Tutorials](../tutorials/index.qmd).
+
+## What is here
+
+::: {.feature-card}
+**[AOI Setup](aoi-setup.qmd)** - How to point the framework at a different region. The Bali config is the worked example.
+:::
+
+::: {.feature-card}
+**[Configuration Recipes](config-recipes.qmd)** - Common edits to `config.yml`: changing the GPD threshold, swapping the reference dataset, turning off the confidence mask, batch vs interactive mode.
+:::
+
+::: {.feature-card}
+**[Output Structure](output-structure.qmd)** - What lands where, and how to discover what a particular NetCDF contains without reading the code.
+:::
+
+::: {.feature-card}
+**[Troubleshooting](troubleshooting.qmd)** - The errors people actually hit (lat orientation, ocean contamination, GPD K-fold failures with too few exceedances, etc.).
+:::

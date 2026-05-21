@@ -1,0 +1,22 @@
+---
+title: "Technical Documentation"
+description: "Architecture, API, validation, and CF compliance."
+---
+
+This section is for people implementing against the framework, reviewing it, or extending it.
+
+::: {.feature-card}
+**[Architecture](architecture.qmd)** - Module map, data flow, and the contract between `config.yml`, `src/`, and the notebooks.
+:::
+
+::: {.feature-card}
+**[API Reference](api-reference/index.qmd)** - Auto-generated from `src/*.py` docstrings via `quartodoc`. One page per module, signatures and docstrings.
+:::
+
+::: {.feature-card}
+**[Validation](validation.qmd)** - How the framework was validated against held-out BMKG stations on the full-Indonesia run. Cross-references to the companion paper.
+:::
+
+::: {.feature-card}
+**[CF Compliance](cf-compliance.qmd)** - NetCDF attribute conventions, encoding, and reproducibility guarantees.
+:::

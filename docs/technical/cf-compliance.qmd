@@ -1,0 +1,65 @@
+---
+title: "CF Compliance"
+description: "NetCDF attribute conventions and encoding."
+---
+
+All NetCDF outputs follow [CF Conventions 1.8](https://cfconventions.org/Data/cf-conventions/cf-conventions-1.8/cf-conventions.html). This ensures the files are readable by CDO, NCO, xarray, netCDF4, GDAL, and any other CF-aware tool without custom handling.
+
+## Encoding
+
+```yaml
+netcdf_encoding:
+  precipitation:
+    dtype: "float32"
+    zlib: true
+    complevel: 4
+    _FillValue: .nan
+```
+
+- `float32` keeps file size manageable (half of `float64`) without losing meaningful precision for precipitation in mm.
+- `zlib` compression gives typically 3-5x reduction on precipitation fields.
+- `NaN` is the fill value for ocean and outside-AOI cells. This is more portable than `-9999` and works seamlessly with xarray's masked operations.
+
+## Required CF attributes
+
+Every output NetCDF carries:
+
+| Variable / Global | Attribute | Example |
+|-------------------|-----------|---------|
+| `precipitation` | `standard_name` | `lwe_precipitation_rate` |
+| `precipitation` | `long_name` | `Bias-corrected daily precipitation` |
+| `precipitation` | `units` | `mm day-1` |
+| `precipitation` | `_FillValue` | `NaN` |
+| `lat` | `standard_name` | `latitude` |
+| `lat` | `units` | `degrees_north` |
+| `lon` | `standard_name` | `longitude` |
+| `lon` | `units` | `degrees_east` |
+| `time` | `standard_name` | `time` |
+| `time` | `units` | `days since 2001-01-01` |
+| Global | `Conventions` | `CF-1.8` |
+| Global | `title` | `Hybrid Bias Correction - LSEQM+DL` |
+| Global | `source` | `IMERG Late Run V07 corrected with CPC-UNI` |
+| Global | `history` | timestamped processing record |
+| Global | `references` | DOI of the companion paper |
+| Global | `method` | one of `ls`, `lseqm`, `lseqmdl` |
+
+## Reproducibility metadata
+
+Each output NetCDF also carries non-CF attributes recording the run context:
+
+- `framework_version` - DateVer tag (e.g. `v2026.05`)
+- `git_commit` - short SHA of the source revision
+- `config_file` - path to the config used
+- `run_timestamp` - ISO 8601, UTC
+- `blend_alpha`, `gpd_threshold_percentile`, `saturation_count` - the three sensitivity parameters
+
+These are not required by CF but make a downstream user's life much easier when comparing files produced months apart.
+
+## How to inspect
+
+```bash
+ncdump -h <file>.nc4         # full header
+xr.open_dataset(<file>).attrs # all globals
+```
+
+Or browse interactively in [Panoply](https://www.giss.nasa.gov/tools/panoply/) for a quick visual.

@@ -53,7 +53,7 @@ Note
 
 # ---------------------------------------------------------------------------
 # Eagerly imported modules: these have no heavy dependencies beyond
-# numpy, scipy, xarray, and pandas — all of which are required anyway.
+# numpy, scipy, xarray, and pandas - all of which are required anyway.
 # ---------------------------------------------------------------------------
 from .config import initialize_config, setup_logging
 from .bias_correction import lseqm, run_correction_pipeline

@@ -28,8 +28,9 @@ References
 Author
 ------
 Benny Istanto
-  - Geospatial Operations Support Team, DEC Data Group, The World Bank
-  - Applied Climatology Study Program, Bogor Agricultural University, Indonesia
+  Applied Climatology Study Program, Department of Geophysics and Meteorology,
+  Bogor Agricultural University, Indonesia
+  Email: bennyistanto@apps.ipb.ac.id
 
   with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
@@ -448,7 +449,7 @@ def save_metrics(metrics_ds, out_file, description="Bias Correction Metrics"):
         'history': f'Created on {pd.Timestamp.now()}',
         'creator_name': 'Benny Istanto',
         'creator_role': 'Climate Geographer',
-        'creator_email': 'bistanto@worldbank.org',
+        'creator_email': 'bennyistanto@apps.ipb.ac.id',
     })
 
     # Per-variable metadata
@@ -659,8 +660,8 @@ def run_metrics_pipeline(month, dekad, mode='timeseries'):
     dekad : int
         Dekad number (1, 2, or 3).
     mode : str, optional
-        'timeseries' (default) — per-year metrics, dims=(time, lat, lon).
-        'single' — aggregated across all years, dims=(lat, lon).
+        'timeseries' (default) - per-year metrics, dims=(time, lat, lon).
+        'single' - aggregated across all years, dims=(lat, lon).
 
     Returns
     -------
@@ -708,7 +709,7 @@ def run_metrics_pipeline(month, dekad, mode='timeseries'):
             imergf_ds = imergf_ds.reindex(lat=imergf_ds.lat[::-1])
         ref_datasets['imergf'] = imergf_ds
     else:
-        logging.warning(f"IMERGF file not found: {config.imergf_file} — skipping IMERGF combos")
+        logging.warning(f"IMERGF file not found: {config.imergf_file} - skipping IMERGF combos")
 
     for label, ds in ref_datasets.items():
         logging.info(f"  {label}: {ds.time.values[0]} to {ds.time.values[-1]}")
@@ -726,13 +727,13 @@ def run_metrics_pipeline(month, dekad, mode='timeseries'):
 
         # Skip if reference dataset not available
         if ref_label not in ref_datasets:
-            logging.info(f"[{i}/9] Skipping {ref_label} vs {test_label} — reference not loaded")
+            logging.info(f"[{i}/9] Skipping {ref_label} vs {test_label} - reference not loaded")
             output_files.append(None)
             continue
 
         # Skip if test file doesn't exist
         if not os.path.isfile(test_file):
-            logging.info(f"[{i}/9] Skipping {ref_label} vs {test_label} — test file not found: {test_file}")
+            logging.info(f"[{i}/9] Skipping {ref_label} vs {test_label} - test file not found: {test_file}")
             output_files.append(None)
             continue
 
@@ -747,7 +748,7 @@ def run_metrics_pipeline(month, dekad, mode='timeseries'):
         if ref_label == 'cpc':
             ref_ds = unify_cpc_for_metrics(ref_datasets['cpc'], test_ds)
             if not ref_ds.data_vars:
-                logging.warning(f"  No overlap after CPC regridding — skipping")
+                logging.warning(f"  No overlap after CPC regridding - skipping")
                 test_ds.close()
                 output_files.append(None)
                 continue
@@ -777,7 +778,7 @@ def run_metrics_pipeline(month, dekad, mode='timeseries'):
         os.makedirs(out_dir, exist_ok=True)
         out_fpath = os.path.join(out_dir, out_fname)
 
-        desc = f"{ref_label.upper()} vs {test_label.upper()} — {mode} metrics"
+        desc = f"{ref_label.upper()} vs {test_label.upper()} - {mode} metrics"
         result = save_metrics(metrics_ds, out_fpath, description=desc)
         output_files.append(result)
 

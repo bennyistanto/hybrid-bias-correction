@@ -1,0 +1,257 @@
+# metrics { #src.metrics }
+
+`metrics`
+
+Module: metrics.py
+
+Performance metrics computation for bias-corrected precipitation products.
+
+This module provides functions for computing pixel-level verification metrics
+that compare a test precipitation dataset (e.g., bias-corrected IMERG) against
+a reference dataset (e.g., CPC-UNI). Metrics are computed per grid cell over
+a specified dekad (10-day period) across multiple years.
+
+Metrics computed (31 total):
+  - Continuous:  Relative Bias, Pearson Correlation, RMSE, MAE, NSE,
+                 Std Dev (ref/test), Std Dev Ratio, KS-test (stat + p-value)
+  - Categorical: POD, FAR, CSI, Frequency of Precipitation Days (ref/test),
+                 Mean Wet-Day Precipitation (ref/test), Dry Spell Length (ref/test)
+  - Percentiles: p25, p50, p75, p90, p95, p99 (ref and test)
+
+Output is stored as CF-1.8 compliant NetCDF with dimensions (time, lat, lon)
+where time has one entry per year (timeseries mode) or (lat, lon) for
+single-dekad aggregated mode.
+
+## References {.doc-section .doc-section-references}
+
+- WMO (2008), Guide to Meteorological Instruments and Methods of Observation.
+- Wilks, D.S. (2011), Statistical Methods in the Atmospheric Sciences, 3rd ed.
+- Ebert, E. (2007), Methods for verifying satellite precipitation estimates.
+
+## Author {.doc-section .doc-section-author}
+
+Benny Istanto
+  Applied Climatology Study Program, Department of Geophysics and Meteorology,
+  Bogor Agricultural University, Indonesia
+  Email: bennyistanto@apps.ipb.ac.id
+
+  with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
+
+Update: 2026.03
+
+## Functions
+
+| Name | Description |
+| --- | --- |
+| [build_metric_combos](#src.metrics.build_metric_combos) | Build the list of 9 reference-vs-test combinations for metric computation. |
+| [compute_dekad_metrics_timeseries](#src.metrics.compute_dekad_metrics_timeseries) | Compute verification metrics per year for a single dekad. |
+| [compute_pixel_metrics](#src.metrics.compute_pixel_metrics) | Compute all 31 verification metrics for a single pixel time series. |
+| [compute_single_dekad_metrics](#src.metrics.compute_single_dekad_metrics) | Compute aggregated verification metrics across all years for a single dekad. |
+| [run_metrics_pipeline](#src.metrics.run_metrics_pipeline) | Run the full metrics computation pipeline for one month/dekad. |
+| [save_metrics](#src.metrics.save_metrics) | Save a metrics dataset to CF-1.8 compliant NetCDF. |
+| [slice_month_dekad](#src.metrics.slice_month_dekad) | Slice a dataset to extract data for a specified month and dekad. |
+| [unify_cpc_for_metrics](#src.metrics.unify_cpc_for_metrics) | Regrid CPC (0.5 deg) to match a test dataset (0.1 deg) in time and space. |
+
+### build_metric_combos { #src.metrics.build_metric_combos }
+
+```python
+metrics.build_metric_combos(month_str, dekad_str)
+```
+
+Build the list of 9 reference-vs-test combinations for metric computation.
+
+Combinations: {CPC, IMERGL, IMERGF} x {LS, LSEQM, LSEQMDL}.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name      | Type         | Description                                  | Default    |
+|-----------|--------------|----------------------------------------------|------------|
+| month_str | [str](`str`) | Two-digit month string, e.g. '01'.           | _required_ |
+| dekad_str | [str](`str`) | Dekad start-day string: '01', '11', or '21'. | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type         | Description                                                       |
+|--------|--------------|-------------------------------------------------------------------|
+|        | list of dict | Each dict has keys: ref_label, test_label, test_file, output_dir. |
+
+### compute_dekad_metrics_timeseries { #src.metrics.compute_dekad_metrics_timeseries }
+
+```python
+metrics.compute_dekad_metrics_timeseries(ref_da, test_da, threshold=1.0)
+```
+
+Compute verification metrics per year for a single dekad.
+
+For each year present in both ``ref_da`` and ``test_da``, the function
+computes 31 pixel-level metrics across the ~10-day dekad window. The
+result has one time entry per year.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name      | Type                                               | Description                                                                                      | Default    |
+|-----------|----------------------------------------------------|--------------------------------------------------------------------------------------------------|------------|
+| ref_da    | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | Daily reference precipitation, already sliced to the target month/dekad. Dims: (time, lat, lon). | _required_ |
+| test_da   | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | Daily test precipitation for the same period. Dims: (time, lat, lon).                            | _required_ |
+| threshold | [float](`float`)                                   | Wet-day threshold in mm/day. Default is 1.0.                                                     | `1.0`      |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                           | Description                                                                                     |
+|--------|------------------------------------------------|-------------------------------------------------------------------------------------------------|
+|        | [xarray](`xarray`).[Dataset](`xarray.Dataset`) | Dataset with 31 metric variables, dims=(time, lat, lon) where time contains one entry per year. |
+
+### compute_pixel_metrics { #src.metrics.compute_pixel_metrics }
+
+```python
+metrics.compute_pixel_metrics(ref_1d, test_1d, threshold=1.0)
+```
+
+Compute all 31 verification metrics for a single pixel time series.
+
+This function is designed to be called via ``xr.apply_ufunc`` with
+``vectorize=True``, operating on the time dimension of each grid cell.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name      | Type                                        | Description                                                                                                                     | Default    |
+|-----------|---------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|------------|
+| ref_1d    | [numpy](`numpy`).[ndarray](`numpy.ndarray`) | 1-D reference precipitation values (e.g., CPC) over the dekad window.                                                           | _required_ |
+| test_1d   | [numpy](`numpy`).[ndarray](`numpy.ndarray`) | 1-D test precipitation values (e.g., bias-corrected IMERG) over the same dekad window. Must have the same length as ``ref_1d``. | _required_ |
+| threshold | [float](`float`)                            | Wet-day threshold in mm/day for categorical metrics (POD, FAR, CSI, FPD, MDWP, DSL). Default is 1.0 mm/day.                     | `1.0`      |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type           | Description                                                                                                           |
+|--------|----------------|-----------------------------------------------------------------------------------------------------------------------|
+|        | tuple of float | Tuple of 31 metric values in the order defined by ``METRIC_NAMES``. Returns all-NaN tuple if insufficient valid data. |
+
+### compute_single_dekad_metrics { #src.metrics.compute_single_dekad_metrics }
+
+```python
+metrics.compute_single_dekad_metrics(ref_da, test_da, threshold=1.0)
+```
+
+Compute aggregated verification metrics across all years for a single dekad.
+
+Unlike ``compute_dekad_metrics_timeseries``, this function pools all
+available time steps together and produces a single (lat, lon) result.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name      | Type                                               | Description                                                                                      | Default    |
+|-----------|----------------------------------------------------|--------------------------------------------------------------------------------------------------|------------|
+| ref_da    | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | Daily reference precipitation, already sliced to the target month/dekad. Dims: (time, lat, lon). | _required_ |
+| test_da   | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | Daily test precipitation for the same period. Dims: (time, lat, lon).                            | _required_ |
+| threshold | [float](`float`)                                   | Wet-day threshold in mm/day. Default is 1.0.                                                     | `1.0`      |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                           | Description                                        |
+|--------|------------------------------------------------|----------------------------------------------------|
+|        | [xarray](`xarray`).[Dataset](`xarray.Dataset`) | Dataset with 31 metric variables, dims=(lat, lon). |
+
+### run_metrics_pipeline { #src.metrics.run_metrics_pipeline }
+
+```python
+metrics.run_metrics_pipeline(month, dekad, mode='timeseries')
+```
+
+Run the full metrics computation pipeline for one month/dekad.
+
+Loads CPC, IMERGL, and IMERGF datasets once, then iterates over all
+9 reference-vs-test combinations. For each combo, it:
+
+1. Regrids CPC to the test grid (if reference is CPC).
+2. Slices data to the target month/dekad window.
+3. Applies the land-sea mask.
+4. Computes 31 verification metrics.
+5. Saves results to CF-1.8 NetCDF.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type         | Description                                                                                                                | Default        |
+|--------|--------------|----------------------------------------------------------------------------------------------------------------------------|----------------|
+| month  | [int](`int`) | Month number (1-12).                                                                                                       | _required_     |
+| dekad  | [int](`int`) | Dekad number (1, 2, or 3).                                                                                                 | _required_     |
+| mode   | [str](`str`) | 'timeseries' (default) - per-year metrics, dims=(time, lat, lon). 'single' - aggregated across all years, dims=(lat, lon). | `'timeseries'` |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type        | Description                                                        |
+|--------|-------------|--------------------------------------------------------------------|
+|        | list of str | Paths to the saved NetCDF files (None entries for skipped combos). |
+
+### save_metrics { #src.metrics.save_metrics }
+
+```python
+metrics.save_metrics(
+    metrics_ds,
+    out_file,
+    description='Bias Correction Metrics',
+)
+```
+
+Save a metrics dataset to CF-1.8 compliant NetCDF.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name        | Type                                           | Description                             | Default                     |
+|-------------|------------------------------------------------|-----------------------------------------|-----------------------------|
+| metrics_ds  | [xarray](`xarray`).[Dataset](`xarray.Dataset`) | Dataset with metric variables to save.  | _required_                  |
+| out_file    | [str](`str`)                                   | Output file path.                       | _required_                  |
+| description | [str](`str`)                                   | Title for the dataset global attribute. | `'Bias Correction Metrics'` |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                 | Description                                 |
+|--------|----------------------|---------------------------------------------|
+|        | [str](`str`) or None | Path to the saved file, or None if skipped. |
+
+### slice_month_dekad { #src.metrics.slice_month_dekad }
+
+```python
+metrics.slice_month_dekad(ds, month, dekad)
+```
+
+Slice a dataset to extract data for a specified month and dekad.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type                                                                                                 | Description                                                                                           | Default    |
+|--------|------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|------------|
+| ds     | [xarray](`xarray`).[Dataset](`xarray.Dataset`) or [xarray](`xarray`).[DataArray](`xarray.DataArray`) | Input data with a 'time' dimension.                                                                   | _required_ |
+| month  | [int](`int`)                                                                                         | Month number (1-12).                                                                                  | _required_ |
+| dekad  | [int](`int`)                                                                                         | Dekad number (1, 2, or 3). - Dekad 1: days 1-10 - Dekad 2: days 11-20 - Dekad 3: days 21-end of month | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                                                                                 | Description                                     |
+|--------|------------------------------------------------------------------------------------------------------|-------------------------------------------------|
+|        | [xarray](`xarray`).[Dataset](`xarray.Dataset`) or [xarray](`xarray`).[DataArray](`xarray.DataArray`) | Subset containing only the matching time steps. |
+
+### unify_cpc_for_metrics { #src.metrics.unify_cpc_for_metrics }
+
+```python
+metrics.unify_cpc_for_metrics(cpc_ds, test_ds)
+```
+
+Regrid CPC (0.5 deg) to match a test dataset (0.1 deg) in time and space.
+
+Steps:
+1. Ensure strictly monotonic time on both datasets.
+2. Select only overlapping time steps (inner join).
+3. Nearest-neighbor interpolation of CPC to test lat/lon grid.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type                                           | Description                                           | Default    |
+|---------|------------------------------------------------|-------------------------------------------------------|------------|
+| cpc_ds  | [xarray](`xarray`).[Dataset](`xarray.Dataset`) | CPC-UNI dataset with 'time', 'lat', 'lon' dimensions. | _required_ |
+| test_ds | [xarray](`xarray`).[Dataset](`xarray.Dataset`) | Test (corrected) dataset to align with.               | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                           | Description                                                                                                           |
+|--------|------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------|
+|        | [xarray](`xarray`).[Dataset](`xarray.Dataset`) | CPC dataset regridded to the test grid with matching time steps. Returns empty Dataset if no overlapping times found. |

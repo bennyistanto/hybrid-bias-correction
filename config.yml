@@ -237,10 +237,10 @@ deep_learning:
   # Alpha-blending weight for the DL refinement step.
   # Controls how much the DL prediction influences extreme pixels:
   #   final = alpha * LSEQM + (1 - alpha) * DL_predicted
-  #   - 1.0: pure LSEQM (DL disabled) — physical-statistical only.
-  #   - 0.7 (default): 70% physical, 30% DL — DL refines spatial patterns.
-  #   - 0.5: equal weight — more DL influence on extremes.
-  #   - 0.0: pure DL (not recommended — loses physical constraints).
+  #   - 1.0: pure LSEQM (DL disabled) - physical-statistical only.
+  #   - 0.7 (default): 70% physical, 30% DL - DL refines spatial patterns.
+  #   - 0.5: equal weight - more DL influence on extremes.
+  #   - 0.0: pure DL (not recommended - loses physical constraints).
   # Non-extreme pixels (below GPD threshold) always keep LSEQM values.
   # Recommended range: 0.5–0.8. Higher = more trust in physics.
   blend_alpha: 0.7
@@ -277,9 +277,9 @@ station_density:
   smoothing_sigma: 1.0
 
   # Number of (smoothed) stations for full confidence (1.0)
-  #   - 1: aggressive — any station presence = full confidence
-  #   - 3 (default): moderate — requires several nearby stations
-  #   - 5: conservative — only dense station clusters get full confidence
+  #   - 1: aggressive - any station presence = full confidence
+  #   - 3 (default): moderate - requires several nearby stations
+  #   - 5: conservative - only dense station clusters get full confidence
   saturation_count: 2
 
   # Grid bounds for station counting
@@ -422,6 +422,31 @@ quality_assessment:
     excellent: 0.8
     good: 0.6
     fair: 0.4
+
+# -------------------------------------------
+# Visualisation / Admin Boundaries
+# -------------------------------------------
+# Region-agnostic admin overlay for map plots. Files listed under `boundaries`
+# are drawn in YAML order: first listed = drawn first = bottom layer; last
+# listed = drawn last = on top. Convention used here:
+#   - adm2 (district) bottom, thinnest line
+#   - adm1 (province) middle
+#   - adm0 (country)  top, thickest line
+#
+# To turn a layer off, comment out its line. Remove the whole boundaries: list
+# (or leave it empty) to fall back to cartopy Natural Earth so the framework
+# still draws context maps in a region with no local boundary files.
+visualisation:
+  # Padding (deg) added to each side of the AOI when drawing map axes so
+  # boundary outlines have breathing room. 0.0 = data extent flush with the
+  # panel edge; 0.1 (default) = one IMERG cell of margin.
+  map_extent_pad: 0.1
+
+  boundary_dir: "{main_dir}/data/subset/bnd"
+  boundaries:
+    - {file: "idn_bnd_adm2.shp", linewidth: 0.3, edgecolor: "gray",    alpha: 0.6}
+    - {file: "idn_bnd_adm1.shp", linewidth: 0.6, edgecolor: "dimgray", alpha: 0.9}
+    - {file: "idn_bnd_adm0.shp", linewidth: 1.2, edgecolor: "black",   alpha: 1.0}
 
 # -------------------------------------------
 # Runtime Settings

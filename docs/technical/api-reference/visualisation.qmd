@@ -1,0 +1,631 @@
+# visualisation { #src.visualisation }
+
+`visualisation`
+
+Module: visualisation.py
+
+This module provides centralized visualization functions for the hybrid bias
+correction project. It generates diagnostic plots for two main domains:
+
+**QA Framework Visualization** (from notebook 04 output):
+Eight plot types comparing correction quality across methods (LS, LSEQM,
+LSEQM+DL) and spatial domains for Indonesia.
+
+**Station Validation Visualization** (from notebook 05 output):
+Spatial scatter maps, WMO multi-threshold performance curves, and regional
+box plots summarizing independent BMKG station validation results.
+
+The eight plot types are:
+  1. CQI spatial maps -- Continuous Quality Index for each method side by side.
+  2. Categorical quality maps -- Poor / Fair / Good / Excellent classification.
+  3. Method improvement map -- Quality gain from LS to LSEQM+DL.
+  4. Component quality maps -- Basic statistical, distribution, and temporal scores.
+  5. Confidence map -- Spatial reliability of the quality assessment.
+  6. CQI distribution analysis -- Empirical CDF and histograms comparing methods.
+  7. Category summary -- Grouped bar chart and percentage table.
+  8. Component box plots -- Box plots comparing components across methods.
+
+Each function can run interactively (plt.show) or in batch mode (plt.close).
+Figures are saved into per-plot-type sub-folders under the output directory,
+organized as {quality_prefix}_{plot_type}/ (e.g., qualitysd_cqi_spatial/).
+
+The batch orchestrator, run_qa_batch_viz, loops over all 36 dekadal periods,
+calls all eight plot functions, and returns aggregated summary statistics.
+print_batch_summary displays the collected results.
+
+**Author**:
+  Benny Istanto
+  Applied Climatology Study Program, Department of Geophysics and Meteorology,
+  Bogor Agricultural University, Indonesia
+  Email: bennyistanto@apps.ipb.ac.id
+
+  with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
+
+Update: 2026.03
+
+## Functions
+
+| Name | Description |
+| --- | --- |
+| [load_quality_data](#src.visualisation.load_quality_data) | Load QA NetCDF files for all three correction methods. |
+| [plot_categorical_spatial](#src.visualisation.plot_categorical_spatial) | Categorical quality maps (Poor / Fair / Good / Excellent). |
+| [plot_category_summary](#src.visualisation.plot_category_summary) | Grouped bar chart of quality-category percentages. |
+| [plot_component_boxplots](#src.visualisation.plot_component_boxplots) | Box plots of component quality scores across methods. |
+| [plot_components](#src.visualisation.plot_components) | Component quality maps (basic, distribution, temporal) for best method. |
+| [plot_confidence](#src.visualisation.plot_confidence) | Confidence level map for the best available correction method. |
+| [plot_cqi_distribution](#src.visualisation.plot_cqi_distribution) | Empirical CDF and histogram of CQI across methods. |
+| [plot_cqi_spatial](#src.visualisation.plot_cqi_spatial) | CQI spatial maps - one panel per correction method. |
+| [plot_improvement](#src.visualisation.plot_improvement) | CQI improvement map (LSEQM+DL minus LS). |
+| [plot_multi_threshold_curves](#src.visualisation.plot_multi_threshold_curves) | WMO multi-threshold performance curves and exceedance frequency bar chart. |
+| [plot_qa_component_by_region](#src.visualisation.plot_qa_component_by_region) | Box plots of QA component scores at stations, grouped by region. |
+| [plot_qa_province_bars](#src.visualisation.plot_qa_province_bars) | Horizontal bar chart of median CQI per province. |
+| [plot_qa_regional_bars](#src.visualisation.plot_qa_regional_bars) | Grouped bar chart of median CQI per region for each correction method. |
+| [plot_qa_station_bars](#src.visualisation.plot_qa_station_bars) | Horizontal bar chart of CQI per individual station. |
+| [plot_regional_boxplots](#src.visualisation.plot_regional_boxplots) | Box plots of key validation metrics grouped by region or province. |
+| [plot_station_metric_maps](#src.visualisation.plot_station_metric_maps) | Spatial scatter maps of 6 key validation metrics at station locations. |
+| [print_batch_summary](#src.visualisation.print_batch_summary) | Print aggregated statistics from a batch run. |
+| [print_station_validation_viz_summary](#src.visualisation.print_station_validation_viz_summary) | Print aggregated statistics from a station validation batch run. |
+| [run_qa_batch_viz](#src.visualisation.run_qa_batch_viz) | Generate all 8 plot types for all 36 dekadal periods. |
+| [run_qa_regional_batch_viz](#src.visualisation.run_qa_regional_batch_viz) | Batch: QA regional/province/station plots for all 36 periods. |
+| [run_station_validation_batch_viz](#src.visualisation.run_station_validation_batch_viz) | Generate station validation plots for all 36 dekadal periods. |
+
+### load_quality_data { #src.visualisation.load_quality_data }
+
+```python
+visualisation.load_quality_data(
+    month,
+    dekad,
+    quality_prefix='qualitysd',
+    ref_label='cpc',
+    config=None,
+)
+```
+
+Load QA NetCDF files for all three correction methods.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name           | Type               | Description                                                                         | Default       |
+|----------------|--------------------|-------------------------------------------------------------------------------------|---------------|
+| month          | [int](`int`)       | Month number (1--12).                                                               | _required_    |
+| dekad          | [int](`int`)       | Dekad number (1, 2, or 3).                                                          | _required_    |
+| quality_prefix | [str](`str`)       | ``'qualitysd'`` (single-dekad aggregated) or ``'qualityts'`` (per-year timeseries). | `'qualitysd'` |
+| ref_label      | [str](`str`)       | Reference dataset label (default ``'cpc'``).                                        | `'cpc'`       |
+| config         | [module](`module`) | Configuration module.  If *None*, imports ``src.config``.                           | `None`        |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                          | Description                                                   |
+|--------|-------------------------------|---------------------------------------------------------------|
+|        | dict of {str: xarray.Dataset} | Keyed by display name (``'LS'``, ``'LSEQM'``, ``'LSEQMDL'``). |
+
+### plot_categorical_spatial { #src.visualisation.plot_categorical_spatial }
+
+```python
+visualisation.plot_categorical_spatial(
+    quality_data,
+    month,
+    dekad,
+    quality_prefix='qualitysd',
+    output_dir=None,
+    interactive=True,
+)
+```
+
+Categorical quality maps (Poor / Fair / Good / Excellent).
+
+### plot_category_summary { #src.visualisation.plot_category_summary }
+
+```python
+visualisation.plot_category_summary(
+    quality_data,
+    month,
+    dekad,
+    quality_prefix='qualitysd',
+    output_dir=None,
+    interactive=True,
+)
+```
+
+Grouped bar chart of quality-category percentages.
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name    | Type                                                                                          | Description                                                 |
+|---------|-----------------------------------------------------------------------------------------------|-------------------------------------------------------------|
+| fig     | [matplotlib](`matplotlib`).[figure](`matplotlib.figure`).[Figure](`matplotlib.figure.Figure`) |                                                             |
+| summary | [dict](`dict`)                                                                                | ``{method: {'counts': list, 'total': int, 'pcts': list}}``. |
+
+### plot_component_boxplots { #src.visualisation.plot_component_boxplots }
+
+```python
+visualisation.plot_component_boxplots(
+    quality_data,
+    month,
+    dekad,
+    quality_prefix='qualitysd',
+    output_dir=None,
+    interactive=True,
+)
+```
+
+Box plots of component quality scores across methods.
+
+### plot_components { #src.visualisation.plot_components }
+
+```python
+visualisation.plot_components(
+    quality_data,
+    month,
+    dekad,
+    quality_prefix='qualitysd',
+    output_dir=None,
+    interactive=True,
+)
+```
+
+Component quality maps (basic, distribution, temporal) for best method.
+
+### plot_confidence { #src.visualisation.plot_confidence }
+
+```python
+visualisation.plot_confidence(
+    quality_data,
+    month,
+    dekad,
+    quality_prefix='qualitysd',
+    output_dir=None,
+    interactive=True,
+)
+```
+
+Confidence level map for the best available correction method.
+
+### plot_cqi_distribution { #src.visualisation.plot_cqi_distribution }
+
+```python
+visualisation.plot_cqi_distribution(
+    quality_data,
+    month,
+    dekad,
+    quality_prefix='qualitysd',
+    output_dir=None,
+    interactive=True,
+)
+```
+
+Empirical CDF and histogram of CQI across methods.
+
+### plot_cqi_spatial { #src.visualisation.plot_cqi_spatial }
+
+```python
+visualisation.plot_cqi_spatial(
+    quality_data,
+    month,
+    dekad,
+    quality_prefix='qualitysd',
+    output_dir=None,
+    interactive=True,
+)
+```
+
+CQI spatial maps - one panel per correction method.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name           | Type                      | Description   | Default       |
+|----------------|---------------------------|---------------|---------------|
+| quality_data   | dict of {str: xr.Dataset} |               | _required_    |
+| month          | [int](`int`)              |               | _required_    |
+| dekad          | [int](`int`)              |               | _required_    |
+| quality_prefix | [str](`str`)              |               | `'qualitysd'` |
+| output_dir     | [str](`str`) or None      |               | `None`        |
+| interactive    | [bool](`bool`)            |               | `True`        |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                                                                          | Description   |
+|--------|-----------------------------------------------------------------------------------------------|---------------|
+|        | [matplotlib](`matplotlib`).[figure](`matplotlib.figure`).[Figure](`matplotlib.figure.Figure`) |               |
+
+### plot_improvement { #src.visualisation.plot_improvement }
+
+```python
+visualisation.plot_improvement(
+    quality_data,
+    month,
+    dekad,
+    quality_prefix='qualitysd',
+    output_dir=None,
+    interactive=True,
+)
+```
+
+CQI improvement map (LSEQM+DL minus LS).
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                                                                          | Description                                                |
+|--------|-----------------------------------------------------------------------------------------------|------------------------------------------------------------|
+| fig    | [matplotlib](`matplotlib`).[figure](`matplotlib.figure`).[Figure](`matplotlib.figure.Figure`) |                                                            |
+| stats  | [dict](`dict`) or None                                                                        | Improvement summary (mean, median, pct improved/degraded). |
+
+### plot_multi_threshold_curves { #src.visualisation.plot_multi_threshold_curves }
+
+```python
+visualisation.plot_multi_threshold_curves(
+    all_mt_summaries,
+    month,
+    dekad,
+    output_dir=None,
+    interactive=True,
+)
+```
+
+WMO multi-threshold performance curves and exceedance frequency bar chart.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name             | Type                            | Description                                                                                                                         | Default    |
+|------------------|---------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|------------|
+| all_mt_summaries | dict of {str: pandas.DataFrame} | Keyed by method name.  Each DataFrame is indexed by threshold (mm) with columns like ``pod_median``, ``pod_p25``, ``pod_p75``, etc. | _required_ |
+| month            | [int](`int`)                    | Period identifiers.                                                                                                                 | _required_ |
+| dekad            | [int](`int`)                    | Period identifiers.                                                                                                                 | _required_ |
+| output_dir       | [str](`str`) or None            | If given, figures are saved into ``{output_dir}/station_validation_threshold_curves/``.                                             | `None`     |
+| interactive      | [bool](`bool`)                  | ``True`` → ``plt.show()``;  ``False`` → ``plt.close()``.                                                                            | `True`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                                                                                  | Description   |
+|--------|-------------------------------------------------------------------------------------------------------|---------------|
+|        | [matplotlib](`matplotlib`).[figure](`matplotlib.figure`).[Figure](`matplotlib.figure.Figure`) or None |               |
+
+### plot_qa_component_by_region { #src.visualisation.plot_qa_component_by_region }
+
+```python
+visualisation.plot_qa_component_by_region(
+    quality_data,
+    station_df,
+    month,
+    dekad,
+    quality_prefix='qualitysd',
+    method=None,
+    output_dir=None,
+    interactive=True,
+)
+```
+
+Box plots of QA component scores at stations, grouped by region.
+
+Four subplots (CQI, basic statistical, distribution, temporal) show
+the distribution of per-station QA values across the 7 island regions.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name           | Type                                               | Description                                                                                   | Default       |
+|----------------|----------------------------------------------------|-----------------------------------------------------------------------------------------------|---------------|
+| quality_data   | dict of {str: xr.Dataset}                          |                                                                                               | _required_    |
+| station_df     | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) |                                                                                               | _required_    |
+| month          | [int](`int`)                                       |                                                                                               | _required_    |
+| dekad          | [int](`int`)                                       |                                                                                               | _required_    |
+| quality_prefix | [str](`str`)                                       |                                                                                               | `'qualitysd'` |
+| method         | [str](`str`) or None                               | Method key (e.g. ``'LS'``, ``'LSEQM'``, ``'LSEQMDL'``). If *None*, auto-picks best available. | `None`        |
+| output_dir     | [str](`str`) or None                               |                                                                                               | `None`        |
+| interactive    | [bool](`bool`)                                     |                                                                                               | `True`        |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                                                                                  | Description   |
+|--------|-------------------------------------------------------------------------------------------------------|---------------|
+|        | [matplotlib](`matplotlib`).[figure](`matplotlib.figure`).[Figure](`matplotlib.figure.Figure`) or None |               |
+
+### plot_qa_province_bars { #src.visualisation.plot_qa_province_bars }
+
+```python
+visualisation.plot_qa_province_bars(
+    quality_data,
+    station_df,
+    month,
+    dekad,
+    quality_prefix='qualitysd',
+    method=None,
+    output_dir=None,
+    interactive=True,
+)
+```
+
+Horizontal bar chart of median CQI per province.
+
+Provinces are sorted by median CQI (descending). Station count and
+parent region are annotated beside each bar.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name           | Type                                               | Description                                                                                   | Default       |
+|----------------|----------------------------------------------------|-----------------------------------------------------------------------------------------------|---------------|
+| quality_data   | dict of {str: xr.Dataset}                          |                                                                                               | _required_    |
+| station_df     | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) |                                                                                               | _required_    |
+| month          | [int](`int`)                                       |                                                                                               | _required_    |
+| dekad          | [int](`int`)                                       |                                                                                               | _required_    |
+| quality_prefix | [str](`str`)                                       |                                                                                               | `'qualitysd'` |
+| method         | [str](`str`) or None                               | Method key (e.g. ``'LS'``, ``'LSEQM'``, ``'LSEQMDL'``). If *None*, auto-picks best available. | `None`        |
+| output_dir     | [str](`str`) or None                               |                                                                                               | `None`        |
+| interactive    | [bool](`bool`)                                     |                                                                                               | `True`        |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                                                                                  | Description   |
+|--------|-------------------------------------------------------------------------------------------------------|---------------|
+|        | [matplotlib](`matplotlib`).[figure](`matplotlib.figure`).[Figure](`matplotlib.figure.Figure`) or None |               |
+
+### plot_qa_regional_bars { #src.visualisation.plot_qa_regional_bars }
+
+```python
+visualisation.plot_qa_regional_bars(
+    quality_data,
+    station_df,
+    month,
+    dekad,
+    quality_prefix='qualitysd',
+    output_dir=None,
+    interactive=True,
+)
+```
+
+Grouped bar chart of median CQI per region for each correction method.
+
+X-axis shows the 7 island regions (from ``config.ISLAND_ORDER``),
+with one bar per method (LS, LSEQM, LSEQM+DL). Station count is
+annotated above each group.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name           | Type                                               | Description                                                         | Default       |
+|----------------|----------------------------------------------------|---------------------------------------------------------------------|---------------|
+| quality_data   | dict of {str: xr.Dataset}                          | Return of :func:`load_quality_data`.                                | _required_    |
+| station_df     | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Station metadata with ``'ID_WMO'``, ``'Lon'``, ``'Lat'`` columns.   | _required_    |
+| month          | [int](`int`)                                       | Period identifiers.                                                 | _required_    |
+| dekad          | [int](`int`)                                       | Period identifiers.                                                 | _required_    |
+| quality_prefix | [str](`str`)                                       | ``'qualitysd'`` or ``'qualityts'``.                                 | `'qualitysd'` |
+| output_dir     | [str](`str`) or None                               | If given, save into ``{output_dir}/{quality_prefix}_qa_regional/``. | `None`        |
+| interactive    | [bool](`bool`)                                     | ``True`` → ``plt.show()``;  ``False`` → ``plt.close()``.            | `True`        |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                                                                                  | Description   |
+|--------|-------------------------------------------------------------------------------------------------------|---------------|
+|        | [matplotlib](`matplotlib`).[figure](`matplotlib.figure`).[Figure](`matplotlib.figure.Figure`) or None |               |
+
+### plot_qa_station_bars { #src.visualisation.plot_qa_station_bars }
+
+```python
+visualisation.plot_qa_station_bars(
+    quality_data,
+    station_df,
+    month,
+    dekad,
+    quality_prefix='qualitysd',
+    method=None,
+    region_filter=None,
+    output_dir=None,
+    interactive=True,
+)
+```
+
+Horizontal bar chart of CQI per individual station.
+
+When *region_filter* is given, only stations in that region are plotted
+and a per-region figure is saved. Otherwise all stations are included
+in one (possibly large) figure.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name           | Type                                               | Description                                                                                   | Default       |
+|----------------|----------------------------------------------------|-----------------------------------------------------------------------------------------------|---------------|
+| quality_data   | dict of {str: xr.Dataset}                          |                                                                                               | _required_    |
+| station_df     | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) |                                                                                               | _required_    |
+| month          | [int](`int`)                                       |                                                                                               | _required_    |
+| dekad          | [int](`int`)                                       |                                                                                               | _required_    |
+| quality_prefix | [str](`str`)                                       |                                                                                               | `'qualitysd'` |
+| method         | [str](`str`) or None                               | Method key (e.g. ``'LS'``, ``'LSEQM'``, ``'LSEQMDL'``). If *None*, auto-picks best available. | `None`        |
+| region_filter  | [str](`str`) or None                               | If set, only plot stations from this region.                                                  | `None`        |
+| output_dir     | [str](`str`) or None                               |                                                                                               | `None`        |
+| interactive    | [bool](`bool`)                                     |                                                                                               | `True`        |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                                                                                  | Description   |
+|--------|-------------------------------------------------------------------------------------------------------|---------------|
+|        | [matplotlib](`matplotlib`).[figure](`matplotlib.figure`).[Figure](`matplotlib.figure.Figure`) or None |               |
+
+### plot_regional_boxplots { #src.visualisation.plot_regional_boxplots }
+
+```python
+visualisation.plot_regional_boxplots(
+    regional_df,
+    month,
+    dekad,
+    method_name='LSEQMDL',
+    group_col='Region',
+    output_dir=None,
+    interactive=True,
+)
+```
+
+Box plots of key validation metrics grouped by region or province.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name        | Type                                               | Description                                                                                     | Default     |
+|-------------|----------------------------------------------------|-------------------------------------------------------------------------------------------------|-------------|
+| regional_df | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Per-station metrics with a ``Region`` or ``Province`` column (from ``merge_station_metadata``). | _required_  |
+| month       | [int](`int`)                                       | Period identifiers.                                                                             | _required_  |
+| dekad       | [int](`int`)                                       | Period identifiers.                                                                             | _required_  |
+| method_name | [str](`str`)                                       | Correction method label (for the plot title).                                                   | `'LSEQMDL'` |
+| group_col   | [str](`str`)                                       | Column to group by (``'Region'`` or ``'Province'``).                                            | `'Region'`  |
+| output_dir  | [str](`str`) or None                               | If given, save to ``{output_dir}/station_validation_regional/``.                                | `None`      |
+| interactive | [bool](`bool`)                                     | ``True`` → ``plt.show()``;  ``False`` → ``plt.close()``.                                        | `True`      |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                                                                                  | Description   |
+|--------|-------------------------------------------------------------------------------------------------------|---------------|
+|        | [matplotlib](`matplotlib`).[figure](`matplotlib.figure`).[Figure](`matplotlib.figure.Figure`) or None |               |
+
+### plot_station_metric_maps { #src.visualisation.plot_station_metric_maps }
+
+```python
+visualisation.plot_station_metric_maps(
+    metrics_df,
+    station_df,
+    month,
+    dekad,
+    method_name='LSEQMDL',
+    output_dir=None,
+    interactive=True,
+)
+```
+
+Spatial scatter maps of 6 key validation metrics at station locations.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name        | Type                                               | Description                                                         | Default     |
+|-------------|----------------------------------------------------|---------------------------------------------------------------------|-------------|
+| metrics_df  | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Per-station metrics (index = WMO station ID).                       | _required_  |
+| station_df  | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Station locations with ``ID_WMO``, ``Lon``, ``Lat`` columns.        | _required_  |
+| month       | [int](`int`)                                       | Period identifiers.                                                 | _required_  |
+| dekad       | [int](`int`)                                       | Period identifiers.                                                 | _required_  |
+| method_name | [str](`str`)                                       | Correction method label (for the plot title).                       | `'LSEQMDL'` |
+| output_dir  | [str](`str`) or None                               | If given, save to ``{output_dir}/station_validation_metric_maps/``. | `None`      |
+| interactive | [bool](`bool`)                                     | ``True`` → ``plt.show()``;  ``False`` → ``plt.close()``.            | `True`      |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                                                                          | Description   |
+|--------|-----------------------------------------------------------------------------------------------|---------------|
+|        | [matplotlib](`matplotlib`).[figure](`matplotlib.figure`).[Figure](`matplotlib.figure.Figure`) |               |
+
+### print_batch_summary { #src.visualisation.print_batch_summary }
+
+```python
+visualisation.print_batch_summary(summary)
+```
+
+Print aggregated statistics from a batch run.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type           | Description                               | Default    |
+|---------|----------------|-------------------------------------------|------------|
+| summary | [dict](`dict`) | Return value of :func:`run_qa_batch_viz`. | _required_ |
+
+### print_station_validation_viz_summary { #src.visualisation.print_station_validation_viz_summary }
+
+```python
+visualisation.print_station_validation_viz_summary(summary)
+```
+
+Print aggregated statistics from a station validation batch run.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type           | Description                                               | Default    |
+|---------|----------------|-----------------------------------------------------------|------------|
+| summary | [dict](`dict`) | Return value of :func:`run_station_validation_batch_viz`. | _required_ |
+
+### run_qa_batch_viz { #src.visualisation.run_qa_batch_viz }
+
+```python
+visualisation.run_qa_batch_viz(
+    quality_prefix='qualitysd',
+    output_dir=None,
+    config=None,
+    progress=True,
+)
+```
+
+Generate all 8 plot types for all 36 dekadal periods.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name           | Type                       | Description                                                              | Default       |
+|----------------|----------------------------|--------------------------------------------------------------------------|---------------|
+| quality_prefix | [str](`str`)               | ``'qualitysd'`` or ``'qualityts'``.                                      | `'qualitysd'` |
+| output_dir     | [str](`str`) or None       | Base figures directory.  Defaults to ``{config.output_dir}/figures/qa``. | `None`        |
+| config         | [module](`module`) or None |                                                                          | `None`        |
+| progress       | [bool](`bool`)             | Print progress messages.                                                 | `True`        |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type           | Description                                                                   |
+|--------|----------------|-------------------------------------------------------------------------------|
+|        | [dict](`dict`) | ``{(month, dekad): {'improvement': stats_dict, 'categories': summary_dict}}`` |
+
+### run_qa_regional_batch_viz { #src.visualisation.run_qa_regional_batch_viz }
+
+```python
+visualisation.run_qa_regional_batch_viz(
+    quality_prefix='qualitysd',
+    output_dir=None,
+    config=None,
+    progress=True,
+)
+```
+
+Batch: QA regional/province/station plots for all 36 periods.
+
+For each dekadal period, generates:
+
+1. Regional grouped bar chart (CQI × method × 7 regions)
+2. Component box plots by region (best method)
+3. Province horizontal bars (best method)
+4. Per-station bars for each region (best method)
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name           | Type                       | Description                                                              | Default       |
+|----------------|----------------------------|--------------------------------------------------------------------------|---------------|
+| quality_prefix | [str](`str`)               | ``'qualitysd'`` or ``'qualityts'``.                                      | `'qualitysd'` |
+| output_dir     | [str](`str`) or None       | Base figures directory.  Defaults to ``{config.output_dir}/figures/qa``. | `None`        |
+| config         | [module](`module`) or None |                                                                          | `None`        |
+| progress       | [bool](`bool`)             | Print progress messages.                                                 | `True`        |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type           | Description                                                 |
+|--------|----------------|-------------------------------------------------------------|
+|        | [dict](`dict`) | ``{(month, dekad): {'n_stations': int, 'n_methods': int}}`` |
+
+### run_station_validation_batch_viz { #src.visualisation.run_station_validation_batch_viz }
+
+```python
+visualisation.run_station_validation_batch_viz(
+    output_dir=None,
+    config=None,
+    progress=True,
+)
+```
+
+Generate station validation plots for all 36 dekadal periods.
+
+Reads CSV outputs from notebook 05 batch (``station_validation/``)
+and generates three plot types per period:
+
+1. Station metric scatter maps (6 metrics × spatial)
+2. WMO multi-threshold performance curves + exceedance bar chart
+3. Regional box plots
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type                       | Description                                                                              | Default   |
+|------------|----------------------------|------------------------------------------------------------------------------------------|-----------|
+| output_dir | [str](`str`) or None       | Base figures directory.  Defaults to ``{config.output_dir}/figures/station_validation``. | `None`    |
+| config     | [module](`module`) or None | Configuration module.  If *None*, imports ``src.config``.                                | `None`    |
+| progress   | [bool](`bool`)             | Print progress messages.                                                                 | `True`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type           | Description                                                      |
+|--------|----------------|------------------------------------------------------------------|
+|        | [dict](`dict`) | ``{(month, dekad): {'n_methods': int, 'n_stations': int, ...}}`` |

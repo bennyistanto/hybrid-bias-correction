@@ -11,8 +11,9 @@ It also uses utility functions for applying a land-sea mask and prompting the us
 
 **Author**:
   Benny Istanto
-  - Geospatial Operations Support Team, DEC Data Group, The World Bank, United States. Email: bistanto@worldbank.org
-  - Applied Climatology Study Program, Bogor Agricultural University, Indonesia. Email: bennyistanto@ipb.ac.id
+  Applied Climatology Study Program, Department of Geophysics and Meteorology,
+  Bogor Agricultural University, Indonesia
+  Email: bennyistanto@apps.ipb.ac.id
 
   with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
@@ -25,7 +26,11 @@ import numpy as np
 import pandas as pd
 import calendar
 import logging
-from .config import cf18_f32, mask_file, output_filename_template, IMERG_PRECIP_VAR, CPC_PRECIP_VAR, NETCDF_ENGINE
+# NOTE: do NOT import `mask_file` at module load time - its value is set by
+# initialize_config() AFTER this module imports, so a bare import would freeze
+# the default Indonesia mask path. Always read it dynamically via `config.mask_file`.
+from . import config as _cfg
+from .config import cf18_f32, output_filename_template, IMERG_PRECIP_VAR, CPC_PRECIP_VAR, NETCDF_ENGINE
 from .utility import apply_land_sea_mask, set_user_decision
 
 # +++++++++++++++++++++++++++++++++++++++++
@@ -142,7 +147,7 @@ def save_corrected_precip(
             'DOI': '10.5067/GPM/IMERGDL/DAY/07',
             'creator_name': 'Benny Istanto',
             'creator_role': 'Climate Geographer',
-            'creator_email': 'bistanto@worldbank.org',
+            'creator_email': 'bennyistanto@apps.ipb.ac.id',
             'comment': f'This dataset has been bias corrected using {method_full}'
         }
     )
@@ -157,8 +162,10 @@ def save_corrected_precip(
     corrected_ds['lat'].attrs.update({'units': 'degrees_north', 'long_name': 'Latitude'})
     corrected_ds['lon'].attrs.update({'units': 'degrees_east', 'long_name': 'Longitude'})
 
-    # Apply land-sea mask to the `precipitation` variable only
-    masked_precip = apply_land_sea_mask(corrected_ds['precipitation'], mask_file)
+    # Apply land-sea mask to the `precipitation` variable only.
+    # Use dynamic config lookup so a mid-session initialize_config() switch
+    # (e.g. config.yml -> config_bali.yml) picks up the new mask path.
+    masked_precip = apply_land_sea_mask(corrected_ds['precipitation'], _cfg.mask_file)
 
     # Replace the precipitation variable in corrected_ds with the masked version:
     corrected_ds['precipitation'] = masked_precip
@@ -327,7 +334,7 @@ def aggregate_cpc_native_for_dekad(
     """
     Aggregate CPC data at its native 0.5° resolution for a specified dekad
     across all years. Unlike aggregate_data_across_years(), this function does
-    NOT align to the IMERG grid — it preserves the CPC native coordinates.
+    NOT align to the IMERG grid - it preserves the CPC native coordinates.
 
     This is used by the native-resolution CPC parameter fitting (Option B)
     to avoid the 5×5 block artefact introduced by nearest-neighbour regridding.
@@ -356,7 +363,7 @@ def aggregate_cpc_native_for_dekad(
 
     # Ensure latitude is ascending (CPC sometimes has descending lat)
     if len(cpc_ds.lat) > 1 and cpc_ds.lat.values[0] > cpc_ds.lat.values[-1]:
-        logging.info("CPC native lat is descending — flipping to ascending.")
+        logging.info("CPC native lat is descending - flipping to ascending.")
         cpc_ds = cpc_ds.reindex(lat=cpc_ds.lat[::-1])
 
     # Create time mask for the specified dekad

@@ -41,8 +41,9 @@ References
 Author
 ------
 Benny Istanto
-  - Geospatial Operations Support Team, DEC Data Group, The World Bank
-  - Applied Climatology Study Program, Bogor Agricultural University, Indonesia
+  Applied Climatology Study Program, Department of Geophysics and Meteorology,
+  Bogor Agricultural University, Indonesia
+  Email: bennyistanto@apps.ipb.ac.id
 
   with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
@@ -328,7 +329,7 @@ def _compute_contingency_table(ref_1d, test_1d, threshold):
     Returns
     -------
     tuple of (float, float, float, float, int)
-        (a, b, c, d, N) — hits, false alarms, misses, correct negatives,
+        (a, b, c, d, N) - hits, false alarms, misses, correct negatives,
         and total number of valid pairs.
     """
     obs_event = ref_1d >= threshold
@@ -768,7 +769,7 @@ def summarize_by_group(metrics_df, group_col, key_metrics=None):
         (count, median, mean, std). Groups are sorted alphabetically.
     """
     if metrics_df.empty or group_col not in metrics_df.columns:
-        logging.warning("Cannot group by '%s' — column not found", group_col)
+        logging.warning("Cannot group by '%s' - column not found", group_col)
         return pd.DataFrame()
 
     if key_metrics is None:
@@ -803,7 +804,7 @@ def plot_station_scatter(obs_df, gridded_dict, station_id, station_df=None,
     Generate a scatter plot of observed vs. predicted daily precipitation
     for a single station, with one panel per correction method.
 
-    This is an on-demand function — the user specifies which station to
+    This is an on-demand function - the user specifies which station to
     plot, avoiding mass generation of figures.
 
     Parameters

@@ -1,0 +1,77 @@
+---
+title: "Station-Density Confidence Mask - Implementation"
+description: "How the gauge-density confidence field is built and cached."
+---
+
+For the theory, see [Methodology > Confidence Mask](../methodology/confidence-mask.qmd). This page is the algorithm view.
+
+## Where it lives
+
+Construction and IO are in [`src/station_density.py`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/station_density.py). The mask is built once per AOI and cached as a NetCDF under `data/output/station_density/confidence_mask_station_density.nc4`.
+
+## Construction in three steps
+
+```python
+# 1. Count stations per CPC 0.5 deg cell
+counts = count_stations_per_cell(
+    station_df,                  # BMKG locations (Lon, Lat)
+    cpc_resolution=0.5,          # CPC native cell size
+    lat_range=(-11.0, 6.0),
+    lon_range=(95.0, 141.0),
+)
+
+# 2. Smooth with a Gaussian kernel
+smoothed = gaussian_filter(counts, sigma=DENSITY_SMOOTHING_SIGMA)
+
+# 3. Saturate by saturation_count, regrid to IMERG 0.1 deg
+confidence = np.minimum(smoothed / DENSITY_SATURATION_COUNT, 1.0)
+confidence_imerg = interp_to_imerg_grid(confidence)
+```
+
+The result is a `(n_lat, n_lon)` DataArray at 0.1 deg resolution with values in `[0, 1]`. Saved as `confidence_mask_station_density.nc4` and cached in `src.station_density._confidence_cache` for the lifetime of the session.
+
+## The saturation parameter
+
+`DENSITY_SATURATION_COUNT` is read from `config.station_density.saturation_count` at `initialize_config()` time. The Bali config sets it to 2; the Indonesia operational config to 3. Increasing it makes DL contribute over a smaller area.
+
+## The smoothing sigma
+
+`DENSITY_SMOOTHING_SIGMA = 1.0` cell at 0.5 deg gives an e-folding distance of ~55 km. Increasing the sigma broadens the influence radius of each station; decreasing it produces a more pointillistic mask. Default 1.0 is a reasonable compromise for sparse-network regions.
+
+## Caching
+
+The full pipeline calls `get_or_create_confidence_mask(station_file, confidence_mask_file)` which:
+
+1. Returns the in-memory cached DataArray if available (`_confidence_cache`).
+2. Otherwise loads from `confidence_mask_file` NetCDF if it exists on disk.
+3. Otherwise rebuilds from `station_file` and writes the NetCDF.
+
+This means: across a multi-dekad batch run, the mask is built once. Across sessions, it is reloaded from disk (sub-second). To force a rebuild, delete the cached NetCDF.
+
+## Application
+
+`load_confidence_mask(confidence_mask_file)` returns the DataArray, which the blending step in `src/bias_correction.py` uses to compute the per-pixel `effective_alpha`:
+
+```python
+effective_alpha = 1.0 - confidence * (1.0 - DL_BLEND_ALPHA)
+```
+
+See [Blending Implementation](blending.qmd) for the rest.
+
+## Cost
+
+- Build: ~1 second on Indonesia (171 x 461 grid).
+- Load (cached): <100 ms.
+- Apply (per dekad): <10 ms - it is a single per-pixel multiply.
+
+## Failure modes
+
+- **No stations inside the AOI**: confidence is zero everywhere; the blend reduces to `effective_alpha = 1.0` (pure LSEQM). Useful behaviour - the framework degrades to LSEQM in regions without ground truth.
+- **Configured `station_file` missing**: `load_station_locations` raises. Either set `use_confidence_mask: false` to disable the feature, or provide a station CSV.
+
+## Related code
+
+- [`src/station_density.py::count_stations_per_cell`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/station_density.py) - per-cell counting.
+- [`src/station_density.py::build_confidence_mask`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/station_density.py) - smoothing + saturation + regrid.
+- [`src/station_density.py::get_or_create_confidence_mask`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/station_density.py) - cached entry point.
+- [`src/station_density.py::load_confidence_mask`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/station_density.py) - reload from NetCDF (uses `.load()` + `.close()`).

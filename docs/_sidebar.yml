@@ -1,0 +1,30 @@
+website:
+  sidebar:
+  - contents:
+    - technical/api-reference/index.qmd
+    - contents:
+      - technical/api-reference/config.qmd
+      section: Configuration
+    - contents:
+      - technical/api-reference/io.qmd
+      - technical/api-reference/utility.qmd
+      section: I/O and Utilities
+    - contents:
+      - technical/api-reference/bias_correction.qmd
+      - technical/api-reference/distribution_fitting.qmd
+      section: Statistical Bias Correction
+    - contents:
+      - technical/api-reference/deep_learning.qmd
+      - technical/api-reference/station_density.qmd
+      section: Deep Learning
+    - contents:
+      - technical/api-reference/metrics.qmd
+      - technical/api-reference/qa_framework.qmd
+      section: Metrics and QA
+    - contents:
+      - technical/api-reference/station_validation.qmd
+      - technical/api-reference/taylor_diagram.qmd
+      - technical/api-reference/visualisation.qmd
+      section: Validation and Visualisation
+    id: technical/api-reference
+  - id: dummy-sidebar

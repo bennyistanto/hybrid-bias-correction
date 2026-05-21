@@ -28,8 +28,9 @@ polar plots from the accumulated statistics.
 
 **Author**:
   Benny Istanto
-  - Geospatial Operations Support Team, DEC Data Group, The World Bank, United States. Email: bistanto@worldbank.org
-  - Applied Climatology Study Program, Bogor Agricultural University, Indonesia. Email: bennyistanto@ipb.ac.id
+  Applied Climatology Study Program, Department of Geophysics and Meteorology,
+  Bogor Agricultural University, Indonesia
+  Email: bennyistanto@apps.ipb.ac.id
 
   with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
@@ -43,6 +44,7 @@ import matplotlib.pyplot as plt
 from collections import OrderedDict
 from pathlib import Path
 import os
+import gc
 import warnings
 import logging
 
@@ -78,6 +80,12 @@ PRODUCT_STYLES = OrderedDict([
         'color': '#d62728', 'size': 14, 'zorder': 8,
     }),
 ])
+
+# Framework-level partition of PRODUCT_STYLES for the split legend
+# ("Reference products" vs "Bias-corrected products"). Stable across
+# regions because it reflects the correction chain, not local paths.
+REFERENCE_KEYS = ('cpc', 'imergl', 'imergf')
+TEST_KEYS = ('ls', 'lseqm', 'lseqmdl')
 
 # All 36 dekads: (month, dekad_start_day)
 DEKADS = [(m, d) for m in range(1, 13) for d in [1, 11, 21]]
@@ -292,7 +300,7 @@ class _Accumulator:
         """Compute Taylor statistics as median of per-station values.
 
         Unlike :meth:`compute` which pools raw observations (mixing
-        spatial and temporal variance — Simpson's paradox),  this method
+        spatial and temporal variance - Simpson's paradox),  this method
         first computes per-station statistics and then takes the median
         across stations.
 
@@ -532,6 +540,12 @@ def _load_corrected(config, method, month, dekad_start):
     """Load a corrected precipitation file for one dekad.
 
     Returns *None* if the file does not exist.
+
+    Eagerly loads the DataArray into memory and closes the source file.
+    Without this, the parent ``Dataset`` stays open for the lifetime of the
+    returned DataArray (xarray lazy loading), and 36 dekads x 3 methods =
+    108 file handles + their backing arrays accumulate in
+    ``compute_all_taylor_stats`` and OOM Colab.
     """
     path_dir = getattr(config, f'{method}_corrected_precip_path')
     filename = (
@@ -542,8 +556,10 @@ def _load_corrected(config, method, month, dekad_start):
     if not os.path.exists(filepath):
         return None
     engine = getattr(config, 'NETCDF_ENGINE', None)
-    ds = xr.open_dataset(filepath, engine=engine)
-    return ds[config.IMERG_PRECIP_VAR]
+    with xr.open_dataset(filepath, engine=engine) as ds:
+        # .load() pulls data into RAM; file is closed when the with-block exits.
+        da = ds[config.IMERG_PRECIP_VAR].load()
+    return da
 
 
 def _load_station_data(config):
@@ -724,7 +740,7 @@ def compute_all_taylor_stats(config=None, progress=True):
         else:
             print("  WARNING: station_obs is empty!")
 
-    # Process each dekad — each product paired independently with station obs
+    # Process each dekad - each product paired independently with station obs
     # Normalise to date-only (midnight) so that station DD-MM-YYYY dates
     # match gridded YYYY-MM-DD dates regardless of any time component.
     obs_index = station_obs.index.normalize()
@@ -782,7 +798,7 @@ def compute_all_taylor_stats(config=None, progress=True):
                 try:
                     product_dates = pd.DatetimeIndex(raw_times).normalize()
                 except Exception:
-                    # cftime objects (e.g., DatetimeGregorian) —
+                    # cftime objects (e.g., DatetimeGregorian) - 
                     # convert manually to pandas Timestamps
                     try:
                         product_dates = pd.DatetimeIndex([
@@ -832,6 +848,19 @@ def compute_all_taylor_stats(config=None, progress=True):
             logger.warning("  Dekad %02d/%02d failed: %s",
                            month, dekad_start, exc)
             continue
+        finally:
+            # Release this dekad's gridded arrays before opening the next
+            # dekad's corrected files. With 108 corrected NetCDFs across the
+            # loop, holding them in memory simultaneously OOMs Colab.
+            try:
+                gridded.clear()
+            except NameError:
+                pass
+            try:
+                del gridded
+            except NameError:
+                pass
+            gc.collect()
 
     if progress:
         print(f"\n  Done computing Taylor statistics "
@@ -851,106 +880,122 @@ def compute_all_taylor_stats(config=None, progress=True):
 # ──────────────────────────────────────────────────────────────────────
 
 def _draw_taylor_grid(ax, max_std=2.0, compact=False):
-    """Draw the Taylor diagram background grid.
+    """Draw the Taylor diagram background grid (paper-quality version).
+
+    Layout matches the paper figure 4 helper: bottom x-axis label
+    'Standard Deviation' via an annotation, the 'Correlation' label sitting
+    at 45 deg close to the outer arc (rotated, green, bold), denser
+    correlation ticks with 2-decimal formatting at 0.95+, and CRMSE arcs
+    at fixed multiples of std.
 
     Parameters
     ----------
     ax : matplotlib polar Axes
+        Must be created with ``polar=True``.
     max_std : float
-        Maximum standard deviation (radial limit).
+        Radial limit (normalised std).
     compact : bool
-        Lighter lines, fewer labels for multi-panel layouts.
+        Reduced font sizes / fewer correlation labels for multi-panel
+        layouts (e.g. monthly 12-panel grid).
     """
-    # ── Style parameters ─────────────────────────────────────────
-    if compact:
-        lw_frame, lw_arc, lw_corr, lw_rms = 0.6, 0.3, 0.3, 0.25
-        col_grid, col_rms = '#999999', '#cccccc'
-        fs = 6
-        corr_labels = [0.3, 0.6, 0.9, 0.99]
-    else:
-        lw_frame, lw_arc, lw_corr, lw_rms = 1.0, 0.5, 0.5, 0.4
-        col_grid, col_rms = '#555555', '#aaaaaa'
-        fs = 8
-        corr_labels = None  # label every tick
+    ax.set_thetamin(0)
+    ax.set_thetamax(90)
+    ax.set_theta_direction(-1)
+    ax.set_theta_offset(np.pi / 2)
 
-    std_ticks = np.arange(0.5, max_std + 0.01, 0.5)
+    # ── Radial (std) ticks ───────────────────────────────────────
+    std_ticks = np.arange(0, max_std + 0.01, 0.5)
+    ax.set_rticks(std_ticks)
+    ax.set_rlim(0, max_std)
+    ax.tick_params(axis='y', labelsize=7 if compact else 8)
+
+    # ── Correlation ticks (denser, 2-decimal at 0.95+) ───────────
     corr_ticks = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6,
                   0.7, 0.8, 0.9, 0.95, 0.99]
-    rms_ticks = np.arange(0.5, max_std + 0.01, 0.5)
-
-    # ── Axis limits ──────────────────────────────────────────────
-    ax.set_xlim(0, np.pi / 2)
-    ax.set_ylim(0, max_std)
-    ax.grid(False)
-    ax.set_rticks([])
-    ax.set_thetagrids([])
-
-    arc = np.linspace(0, np.pi / 2, 200)
-
-    # ── Frame (outer arc, horizontal axis, vertical axis) ────────
-    ax.plot(arc, np.full(200, max_std), '-k', lw=lw_frame, zorder=2)
-    ax.plot([0, 0], [0, max_std], '-k', lw=lw_frame, zorder=2)
-    ax.plot([np.pi / 2, np.pi / 2], [0, max_std],
-            '-k', lw=lw_frame, zorder=2)
-
-    # ── Standard deviation arcs (quarter circles) ────────────────
-    for sv in std_ticks:
-        if sv >= max_std:
-            continue
-        ax.plot(arc, np.full(200, sv), '-',
-                color=col_grid, lw=lw_arc, zorder=1)
-        # X-axis tick label (bottom, theta=0)
-        ax.text(0, sv, f'  {sv:g}', fontsize=fs, ha='left', va='top',
-                color='#333333', clip_on=False)
-        # Y-axis tick label (left side, theta=pi/2)
-        ax.text(np.pi / 2, sv, f'{sv:g}  ', fontsize=fs,
-                ha='right', va='bottom', color='#333333',
-                clip_on=False)
-
-    # ── Correlation lines (radial from origin) ───────────────────
-    for cv in corr_ticks:
-        theta = np.arccos(cv)
-        ax.plot([theta, theta], [0, max_std], '--',
-                color=col_grid, lw=lw_corr, zorder=1)
-        if corr_labels is None or cv in corr_labels:
-            ax.text(theta, max_std * 1.03, f'{cv:g}', fontsize=fs,
-                    ha='center', va='bottom', color='#333333',
-                    clip_on=False)
-
-    # ── RMSE contours (arcs centred at reference point) ──────────
-    t = np.linspace(0, np.pi, 300)
-    for rv in rms_ticks:
-        x = 1.0 + rv * np.cos(t)
-        y = rv * np.sin(t)
-        r = np.sqrt(x ** 2 + y ** 2)
-        th = np.arctan2(y, x)
-        ok = (th >= 0) & (th <= np.pi / 2) & (r <= max_std) & (r >= 0)
-        if ok.any():
-            ax.plot(th[ok], r[ok], '--', color=col_rms,
-                    lw=lw_rms, zorder=1)
-
-    # ── Reference point ──────────────────────────────────────────
-    ax.plot(0, 1.0, 'ko', ms=5 if compact else 7, zorder=10,
-            clip_on=False)
-
-    # ── Axis titles ──────────────────────────────────────────────
     if compact:
-        # Abbreviated labels for multi-panel subplots
-        ax.text(np.pi / 2 + 0.06, max_std * 0.5,
-                'Std Dev', fontsize=fs - 1,
-                ha='left', va='center', rotation=90, clip_on=False)
-        ax.text(np.pi / 4.5, max_std * 1.10,
-                'Corr.', fontsize=fs - 1,
-                ha='center', va='bottom',
-                rotation=-40, rotation_mode='anchor', color='#333333',
-                clip_on=False)
+        show = {0.2, 0.4, 0.6, 0.8, 0.9, 0.99}
+        labels = [(f'{c:.2f}' if c >= 0.95 else f'{c:.1f}') if c in show else ''
+                  for c in corr_ticks]
+        fs_lbl = 7
     else:
-        ax.text(np.pi / 2 + 0.08, max_std * 0.5,
-                'Standard Deviation', fontsize=9,
-                ha='left', va='center', rotation=90)
-        ax.text(np.pi / 4.5, max_std * 1.18,
-                'Correlation', fontsize=9, ha='center', va='bottom',
-                rotation=-40, rotation_mode='anchor', color='#333333')
+        labels = [f'{c:.2f}' if c >= 0.95 else f'{c:.1f}'
+                  for c in corr_ticks]
+        fs_lbl = 8
+    corr_angles = [np.arccos(c) for c in corr_ticks]
+    ax.set_thetagrids(np.degrees(corr_angles), labels=labels, fontsize=fs_lbl)
+
+    # ── 'Correlation' label at 45 deg, close to arc ──────────────
+    ax.text(np.pi / 4, max_std * (1.06 if compact else 1.07),
+            'Corr.' if compact else 'Correlation',
+            fontsize=8 if compact else 10,
+            color='#2ca02c', fontweight='bold',
+            ha='center', va='center',
+            rotation=-45, rotation_mode='anchor')
+
+    # ── Radial axis label (left) + bottom x-axis annotation ──────
+    ax.set_ylabel('Std Dev' if compact else 'Standard Deviation',
+                  fontsize=8 if compact else 10,
+                  labelpad=16 if compact else 20)
+    ax.annotate('Std Dev' if compact else 'Standard Deviation',
+                xy=(0.5, -0.05 if compact else -0.04),
+                xycoords='axes fraction',
+                ha='center', va='top',
+                fontsize=8 if compact else 10)
+
+    # ── Reference point (REF marker) ─────────────────────────────
+    ax.plot(0, 1.0, 'ko', markersize=6 if compact else 8, zorder=10)
+
+    # ── CRMSE arcs (dashed, centred on reference) ────────────────
+    for crmse in [0.5, 1.0, 1.5]:
+        theta = np.linspace(0, np.pi / 2, 200)
+        r_arc = []
+        for t in theta:
+            costh = np.cos(t)
+            disc = costh ** 2 - (1 - crmse ** 2)
+            r_arc.append(costh + np.sqrt(disc) if disc >= 0 else np.nan)
+        r_arc = np.array(r_arc)
+        mask = (r_arc >= 0) & (r_arc <= max_std)
+        if mask.any():
+            ax.plot(theta[mask], r_arc[mask], '--',
+                    color='gray',
+                    linewidth=0.4 if compact else 0.5,
+                    alpha=0.6, zorder=1)
+    ax.grid(True, alpha=0.3)
+
+
+def _legend_handles_split():
+    """Return (reference, test) legend handles for the split legend layout.
+
+    Pairs with the paper figure 4 design: two separate ``fig.legend(...)``
+    calls - one titled 'Reference products', one 'Bias-corrected products'.
+    Selection of which key is which is controlled by REFERENCE_KEYS and
+    TEST_KEYS module constants.
+    """
+    from matplotlib.lines import Line2D
+
+    ref = [Line2D([0], [0], marker='o', color='w',
+                  markerfacecolor='black', markeredgecolor='black',
+                  markersize=7, label='REF (station)')]
+    for k in REFERENCE_KEYS:
+        if k not in PRODUCT_STYLES:
+            continue
+        s = PRODUCT_STYLES[k]
+        ref.append(Line2D([0], [0], marker=s['marker'], color='w',
+                          markerfacecolor=s['color'],
+                          markeredgecolor='black',
+                          markersize=min(s['size'], 10),
+                          label=s['label']))
+    tst = []
+    for k in TEST_KEYS:
+        if k not in PRODUCT_STYLES:
+            continue
+        s = PRODUCT_STYLES[k]
+        tst.append(Line2D([0], [0], marker=s['marker'], color='w',
+                          markerfacecolor=s['color'],
+                          markeredgecolor='black',
+                          markersize=min(s['size'], 10),
+                          label=s['label']))
+    return ref, tst
 
 
 def plot_taylor_diagram(
@@ -1293,14 +1338,18 @@ def generate_island_taylor(acc, station_locs, output_dir=None,
         row, col = divmod(idx, ncols)
         axes[row, col].set_visible(False)
 
-    # Single shared legend for all subplots
-    legend_handles = _product_legend_handles()
-    fig.legend(
-        handles=legend_handles,
-        loc='lower center', ncol=min(len(legend_handles), 4),
-        fontsize=9, framealpha=0.9,
-        bbox_to_anchor=(0.5, -0.02),
-    )
+    # Split legend (Reference products vs Bias-corrected products),
+    # matching the paper figure 4 layout. Anchored at the bottom of the
+    # figure so it does not overlap the subplots.
+    ref_h, tst_h = _legend_handles_split()
+    fig.legend(handles=ref_h, title='Reference products',
+               loc='lower center', bbox_to_anchor=(0.30, -0.04),
+               ncol=len(ref_h), fontsize=9, framealpha=0.9,
+               title_fontsize=9)
+    fig.legend(handles=tst_h, title='Bias-corrected products',
+               loc='lower center', bbox_to_anchor=(0.75, -0.04),
+               ncol=len(tst_h), fontsize=9, framealpha=0.9,
+               title_fontsize=9)
 
     label_text, file_suffix = _format_diagram_label(diagram_label)
     label_suffix = f' ({label_text})' if label_text else ''
@@ -1309,7 +1358,10 @@ def generate_island_taylor(acc, station_locs, output_dir=None,
         f'Taylor Diagrams by Island Group{label_suffix}',
         fontsize=15, fontweight='bold', y=1.01,
     )
-    fig.tight_layout(rect=[0, 0.03, 1, 0.98])
+    # constrained_layout does not reserve space for fig-level legends;
+    # explicit subplots_adjust does.
+    fig.subplots_adjust(bottom=0.10, top=0.94, left=0.05, right=0.97,
+                        wspace=0.30, hspace=0.40)
 
     if output_dir:
         os.makedirs(output_dir, exist_ok=True)
@@ -1394,14 +1446,17 @@ def generate_province_taylor(
         row, col = divmod(idx, ncols)
         axes[row, col].set_visible(False)
 
-    # Single shared legend for all subplots
-    legend_handles = _product_legend_handles()
-    fig.legend(
-        handles=legend_handles,
-        loc='lower center', ncol=min(len(legend_handles), 4),
-        fontsize=9, framealpha=0.9,
-        bbox_to_anchor=(0.5, -0.02),
-    )
+    # Split legend (Reference products vs Bias-corrected products),
+    # matching the paper figure 4 layout.
+    ref_h, tst_h = _legend_handles_split()
+    fig.legend(handles=ref_h, title='Reference products',
+               loc='lower center', bbox_to_anchor=(0.30, -0.04),
+               ncol=len(ref_h), fontsize=9, framealpha=0.9,
+               title_fontsize=9)
+    fig.legend(handles=tst_h, title='Bias-corrected products',
+               loc='lower center', bbox_to_anchor=(0.75, -0.04),
+               ncol=len(tst_h), fontsize=9, framealpha=0.9,
+               title_fontsize=9)
 
     label_text, file_suffix = _format_diagram_label(diagram_label)
     label_suffix = f' ({label_text})' if label_text else ''
@@ -1410,7 +1465,8 @@ def generate_province_taylor(
         f'Taylor Diagrams by Province{label_suffix}',
         fontsize=14, fontweight='bold', y=1.01,
     )
-    fig.tight_layout(rect=[0, 0.03, 1, 0.98])
+    fig.subplots_adjust(bottom=0.08, top=0.94, left=0.05, right=0.97,
+                        wspace=0.30, hspace=0.40)
 
     if output_dir:
         os.makedirs(output_dir, exist_ok=True)
@@ -1687,6 +1743,14 @@ def generate_per_dekad_taylor_diagrams(
                     plt.close(fig)
             except Exception as exc:
                 logger.warning("  Dekad %s station failed: %s", tag, exc)
+
+            # End-of-dekad cleanup. plt.close(fig) per figure is not enough
+            # on Colab - matplotlib's internal state for polar axes + CRMSE
+            # arc collections accumulates until OOM around dekad ~15.
+            # plt.close('all') drops any straggling figures; gc.collect()
+            # forces release of the C-level memory.
+            plt.close('all')
+            gc.collect()
 
         print()  # newline after progress dots
 

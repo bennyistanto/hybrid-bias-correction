@@ -1,0 +1,36 @@
+---
+title: "Validation"
+description: "How the framework was validated against held-out BMKG stations."
+---
+
+The training reference is CPC-UNI. Independent validation uses 180 BMKG weather stations across Indonesia, whose records are not in the CPC pipeline.
+
+## Validation protocol
+
+1. **Per-station extraction.** For each BMKG station, find the nearest 0.1 deg pixel of the corrected field and extract the daily time series.
+2. **Pairwise filtering.** Days where the station value is missing (BMKG sentinel `8888.0`) or where the corrected field is NaN (ocean / outside AOI) are dropped.
+3. **Per-station metrics.** Computed only for stations with at least `min_valid_days = 30` valid paired days (WMO guidance for reliable verification statistics).
+4. **Regional aggregation.** Stations are grouped by `region_mapping` (Sumatra, Jawa, Kalimantan, Sulawesi, Bali Nusa Tenggara, Maluku, Papua) for regional Taylor diagrams.
+
+## What is reported
+
+Per station and per region, the following are computed for each correction stage and for IMERG-L (raw) and IMERG-F (baseline):
+
+- RMSE, MAE, ME (mean error / bias)
+- Pearson r, Spearman rho
+- Nash-Sutcliffe Efficiency, Kling-Gupta Efficiency
+- POD, FAR, CSI (at `wet_day_threshold = 1.0` mm/day)
+- Percentile errors at 50, 75, 90, 95, 99
+- Standard deviation ratio (corrected / observed)
+
+## Reading the Taylor diagrams
+
+Each station produces one point on the Taylor diagram, encoding correlation (angle), standard deviation ratio (radius), and centred RMSE (distance to the reference point). The desired pattern is movement toward the reference point as you go from IMERG-L -> LS -> LSEQM -> LSEQM+DL.
+
+## Headline results
+
+::: {.callout-note}
+Quantitative headline numbers from the full-Indonesia run will be inserted here once the companion paper is finalised. The Bali tutorial bundle produces 4-station numbers that are directional but not statistically robust on their own.
+:::
+
+For the paper's full station validation, see the companion manuscript (under review at *Remote Sensing*; DOI to be added on publication).

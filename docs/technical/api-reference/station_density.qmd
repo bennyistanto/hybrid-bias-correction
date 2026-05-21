@@ -1,0 +1,291 @@
+# station_density { #src.station_density }
+
+`station_density`
+
+Module: station_density.py
+
+Computes a station density confidence mask from gauge station locations.
+The confidence mask quantifies how reliable CPC-UNI is at each grid cell,
+based on the number of gauge stations that contribute to the CPC interpolation
+in that area.
+
+The mask is used to spatially modulate the DL blending alpha in
+apply_deeplearning_model():
+  - High confidence (many stations): DL gets more influence (trust CPC target)
+  - Low confidence (no stations): revert to pure LSEQM (trust physics)
+
+The confidence value at each pixel controls the effective blending alpha via:
+    effective_alpha = 1.0 - confidence * (1.0 - base_alpha)
+
+This means:
+    confidence = 1.0  =>  effective_alpha = base_alpha (e.g., 0.7)
+    confidence = 0.0  =>  effective_alpha = 1.0 (pure LSEQM, DL disabled)
+
+The module follows the same caching and I/O patterns as utility.py (load_mask)
+and io.py (save_corrected_precip).
+
+**Author**:
+  Benny Istanto
+  Applied Climatology Study Program, Department of Geophysics and Meteorology,
+  Bogor Agricultural University, Indonesia
+  Email: bennyistanto@apps.ipb.ac.id
+
+  with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
+
+Update: 2026.03
+
+## Functions
+
+| Name | Description |
+| --- | --- |
+| [build_confidence_mask](#src.station_density.build_confidence_mask) | End-to-end pipeline: CSV -> confidence mask on the working grid. |
+| [compute_confidence_map](#src.station_density.compute_confidence_map) | Convert raw station counts to a [0, 1] confidence map. |
+| [count_stations_per_cell](#src.station_density.count_stations_per_cell) | Count the number of gauge stations in each CPC native-resolution cell. |
+| [get_or_create_confidence_mask](#src.station_density.get_or_create_confidence_mask) | Load the confidence mask from file if it exists, otherwise compute and save. |
+| [load_confidence_mask](#src.station_density.load_confidence_mask) | Load a previously saved confidence mask from NetCDF, with caching. |
+| [load_station_locations](#src.station_density.load_station_locations) | Load gauge station locations from a CSV file. |
+| [save_confidence_mask](#src.station_density.save_confidence_mask) | Save the confidence mask to a NetCDF file with CF-1.8 compliant metadata. |
+| [upscale_confidence_to_working_grid](#src.station_density.upscale_confidence_to_working_grid) | Upscale the CPC-resolution confidence map to the 0.1-degree working grid |
+
+### build_confidence_mask { #src.station_density.build_confidence_mask }
+
+```python
+station_density.build_confidence_mask(
+    station_file,
+    target_lat,
+    target_lon,
+    cpc_resolution=DENSITY_CPC_RESOLUTION,
+    smoothing_sigma=DENSITY_SMOOTHING_SIGMA,
+    saturation_count=DENSITY_SATURATION_COUNT,
+    lat_range=DENSITY_LAT_RANGE,
+    lon_range=DENSITY_LON_RANGE,
+)
+```
+
+End-to-end pipeline: CSV -> confidence mask on the working grid.
+
+Chains:
+  load_station_locations -> count_stations_per_cell ->
+  compute_confidence_map -> upscale_confidence_to_working_grid.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name             | Type                              | Description                                                    | Default                    |
+|------------------|-----------------------------------|----------------------------------------------------------------|----------------------------|
+| station_file     | [str](`str`)                      | Path to station CSV.                                           | _required_                 |
+| target_lat       | [array](`array`) - [like](`like`) | Working grid coordinates (from the IMERG dataset).             | _required_                 |
+| target_lon       | [array](`array`) - [like](`like`) | Working grid coordinates (from the IMERG dataset).             | _required_                 |
+| cpc_resolution   | [float](`float`)                  | CPC native resolution in degrees (default 0.5).                | `DENSITY_CPC_RESOLUTION`   |
+| smoothing_sigma  | [float](`float`)                  | Gaussian smoothing sigma in grid-cell units (default 1.0).     | `DENSITY_SMOOTHING_SIGMA`  |
+| saturation_count | [float](`float`)                  | Number of (smoothed) stations for full confidence (default 3). | `DENSITY_SATURATION_COUNT` |
+| lat_range        | tuple of float                    | Grid bounds for station counting.                              | `DENSITY_LAT_RANGE`        |
+| lon_range        | tuple of float                    | Grid bounds for station counting.                              | `DENSITY_LAT_RANGE`        |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                               | Description                                            |
+|--------|----------------------------------------------------|--------------------------------------------------------|
+|        | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | Confidence mask on the working grid, values in [0, 1]. |
+
+### compute_confidence_map { #src.station_density.compute_confidence_map }
+
+```python
+station_density.compute_confidence_map(
+    station_counts,
+    smoothing_sigma=DENSITY_SMOOTHING_SIGMA,
+    saturation_count=DENSITY_SATURATION_COUNT,
+)
+```
+
+Convert raw station counts to a [0, 1] confidence map.
+
+Steps:
+1. Apply Gaussian smoothing to the count grid to prevent hard cell-boundary
+   artifacts. With sigma=1.0 at 0.5° resolution, the e-folding distance
+   is approximately 55 km - one neighboring cell in each direction.
+2. Normalize: confidence = min(count_smooth / saturation_count, 1.0).
+   A saturation_count of 3 means that 3 or more (smoothed) stations
+   produce full confidence (1.0).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name             | Type                                               | Description                                                    | Default                    |
+|------------------|----------------------------------------------------|----------------------------------------------------------------|----------------------------|
+| station_counts   | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | Raw station counts on the CPC native grid.                     | _required_                 |
+| smoothing_sigma  | [float](`float`)                                   | Gaussian filter sigma in grid-cell units (default 1.0).        | `DENSITY_SMOOTHING_SIGMA`  |
+| saturation_count | [float](`float`)                                   | Number of (smoothed) stations for full confidence (default 3). | `DENSITY_SATURATION_COUNT` |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                               | Description                                              |
+|--------|----------------------------------------------------|----------------------------------------------------------|
+|        | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | Confidence map on the CPC native grid, values in [0, 1]. |
+
+### count_stations_per_cell { #src.station_density.count_stations_per_cell }
+
+```python
+station_density.count_stations_per_cell(
+    station_df,
+    cpc_resolution=DENSITY_CPC_RESOLUTION,
+    lat_range=DENSITY_LAT_RANGE,
+    lon_range=DENSITY_LON_RANGE,
+)
+```
+
+Count the number of gauge stations in each CPC native-resolution cell.
+
+CPC-UNI operates at 0.5 degree resolution. The quality of CPC-UNI at
+any location depends primarily on how many gauge stations contribute
+to that 0.5-degree cell. This function bins station coordinates into
+a regular grid at CPC's native resolution.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name           | Type                                               | Description                                       | Default                  |
+|----------------|----------------------------------------------------|---------------------------------------------------|--------------------------|
+| station_df     | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Station locations with 'Lon' and 'Lat' columns.   | _required_               |
+| cpc_resolution | [float](`float`)                                   | CPC native grid spacing in degrees (default 0.5). | `DENSITY_CPC_RESOLUTION` |
+| lat_range      | tuple of float                                     | (south, north) bounds for the counting grid.      | `DENSITY_LAT_RANGE`      |
+| lon_range      | tuple of float                                     | (west, east) bounds for the counting grid.        | `DENSITY_LON_RANGE`      |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                               | Description                                                                                           |
+|--------|----------------------------------------------------|-------------------------------------------------------------------------------------------------------|
+|        | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | 2-D array of station counts on the CPC native grid, with 'lat' and 'lon' coordinates at cell centers. |
+
+### get_or_create_confidence_mask { #src.station_density.get_or_create_confidence_mask }
+
+```python
+station_density.get_or_create_confidence_mask(
+    station_file,
+    confidence_mask_file,
+    target_lat,
+    target_lon,
+    **kwargs,
+)
+```
+
+Load the confidence mask from file if it exists, otherwise compute and save.
+
+This is the main entry point for notebook use. On the first run, it builds
+the confidence mask from the station CSV and saves it as NetCDF. On
+subsequent runs, it loads the pre-computed mask from file.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name                 | Type                              | Description                                                                                                                               | Default    |
+|----------------------|-----------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| station_file         | [str](`str`)                      | Path to the station CSV file.                                                                                                             | _required_ |
+| confidence_mask_file | [str](`str`)                      | Path where the confidence mask NetCDF should be saved/loaded.                                                                             | _required_ |
+| target_lat           | [array](`array`) - [like](`like`) | Working grid coordinates (from the IMERG/LSEQM dataset).                                                                                  | _required_ |
+| target_lon           | [array](`array`) - [like](`like`) | Working grid coordinates (from the IMERG/LSEQM dataset).                                                                                  | _required_ |
+| **kwargs             |                                   | Additional keyword arguments passed to build_confidence_mask() (cpc_resolution, smoothing_sigma, saturation_count, lat_range, lon_range). | `{}`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                               | Description                                            |
+|--------|----------------------------------------------------|--------------------------------------------------------|
+|        | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | Confidence mask on the working grid, values in [0, 1]. |
+
+### load_confidence_mask { #src.station_density.load_confidence_mask }
+
+```python
+station_density.load_confidence_mask(mask_file)
+```
+
+Load a previously saved confidence mask from NetCDF, with caching.
+
+Follows the same caching pattern as utility.load_mask(): the mask is
+loaded once per unique file path and cached in memory for subsequent
+calls.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name      | Type         | Description                              | Default    |
+|-----------|--------------|------------------------------------------|------------|
+| mask_file | [str](`str`) | Path to the confidence mask NetCDF file. | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                               | Description                                                |
+|--------|----------------------------------------------------|------------------------------------------------------------|
+|        | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | Cached confidence mask (2-D, lat × lon, values in [0, 1]). |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type                                     | Description                      |
+|--------|------------------------------------------|----------------------------------|
+|        | [FileNotFoundError](`FileNotFoundError`) | If the mask file does not exist. |
+
+### load_station_locations { #src.station_density.load_station_locations }
+
+```python
+station_density.load_station_locations(station_file)
+```
+
+Load gauge station locations from a CSV file.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type         | Description                                                                                                         | Default    |
+|--------------|--------------|---------------------------------------------------------------------------------------------------------------------|------------|
+| station_file | [str](`str`) | Path to CSV file with columns including 'Lon' and 'Lat'. Expected format: ID, ID_WMO, Station, Lon, Lat, Elevation. | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                               | Description                                                        |
+|--------|----------------------------------------------------|--------------------------------------------------------------------|
+|        | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | DataFrame with station data. Must contain 'Lon' and 'Lat' columns. |
+
+#### Raises {.doc-section .doc-section-raises}
+
+| Name   | Type                                     | Description                                     |
+|--------|------------------------------------------|-------------------------------------------------|
+|        | [FileNotFoundError](`FileNotFoundError`) | If the station file does not exist.             |
+|        | [ValueError](`ValueError`)               | If required columns ('Lon', 'Lat') are missing. |
+
+### save_confidence_mask { #src.station_density.save_confidence_mask }
+
+```python
+station_density.save_confidence_mask(confidence_mask, output_file)
+```
+
+Save the confidence mask to a NetCDF file with CF-1.8 compliant metadata.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name            | Type                                               | Description                                                 | Default    |
+|-----------------|----------------------------------------------------|-------------------------------------------------------------|------------|
+| confidence_mask | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | Confidence mask to save (2-D, lat × lon, values in [0, 1]). | _required_ |
+| output_file     | [str](`str`)                                       | Output file path (.nc4).                                    | _required_ |
+
+### upscale_confidence_to_working_grid { #src.station_density.upscale_confidence_to_working_grid }
+
+```python
+station_density.upscale_confidence_to_working_grid(
+    confidence_coarse,
+    target_lat,
+    target_lon,
+)
+```
+
+Upscale the CPC-resolution confidence map to the 0.1-degree working grid
+using nearest-neighbor interpolation.
+
+This follows the same interpolation approach used for the land-sea mask
+in utility.apply_land_sea_mask().
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name              | Type                                               | Description                                                 | Default    |
+|-------------------|----------------------------------------------------|-------------------------------------------------------------|------------|
+| confidence_coarse | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | Confidence map on CPC native grid (0.5 deg).                | _required_ |
+| target_lat        | [array](`array`) - [like](`like`)                  | Target latitude coordinates (from the IMERG/working grid).  | _required_ |
+| target_lon        | [array](`array`) - [like](`like`)                  | Target longitude coordinates (from the IMERG/working grid). | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                               | Description                                                                      |
+|--------|----------------------------------------------------|----------------------------------------------------------------------------------|
+|        | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | Confidence map interpolated to the working grid, shape (target_lat, target_lon). |

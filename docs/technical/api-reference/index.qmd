@@ -1,0 +1,55 @@
+# API Reference {.doc .doc-index}
+
+## Configuration
+
+Loading config.yml, placeholder resolution, attribute exposure.
+
+| | |
+| --- | --- |
+| [config](config.qmd#src.config) | Module: config.py |
+
+## I/O and Utilities
+
+Loading NetCDFs, aligning grids, applying masks.
+
+| | |
+| --- | --- |
+| [io](io.qmd#src.io) | Module: io.py |
+| [utility](utility.qmd#src.utility) | Module: utility.py |
+
+## Statistical Bias Correction
+
+Linear Scaling, LSEQM, distribution fits.
+
+| | |
+| --- | --- |
+| [bias_correction](bias_correction.qmd#src.bias_correction) | Module: bias_correction.py |
+| [distribution_fitting](distribution_fitting.qmd#src.distribution_fitting) | Module: distribution_fitting.py |
+
+## Deep Learning
+
+CNN architecture, training, application.
+
+| | |
+| --- | --- |
+| [deep_learning](deep_learning.qmd#src.deep_learning) | Module: deep_learning.py |
+| [station_density](station_density.qmd#src.station_density) | Module: station_density.py |
+
+## Metrics and QA
+
+WMO metrics, Continuous Quality Index.
+
+| | |
+| --- | --- |
+| [metrics](metrics.qmd#src.metrics) | Module: metrics.py |
+| [qa_framework](qa_framework.qmd#src.qa_framework) | Module: qa_framework.py |
+
+## Validation and Visualisation
+
+Station validation, Taylor diagrams, plotting.
+
+| | |
+| --- | --- |
+| [station_validation](station_validation.qmd#src.station_validation) | Module: station_validation.py |
+| [taylor_diagram](taylor_diagram.qmd#src.taylor_diagram) | Module: taylor_diagram.py |
+| [visualisation](visualisation.qmd#src.visualisation) | Module: visualisation.py |

@@ -1,0 +1,120 @@
+---
+title: "Data Preparation"
+description: "Defining a new AOI and downloading the satellite and reference data for it."
+---
+
+[![Open In Colab nb00](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/bennyistanto/hybrid-bias-correction/blob/main/notebooks/00_define_aoi.ipynb) — `nb00 Define AOI`
+
+[![Open In Colab nb01](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/bennyistanto/hybrid-bias-correction/blob/main/notebooks/01_data_acquisition.ipynb) — `nb01 Data Acquisition`
+
+This is **Step 0** of the pipeline - run it once when you adapt the framework to a new region. You can skip it entirely for the Bali example; the data ships with the repo.
+
+::: {.callout-note}
+Two prerequisites you'll need before running the notebooks:
+
+- A [NASA Earthdata Login](https://urs.earthdata.nasa.gov/) (free). IMERG downloads go through this.
+- Disk space proportional to your AOI and time span. Indonesia 2001-2025 is ~1.7 GB of input.
+:::
+
+## What gets produced
+
+After running both notebooks, your `data/` folder will have everything `config.yml` expects:
+
+```
+data/
+├── input/
+│   ├── imergl/{prefix}_imergl.nc4         # IMERG Late Run V07
+│   ├── imergf/{prefix}_imergf.nc4         # IMERG Final Run V07
+│   ├── cpcuni/{prefix}_cpcuni.nc4         # CPC-UNI regridded to 0.1 deg
+│   ├── cpcuni/{prefix}_cpcuni_native05.nc4  # CPC-UNI native 0.5 deg
+│   └── stations/{prefix}_*.csv            # Station metadata + observations (manual)
+└── mask/
+    └── aoi/{prefix}_mask.nc               # Land-sea mask for your AOI
+```
+
+`{prefix}` matches `general.filename_prefix` in your config (e.g. `idn_cli`).
+
+## Step 1 - Define your AOI (nb00)
+
+[`00_define_aoi.ipynb`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/notebooks/00_define_aoi.ipynb) builds the land-sea mask that the framework uses to zero out ocean cells. Three options for defining the AOI:
+
+| Option | When to use |
+|--------|-------------|
+| **Country boundaries** | You have an ISO-3 country code (e.g. `IDN`, `PHL`, `VNM`). The notebook clips a global land mask using Natural Earth or BPS polygons. |
+| **Bounding box** | You want a rectangular AOI defined by `lat_min`, `lat_max`, `lon_min`, `lon_max`. Cleanest for sub-national studies. |
+| **User-supplied polygon** | You have your own shapefile or GeoJSON. The notebook clips by your polygon and writes the mask. |
+
+The notebook outputs a NetCDF with a `land` variable (1 = land, 0 / NaN = sea) on the IMERG 0.1 deg grid. The `config.yml` field `mask_file` should point at this file.
+
+The Bali example uses the **bounding box** option ([`data/mask/aoi/bali_subset.nc`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/data/mask/aoi/bali_subset.nc), bbox 114.45-115.75 E / -8.85 to -8.05 N).
+
+## Step 2 - Download IMERG and CPC (nb01)
+
+[`01_data_acquisition.ipynb`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/notebooks/01_data_acquisition.ipynb) downloads three products from NASA Earthdata and NOAA PSL, then crops to your AOI and combines into a single multi-year NetCDF per product.
+
+### 2a. NASA Earthdata authentication
+
+The notebook walks you through setting up an Earthdata credentials file (`~/.netrc`). One-time setup; works across all subsequent sessions.
+
+### 2b. IMERG Late Run V07 (the field being corrected)
+
+- Source: NASA GES DISC, dataset `GPM_3IMERGDL`
+- Resolution: 0.1 deg, daily
+- The notebook downloads per-day HDF5 files, extracts the `precipitationCal` variable, clips to your AOI, and stitches into `{prefix}_imergl.nc4`.
+
+### 2c. IMERG Final Run V07 (gauge-adjusted satellite baseline)
+
+- Source: NASA GES DISC, dataset `GPM_3IMERGDF`
+- Same processing as IMERG-L; output `{prefix}_imergf.nc4`.
+- Used in Taylor diagrams only as a comparison; not used in correction.
+
+### 2d. CPC-UNI (the gauge-based reference)
+
+- Source: NOAA PSL THREDDS server
+- Resolution: 0.5 deg native, daily
+- The notebook downloads the global 0.5 deg files, clips and fills missing values, regrids to 0.1 deg using nearest-neighbour, and stitches two files:
+  - `{prefix}_cpcuni.nc4` - regridded 0.1 deg (used by per-pixel EQM)
+  - `{prefix}_cpcuni_native05.nc4` - native 0.5 deg (used by BCSD-style parameter fitting; see [Implementation > EQM](../implementation/eqm.qmd))
+
+::: {.callout-warning}
+The native 0.5 deg file is critical for small AOIs. Clip it with one extra cell of buffer beyond your bbox so the AOI sits inside the convex hull of CPC native cell centres. nb01 handles this automatically; see [Troubleshooting](../user-guide/troubleshooting.qmd) for the bug it prevents.
+:::
+
+## Step 3 - (Manual) Station observations
+
+The framework's independent validation needs daily station observations in a wide CSV format (one column per WMO station ID). For Indonesia, this comes from BMKG and is not downloadable via API. For other regions:
+
+- Check whether your national meteorological service publishes daily gauge observations.
+- The expected CSV format is documented in [Data Model](../get-started/data-model.qmd#inputs).
+- The Bali bundle includes a 4-station subset as an example.
+
+If you don't have station data, set `station_validation.station_data_file: null` and `station_density.use_confidence_mask: false` in your config. The framework will still produce corrected NetCDFs and CQI; only the independent station-validation step (nb05) will be skipped.
+
+## Sanity check before running the pipeline
+
+After both notebooks finish, run this quick check to verify the inputs are well-formed:
+
+```python
+import xarray as xr
+from src.config import initialize_config
+config = initialize_config('config.yml')
+
+for label, path in [
+    ('IMERG-L', config.imergl_file),
+    ('IMERG-F', config.imergf_file),
+    ('CPC 0.1', config.cpc_file),
+    ('CPC 0.5', config.cpc_native_file),
+    ('Mask',    config.mask_file),
+]:
+    ds = xr.open_dataset(path)
+    print(f"{label:8s}: dims={dict(ds.sizes)}, time={str(ds.time.values[0])[:10] if 'time' in ds.coords else 'n/a'}..{str(ds.time.values[-1])[:10] if 'time' in ds.coords else 'n/a'}")
+    ds.close()
+```
+
+If the time ranges line up across IMERG and CPC, and the mask grid matches the IMERG grid, you're ready to run [Full Pipeline](full-pipeline.qmd) → nb02 onward.
+
+## Next step
+
+- Define your AOI in nb00, download data with nb01.
+- Update `config.yml` (or copy `config_bali.yml` and adapt) to point at the new files.
+- Run the [Full Pipeline](full-pipeline.qmd) tutorial.

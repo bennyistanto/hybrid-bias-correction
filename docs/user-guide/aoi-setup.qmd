@@ -1,0 +1,38 @@
+---
+title: "AOI Setup"
+description: "Adapting the framework to a new region."
+---
+
+The shortest path to a new region is to copy `config_bali.yml`, change the four things listed below, drop in your local inputs, and run.
+
+## The four things to change
+
+1. **`general.filename_prefix`** - typically a 3-letter ISO country code plus a domain suffix. Examples: `phl_cli`, `vnm_cli`, `bgd_cli`. This becomes the prefix of every output file.
+
+2. **`aoi.lat_range` and `aoi.lon_range`** - the bounding box of your domain. The framework does not enforce a specific size, but very large grids (>1000 x 1000) push the CNN's Flatten -> Dense layer into uncomfortable parameter counts. Consider tiling for continental-scale runs.
+
+3. **`input_files.*`** - point at your IMERG, CPC, and mask files. The variable names inside the NetCDFs should match `variable_names`, or you need to update those too.
+
+4. **`station_density.station_file` and `station_validation.station_data_file`** - your local gauge files. Format matches the BMKG convention documented in [Data Model](../get-started/data-model.qmd).
+
+## The clipping script
+
+The correct procedure for a new region is to run **nb00** to define the AOI mask, then **nb01** to download IMERG and CPC into the right paths. The [Data Preparation](../tutorials/data-preparation.qmd) tutorial walks both of them step by step.
+
+## What does not generalise without thought
+
+::: {.callout-warning}
+- **`region_mapping`** - The province-to-island grouping is Indonesia-specific. For a new country you need a parallel administrative-division to region map, or you can collapse it to a single region.
+- **`station_density.saturation_count`** - The value 2-3 was chosen for Indonesia's ~180-station network. A denser network may want a higher saturation (5-10); a sparser network may want lower (1).
+- **`statistical_params.gpd_threshold_percentile`** - The 80th percentile is reasonable for tropical regions with frequent heavy rainfall. In a region with few wet days per dekad (sub-tropical dry), you may not have enough exceedances above the 80th percentile to fit a stable GPD; raise the wet-day threshold or lower the GPD threshold.
+:::
+
+## Sanity checks before a full run
+
+Run a single dekad first (the quickstart recipe), then inspect:
+
+- `data/output/station_density/confidence_mask_station_density.nc4` - does the high-confidence area match where you have stations?
+- `data/output/corrected_lseqm/*_month{MM}_dekad{D}.nc4` - does the corrected mean field look like a plausible precipitation pattern?
+- One trained CNN under `data/output/trained_models/` - the training history should show val_loss going down for several epochs before early stopping triggers.
+
+If all three look sensible, run the full batch.

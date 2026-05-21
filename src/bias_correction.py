@@ -21,8 +21,9 @@ LSEQM-corrected data (not raw IMERG), matching what it receives at inference.
 
 **Author**:
   Benny Istanto
-  - Geospatial Operations Support Team, DEC Data Group, The World Bank, United States. Email: bistanto@worldbank.org
-  - Applied Climatology Study Program, Bogor Agricultural University, Indonesia. Email: bennyistanto@ipb.ac.id
+  Applied Climatology Study Program, Department of Geophysics and Meteorology,
+  Bogor Agricultural University, Indonesia
+  Email: bennyistanto@apps.ipb.ac.id
 
   with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
@@ -113,7 +114,7 @@ def lseqm(
         raise ValueError("month_str and dekad_str must be provided.")
 
     # Add data validation at the start (xarray-compatible NaN check).
-    # Check only the precipitation variable — the land-sea mask sets ocean
+    # Check only the precipitation variable - the land-sea mask sets ocean
     # pixels to NaN, so checking the whole Dataset would wrongly trigger this.
     from .config import IMERG_PRECIP_VAR, CPC_PRECIP_VAR
     _imerg_var = imerg_ds[IMERG_PRECIP_VAR] if isinstance(imerg_ds, xr.Dataset) else imerg_ds
@@ -160,9 +161,13 @@ def lseqm(
         cpc_mean = cpc_native_mean.interp(
             lat=imerg_dekad_data.lat, lon=imerg_dekad_data.lon, method='linear'
         )
-        # Fill boundary NaN with nearest-neighbour
+        # Fill boundary NaN with true unrestricted nearest-neighbour.
+        # reindex(method='nearest') (not interp) is essential here: small
+        # AOIs (e.g. Bali on a 2 x 4 CPC native tile) reach outside the
+        # convex hull of CPC-native cell centres, and interp(method='nearest')
+        # also returns NaN there.
         cpc_mean = cpc_mean.fillna(
-            cpc_native_mean.interp(
+            cpc_native_mean.reindex(
                 lat=imerg_dekad_data.lat, lon=imerg_dekad_data.lon, method='nearest'
             )
         )
@@ -330,7 +335,7 @@ def run_correction_pipeline(imerg_ds, cpc_ds_aligned, month, dekad, cpc_native_d
         cpc_native_ds=cpc_native_ds,
     )
 
-    # Step 8: Train (or reload) DL model — interactive=False for batch
+    # Step 8: Train (or reload) DL model - interactive=False for batch
     model_name = f"bias_correction_model_month{month_str}_dekad{dekad_str}"
     logging.info("Pipeline [%s d%s]: Training / loading DL model...", month_str, dekad)
     model = train_bias_correction_model(

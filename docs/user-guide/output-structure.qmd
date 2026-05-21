@@ -1,0 +1,91 @@
+---
+title: "Output Structure"
+description: "Where everything lands and what each file contains."
+---
+
+The output tree is organised by correction stage and by purpose. Every NetCDF carries CF-1.8 attributes - use `ncdump -h <file>` or `xr.open_dataset(<file>).attrs` to inspect.
+
+## Top-level layout
+
+```
+data/output/                                      (or data/example_bali/output/ for Bali)
+  corrected_ls/
+  corrected_lseqm/
+  corrected_lseqmdl/
+  trained_models/
+  station_density/
+  metrics_ls/
+  metrics_lseqm/
+  metrics_lseqmdl/
+  quality_ls/
+  quality_lseqm/
+  quality_lseqmdl/
+  station_validation/
+  figures/
+```
+
+## Corrected precipitation NetCDFs
+
+File pattern:
+
+```
+{prefix}_{method_abbr}_corrected_imergl_month{MM}_dekad{D}.nc4
+```
+
+| Variable | Type | Units | Description |
+|----------|------|-------|-------------|
+| `precipitation` | float32 | mm/day | Corrected daily precipitation |
+| `lat`, `lon` | float64 | deg | Cell-centre coordinates, 0.1 deg grid |
+| `time` | datetime64 | UTC | Daily timestamps for the dekad x all years |
+
+Global attributes record the method (`ls`, `lseqm`, `lseqmdl`), the source IMERG / CPC files, the version of the framework, and the run timestamp.
+
+## Trained model artefacts
+
+```
+trained_models/
+  {prefix}_cnn_month{MM}_dekad{D}.keras
+  {prefix}_cnn_month{MM}_dekad{D}_norm.json     # mean / std for input normalization
+```
+
+Loading: `tf.keras.models.load_model(path)`. The matching `_norm.json` is required for applying the model to new data.
+
+## Confidence mask
+
+```
+station_density/confidence_mask_station_density.nc4
+```
+
+Variable: `confidence` (float32, 0-1). Computed once per AOI; cached and re-used across all dekads.
+
+## Metrics and QA
+
+For each method:
+
+```
+metrics_{method}/
+  {prefix}_metrics_{method}_month{MM}_dekad{D}.nc4    # 31 WMO metrics per pixel
+quality_{method}/
+  {prefix}_quality_{method}_month{MM}_dekad{D}.nc4    # CQI + 3 components
+```
+
+The metrics NetCDF holds the full WMO/TD-1485 + WMO-1317 set: RMSE, MAE, ME, Pearson r, NSE, KGE, POD, FAR, CSI, percentile errors, etc. The quality NetCDF is the aggregated CQI for plotting.
+
+## Station validation
+
+```
+station_validation/
+  {prefix}_validation_by_station_{method}.csv     # one row per station, per method
+  {prefix}_validation_by_region_{method}.csv      # aggregated by region_mapping
+  {prefix}_taylor_by_station_{method}.png         # Taylor diagram
+  {prefix}_taylor_monthly_{method}.png            # monthly Taylor by region
+```
+
+## Figures
+
+```
+figures/
+  {prefix}_<plot_type>_month{MM}_dekad{D}.png
+```
+
+Plot types include spatial comparison strips, CQI maps, station scatter, and Taylor diagrams. The visualisation hub notebook (`06_visualisation_hub.ipynb`) generates these.

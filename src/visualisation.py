@@ -32,8 +32,9 @@ print_batch_summary displays the collected results.
 
 **Author**:
   Benny Istanto
-  - Geospatial Operations Support Team, DEC Data Group, The World Bank, United States. Email: bistanto@worldbank.org
-  - Applied Climatology Study Program, Bogor Agricultural University, Indonesia. Email: bennyistanto@ipb.ac.id
+  Applied Climatology Study Program, Department of Geophysics and Meteorology,
+  Bogor Agricultural University, Indonesia
+  Email: bennyistanto@apps.ipb.ac.id
 
   with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
@@ -41,6 +42,7 @@ Update: 2026.03
 """
 
 import os
+import gc
 import logging
 
 import numpy as np
@@ -84,16 +86,234 @@ COMPONENT_VARS = [
     ("continuous_quality", "CQI"),
 ]
 
-# Spatial extent — loaded lazily from config.AOI_LON_RANGE / AOI_LAT_RANGE.
+# Spatial extent - loaded lazily from config.AOI_LON_RANGE / AOI_LAT_RANGE,
+# widened by config.MAP_EXTENT_PAD so coastline / boundary outlines have
+# breathing room at the panel edges.
 def _xlim():
-    """Return (lon_min, lon_max) from config."""
+    """Return (lon_min, lon_max) widened by config.MAP_EXTENT_PAD."""
     from src import config
-    return tuple(config.AOI_LON_RANGE)
+    lo, hi = config.AOI_LON_RANGE
+    pad = getattr(config, 'MAP_EXTENT_PAD', 0.0)
+    return (lo - pad, hi + pad)
 
 def _ylim():
-    """Return (lat_min, lat_max) from config."""
+    """Return (lat_min, lat_max) widened by config.MAP_EXTENT_PAD."""
     from src import config
-    return tuple(config.AOI_LAT_RANGE)
+    lo, hi = config.AOI_LAT_RANGE
+    pad = getattr(config, 'MAP_EXTENT_PAD', 0.0)
+    return (lo - pad, hi + pad)
+
+
+# Region-agnostic admin overlay. Two-tier design:
+#   1. If config.BOUNDARIES lists files that exist, draw those in YAML order
+#      (user-defined override; thinnest line first, thickest last by convention).
+#   2. Otherwise fall back to cartopy Natural Earth admin_0 + admin_1 so the
+#      framework still produces a context map in a region with no local
+#      boundary files. cartopy caches the Natural Earth download after first
+#      use, so subsequent runs are local-disk reads.
+# Either way, the axis extent is preserved so the overlay never zooms the map.
+
+# Module-level cache: (path, clip_bbox) -> list of Nx2 numpy line segments.
+# Each shapefile is read once per session, clipped to the AOI, and reduced to
+# numpy line segments. Each map panel just builds a LineCollection from the
+# cached arrays - no geopandas, no shapely, no per-panel disk I/O. This is
+# the difference between OOM-killing nb06 and finishing in a couple of minutes.
+_boundary_segments_cache: dict = {}
+
+
+def _aoi_clip_bbox():
+    """Return (xmin, xmax, ymin, ymax) used to clip boundary geometries.
+
+    Matches the displayed map extent exactly. Matplotlib clips the drawn
+    LineCollection to the axes anyway, so there is no benefit to caching
+    polygons outside the displayed area, and the smaller cache means
+    smaller LineCollection per panel.
+    """
+    from src import config
+    pad = float(getattr(config, "MAP_EXTENT_PAD", 0.0))
+    lat_lo, lat_hi = config.AOI_LAT_RANGE
+    lon_lo, lon_hi = config.AOI_LON_RANGE
+    return (lon_lo - pad, lon_hi + pad,
+            lat_lo - pad, lat_hi + pad)
+
+
+def _extract_segments_from_gdf(gdf):
+    """Convert a GeoDataFrame's geometries to a list of Nx2 numpy arrays.
+
+    Each polygon's exterior and interiors become separate line segments;
+    multipolygons / multilinestrings are expanded. Empty / null geometries
+    are skipped. Z coordinates (if present) are dropped - matplotlib's
+    LineCollection requires strict (N, 2) input.
+    """
+    def _coords(coords):
+        # Some shapefiles store 3D coords (x, y, z); LineCollection needs 2D.
+        return np.asarray(coords, dtype=float)[:, :2]
+
+    segments = []
+    for geom in gdf.geometry:
+        if geom is None or geom.is_empty:
+            continue
+        geom_type = geom.geom_type
+        if geom_type == "Polygon":
+            segments.append(_coords(geom.exterior.coords))
+            for interior in geom.interiors:
+                segments.append(_coords(interior.coords))
+        elif geom_type == "MultiPolygon":
+            for poly in geom.geoms:
+                segments.append(_coords(poly.exterior.coords))
+                for interior in poly.interiors:
+                    segments.append(_coords(interior.coords))
+        elif geom_type == "LineString":
+            segments.append(_coords(geom.coords))
+        elif geom_type == "MultiLineString":
+            for line in geom.geoms:
+                segments.append(_coords(line.coords))
+    return segments
+
+
+def _load_boundary_segments(path):
+    """Return cached numpy line segments for *path*, clipped to AOI.
+
+    Reads the shapefile, geometrically clips to the AOI bbox, and stores
+    only the numpy line segments. Subsequent calls are dict lookups.
+    Returns None on import / IO failure so callers can skip the layer.
+
+    Two-pass clipping: ``cx[...]`` (fast spatial bbox index) filters to
+    candidate geometries first, then ``clip(bbox_geom)`` trims those
+    candidates to the bbox so faraway islands of intersecting multipolygons
+    don't end up in the cache. For an Indonesia adm1 file this is the
+    difference between 600 k cached points (full multipolygons) and ~30 k
+    (Bali outline only).
+    """
+    bbox = _aoi_clip_bbox()
+    key = (path, bbox)
+    if key in _boundary_segments_cache:
+        return _boundary_segments_cache[key]
+    try:
+        import geopandas as gpd
+        from shapely.geometry import box
+        gdf = gpd.read_file(path)
+        xmin, xmax, ymin, ymax = bbox
+        bbox_geom = box(xmin, ymin, xmax, ymax)
+        candidates = gdf.cx[xmin:xmax, ymin:ymax]
+        if len(candidates) > 0:
+            gdf_clip = candidates.clip(bbox_geom)
+        else:
+            gdf_clip = candidates
+        segments = _extract_segments_from_gdf(gdf_clip)
+        # Drop the GeoDataFrames now - only the numpy arrays are needed.
+        del gdf, candidates, gdf_clip
+        _boundary_segments_cache[key] = segments
+        return segments
+    except ImportError:
+        logger.warning(
+            "geopandas not installed; admin boundaries will not be drawn."
+        )
+        return None
+    except Exception as exc:   # noqa: BLE001 - geopandas / IO error
+        logger.warning("failed to load boundary %s: %s", path, exc)
+        return None
+
+
+def _natural_earth_layers(resolution="10m"):
+    """Return Natural Earth fallback layer dicts (admin_1 then admin_0).
+
+    Drawn in returned order: admin_1 (provinces / states, thinner) first,
+    admin_0 (countries, thicker) last so the country outline sits on top.
+    Falls back gracefully if cartopy or the Natural Earth dataset is
+    unavailable.
+    """
+    try:
+        import cartopy.io.shapereader as shpreader
+    except ImportError:
+        logger.warning(
+            "cartopy not installed; cannot draw default Natural Earth boundaries."
+        )
+        return []
+
+    layers = []
+    for name, lw, color, alpha in (
+        ("admin_1_states_provinces", 0.5, "dimgray", 0.8),
+        ("admin_0_countries",        1.0, "black",   1.0),
+    ):
+        try:
+            path = shpreader.natural_earth(
+                resolution=resolution, category="cultural", name=name,
+            )
+            layers.append({
+                "file": path, "linewidth": lw,
+                "edgecolor": color, "alpha": alpha,
+            })
+        except Exception as exc:   # noqa: BLE001 - download / IO failure
+            logger.warning(
+                "Natural Earth %s @ %s unavailable: %s", name, resolution, exc,
+            )
+    return layers
+
+
+def _add_boundaries(ax):
+    """Overlay admin boundaries on a plain matplotlib Axes.
+
+    Resolution order:
+      1. Try every entry in config.BOUNDARIES (joined with config.BOUNDARY_DIR
+         when relative). Skip missing files with a warning.
+      2. If nothing got drawn, fall back to cartopy Natural Earth so a region
+         with no local boundary files still gets a context overlay.
+
+    Per-panel cost is just LineCollection construction from cached numpy
+    arrays - no geopandas, no shapely, no disk I/O. The first call per
+    shapefile loads, clips to the AOI, and caches the line segments;
+    subsequent calls hit the cache.
+
+    Preserves the axis extent so adding boundaries never zooms the map out.
+    """
+    from matplotlib.collections import LineCollection
+    from src import config
+
+    xlim, ylim = ax.get_xlim(), ax.get_ylim()
+    user_layers = getattr(config, "BOUNDARIES", None) or []
+    boundary_dir = getattr(config, "BOUNDARY_DIR", None)
+
+    def _draw(layers, *, resolve_relative):
+        n = 0
+        for layer in layers:
+            path = layer.get("file")
+            if not path:
+                continue
+            if resolve_relative and boundary_dir and not os.path.isabs(path):
+                path = os.path.join(boundary_dir, path)
+            if not os.path.exists(path):
+                logger.warning("boundary file not found: %s", path)
+                continue
+
+            segments = _load_boundary_segments(path)
+            if not segments:
+                continue
+
+            lc = LineCollection(
+                segments,
+                colors=layer.get("edgecolor", "black"),
+                linewidths=layer.get("linewidth", 0.5),
+                alpha=layer.get("alpha", 1.0),
+                zorder=layer.get("zorder", 4),
+            )
+            # autolim=False so adding the collection does not expand xlim/ylim.
+            ax.add_collection(lc, autolim=False)
+            n += 1
+        return n
+
+    drawn = _draw(user_layers, resolve_relative=True)
+
+    if drawn == 0:
+        if user_layers:
+            logger.info(
+                "no user boundary files resolved; falling back to "
+                "cartopy Natural Earth"
+            )
+        _draw(_natural_earth_layers(resolution="10m"), resolve_relative=False)
+
+    ax.set_xlim(xlim)
+    ax.set_ylim(ylim)
 
 # Dekad start-day mapping
 _DEKAD_START = {1: "01", 2: "11", 3: "21"}
@@ -211,7 +431,7 @@ def load_quality_data(month, dekad, quality_prefix="qualitysd",
 def plot_cqi_spatial(quality_data, month, dekad,
                      quality_prefix="qualitysd", output_dir=None,
                      interactive=True):
-    """CQI spatial maps — one panel per correction method.
+    """CQI spatial maps - one panel per correction method.
 
     Parameters
     ----------
@@ -250,6 +470,7 @@ def plot_cqi_spatial(quality_data, month, dekad,
         ax.set_xlabel("Longitude")
         ax.set_ylabel("Latitude" if idx == 0 else "")
         ax.set_aspect("equal")
+        _add_boundaries(ax)
 
     if im is not None:
         fig.colorbar(
@@ -298,6 +519,7 @@ def plot_categorical_spatial(quality_data, month, dekad,
         ax.set_xlabel("Longitude")
         ax.set_ylabel("Latitude" if idx == 0 else "")
         ax.set_aspect("equal")
+        _add_boundaries(ax)
 
     if im is not None:
         cbar = fig.colorbar(
@@ -352,6 +574,7 @@ def plot_improvement(quality_data, month, dekad,
     ax.set_xlabel("Longitude")
     ax.set_ylabel("Latitude")
     ax.set_aspect("equal")
+    _add_boundaries(ax)
     fig.colorbar(
         im, ax=ax, orientation="vertical", shrink=0.75, aspect=20,
         pad=0.02, label="CQI Difference (positive = improvement)",
@@ -428,6 +651,7 @@ def plot_components(quality_data, month, dekad,
         ax.set_xlabel("Longitude")
         ax.set_ylabel("Latitude" if idx == 0 else "")
         ax.set_aspect("equal")
+        _add_boundaries(ax)
 
     if im is not None:
         fig.colorbar(
@@ -477,6 +701,7 @@ def plot_confidence(quality_data, month, dekad,
     ax.set_xlabel("Longitude")
     ax.set_ylabel("Latitude")
     ax.set_aspect("equal")
+    _add_boundaries(ax)
     fig.colorbar(
         im, ax=ax, orientation="vertical", shrink=0.75, aspect=20,
         pad=0.02, label="Confidence (0 = low, 1 = high)",
@@ -502,7 +727,8 @@ def plot_cqi_distribution(quality_data, month, dekad,
     if not quality_data:
         return None
 
-    fig, (ax_cdf, ax_hist) = plt.subplots(1, 2, figsize=(14, 5))
+    fig, (ax_cdf, ax_hist) = plt.subplots(1, 2, figsize=(14, 5),
+                                          constrained_layout=True)
 
     for name, ds in quality_data.items():
         cqi = _squeeze_time(ds["continuous_quality"])
@@ -546,7 +772,6 @@ def plot_cqi_distribution(quality_data, month, dekad,
         f"CQI Distribution Analysis -- Month {month}, Dekad {dekad}",
         fontsize=13, fontweight="bold",
     )
-    plt.tight_layout()
 
     _finish_fig(fig, output_dir, "cqi_distribution", quality_prefix,
                 month_str, dekad_str, interactive)
@@ -583,7 +808,7 @@ def plot_category_summary(quality_data, month, dekad,
     width = 0.25
     n = len(quality_data)
 
-    fig, ax = plt.subplots(figsize=(10, 5))
+    fig, ax = plt.subplots(figsize=(10, 5), constrained_layout=True)
     for i, (name, info) in enumerate(summary.items()):
         offset = (i - (n - 1) / 2) * width
         label = TITLES_MAP.get(name, name)
@@ -602,7 +827,6 @@ def plot_category_summary(quality_data, month, dekad,
     ax.set_xticklabels(_CAT_NAMES)
     ax.legend()
     ax.grid(True, axis="y", alpha=0.3)
-    plt.tight_layout()
 
     if interactive:
         hdr = f"{'Method':<12}  {'Poor':>8}  {'Fair':>8}  {'Good':>8}  {'Excellent':>10}  {'Total':>10}"
@@ -661,7 +885,7 @@ def plot_component_boxplots(quality_data, month, dekad,
     )
 
     if _use_sns:
-        fig, ax = plt.subplots(figsize=(12, 6))
+        fig, ax = plt.subplots(figsize=(12, 6), constrained_layout=True)
         sns.boxplot(
             data=df, x="Component", y="Score", hue="Method",
             ax=ax, palette="Set2", fliersize=1, linewidth=0.8,
@@ -677,6 +901,7 @@ def plot_component_boxplots(quality_data, month, dekad,
         n_comp = len(COMPONENT_VARS)
         fig, axes = plt.subplots(
             1, n_comp, figsize=(4 * n_comp, 6), squeeze=False,
+            constrained_layout=True,
         )
         axes = axes.flatten()
         for c_idx, (_, var_label) in enumerate(COMPONENT_VARS):
@@ -694,7 +919,6 @@ def plot_component_boxplots(quality_data, month, dekad,
             ax.grid(True, axis="y", alpha=0.3)
         fig.suptitle(title, fontsize=13, fontweight="bold")
 
-    plt.tight_layout()
     _finish_fig(fig, output_dir, "component_boxplots", quality_prefix,
                 month_str, dekad_str, interactive)
     return fig
@@ -781,15 +1005,23 @@ def run_qa_batch_viz(quality_prefix="qualitysd", output_dir=None,
             except Exception as exc:
                 logger.warning("  %s / %s failed: %s", tag, plot_type, exc)
 
-        # Close datasets to free memory
+        # Release everything tied to this period before moving to the next.
+        # Closing the NetCDF releases the OS file handle; del + gc.collect()
+        # releases the in-memory data arrays; plt.close('all') drops any
+        # straggling matplotlib figures from the registry. Without this, the
+        # batch slowly accumulates RAM and OOMs Colab around period ~30.
         for ds in qdata.values():
             ds.close()
+        qdata.clear()
+        del qdata
+        plt.close('all')
+        gc.collect()
 
         summary[(month, dekad)] = period_info
         n_saved += 1
         if progress:
             n_plots = len(_PLOT_FUNCTIONS)
-            print(f"{tag} -- {len(qdata)} method(s), {n_plots} plots")
+            print(f"{tag} -- {len(_METHOD_ABBR)} method(s), {n_plots} plots")
 
     if progress:
         print(f"\nBatch complete: {n_saved} periods exported, "
@@ -958,7 +1190,7 @@ def plot_station_metric_maps(metrics_df, station_df, month, dekad,
         loc_info = loc_info.set_index("ID_WMO")
         viz_data = viz_data.join(loc_info, how="left")
 
-    fig, axes = plt.subplots(2, 3, figsize=(18, 10))
+    fig, axes = plt.subplots(2, 3, figsize=(18, 10), constrained_layout=True)
     display_name = TITLES_MAP.get(method_name, method_name)
     fig.suptitle(
         f"Station Validation Metrics: {display_name}\n"
@@ -984,9 +1216,9 @@ def plot_station_metric_maps(metrics_df, station_df, month, dekad,
         ax.set_title(title)
         ax.set_aspect("equal")
         ax.grid(True, alpha=0.3)
+        _add_boundaries(ax)
         plt.colorbar(sc, ax=ax, shrink=0.7)
 
-    plt.tight_layout()
     return _finish_fig(fig, output_dir, "metric_maps",
                        "station_validation", month_str, dekad_str,
                        interactive, method_name=method_name)
@@ -1023,7 +1255,7 @@ def plot_multi_threshold_curves(all_mt_summaries, month, dekad,
         return None
 
     # ---- Panel 1: performance curves (2 × 3) ----
-    fig, axes = plt.subplots(2, 3, figsize=(18, 10))
+    fig, axes = plt.subplots(2, 3, figsize=(18, 10), constrained_layout=True)
     fig.suptitle(
         "WMO Multi-Threshold Verification Performance Curves\n"
         f"Month {month}, Dekad {dekad} (WMO/TD-No. 1485)",
@@ -1073,12 +1305,11 @@ def plot_multi_threshold_curves(all_mt_summaries, month, dekad,
         ax.grid(True, alpha=0.3)
         ax.legend(fontsize=8, loc="best")
 
-    plt.tight_layout()
     _finish_fig(fig, output_dir, "threshold_curves",
                 "station_validation", month_str, dekad_str, interactive)
 
     # ---- Panel 2: exceedance frequency ----
-    fig2, ax2 = plt.subplots(figsize=(10, 6))
+    fig2, ax2 = plt.subplots(figsize=(10, 6), constrained_layout=True)
     fig2.suptitle(
         "Exceedance Frequency: Observed vs Product\n"
         f"Month {month}, Dekad {dekad}",
@@ -1099,7 +1330,7 @@ def plot_multi_threshold_curves(all_mt_summaries, month, dekad,
         ax2.bar(x_pos + i * bar_width, prd_freq, bar_width,
                 label=f"{method_name} (product)", color=color, alpha=0.7)
 
-    # Observed frequency (same for all methods — plot once)
+    # Observed frequency (same for all methods - plot once)
     first_summary = next(iter(all_mt_summaries.values()))
     obs_freq = [
         first_summary.loc[t, "freq_obs_median"]
@@ -1117,7 +1348,6 @@ def plot_multi_threshold_curves(all_mt_summaries, month, dekad,
     ax2.set_xticklabels([f"{t} mm" for t in WMO_THRESHOLDS])
     ax2.legend(fontsize=9)
     ax2.grid(True, alpha=0.3, axis="y")
-    plt.tight_layout()
     _finish_fig(fig2, output_dir, "exceedance_frequency",
                 "station_validation", month_str, dekad_str, interactive)
 
@@ -1163,7 +1393,8 @@ def plot_regional_boxplots(regional_df, month, dekad,
         return None
 
     fig, axes = plt.subplots(1, len(available),
-                             figsize=(5 * len(available), 6))
+                             figsize=(5 * len(available), 6),
+                             constrained_layout=True)
     if len(available) == 1:
         axes = [axes]
 
@@ -1196,7 +1427,6 @@ def plot_regional_boxplots(regional_df, month, dekad,
         f"Month {month}, Dekad {dekad}",
         fontsize=13, fontweight="bold",
     )
-    plt.tight_layout()
     plot_type = f"regional_{group_col.lower()}"
     return _finish_fig(fig, output_dir, plot_type,
                        "station_validation", month_str, dekad_str,
@@ -1346,6 +1576,26 @@ def run_station_validation_batch_viz(output_dir=None, config=None,
             n_skipped += 1
             if progress:
                 print(f"  {tag} -- FAILED: {exc}")
+
+        # End-of-iteration cleanup: drop per-period DataFrames and figures
+        # before the next period loads. The 2 x 3 metric map figures hold
+        # substantial matplotlib state that plt.close('all') releases, and
+        # the loaded CSV DataFrames are dropped via explicit del so the
+        # previous period's data does not linger past gc.collect().
+        try:
+            del all_metrics
+        except (NameError, UnboundLocalError):
+            pass
+        try:
+            del all_mt_summaries
+        except (NameError, UnboundLocalError):
+            pass
+        try:
+            del regional_df
+        except (NameError, UnboundLocalError):
+            pass
+        plt.close('all')
+        gc.collect()
 
     if progress:
         print(f"\nStation validation batch complete: {n_saved} periods "
@@ -1848,7 +2098,7 @@ def plot_qa_station_bars(quality_data, station_df, month, dekad,
     ax.grid(True, alpha=0.3, axis="x")
 
     display = TITLES_MAP.get(best, best)
-    region_label = f" — {region_filter}" if region_filter else ""
+    region_label = f" - {region_filter}" if region_filter else ""
     ax.set_title(
         f"QA CQI per Station: {display}{region_label}\n"
         f"Month {month}, Dekad {dekad} ({quality_prefix})",
@@ -1937,7 +2187,7 @@ def run_qa_regional_batch_viz(quality_prefix="qualitysd", output_dir=None,
         qa_ext = _extract_qa_from_datasets(qdata, station_df)
         methods_available = list(qa_ext.keys()) if qa_ext else []
 
-        # 2. Component box plots by region — ALL methods
+        # 2. Component box plots by region - ALL methods
         for method in methods_available:
             try:
                 plot_qa_component_by_region(
@@ -1949,7 +2199,7 @@ def run_qa_regional_batch_viz(quality_prefix="qualitysd", output_dir=None,
                 logger.warning("  %s / qa_component_region/%s failed: %s",
                                tag, method, exc)
 
-        # 3. Province bars — ALL methods
+        # 3. Province bars - ALL methods
         for method in methods_available:
             try:
                 plot_qa_province_bars(
@@ -1961,7 +2211,7 @@ def run_qa_regional_batch_viz(quality_prefix="qualitysd", output_dir=None,
                 logger.warning("  %s / qa_province/%s failed: %s",
                                tag, method, exc)
 
-        # 4. Per-station bars (one figure per region) — ALL methods
+        # 4. Per-station bars (one figure per region) - ALL methods
         n_stations_total = 0
         for method in methods_available:
             for region in island_order:
@@ -1981,9 +2231,16 @@ def run_qa_regional_batch_viz(quality_prefix="qualitysd", output_dir=None,
             n_stations_total = len(next(iter(qa_ext.values())))
         period_info["n_stations"] = n_stations_total
 
-        # Close datasets
+        # Release per-period state before moving to the next iteration.
+        # See run_qa_batch_viz for rationale - without this, Colab OOMs on
+        # batch runs around period ~30.
         for ds in qdata.values():
             ds.close()
+        qdata.clear()
+        del qdata
+        qa_ext = None
+        plt.close('all')
+        gc.collect()
 
         summary[(month, dekad)] = period_info
         n_saved += 1

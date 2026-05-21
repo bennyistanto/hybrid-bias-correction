@@ -1,25 +1,21 @@
 # =============================================================================
-# Hybrid Bias Correction (LSEQM+DL) — Conda/Mamba Environment
+# Hybrid Bias Correction - Conda/Mamba Environment
 # =============================================================================
 #
-# ---- Option A: Create a new environment (fresh setup) ----
+# Create a new environment:
 #   mamba env create -f environment.yml
-#   mamba activate lseqmdl
+#   mamba activate climate
 #
-# ---- Option B: Install into your existing active environment ----
-#   mamba activate <your-env>
-#   mamba env update --name <your-env> --file environment.yml
-#
-# ---- Update an existing environment after changes ----
+# Update an existing 'climate' env after changes:
 #   mamba env update -f environment.yml --prune
 #
-# ---- Register as Jupyter kernel (run once) ----
-#   python -m ipykernel install --user --name <env-name> --display-name "Python (<env-name>)"
+# Register as Jupyter kernel (once):
+#   python -m ipykernel install --user --name climate --display-name "Python (climate)"
 #
-# Tested with Python 3.10–3.12 (recommended: 3.12)
+# Tested with Python 3.10-3.12 (recommended: 3.12).
 # =============================================================================
 
-name: lseqmdl
+name: climate
 
 channels:
   - conda-forge
@@ -27,105 +23,92 @@ channels:
 
 dependencies:
   # -------------------------------------------------------------------------
-  # Python version
+  # Python
   # -------------------------------------------------------------------------
-  - python>=3.10,<3.13        # TensorFlow 2.19 supports 3.9–3.13; 3.12 recommended
+  - python>=3.10,<3.13
 
   # -------------------------------------------------------------------------
   # Core scientific stack
   # -------------------------------------------------------------------------
-  - numpy>=1.24               # Array operations, numerical computing
-  - scipy>=1.10               # Gamma/GPD distribution fitting, statistical tests
-  - pandas>=2.0               # Time series handling, DataFrame operations
-  - xarray>=2023.1            # Labeled multi-dimensional arrays for NetCDF data
-  - dask>=2023.1              # Parallel/chunked computation for large xarray datasets
+  - numpy>=1.24
+  - scipy>=1.10
+  - pandas>=2.0
+  - xarray>=2023.1
+  - dask>=2023.1
 
   # -------------------------------------------------------------------------
   # NetCDF / climate data I/O
   # -------------------------------------------------------------------------
-  - netcdf4>=1.6              # Engine for reading/writing NetCDF4/HDF5 files
-  - h5netcdf>=1.1             # Alternative lightweight NetCDF4 engine (HDF5-based)
-  - cfgrib>=0.9               # GRIB file support via xarray (ECMWF/reanalysis data)
-  - pyyaml>=6.0               # Configuration file parsing (config.yml)
-  - cftime>=1.6               # CF-compliant time handling for climate calendar types
+  - netcdf4>=1.6
+  - h5netcdf>=1.1
+  - cfgrib>=0.9
+  - pyyaml>=6.0
+  - cftime>=1.6
 
   # -------------------------------------------------------------------------
   # Geospatial data processing
   # -------------------------------------------------------------------------
-  - rasterio>=1.3             # Read/write geospatial raster data (GeoTIFF, etc.)
-  - geopandas>=0.13           # Spatial DataFrames for vector data (shapefiles, GeoJSON)
-  - shapely>=2.0              # Geometric operations (point-in-polygon, intersections)
-  - fiona>=1.9                # Vector file I/O backend for geopandas
-  - pyproj>=3.5               # Coordinate reference system transformations
-  - regionmask>=0.10          # Create geographic masks from shapefiles for xarray grids
+  - rasterio>=1.3
+  - geopandas>=0.13
+  - shapely>=2.0
+  - fiona>=1.9
+  - pyproj>=3.5
+  - regionmask>=0.10
 
   # -------------------------------------------------------------------------
-  # Regridding and spatial analysis
+  # Regridding (xesmf needs ESMPy, only on conda-forge)
   # -------------------------------------------------------------------------
-  # xesmf requires ESMPy which is only available via conda-forge (not pip).
-  - xesmf>=0.8                # Conservative/bilinear regridding for xarray
-  - esmpy>=8.4                # Earth System Modeling Framework Python interface
+  - xesmf>=0.8
+  - esmpy>=8.4
 
   # -------------------------------------------------------------------------
   # Machine learning
   # -------------------------------------------------------------------------
-  - scikit-learn>=1.2         # KFold cross-validation for GPD threshold selection
+  - scikit-learn>=1.2
 
   # -------------------------------------------------------------------------
-  # Deep Learning
+  # Deep Learning (only needed for the CNN refinement step)
   # -------------------------------------------------------------------------
-  # TensorFlow is ONLY required for the DL refinement step (Step 7–8).
-  # The LS + EQM bias correction pipeline works without it.
-  # Comment out the line below to skip TensorFlow installation.
-  #
-  # WSL users: if you get "cannot enable executable stack" errors after
-  # installing, see the troubleshooting section in requirements.txt.
-  - tensorflow>=2.16          # CNN model for extreme value refinement
+  # Comment out the next line to skip TensorFlow.
+  - tensorflow>=2.16
 
   # -------------------------------------------------------------------------
   # Visualization
   # -------------------------------------------------------------------------
-  - matplotlib>=3.7           # Core plotting library
-  - cartopy>=0.22             # Map projections, coastlines, country borders
-  - seaborn>=0.12             # Statistical visualizations (heatmaps, distributions)
-  - bokeh>=3,<4               # Interactive plots (hover, zoom, pan)
-  - cmocean>=3.0              # Perceptually-uniform colormaps for climate data
+  - matplotlib>=3.7
+  - cartopy>=0.22
+  - seaborn>=0.12
+  - bokeh>=3,<4
+  - cmocean>=3.0
 
   # -------------------------------------------------------------------------
-  # Climate/NetCDF command-line tools
+  # NetCDF CLI tools (Python wrappers via conda)
   # -------------------------------------------------------------------------
-  # These are CLI tools (not Python libraries) — conda is the best way to
-  # install them. Uncomment if needed for preprocessing.
-  - nco                     # NetCDF Operators (ncks, ncea, ncra, etc.)
-  # - cdo                     # Climate Data Operators (remap, mergetime, etc.)
+  - nco                       # NetCDF Operators
+  # - cdo                     # Climate Data Operators (Linux/macOS only)
 
   # -------------------------------------------------------------------------
-  # Jupyter ecosystem
+  # Jupyter (minimal - just what's needed to run the notebooks)
   # -------------------------------------------------------------------------
-  # Core interfaces
-  - jupyterlab>=4.0           # JupyterLab IDE (includes TOC sidebar built-in since v4)
-  - notebook>=7.0             # Classic Notebook interface (v7 shares JupyterLab core)
-  - ipykernel>=6.0            # Register conda envs as Jupyter kernels
-
-  # Widgets and rich display
-  - ipywidgets>=8.0           # Interactive widgets (sliders, progress bars, dropdowns)
-  # Note: jupyterlab_widgets is auto-installed as a dependency of ipywidgets.
-  # On conda-forge it only goes up to 1.1.1 — do NOT pin >=3.0.
-  - nbformat>=5.9             # Notebook file format (read/write .ipynb programmatically)
-  - nbconvert>=7.0            # Export notebooks to HTML, PDF, LaTeX, slides
-
-  # Productivity extensions
-  - tqdm>=4.65                # Progress bars for loops (auto-detects notebook vs terminal)
-  - jupyterlab-git>=0.50      # Git integration sidebar for JupyterLab
-  - jupyterlab-lsp>=5.0       # Language Server Protocol (autocomplete, hover docs)
-  - python-lsp-server>=1.9    # Python backend for LSP extension
+  # Productivity tools (jupyterlab-git, jupyterlab-lsp, python-lsp-server,
+  # jupyter-contrib-nbextensions) are intentionally not here. Install them
+  # via the [dev] extras in pyproject.toml if you want them:
+  #   pip install -e ".[dev]"
+  - jupyterlab>=4.0
+  - notebook>=7.0
+  - ipykernel>=6.0
+  - ipywidgets>=8.0
+  - nbformat>=5.9
+  - nbconvert>=7.0
+  - tqdm>=4.65
 
   # -------------------------------------------------------------------------
-  # pip-only packages
+  # Documentation extras (Quarto site auto-API)
   # -------------------------------------------------------------------------
-  # These packages are not available on conda-forge.
+  # Quarto itself is a separate binary install (https://quarto.org).
+  # These two are the Python side: griffe pinned <1.0 for quartodoc 0.11
+  # compatibility (see docs/changelog.qmd).
   - pip
   - pip:
-      - jupyter-contrib-nbextensions   # Community notebook extensions collection
-      # nbviewer is a server-side tool that pulls in pylibmc (requires C compiler).
-      # To view notebooks as HTML locally, use: jupyter nbconvert --to html notebook.ipynb
+      - quartodoc>=0.11,<0.12
+      - griffe<1.0

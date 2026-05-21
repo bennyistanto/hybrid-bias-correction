@@ -23,8 +23,9 @@ and io.py (save_corrected_precip).
 
 **Author**:
   Benny Istanto
-  - Geospatial Operations Support Team, DEC Data Group, The World Bank, United States. Email: bistanto@worldbank.org
-  - Applied Climatology Study Program, Bogor Agricultural University, Indonesia. Email: bennyistanto@ipb.ac.id
+  Applied Climatology Study Program, Department of Geophysics and Meteorology,
+  Bogor Agricultural University, Indonesia
+  Email: bennyistanto@apps.ipb.ac.id
 
   with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
@@ -186,7 +187,7 @@ def compute_confidence_map(station_counts,
     Steps:
     1. Apply Gaussian smoothing to the count grid to prevent hard cell-boundary
        artifacts. With sigma=1.0 at 0.5° resolution, the e-folding distance
-       is approximately 55 km — one neighboring cell in each direction.
+       is approximately 55 km - one neighboring cell in each direction.
     2. Normalize: confidence = min(count_smooth / saturation_count, 1.0).
        A saturation_count of 3 means that 3 or more (smoothed) stations
        produce full confidence (1.0).
@@ -378,7 +379,7 @@ def save_confidence_mask(confidence_mask, output_file):
         attrs={
             'Conventions': 'CF-1.8',
             'title': 'CPC-UNI Station Density Confidence Mask',
-            'institution': 'Bogor Agricultural University / The World Bank',
+            'institution': 'Bogor Agricultural University',
             'source': 'BMKG weather station locations',
             'comment': (
                 'Confidence mask based on gauge station density at CPC-UNI '

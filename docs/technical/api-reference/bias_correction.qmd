@@ -1,0 +1,140 @@
+# bias_correction { #src.bias_correction }
+
+`bias_correction`
+
+Module: bias_correction.py
+
+This module provides the high-level bias correction workflow for daily precipitation data.
+It combines Linear Scaling (LS) and Empirical Quantile Mapping (EQM) with GPD tail adjustment
+to correct bias in IMERG data using CPC data as reference.
+
+The main function, lseqm, performs the following steps:
+  1. Validates input datasets.
+  2. Aggregates multi-year IMERG and CPC data for the specified dekad.
+  3. Aligns the aggregated datasets.
+  4. Applies LS by scaling the IMERG data with the ratio of CPC to IMERG means.
+  5. Applies EQM via gamma quantile mapping with GPD tail adjustment.
+  6. Saves intermediate LS and LSEQM products if requested.
+  7. Returns the LSEQM-corrected data along with the CPC dekad data
+     (needed as training target for the optional DL refinement step).
+
+The Deep Learning (DL) refinement is handled separately in deep_learning.py.
+This two-step design eliminates domain shift: the DL model is trained on
+LSEQM-corrected data (not raw IMERG), matching what it receives at inference.
+
+**Author**:
+  Benny Istanto
+  Applied Climatology Study Program, Department of Geophysics and Meteorology,
+  Bogor Agricultural University, Indonesia
+  Email: bennyistanto@apps.ipb.ac.id
+
+  with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
+
+Update: 2026.03
+
+## Functions
+
+| Name | Description |
+| --- | --- |
+| [lseqm](#src.bias_correction.lseqm) | Apply Linear Scaling (LS) and Empirical Quantile Mapping (EQM) with GPD tail |
+| [run_correction_pipeline](#src.bias_correction.run_correction_pipeline) | Run the full LS → LSEQM → LSEQMDL pipeline for one month/dekad period. |
+
+### lseqm { #src.bias_correction.lseqm }
+
+```python
+bias_correction.lseqm(
+    imerg_ds,
+    cpc_ds,
+    month,
+    dekad_start_day,
+    dekad_end_day,
+    save_ls_result=True,
+    save_lseqm_result=True,
+    month_str=None,
+    dekad_str=None,
+    ls_corrected_precip_path=None,
+    lseqm_corrected_precip_path=None,
+    cpc_native_ds=None,
+)
+```
+
+Apply Linear Scaling (LS) and Empirical Quantile Mapping (EQM) with GPD tail
+adjustment for bias correction of daily precipitation data, using data aggregated
+across years for the specified dekad.
+
+This is Step 1 of the two-step workflow. The returned LSEQM result and CPC dekad
+data can be passed to train_bias_correction_model() and apply_deeplearning_model()
+for the optional DL refinement (Step 2).
+
+#### Parameters: {.doc-section .doc-section-parameters}
+
+imerg_ds : xarray.Dataset
+    IMERG precipitation dataset with dimensions ('time', 'lat', 'lon').
+cpc_ds : xarray.Dataset
+    CPC precipitation dataset with dimensions ('time', 'lat', 'lon'),
+    already aligned (reindexed) to the IMERG grid.
+month : int
+    The month number (1-12) for which the dekad is specified.
+dekad_start_day : int
+    Start day of the dekad (e.g., 1, 11, 21).
+dekad_end_day : int
+    End day of the dekad (e.g., 10, 20, last day of month).
+save_ls_result : bool, optional
+    If True, saves the Linear Scaling (LS) corrected precipitation data. Default is True.
+save_lseqm_result : bool, optional
+    If True, saves the LSEQM corrected precipitation data. Default is True.
+month_str : str, optional
+    Two-digit string representing the month (e.g., '01', '02', ..., '12').
+dekad_str : str, optional
+    String representing the dekad (e.g., '01', '11', '21').
+ls_corrected_precip_path : str, optional
+    Directory where LS-corrected data will be saved.
+lseqm_corrected_precip_path : str, optional
+    Directory where LSEQM-corrected data will be saved.
+cpc_native_ds : xarray.Dataset, optional
+    CPC dataset at native ~0.5° resolution (before regridding). When provided,
+    CPC distribution parameters are fitted at native resolution and bilinearly
+    interpolated to the IMERG grid, eliminating the 0.5° block boundary artefact.
+    When None, the original per-pixel fitting is used (backward compatible).
+
+#### Returns: {.doc-section .doc-section-returns}
+
+tuple of (xarray.DataArray, xarray.DataArray)
+    (lseqm_corrected_precip, cpc_dekad_data)
+    The LSEQM-corrected precipitation and the aggregated CPC dekad data.
+    The CPC dekad data is returned so it can be used as the training target
+    for the DL refinement step.
+
+### run_correction_pipeline { #src.bias_correction.run_correction_pipeline }
+
+```python
+bias_correction.run_correction_pipeline(
+    imerg_ds,
+    cpc_ds_aligned,
+    month,
+    dekad,
+    cpc_native_ds=None,
+)
+```
+
+Run the full LS → LSEQM → LSEQMDL pipeline for one month/dekad period.
+
+This wraps Steps 7–10 of notebook 02 into a single callable, designed
+for batch processing where ``interactive=False`` is used so that existing
+DL models are reloaded silently without prompting.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name           | Type                                           | Description                                                                                                                                                                                                               | Default    |
+|----------------|------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| imerg_ds       | [xarray](`xarray`).[Dataset](`xarray.Dataset`) | Full IMERG precipitation dataset (all years, all months).                                                                                                                                                                 | _required_ |
+| cpc_ds_aligned | [xarray](`xarray`).[Dataset](`xarray.Dataset`) | CPC dataset already aligned (reindexed) to the IMERG grid.                                                                                                                                                                | _required_ |
+| month          | [int](`int`)                                   | Month number (1–12).                                                                                                                                                                                                      | _required_ |
+| dekad          | [int](`int`)                                   | Dekad number (1, 2, or 3).                                                                                                                                                                                                | _required_ |
+| cpc_native_ds  | [xarray](`xarray`).[Dataset](`xarray.Dataset`) | CPC dataset at native ~0.5° resolution (before regridding). When provided, enables native-resolution CPC parameter fitting to eliminate the 0.5° block boundary artefact. When None, uses the original per-pixel fitting. | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type         | Description                                      |
+|--------|--------------|--------------------------------------------------|
+|        | [str](`str`) | Path to the saved LSEQMDL-corrected NetCDF file. |

@@ -1,11 +1,44 @@
 cff-version: 1.2.0
-message: "Country borders or names do not necessarily reflect the World Bank Group’s official position. All maps are for illustrative purposes and do not imply the expression of any opinion on the part of the World Bank, concerning the legal status of any country or territory or concerning the delimitation of frontiers or boundaries."
-title: "World Bank Data Lab Project Template"
+message: "If you use this software, please cite it using the metadata below."
+title: "Hybrid Bias Correction: Values, Distributions, Extremes - with Neural Refinement"
+abstract: >
+  A reproducible Python framework for daily satellite precipitation bias
+  correction. Combines Linear Scaling (mean adjustment), Empirical Quantile
+  Mapping with a Generalized Pareto tail (distribution and extreme alignment),
+  and a lightweight CNN refinement gated by station-density confidence.
+  Operationally tested over Indonesia (2001-2025) on the 0.1 deg IMERG grid.
+type: software
 authors:
-  - affiliation: World Bank
-    family-names: Stefanini Vicente
-    given-names: Gabriel
-    orcid: https://orcid.org/0000-0001-6530-3780
+  - family-names: Istanto
+    given-names: Benny
+    email: bennyistanto@apps.ipb.ac.id
+    affiliation: "Applied Climatology Study Program, Department of Geophysics and Meteorology, Bogor Agricultural University"
 keywords:
-  - Open Science
-repository-code: https://github.com/worldbank/template/tree/main
+  - precipitation
+  - bias correction
+  - quantile mapping
+  - generalized pareto distribution
+  - deep learning
+  - convolutional neural network
+  - IMERG
+  - CPC-UNI
+  - Indonesia
+  - tropical hydrology
+  - reproducible research
+license: MPL-2.0
+repository-code: "https://github.com/bennyistanto/hybrid-bias-correction"
+url: "https://bennyistanto.github.io/hybrid-bias-correction"
+version: "v2026.05"
+date-released: "2026-05-21"
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.20287847
+    description: "Full Indonesia input and output bundle on Zenodo (2001-2025)"
+references:
+  - type: data
+    title: "Hybrid Bias Correction: Indonesia input and output bundle (2001-2025)"
+    authors:
+      - family-names: Istanto
+        given-names: Benny
+    doi: 10.5281/zenodo.20287847
+    url: "https://zenodo.org/records/20287847"

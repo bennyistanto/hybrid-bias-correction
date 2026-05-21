@@ -1,0 +1,95 @@
+---
+title: "Configuration"
+description: "How config.yml drives every parameter and path in the framework."
+---
+
+The entire framework is driven by a single YAML file. There are two reference configurations in the repo:
+
+- [`config.yml`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/config.yml) - Indonesia operational config (95-141 E, -11 to 6 N)
+- [`config_bali.yml`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/config_bali.yml) - Bali example config (used by the tutorials)
+
+Loading a config:
+
+```python
+from src.config import initialize_config
+config = initialize_config('config_bali.yml')
+```
+
+`initialize_config` resolves `{main_dir}`, `{input_dir}`, and `{output_dir}` placeholders, then exposes the resolved values as module-level attributes on `src.config`.
+
+## Sections at a glance
+
+| Section | Drives |
+|---------|--------|
+| `general.filename_prefix` | Every output filename (e.g. `idn_cli_` vs `bali_cli_`) |
+| `aoi` | Spatial bounding box used by plotting and the confidence mask |
+| `directories` | Resolves `{main_dir}` / `{input_dir}` / `{output_dir}` for the host machine |
+| `input_files` | Paths to IMERG-L, IMERG-F, CPC-UNI (0.1 deg), CPC-UNI native (0.5 deg), and the land mask |
+| `variable_names` | NetCDF variable names inside those files |
+| `output_dirs` | Where corrected products, trained models, metrics, and QA outputs land |
+| `statistical_params` | GPD threshold, K-Fold splits, upper cap |
+| `deep_learning` | CNN epochs, batch size, dropout, blend alpha |
+| `station_density` | Confidence mask toggle, saturation count, smoothing sigma |
+| `station_validation` | BMKG station file paths, missing-data sentinel, minimum valid days |
+| `region_mapping` | Province-to-island grouping for regional Taylor diagrams |
+| `metrics` | Wet-day threshold for categorical metrics |
+| `quality_assessment` | CQI component weights and categorical thresholds |
+| `visualisation` | Map extent padding, admin boundary overlay (shapefile list + Natural Earth fallback) |
+| `runtime` | Interactive vs batch mode, behavior when outputs already exist |
+| `netcdf_encoding` | CF-compliant output encoding (float32, zlib) |
+
+## Switching between Indonesia and Bali (the CONFIG_FILE toggle)
+
+Every notebook from nb02 onward exposes the same one-line toggle at the top of its Step 1 setup cell:
+
+```python
+# ===========================================================================
+# AOI config selector
+#   'config.yml'      -> full Indonesia (Zenodo input/output bundle)
+#   'config_bali.yml' -> Bali example (ships with the repo, ~11 MB)
+# Edit this single line to switch the entire pipeline between the two.
+# ===========================================================================
+CONFIG_FILE = 'config_bali.yml'
+```
+
+Flipping the entire run from Indonesia to Bali (or vice versa) is a single character edit per notebook. Keep all five notebooks (nb02-nb06) on the same value when you switch.
+
+## Visualisation block (boundaries + map margins)
+
+A new `visualisation:` section drives all map plots. Two knobs:
+
+```yaml
+visualisation:
+  # Padding (degrees) added to each side of the AOI when drawing map axes,
+  # so coastline / boundary outlines have breathing room at the edges.
+  map_extent_pad: 0.1
+
+  # Directory of admin boundary shapefiles (any GeoPandas-readable format).
+  # Drawn in YAML order: first listed = bottom layer (thinnest);
+  # last listed = top layer (thickest). Comment out a line to disable a
+  # layer. Remove the whole `boundaries:` list to fall back to cartopy
+  # Natural Earth automatically.
+  boundary_dir: "{main_dir}/data/subset/bnd"
+  boundaries:
+    - {file: "idn_bnd_adm2.shp", linewidth: 0.3, edgecolor: "gray",    alpha: 0.6}
+    - {file: "idn_bnd_adm1.shp", linewidth: 0.6, edgecolor: "dimgray", alpha: 0.9}
+    - {file: "idn_bnd_adm0.shp", linewidth: 1.2, edgecolor: "black",   alpha: 1.0}
+```
+
+The framework caches polygon line segments on first use, clipped to the AOI, so the cost is bounded regardless of how many map panels you generate.
+
+## Sensitivity parameters (acknowledge, do not silently tune)
+
+Three parameters are known to be influential and were not formally optimized in the companion paper. If you change them, say so when reporting results:
+
+| Parameter | Default | Effect |
+|-----------|---------|--------|
+| `deep_learning.blend_alpha` | 0.70 | Mixing weight between LSEQM and the CNN output at full confidence |
+| `statistical_params.gpd_threshold_percentile` | 80 | Percentile above which the GPD tail takes over from the gamma body |
+| `station_density.saturation_count` | 2-3 | Smoothed station count at which the confidence mask saturates to 1.0 |
+
+For a discussion of how these were chosen, see [Methodology > GPD Tail](../methodology/gpd-tail.qmd) and [Methodology > Confidence Mask](../methodology/confidence-mask.qmd).
+
+## Adapting to a new region
+
+The shortest path is to copy `config_bali.yml`, change the `aoi`, swap the `input_files` paths, update the `region_mapping`, and you are running. Detailed recipe in the [User Guide](../user-guide/aoi-setup.qmd).

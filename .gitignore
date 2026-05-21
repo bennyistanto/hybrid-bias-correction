@@ -29,6 +29,8 @@ docs/_legacy/
 _site/
 docs/.quarto/
 docs/_freeze/
+docs/objects.json
+docs/_inv/
 docs/_build/
 _build/
 
@@ -131,3 +133,4 @@ coverage.xml
 # Claude Code session state (not the rules file)
 # ---------------------------------------------------------------------------
 .claude/
+CLAUDE.md

@@ -1,0 +1,383 @@
+# taylor_diagram { #src.taylor_diagram }
+
+`taylor_diagram`
+
+Module: taylor_diagram.py
+
+This module generates Taylor diagrams [Taylor, 2001] for evaluating
+bias-corrected precipitation products against independent BMKG weather
+station observations across Indonesia.
+
+Taylor diagrams simultaneously display three complementary statistics
+on a single polar plot: Pearson correlation (angular position), normalized
+standard deviation (radial distance), and centered RMSE (arc contours).
+A product that perfectly reproduces observed variability coincides with
+the reference point at correlation = 1.0 and normalized std = 1.0.
+
+The module supports four spatial aggregation levels:
+  1. Domain-wide -- all stations pooled into a single diagram.
+  2. By island group -- seven main Indonesian island regions.
+  3. By province -- one diagram per province (minimum station threshold).
+  4. By station -- individual station markers with aggregate overlay.
+
+Products compared: CPC-UNI, IMERG-L, IMERG-F, LS, LSEQM, LSEQM+DL.
+Reference: BMKG weather station daily observations (180 stations).
+
+The compute_all_taylor_stats function loops over all 36 dekadal periods,
+extracts gridded values at station locations, and accumulates running
+statistics via the _Accumulator class. This avoids loading all data
+into memory simultaneously. The generate_* functions then produce the
+polar plots from the accumulated statistics.
+
+**Author**:
+  Benny Istanto
+  Applied Climatology Study Program, Department of Geophysics and Meteorology,
+  Bogor Agricultural University, Indonesia
+  Email: bennyistanto@apps.ipb.ac.id
+
+  with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
+
+Update: 2026.03
+
+## Functions
+
+| Name | Description |
+| --- | --- |
+| [compute_all_taylor_stats](#src.taylor_diagram.compute_all_taylor_stats) | Compute Taylor statistics for all products at all stations. |
+| [generate_all_taylor_diagrams](#src.taylor_diagram.generate_all_taylor_diagrams) | Generate all Taylor diagram variants and save to disk. |
+| [generate_domain_taylor](#src.taylor_diagram.generate_domain_taylor) | Generate and save a domain-wide Taylor diagram. |
+| [generate_island_taylor](#src.taylor_diagram.generate_island_taylor) | Generate per-island Taylor diagrams in a multi-panel figure. |
+| [generate_per_dekad_taylor_diagrams](#src.taylor_diagram.generate_per_dekad_taylor_diagrams) | Generate Taylor diagrams evaluated at per-dekad resolution. |
+| [generate_province_taylor](#src.taylor_diagram.generate_province_taylor) | Generate per-province Taylor diagrams. |
+| [generate_station_taylor](#src.taylor_diagram.generate_station_taylor) | Generate station-level Taylor diagram. |
+| [plot_taylor_diagram](#src.taylor_diagram.plot_taylor_diagram) | Plot a Taylor diagram using PRODUCT_STYLES markers. |
+| [print_taylor_stats](#src.taylor_diagram.print_taylor_stats) | Print Taylor statistics as a formatted table. |
+| [save_dekad_taylor_stats_csv](#src.taylor_diagram.save_dekad_taylor_stats_csv) | Save per-station per-dekad Taylor statistics to CSV. |
+| [save_taylor_stats_csv](#src.taylor_diagram.save_taylor_stats_csv) | Save per-station Taylor statistics to CSV. |
+
+### compute_all_taylor_stats { #src.taylor_diagram.compute_all_taylor_stats }
+
+```python
+taylor_diagram.compute_all_taylor_stats(config=None, progress=True)
+```
+
+Compute Taylor statistics for all products at all stations.
+
+Loops over all 36 dekads, extracts gridded values at BMKG station
+locations, and accumulates running sums for on-the-fly computation
+of correlation, standard deviation, and RMSE.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name     | Type               | Description                                                    | Default   |
+|----------|--------------------|----------------------------------------------------------------|-----------|
+| config   | [module](`module`) | Configuration module (``src.config``).  If *None*, imports it. | `None`    |
+| progress | [bool](`bool`)     | Print progress messages to stdout.                             | `True`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name         | Type                                              | Description                                                                                                     |
+|--------------|---------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| acc          | [_Accumulator](`src.taylor_diagram._Accumulator`) | Per-station running sums for all products (pooled across dekads).                                               |
+| station_locs | [DataFrame](`DataFrame`)                          | Station metadata (``ID_WMO``, ``Lon``, ``Lat``, ``Province``, ``Region``).                                      |
+| acc_by_dekad | [dict](`dict`)                                    | Mapping ``{(month, dekad_start): _Accumulator}`` with separate running sums for each of the 36 dekadal periods. |
+
+### generate_all_taylor_diagrams { #src.taylor_diagram.generate_all_taylor_diagrams }
+
+```python
+taylor_diagram.generate_all_taylor_diagrams(config=None, output_dir=None)
+```
+
+Generate all Taylor diagram variants and save to disk.
+
+Generates both pooled-across-dekads and per-dekad diagrams.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type               | Description                                                     | Default   |
+|------------|--------------------|-----------------------------------------------------------------|-----------|
+| config     | [module](`module`) | Configuration module.  If *None*, imports ``src.config``.       | `None`    |
+| output_dir | [str](`str`)       | Output directory.  Defaults to ``{output_dir}/figures/taylor``. | `None`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name         | Type                                              | Description   |
+|--------------|---------------------------------------------------|---------------|
+| acc          | [_Accumulator](`src.taylor_diagram._Accumulator`) |               |
+| station_locs | [DataFrame](`DataFrame`)                          |               |
+| acc_by_dekad | [dict](`dict`)                                    |               |
+
+### generate_domain_taylor { #src.taylor_diagram.generate_domain_taylor }
+
+```python
+taylor_diagram.generate_domain_taylor(
+    acc,
+    station_locs,
+    output_dir=None,
+    diagram_label=None,
+    **plot_kwargs,
+)
+```
+
+Generate and save a domain-wide Taylor diagram.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name          | Type                                                                                                           | Description                                                 | Default    |
+|---------------|----------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|------------|
+| acc           | [_Accumulator](`src.taylor_diagram._Accumulator`) or [_DekadAggregator](`src.taylor_diagram._DekadAggregator`) |                                                             | _required_ |
+| station_locs  | [DataFrame](`DataFrame`)                                                                                       |                                                             | _required_ |
+| output_dir    | [str](`str`)                                                                                                   |                                                             | `None`     |
+| diagram_label | [str](`str`)                                                                                                   | Label suffix for title and filename (e.g. ``'per_dekad'``). | `None`     |
+| **plot_kwargs |                                                                                                                | Forwarded to :func:`plot_taylor_diagram`.                   | `{}`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type               | Description   |
+|--------|--------------------|---------------|
+| fig    | [Figure](`Figure`) |               |
+
+### generate_island_taylor { #src.taylor_diagram.generate_island_taylor }
+
+```python
+taylor_diagram.generate_island_taylor(
+    acc,
+    station_locs,
+    output_dir=None,
+    diagram_label=None,
+    **plot_kwargs,
+)
+```
+
+Generate per-island Taylor diagrams in a multi-panel figure.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name          | Type                                                                                                           | Description                                                    | Default    |
+|---------------|----------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------|------------|
+| acc           | [_Accumulator](`src.taylor_diagram._Accumulator`) or [_DekadAggregator](`src.taylor_diagram._DekadAggregator`) |                                                                | _required_ |
+| station_locs  | [DataFrame](`DataFrame`)                                                                                       |                                                                | _required_ |
+| output_dir    | [str](`str`)                                                                                                   |                                                                | `None`     |
+| diagram_label | [str](`str`)                                                                                                   | Label suffix for title and filename (e.g. ``'per_dekad'``).    | `None`     |
+| **plot_kwargs |                                                                                                                | Forwarded to :func:`plot_taylor_diagram` (except ``figsize``). | `{}`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                       | Description   |
+|--------|----------------------------|---------------|
+| fig    | [Figure](`Figure`) or None |               |
+
+### generate_per_dekad_taylor_diagrams { #src.taylor_diagram.generate_per_dekad_taylor_diagrams }
+
+```python
+taylor_diagram.generate_per_dekad_taylor_diagrams(
+    acc_by_dekad,
+    station_locs,
+    output_dir=None,
+    individual=True,
+    summary=True,
+)
+```
+
+Generate Taylor diagrams evaluated at per-dekad resolution.
+
+Two modes:
+
+* **Summary** (``summary=True``): one diagram per spatial level
+  showing the median across all 36 dekads.  Uses
+  :class:`_DekadAggregator`.
+
+* **Individual** (``individual=True``): one diagram per dekad per
+  spatial level, with ``_month{MM}_dekad{DD}`` in the filename.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type                     | Description                                           | Default    |
+|--------------|--------------------------|-------------------------------------------------------|------------|
+| acc_by_dekad | [dict](`dict`)           | Mapping ``{(month, dekad_start): _Accumulator}``.     | _required_ |
+| station_locs | [DataFrame](`DataFrame`) |                                                       | _required_ |
+| output_dir   | [str](`str`)             |                                                       | `None`     |
+| individual   | [bool](`bool`)           | Generate one diagram per dekad (36 × spatial-levels). | `True`     |
+| summary      | [bool](`bool`)           | Generate summary diagrams (median across dekads).     | `True`     |
+
+### generate_province_taylor { #src.taylor_diagram.generate_province_taylor }
+
+```python
+taylor_diagram.generate_province_taylor(
+    acc,
+    station_locs,
+    output_dir=None,
+    min_stations=3,
+    diagram_label=None,
+    **plot_kwargs,
+)
+```
+
+Generate per-province Taylor diagrams.
+
+Provinces with fewer than *min_stations* are skipped.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name          | Type                                                                                                           | Description                                                 | Default    |
+|---------------|----------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|------------|
+| acc           | [_Accumulator](`src.taylor_diagram._Accumulator`) or [_DekadAggregator](`src.taylor_diagram._DekadAggregator`) |                                                             | _required_ |
+| station_locs  | [DataFrame](`DataFrame`)                                                                                       |                                                             | _required_ |
+| output_dir    | [str](`str`)                                                                                                   |                                                             | `None`     |
+| min_stations  | [int](`int`)                                                                                                   | Minimum stations per province.                              | `3`        |
+| diagram_label | [str](`str`)                                                                                                   | Label suffix for title and filename (e.g. ``'per_dekad'``). | `None`     |
+| **plot_kwargs |                                                                                                                | Forwarded to :func:`plot_taylor_diagram`.                   | `{}`       |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                       | Description   |
+|--------|----------------------------|---------------|
+| fig    | [Figure](`Figure`) or None |               |
+
+### generate_station_taylor { #src.taylor_diagram.generate_station_taylor }
+
+```python
+taylor_diagram.generate_station_taylor(
+    acc,
+    station_locs,
+    output_dir=None,
+    products_to_show=None,
+    normalize=True,
+    max_std_ratio=2.0,
+    diagram_label=None,
+)
+```
+
+Generate station-level Taylor diagram.
+
+Individual station markers are shown as small semi-transparent
+points for each product, with median-of-per-station aggregates
+overlaid as larger opaque markers.  Each station is normalised
+by its own observation standard deviation so that stations with
+different climatologies contribute comparably.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name             | Type                                                                                                           | Description                                                 | Default    |
+|------------------|----------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------|------------|
+| acc              | [_Accumulator](`src.taylor_diagram._Accumulator`) or [_DekadAggregator](`src.taylor_diagram._DekadAggregator`) |                                                             | _required_ |
+| station_locs     | [DataFrame](`DataFrame`)                                                                                       |                                                             | _required_ |
+| output_dir       | [str](`str`)                                                                                                   |                                                             | `None`     |
+| products_to_show | list of str                                                                                                    |                                                             | `None`     |
+| normalize        | [bool](`bool`)                                                                                                 |                                                             | `True`     |
+| max_std_ratio    | [float](`float`)                                                                                               |                                                             | `2.0`      |
+| diagram_label    | [str](`str`)                                                                                                   | Label suffix for title and filename (e.g. ``'per_dekad'``). | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type               | Description   |
+|--------|--------------------|---------------|
+| fig    | [Figure](`Figure`) |               |
+
+#### Notes {.doc-section .doc-section-notes}
+
+Direct pooling (``acc.compute()``) mixes spatial and temporal
+variance: stations with different climates inflate the pooled
+variance and dilute the temporal correlation (Simpson's paradox).
+Individual stations may show corr 0.6--0.95, while the pooled
+correlation drops to ~0.3.  Using the median of per-station
+normalised statistics gives a representative *typical station*
+aggregate that is visually consistent with the scatter cloud.
+
+### plot_taylor_diagram { #src.taylor_diagram.plot_taylor_diagram }
+
+```python
+taylor_diagram.plot_taylor_diagram(
+    stats,
+    title=None,
+    normalize=True,
+    figsize=(8, 8),
+    ax=None,
+    max_std_ratio=2.0,
+    products_to_show=None,
+    legend=True,
+    **_ignored,
+)
+```
+
+Plot a Taylor diagram using PRODUCT_STYLES markers.
+
+Uses a custom polar grid (no external dependency).  Markers
+match :data:`PRODUCT_STYLES` exactly, so shared legends built
+with :func:`_product_legend_handles` are always consistent.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name             | Type                                                                                | Description                                                                                                          | Default    |
+|------------------|-------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------|------------|
+| stats            | list of dict                                                                        | Each dict must have ``key``, ``correlation``, ``std_obs``, ``std_prd``.                                              | _required_ |
+| title            | [str](`str`)                                                                        |                                                                                                                      | `None`     |
+| normalize        | [bool](`bool`)                                                                      | Divide all standard deviations by the reference std.                                                                 | `True`     |
+| figsize          | [tuple](`tuple`)                                                                    | Only used when *ax* is ``None``.                                                                                     | `(8, 8)`   |
+| ax               | [matplotlib](`matplotlib`).[axes](`matplotlib.axes`).[Axes](`matplotlib.axes.Axes`) | Existing **regular** (non-polar) axes for subplot usage. A polar axes is created at the same position automatically. | `None`     |
+| max_std_ratio    | [float](`float`)                                                                    | Upper limit for the radial axis.                                                                                     | `2.0`      |
+| products_to_show | list of str                                                                         | Restrict to these product keys.                                                                                      | `None`     |
+| legend           | [bool](`bool`)                                                                      | Add a legend (standalone mode only).                                                                                 | `True`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                       | Description   |
+|--------|----------------------------|---------------|
+|        | ([fig](`fig`), [ax](`ax`)) |               |
+
+### print_taylor_stats { #src.taylor_diagram.print_taylor_stats }
+
+```python
+taylor_diagram.print_taylor_stats(stats, title=None)
+```
+
+Print Taylor statistics as a formatted table.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type         | Description                           | Default    |
+|--------|--------------|---------------------------------------|------------|
+| stats  | list of dict | Output of ``_Accumulator.compute()``. | _required_ |
+| title  | [str](`str`) |                                       | `None`     |
+
+### save_dekad_taylor_stats_csv { #src.taylor_diagram.save_dekad_taylor_stats_csv }
+
+```python
+taylor_diagram.save_dekad_taylor_stats_csv(
+    acc_by_dekad,
+    station_locs,
+    output_file,
+)
+```
+
+Save per-station per-dekad Taylor statistics to CSV.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type                     | Description                                       | Default    |
+|--------------|--------------------------|---------------------------------------------------|------------|
+| acc_by_dekad | [dict](`dict`)           | Mapping ``{(month, dekad_start): _Accumulator}``. | _required_ |
+| station_locs | [DataFrame](`DataFrame`) |                                                   | _required_ |
+| output_file  | [str](`str`)             |                                                   | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                     | Description   |
+|--------|--------------------------|---------------|
+|        | [DataFrame](`DataFrame`) |               |
+
+### save_taylor_stats_csv { #src.taylor_diagram.save_taylor_stats_csv }
+
+```python
+taylor_diagram.save_taylor_stats_csv(acc, station_locs, output_file)
+```
+
+Save per-station Taylor statistics to CSV.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type                                              | Description   | Default    |
+|--------------|---------------------------------------------------|---------------|------------|
+| acc          | [_Accumulator](`src.taylor_diagram._Accumulator`) |               | _required_ |
+| station_locs | [DataFrame](`DataFrame`)                          |               | _required_ |
+| output_file  | [str](`str`)                                      |               | _required_ |

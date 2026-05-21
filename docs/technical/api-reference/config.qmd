@@ -1,0 +1,123 @@
+# config { #src.config }
+
+`config`
+
+Module: config.py
+
+This module defines the configuration for the Hybrid Bias Correction (LSEQM+DL) workflow.
+It loads settings from a YAML configuration file and provides them as module-level variables.
+
+Configuration is loaded via initialize_config(), which should be called once at startup
+(typically in the notebook or main script). If not called, default values are used.
+
+The configuration includes:
+- Directory settings for the main project, input data, and output locations.
+- Default input file paths for IMERG, CPC, and the land-sea mask.
+- Variable names for precipitation in each dataset.
+- Output directories and filename templates.
+- CF-compliant encoding settings for NetCDF outputs.
+- Statistical fitting and quantile mapping parameters (GPD, EQM).
+- Deep learning model training parameters.
+- Runtime settings (interactive mode, default actions for existing files).
+
+**Author**:
+  Benny Istanto
+  Applied Climatology Study Program, Department of Geophysics and Meteorology,
+  Bogor Agricultural University, Indonesia
+  Email: bennyistanto@apps.ipb.ac.id
+
+  with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
+
+Update: 2026.03
+
+## Functions
+
+| Name | Description |
+| --- | --- |
+| [find_project_root](#src.config.find_project_root) | Locate the project root using a **strong fingerprint**. |
+| [initialize_config](#src.config.initialize_config) | Load configuration from a YAML file and update module-level variables. |
+| [setup_logging](#src.config.setup_logging) | Configure logging so messages appear in Colab, Jupyter, and scripts. |
+
+### find_project_root { #src.config.find_project_root }
+
+```python
+config.find_project_root(extra_candidates=None)
+```
+
+Locate the project root using a **strong fingerprint**.
+
+A directory is accepted as the project root only when it contains
+ALL of the following (prevents false positives from unrelated projects):
+
+* ``src/__init__.py``
+* ``src/config.py``
+* ``config.yml`` **or** ``config.yaml``
+
+Works across Google Colab, WSL, Linux, macOS, and Windows without
+any hardcoded paths.  The search order is:
+
+1. Directory containing *this* file (``src/config.py`` → parent).
+2. Current working directory and its parent.
+3. ``extra_candidates`` supplied by the caller (if any).
+4. Google Drive deep scan (Colab only, up to 4 levels).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name             | Type        | Description                             | Default   |
+|------------------|-------------|-----------------------------------------|-----------|
+| extra_candidates | list of str | Additional directory paths to consider. | `None`    |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type         | Description                        |
+|--------|--------------|------------------------------------|
+|        | [str](`str`) | Absolute path to the project root. |
+
+### initialize_config { #src.config.initialize_config }
+
+```python
+config.initialize_config(config_path=None)
+```
+
+Load configuration from a YAML file and update module-level variables.
+
+This function should be called once at the start of your notebook or script.
+If config_path is None, it looks for config.yml (or config.yaml) in the
+project root directory.
+
+#### Parameters: {.doc-section .doc-section-parameters}
+
+config_path : str, optional
+    Path to the YAML configuration file. If None, searches for config.yml
+    then config.yaml in the project root (one level above src/).
+
+#### Returns: {.doc-section .doc-section-returns}
+
+dict
+    The loaded configuration dictionary.
+
+### setup_logging { #src.config.setup_logging }
+
+```python
+config.setup_logging(level=logging.INFO)
+```
+
+Configure logging so messages appear in Colab, Jupyter, and scripts.
+
+Google Colab's IPython kernel installs its own root-logger handler
+before user code runs, which silently swallows ``logging.basicConfig()``
+calls (because ``basicConfig`` is a no-op when handlers already exist).
+
+This function works around that by:
+
+* Using ``force=True`` (Python 3.8+) to replace any pre-existing config.
+* Attaching a ``StreamHandler(sys.stdout)`` so output lands in the
+  notebook cell, not in a hidden stderr stream.
+
+Safe to call multiple times - subsequent calls just reset the level.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type         | Description                               | Default        |
+|--------|--------------|-------------------------------------------|----------------|
+| level  | [int](`int`) | Logging level (default ``logging.INFO``). | `logging.INFO` |

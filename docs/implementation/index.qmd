@@ -1,0 +1,46 @@
+---
+title: "Implementation Overview"
+description: "How each methodological stage lives in code."
+---
+
+This section is the engineering counterpart to the [Methodology](../methodology/index.qmd) pages. Where the methodology pages explain *what* each stage does and *why*, the implementation pages describe *how*: which `src/` function does what, the data flow, the complexity, and the gotchas surfaced by actually running the pipeline.
+
+Read these pages if you are:
+
+- Adapting the framework to a new region and need to know what to wire up.
+- Reviewing the code for correctness or for the JOSS paper.
+- Profiling, debugging, or extending the algorithms.
+
+## The chain in code
+
+| Stage | Theory | Implementation |
+|-------|--------|----------------|
+| Linear Scaling | [Linear Scaling](../methodology/linear-scaling.qmd) | [Linear Scaling](linear-scaling.qmd) |
+| Empirical Quantile Mapping | [EQM](../methodology/eqm.qmd) | [EQM](eqm.qmd) |
+| GPD tail | [GPD Tail](../methodology/gpd-tail.qmd) | [GPD Tail](gpd-tail.qmd) |
+| CNN refinement | [CNN Refinement](../methodology/cnn-refinement.qmd) | [CNN Refinement](cnn-refinement.qmd) |
+| Station-density confidence mask | [Confidence Mask](../methodology/confidence-mask.qmd) | [Confidence Mask](confidence-mask.qmd) |
+| Blending | [Blending](../methodology/blending.qmd) | [Blending](blending.qmd) |
+
+## Where the orchestration lives
+
+All six stages flow through a single per-dekad entry point:
+
+```python
+from src.bias_correction import run_correction_pipeline
+run_correction_pipeline(imerg_ds, cpc_ds_aligned, month, dekad,
+                        cpc_native_ds=cpc_native_ds)
+```
+
+This wrapper calls `lseqm()` (LS + EQM + GPD), then the CNN training and apply steps, then the blend, then writes three NetCDFs (LS, LSEQM, LSEQM+DL). The notebook (`02_lseqmdl_bias_correction.ipynb`) just iterates the 36 dekads.
+
+The architecture is documented end-to-end in [Technical > Architecture](../technical/architecture.qmd).
+
+## Common patterns across the codebase
+
+- **Datasets are caller-owned.** Functions in `src/bias_correction.py` and `src/distribution_fitting.py` take open xarray Datasets as parameters; the notebook owns the open/close lifecycle.
+- **Per-dekad batch loops always do `plt.close('all')` + `gc.collect()` at iteration end.** This was a hard-learned pattern - see the [Changelog](../changelog.qmd) for the OOM debugging story.
+- **Lazy loading is avoided for small per-dekad inputs.** `_load_corrected` in the Taylor pipeline uses `with xr.open_dataset(...) as ds: da = ds[var].load()` so the file handle releases immediately.
+- **Coordinate-aware mask application uses `reindex(method='nearest')`, not `interp(method='nearest')`.** The latter silently drops boundary cells under float32/float64 dtype mismatches.
+
+These conventions matter when reading the per-stage implementation pages below.

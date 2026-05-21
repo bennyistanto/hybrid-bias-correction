@@ -1,0 +1,26 @@
+---
+title: "Tutorials"
+description: "Hands-on walkthroughs against the Bali example bundle."
+---
+
+Each tutorial is a paired Quarto page and Jupyter notebook (under [`notebooks/`](https://github.com/bennyistanto/hybrid-bias-correction/tree/main/notebooks)). The notebooks open directly in Google Colab via the "Open in Colab" badge at the top of every tutorial.
+
+All tutorials run against the Bali example data and `config_bali.yml`. None of them require GPU; CPU is fine.
+
+## The list
+
+::: {.feature-card}
+**[Data Preparation](data-preparation.qmd)** - Step 0 for users adapting the framework to a new region. Defines the AOI (nb00) and downloads IMERG / CPC data for it (nb01). Skip for the Bali example - the data ships with the repo.
+:::
+
+::: {.feature-card}
+**[Full Pipeline](full-pipeline.qmd)** - All 36 dekads, all three correction stages. The canonical entry point for both the Bali example and the full-Indonesia run. For first-time setup (Drive mount, choosing the config), see [Get Started > Quickstart](../get-started/quick-start.qmd).
+:::
+
+::: {.feature-card}
+**[QA Framework](qa-framework.qmd)** - The Continuous Quality Index, its three components, and the spatial QA maps it produces - with embedded Bali outputs.
+:::
+
+::: {.feature-card}
+**[Station Validation](station-validation.qmd)** - Independent validation against the 4 BMKG Bali stations (97230, 97232, 97234, 97236). Per-station scatter, multi-threshold curves, Taylor diagrams - with embedded Bali outputs.
+:::

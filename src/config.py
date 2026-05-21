@@ -19,8 +19,9 @@ The configuration includes:
 
 **Author**:
   Benny Istanto
-  - Geospatial Operations Support Team, DEC Data Group, The World Bank, United States. Email: bistanto@worldbank.org
-  - Applied Climatology Study Program, Bogor Agricultural University, Indonesia. Email: bennyistanto@ipb.ac.id
+  Applied Climatology Study Program, Department of Geophysics and Meteorology,
+  Bogor Agricultural University, Indonesia
+  Email: bennyistanto@apps.ipb.ac.id
 
   with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
@@ -49,7 +50,7 @@ def setup_logging(level=logging.INFO):
     * Attaching a ``StreamHandler(sys.stdout)`` so output lands in the
       notebook cell, not in a hidden stderr stream.
 
-    Safe to call multiple times — subsequent calls just reset the level.
+    Safe to call multiple times - subsequent calls just reset the level.
 
     Parameters
     ----------
@@ -125,6 +126,17 @@ WET_DAY_THRESHOLD = 1.0  # mm/day threshold for categorical metrics
 QA_COMPONENT_WEIGHTS = {'basic_stats': 0.4, 'distribution': 0.3, 'temporal': 0.3}
 QA_CATEGORICAL_THRESHOLDS = {'excellent': 0.8, 'good': 0.6, 'fair': 0.4}
 
+# --- Visualisation / Admin Boundaries ---
+# Region-agnostic: if BOUNDARIES is empty or no files resolve, src.visualisation
+# falls back to cartopy Natural Earth so the framework stays usable in any AOI.
+BOUNDARY_DIR = None
+BOUNDARIES = []
+
+# Padding (in degrees) added to each side of the AOI bbox when drawing map
+# axes, so coastline / boundary outlines have breathing room at the edges.
+# 0.0 = AOI flush with panel edge; 0.1 deg (default) = one IMERG cell of margin.
+MAP_EXTENT_PAD = 0.1
+
 # --- Deep Learning Parameters ---
 DL_EPOCHS = 50
 DL_BATCH_SIZE = 64
@@ -187,8 +199,8 @@ def _detect_netcdf_engine():
     """
     Detect which xarray NetCDF engine is available.
 
-    Tries ``netCDF4`` first (the most common engine). If that import fails —
-    for example because of a missing or broken DLL on Windows — falls back to
+    Tries ``netCDF4`` first (the most common engine). If that import fails - 
+    for example because of a missing or broken DLL on Windows - falls back to
     ``h5netcdf``, which is a pure-Python HDF5 backend with no C-library
     dependency chain beyond h5py.
 
@@ -284,7 +296,7 @@ def find_project_root(extra_candidates=None):
         if _is_root(cand):
             return cand
 
-    # 5. Colab deep scan — walk Google Drive (up to 4 levels)
+    # 5. Colab deep scan - walk Google Drive (up to 4 levels)
     drive_root = '/content/drive/MyDrive'
     if os.path.isdir(drive_root):
         logging.info("Scanning Google Drive for project root ...")
@@ -348,6 +360,7 @@ def initialize_config(config_path=None):
     global STATION_DATA_FILE, STATION_VALIDATION_OUTPUT_DIR
     global INTERACTIVE, EXISTING_FILE_ACTION, EXISTING_MODEL_ACTION
     global NETCDF_ENGINE
+    global BOUNDARY_DIR, BOUNDARIES, MAP_EXTENT_PAD
 
     try:
         import yaml
@@ -357,7 +370,7 @@ def initialize_config(config_path=None):
         _ensure_output_directories()
         return {}
 
-    # Find config file — prefer config.yml, fall back to config.yaml
+    # Find config file - prefer config.yml, fall back to config.yaml
     if config_path is None:
         project_root = find_project_root()
         for candidate in ('config.yml', 'config.yaml'):
@@ -445,7 +458,7 @@ def initialize_config(config_path=None):
     cpc_native_file = raw_cpc_native.replace('{input_dir}', input_dir).replace('{main_dir}', main_dir)
 
     raw_mask = files.get('mask_file', mask_file)
-    mask_file = raw_mask.replace('{main_dir}', main_dir)
+    mask_file = raw_mask.replace('{input_dir}', input_dir).replace('{main_dir}', main_dir)
 
     # --- Variable names ---
     var_names = cfg.get('variable_names', {})
@@ -567,6 +580,16 @@ def initialize_config(config_path=None):
         for r in REGION_MAPPING.values():
             seen.setdefault(r, None)
         ISLAND_ORDER = list(seen.keys())
+
+    # --- Visualisation / Admin Boundaries ---
+    vis = cfg.get('visualisation', {})
+    raw_bdir = vis.get('boundary_dir')
+    if raw_bdir:
+        BOUNDARY_DIR = (raw_bdir
+                        .replace('{main_dir}', main_dir)
+                        .replace('{input_dir}', input_dir))
+    BOUNDARIES = vis.get('boundaries', []) or []
+    MAP_EXTENT_PAD = float(vis.get('map_extent_pad', MAP_EXTENT_PAD))
 
     # --- Runtime settings ---
     runtime = cfg.get('runtime', {})

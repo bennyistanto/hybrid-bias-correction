@@ -1,0 +1,201 @@
+# deep_learning { #src.deep_learning }
+
+`deep_learning`
+
+Module: deep_learning.py
+
+This module contains functions related to training and applying the deep learning model
+for bias correction. It includes:
+  - train_bias_correction_model: Trains a CNN model to learn the spatial mapping from
+    LSEQM-corrected data to CPC data.
+  - apply_deeplearning_model: Applies the trained CNN to refine extreme pixels in the
+    LSEQM result using alpha-blending.
+
+Two-step workflow (eliminates domain shift):
+  Step 1 (bias_correction.py): LS + EQM + GPD produces LSEQM-corrected data.
+  Step 2 (this module):
+    - Training: X = LSEQM-corrected, y = CPC (both from the same dekad aggregation).
+      The model learns what LSEQM missed - residual spatial patterns, extreme refinement.
+    - Inference: the trained model receives LSEQM-corrected data (same domain as training),
+      and the prediction is alpha-blended with the LSEQM result for extreme pixels only.
+
+Design rationale (Sha et al. 2020; Pan et al. 2019):
+  The physical-statistical pipeline (LS + EQM + GPD) handles the bulk of the distributional
+  correction and should be trusted. The DL model learns residual spatial patterns that
+  the pixel-wise statistical methods cannot capture (e.g. orographic effects, convective
+  organisation). At inference the DL prediction is **blended** with the LSEQM output
+  rather than replacing it, so that:
+    - Extremes are never crushed (LSEQM carries most of the weight via DL_BLEND_ALPHA)
+    - Zero rain stays zero
+    - Spatial detail from IMERG is preserved
+
+The module imports configuration parameters from config.py.
+
+**Author**:
+  Benny Istanto
+  Applied Climatology Study Program, Department of Geophysics and Meteorology,
+  Bogor Agricultural University, Indonesia
+  Email: bennyistanto@apps.ipb.ac.id
+
+  with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
+
+Update: 2026.03
+
+## Functions
+
+| Name | Description |
+| --- | --- |
+| [apply_deeplearning_model](#src.deep_learning.apply_deeplearning_model) | Apply the trained DL model to refine extreme pixels in the LSEQM-corrected data |
+| [train_bias_correction_model](#src.deep_learning.train_bias_correction_model) | Train a deep learning model to perform bias correction by learning the |
+
+### apply_deeplearning_model { #src.deep_learning.apply_deeplearning_model }
+
+```python
+deep_learning.apply_deeplearning_model(
+    model,
+    lseqm_data,
+    blend_alpha=DL_BLEND_ALPHA,
+    confidence_mask=None,
+)
+```
+
+Apply the trained DL model to refine extreme pixels in the LSEQM-corrected data
+using **alpha-blending** rather than hard replacement.
+
+For each daily 2-D field the function:
+
+1. Computes a pixel-wise extreme threshold (GPD_THRESHOLD_PERCENTILE across time).
+2. Runs the CNN on the per-sample-normalized field.
+3. For every extreme pixel (above the threshold), blends the LSEQM value with the
+   DL prediction::
+
+       final = alpha * lseqm + (1 - alpha) * dl_predicted
+
+   where ``alpha = DL_BLEND_ALPHA`` (default 0.7).
+
+4. Non-extreme pixels (below threshold) keep their LSEQM value unchanged.
+5. Zero-rain pixels are never modified (``if LSEQM == 0 -> final == 0``).
+
+This ensures the physical-statistical result dominates while the DL provides a
+moderate spatial refinement for extremes - matching the design goal that DL
+"fills the gap" rather than replacing physics.
+
+#### References {.doc-section .doc-section-references}
+
+- Sha et al. (2020), Geophys. Res. Lett. - residual DL correction after statistical model
+- Pan et al. (2019), Water Resources Research - CNN residual correction for precipitation
+
+#### Parameters: {.doc-section .doc-section-parameters}
+
+model : keras.Model
+    Trained deep learning model for bias correction.
+lseqm_data : xarray.DataArray
+    Bias-corrected LSEQM data for the target dekad.
+    Must contain a 'time' dimension. Should already be masked (NaN over ocean).
+blend_alpha : float, optional
+    Blending weight for LSEQM.  ``1.0`` = pure LSEQM, ``0.0`` = pure DL.
+    Default is ``DL_BLEND_ALPHA`` from config (typically 0.7).
+confidence_mask : xarray.DataArray, optional
+    2-D (lat, lon) confidence mask with values in [0, 1] representing
+    how reliable CPC-UNI is at each grid cell based on gauge station density.
+    If provided, the blending alpha is spatially modulated::
+
+        effective_alpha = 1.0 - confidence * (1.0 - blend_alpha)
+
+    High confidence (many stations) → effective_alpha = blend_alpha (DL active).
+    Zero confidence (no stations) → effective_alpha = 1.0 (pure LSEQM).
+    If None, uniform blend_alpha is used everywhere (backward compatible).
+
+#### Returns: {.doc-section .doc-section-returns}
+
+xarray.DataArray
+    Corrected precipitation data, where:
+      - Non-extreme pixels keep LSEQM values exactly
+      - Extreme pixels are alpha-blended between LSEQM and DL prediction
+      - Zero-rain pixels remain zero
+
+### train_bias_correction_model { #src.deep_learning.train_bias_correction_model }
+
+```python
+deep_learning.train_bias_correction_model(
+    input_data,
+    target_data,
+    model_name,
+    mask_data=None,
+    model_dir=None,
+    epochs=DL_EPOCHS,
+    batch_size=DL_BATCH_SIZE,
+    validation_split=DL_VALIDATION_SPLIT,
+    dropout_rate_1=DL_DROPOUT_RATE_1,
+    dropout_rate_2=DL_DROPOUT_RATE_2,
+    dropout_rate_dense=DL_DROPOUT_RATE_DENSE,
+    filter_size_1=DL_FILTER_SIZE_1,
+    filter_size_2=DL_FILTER_SIZE_2,
+    num_filters_1=DL_NUM_FILTERS_1,
+    num_filters_2=DL_NUM_FILTERS_2,
+    dense_layer_size=DL_DENSE_LAYER_SIZE,
+    optimizer=DL_OPTIMIZER,
+    interactive=True,
+)
+```
+
+Train a deep learning model to perform bias correction by learning the
+spatial mapping from LSEQM-corrected data to CPC data.
+
+In the two-step workflow, this function receives LSEQM-corrected data
+(not raw IMERG) as input, eliminating the domain shift between training
+and inference. The model learns what the physical-statistical correction
+missed - residual spatial patterns, extreme event refinement.
+
+#### Architecture {.doc-section .doc-section-architecture}
+
+A two-layer CNN with ``padding='same'`` so that spatial dimensions are
+preserved through the convolutional layers. This gives the model more
+spatial context before the Flatten -> Dense bottleneck, improving its
+ability to learn fine-grained spatial correction patterns (e.g. orographic
+enhancement, rain-shadow effects).
+
+#### Normalization {.doc-section .doc-section-normalization}
+
+During training, both input and target are normalized **per-sample** (each
+daily 2-D field divided by its own maximum value).  This teaches the model
+to learn **relative spatial patterns** rather than absolute intensities.
+
+#### Parameters: {.doc-section .doc-section-parameters}
+
+input_data : xarray.DataArray
+    LSEQM-corrected data for the dekad across all years.
+    Should already be masked (NaN over ocean).
+target_data : xarray.DataArray
+    CPC (gauge-based reference) data for the same dekad across all years.
+    Should already be masked (NaN over ocean).
+model_name : str
+    Name for saving the trained model.
+mask_data : xarray.DataArray, optional
+    Pre-loaded land-sea mask. If None, masking should have been applied upstream.
+model_dir : str, optional
+    Directory to save the trained model. If None, uses config default.
+epochs : int, optional
+    Number of training epochs.
+batch_size : int, optional
+    Batch size during training.
+validation_split : float, optional
+    Fraction of data for validation.
+dropout_rate_1, dropout_rate_2, dropout_rate_dense : float, optional
+    Dropout rates for the network.
+filter_size_1, filter_size_2 : tuple, optional
+    Convolution filter sizes.
+num_filters_1, num_filters_2 : int, optional
+    Number of filters in the convolutional layers.
+dense_layer_size : int, optional
+    Size of the dense layer.
+optimizer : str, optional
+    Optimizer for training.
+interactive : bool, optional
+    If True, prompt user for decisions on existing models. If False, use existing model
+    if available. Default is True.
+
+#### Returns: {.doc-section .doc-section-returns}
+
+keras.Model
+    Trained deep learning model.

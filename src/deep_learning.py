@@ -12,7 +12,7 @@ Two-step workflow (eliminates domain shift):
   Step 1 (bias_correction.py): LS + EQM + GPD produces LSEQM-corrected data.
   Step 2 (this module):
     - Training: X = LSEQM-corrected, y = CPC (both from the same dekad aggregation).
-      The model learns what LSEQM missed — residual spatial patterns, extreme refinement.
+      The model learns what LSEQM missed - residual spatial patterns, extreme refinement.
     - Inference: the trained model receives LSEQM-corrected data (same domain as training),
       and the prediction is alpha-blended with the LSEQM result for extreme pixels only.
 
@@ -30,8 +30,9 @@ The module imports configuration parameters from config.py.
 
 **Author**:
   Benny Istanto
-  - Geospatial Operations Support Team, DEC Data Group, The World Bank, United States. Email: bistanto@worldbank.org
-  - Applied Climatology Study Program, Bogor Agricultural University, Indonesia. Email: bennyistanto@ipb.ac.id
+  Applied Climatology Study Program, Department of Geophysics and Meteorology,
+  Bogor Agricultural University, Indonesia
+  Email: bennyistanto@apps.ipb.ac.id
 
   with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
@@ -129,7 +130,7 @@ def train_bias_correction_model(
     In the two-step workflow, this function receives LSEQM-corrected data
     (not raw IMERG) as input, eliminating the domain shift between training
     and inference. The model learns what the physical-statistical correction
-    missed — residual spatial patterns, extreme event refinement.
+    missed - residual spatial patterns, extreme event refinement.
 
     Architecture
     ------------
@@ -273,7 +274,7 @@ def train_bias_correction_model(
 
     # Build CNN model.
     # Uses padding='same' so spatial dimensions are preserved through conv layers.
-    # This gives the model more spatial context — important for capturing spatial
+    # This gives the model more spatial context - important for capturing spatial
     # correction patterns (orographic enhancement, convective clusters) rather
     # than just learning a smooth, low-frequency field through a tiny bottleneck.
     def _build_model():
@@ -377,13 +378,13 @@ def apply_deeplearning_model(
     5. Zero-rain pixels are never modified (``if LSEQM == 0 -> final == 0``).
 
     This ensures the physical-statistical result dominates while the DL provides a
-    moderate spatial refinement for extremes — matching the design goal that DL
+    moderate spatial refinement for extremes - matching the design goal that DL
     "fills the gap" rather than replacing physics.
 
     References
     ----------
-    - Sha et al. (2020), Geophys. Res. Lett. — residual DL correction after statistical model
-    - Pan et al. (2019), Water Resources Research — CNN residual correction for precipitation
+    - Sha et al. (2020), Geophys. Res. Lett. - residual DL correction after statistical model
+    - Pan et al. (2019), Water Resources Research - CNN residual correction for precipitation
 
     Parameters:
     ----------
@@ -437,7 +438,7 @@ def apply_deeplearning_model(
 
     # Compute a PIXEL-WISE threshold across time dimension
     # shape => (lat, lon). E.g. 80th percentile for each pixel's distribution
-    # Suppress "All-NaN slice encountered" — expected for ocean/masked pixels.
+    # Suppress "All-NaN slice encountered" - expected for ocean/masked pixels.
     import warnings
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message="All-NaN slice encountered")
@@ -486,8 +487,8 @@ def apply_deeplearning_model(
         arr_2d = np.expand_dims(arr_2d, axis=0)   # add batch dimension
 
         # Per-sample normalization: normalize by THIS daily slice's max value.
-        # This is consistent with how training data was normalized — each sample
-        # by its own max — so the model sees the same [0,1] range it was trained on.
+        # This is consistent with how training data was normalized - each sample
+        # by its own max - so the model sees the same [0,1] range it was trained on.
         arr_max = arr_2d.max()
         if arr_max != 0:
             arr_2d_norm = arr_2d / arr_max

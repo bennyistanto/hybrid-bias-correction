@@ -1,0 +1,134 @@
+---
+title: "Troubleshooting"
+description: "Common errors and their fixes."
+---
+
+## "Latitudes are descending; align_grids did not flip"
+
+CPC files use descending latitude; IMERG ascending. The loader checks and flips, but only if you go through `src/io.py`. If you opened a NetCDF directly with `xr.open_dataset` and bypassed the loader, you can end up with mis-aligned grids. Always use the loader functions.
+
+```python
+from src.io import load_imerg, load_cpc, align_grids
+imerg = load_imerg(config.imergl_file)
+cpc   = load_cpc(config.cpc_file)
+imerg, cpc = align_grids(imerg, cpc, mask_file=config.mask_file)
+```
+
+## Ocean cells dominate the mean
+
+If your corrected mean is suspiciously close to zero, the land/sea mask is probably not applied. The loader applies it at `align_grids`; if you wrote a custom pipeline, call:
+
+```python
+from src.utility import apply_land_sea_mask
+data = apply_land_sea_mask(data, config.mask_file)
+```
+
+Ocean cells become NaN, not zero - this is intentional so that `nanmean` works without bias.
+
+## GPD K-fold raises "too few exceedances"
+
+The 80th percentile of CPC has fewer than `n_splits_gpd_crossvalidate * minimum_per_fold` exceedances. Fixes:
+
+- Raise `wet_day_threshold` so dry days are excluded before fitting.
+- Lower `gpd_threshold_percentile` to 75 to bring in more exceedances.
+- Lower `n_splits_gpd_crossvalidate` to 3.
+
+This is most likely to bite very dry dekads (peak dry season in a strongly seasonal region).
+
+## CNN training stops at epoch 5 with val_loss noisy
+
+Early stopping is firing because `validation_split` is too small for the dataset. With 22 years x 10 days = 220 samples and a 20% split, you have 44 validation samples - low. Options:
+
+- Raise `validation_split` to 0.3 (smoother val_loss curve at the cost of less training data).
+- Raise `early_stopping_patience` to 10 (tolerate more noise).
+- Lower the network capacity (`dense_layer_size: 64`) to reduce overfitting.
+
+## "Module 'sklearn' not found" when importing `src`
+
+`src/__init__.py` triggers `from .bias_correction import lseqm`, which requires `scikit-learn`. The conda env in `environment.yml` includes it; pip-only installs may miss it. Fix:
+
+```bash
+pip install scikit-learn
+```
+
+Or run inside the project conda env.
+
+## TensorFlow is broken / CNN step fails
+
+This is the single most common local-install failure. Symptom: LS and LSEQM run fine, but nb02 Step 7 or 8 (the CNN training / apply) crashes with `ImportError`, `DLL load failed`, `cannot enable executable stack`, or simply a CUDA mismatch.
+
+The framework's recommended path here is to **switch to Colab**. TensorFlow is pre-installed there and works out of the box - see [Installation](../get-started/installation.qmd). If you would rather fix the local install, the symptom-to-fix table:
+
+| Symptom | Likely cause | Fix |
+|---------|--------------|-----|
+| `ImportError: DLL load failed while importing _pywrap_tensorflow_internal` | Missing Visual C++ runtime on Windows | Install the Visual C++ Redistributable from Microsoft. |
+| `cannot enable executable stack as shared object requires` | WSL / Linux without execstack permissions | `pip install patchelf` then `patchelf --clear-execstack $(python -c "import tensorflow; print(tensorflow.__path__[0])")/libtensorflow_cc.so.2`. |
+| TF runs on CPU even though you have a GPU | CUDA / cuDNN version mismatch with the TF version | Either `mamba install tensorflow` and let conda handle the CUDA pin, or follow the official TF compatibility table at [tensorflow.org/install](https://tensorflow.org/install) and reinstall the exact matching CUDA toolkit. |
+| `ResourceExhaustedError: OOM when allocating tensor` on GPU | CNN model is fine but other CUDA processes hold memory | Restart the Python kernel; set `os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'` before importing TF. |
+| Silent freeze, no error, but the script hangs | Mismatched `keras` / `tf-keras` packages | `pip uninstall tf-keras keras` then `mamba install tensorflow` (conda-forge build pulls a compatible keras). |
+
+To skip the CNN entirely and still produce LS + LSEQM outputs, set `blend_alpha: 1.0` in your config. The pipeline will train no CNN and write a `corrected_lseqmdl` field identical to `corrected_lseqm`. Not a real fix, but a usable workaround if you only care about the distributional correction.
+
+## DLL load errors on Windows under Git Bash
+
+The `climate` conda env's DLLs need to be on `PATH` before you run Python. From Git Bash:
+
+```bash
+export PATH="/c/Users/benny/miniforge3/envs/climate:\
+/c/Users/benny/miniforge3/envs/climate/Scripts:\
+/c/Users/benny/miniforge3/envs/climate/Library/bin:$PATH"
+```
+
+After that, plain `python script.py` works.
+
+## Colab session disconnects mid-training
+
+The full pipeline takes ~30-40 minutes on Colab CPU. The free tier sometimes disconnects on idle. Mitigations:
+
+- Run the notebook from top to bottom in one go - do not pause.
+- Save intermediate outputs to Google Drive (mount Drive at the start, point `output_dir` at a Drive path).
+- For a quick sanity check, run only a few dekads using the dekad-list cell at the top of the batch loop.
+
+## Colab kernel dies (OOM) during nb06 batch
+
+The unified batch cell in nb06 generates ~1700 figures across QA, Taylor, and station-validation pipelines. Three patterns to know:
+
+- Every `run_*_batch_viz` in `src/visualisation.py` already does `plt.close('all')` + `gc.collect()` at the end of each period.
+- `compute_all_taylor_stats` and `generate_per_dekad_taylor_diagrams` in `src/taylor_diagram.py` do the same per dekad.
+- Boundary shapefiles are loaded once per session, clipped to the AOI, and cached as numpy line segments (~3-4 MB total).
+
+If you still OOM, the most likely sources are:
+
+- Custom batch loops you wrote in nb06 outside `src/visualisation.py` that don't follow the same pattern. Add `plt.close('all')` and `gc.collect()` at iteration end.
+- TensorFlow holding the CNN model in RAM across nb06 cells (nb06 doesn't load the model, but if you kept the Keras kernel state from nb02 in the same session, it stays). Restart the Colab kernel between nb02 and nb06.
+
+## Map data missing along southern or western AOI edge
+
+Cause: float32 vs float64 precision mismatch in `apply_land_sea_mask`. The mask coordinate is float64, the data coordinate is float32, and the float32 boundary value sits a tiny bit outside the float64 range, so `interp(method='nearest')` returns NaN there.
+
+This is fixed in the current code (`apply_land_sea_mask` uses `reindex(method='nearest')` instead). If you see this symptom, you are running an older version - pull the latest `src/utility.py`.
+
+## Map data missing in the middle of the AOI on small regions
+
+Cause: the CPC native 0.5 deg cells do not extend beyond the AOI bbox, so bilinear interpolation of the CPC distribution parameters returns NaN at the AOI edge.
+
+Fix: when clipping the CPC native file for a regional AOI, include one extra cell of buffer beyond your bbox so the AOI sits inside the convex hull of CPC cell centres. nb01 does this automatically for newly defined regions. The code also has a `reindex(method='nearest')` fallback in `interpolate_cpc_params_to_imerg_grid` to catch this, but the data-level fix is cleaner.
+
+## `name 'station_df' is not defined` in every nb05 dekad
+
+You ran the batch cell without running Step 2 first. The batch cell in current `05_station_validation.ipynb` auto-loads `station_df` and `obs_df` if they aren't in scope. If you see this error, you are on an older notebook - sync the latest `notebooks/05_station_validation.ipynb` to Drive.
+
+## Admin boundaries don't show on Bali maps
+
+Two likely causes:
+
+- `config.BOUNDARIES` is empty or the configured files don't exist. The framework falls back to cartopy Natural Earth in that case, which on first call downloads from the internet - this needs network access. Either set `BOUNDARIES` to local shapefiles or ensure Colab has internet.
+- You changed `MAP_EXTENT_PAD` and didn't re-run the cell. The boundary cache is keyed by the AOI clip bbox; if the bbox changes mid-session, the old cache stays. Restart the kernel or clear `src.visualisation._boundary_segments_cache`.
+
+## nb06 unified batch tuple-unpacking error
+
+If you wrote `td_acc, td_locs = generate_all_taylor_diagrams(...)`, you'll get "too many values to unpack (expected 2)". The function returns three values:
+
+```python
+td_acc, td_locs, td_by_dekad = generate_all_taylor_diagrams(...)
+```

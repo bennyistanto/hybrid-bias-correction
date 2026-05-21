@@ -1,0 +1,87 @@
+---
+title: "Empirical Quantile Mapping - Implementation"
+description: "How EQM is computed in src/bias_correction.py and src/distribution_fitting.py."
+---
+
+For the theory, see [Methodology > EQM](../methodology/eqm.qmd). This page is the algorithm view.
+
+## Entry point
+
+EQM runs after LS, inside the same `lseqm()` function in [`src/bias_correction.py`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/bias_correction.py). The per-cell quantile mapping is delegated to `gamma_quantile_mapping_precomputed()` in [`src/distribution_fitting.py`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/distribution_fitting.py).
+
+## Per-cell loop
+
+EQM is a per-pixel operation. The pipeline iterates `(i, j)` over the AOI grid:
+
+```python
+for i in range(n_lat):
+    for j in range(n_lon):
+        imerg_ts = ls_corrected_precip.values[:, i, j]
+        if np.all(np.isnan(imerg_ts)):
+            continue   # ocean - skip
+
+        if _use_native_cpc:
+            # Use pre-computed CPC parameters (smooth path)
+            eqm_data[:, i, j] = gamma_quantile_mapping_precomputed(
+                imerg_ts,
+                cpc_gamma_shape   = interp_cpc_params['gamma_shape'][i, j],
+                cpc_gamma_scale   = interp_cpc_params['gamma_scale'][i, j],
+                cpc_gpd_threshold = interp_cpc_params['gpd_threshold'][i, j],
+                ... # all CPC params already interpolated to (i, j)
+            )
+        else:
+            # Per-pixel fitting (no native CPC path)
+            cpc_ts = cpc_dekad_data.values[:, i, j]
+            eqm_data[:, i, j] = gamma_quantile_mapping(imerg_ts, cpc_ts)
+```
+
+## The three-distribution model
+
+`gamma_quantile_mapping_precomputed` actually fits **three** distributions for CPC:
+
+1. **Dry-day mass** at `precip < WET_DAY_THRESHOLD` (default 1 mm/day). Probability `p_dry_cpc`.
+2. **Gamma body** for the wet-day distribution below the GPD threshold.
+3. **GPD tail** above the 80th percentile of wet days (see [GPD Tail Implementation](gpd-tail.qmd)).
+
+The IMERG side gets its own Gamma fit on the wet-day sample for the dekad. The unconditional CDF is then:
+
+```
+F_uncond(x) = p_dry + (1 - p_dry) * F_wet(x)
+```
+
+and the same form is used to invert through CPC's three-distribution model.
+
+This is Cannon-style dry-day handling combined with a parametric tail correction. The full formula and derivation is in the docstring of `gamma_quantile_mapping_precomputed`.
+
+## Where CPC parameters come from
+
+Two code paths, picked by whether `cpc_native_ds` is passed:
+
+| Path | CPC params source |
+|------|-------------------|
+| Smooth (BCSD) | `fit_cpc_parameters_on_native_grid(cpc_native_dekad)` -> dict of DataArrays at 0.5 deg, then `interpolate_cpc_params_to_imerg_grid(...)` -> dict of DataArrays at 0.1 deg. **Bilinear + reindex(nearest) fillna.** |
+| Per-pixel | Fit on the fly inside `gamma_quantile_mapping()` for each (i, j) cell using `cpc_ts`. Slower; visible block-boundary artefact at the original CPC 0.5 deg resolution. |
+
+The notebooks default to the smooth path.
+
+## Cost
+
+For Indonesia (171 x 461 cells, ~22 years x 10 days per dekad = ~220 daily samples per cell):
+
+- Smooth path: dominated by the 79k cells x ~10 ms quantile mapping = ~13 min per dekad. Times 36 dekads = ~8 hours of nb02 compute on CPU.
+- Per-pixel path: adds ~2-3 ms per cell for the Gamma fit; ~25 min per dekad.
+
+Bali (9 x 14 = 126 cells) is sub-second per dekad either way.
+
+## Failure modes and skips
+
+- All-NaN IMERG cells (ocean) are skipped (`continue` at line 211 in `bias_correction.py`).
+- Cells where any CPC parameter is NaN return all-NaN (line 528-530 in `distribution_fitting.py`).
+- Cells with fewer than 5 wet days return all-zero (line 549-553). This is conservative - the alternative is to propagate IMERG raw, which may be wetter than the climatology supports.
+
+## Related code
+
+- [`src/bias_correction.py::lseqm`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/bias_correction.py) - lines ~200-260 hold the EQM loop.
+- [`src/distribution_fitting.py::gamma_quantile_mapping_precomputed`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/distribution_fitting.py) - the per-cell quantile mapping.
+- [`src/distribution_fitting.py::fit_cpc_parameters_on_native_grid`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/distribution_fitting.py) - upstream Gamma + GPD fit.
+- [`src/distribution_fitting.py::interpolate_cpc_params_to_imerg_grid`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/distribution_fitting.py) - bilinear + reindex(nearest) fallback.

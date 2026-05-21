@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>distribution_fitting – Hybrid Bias Correction</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../images/favicon.png" rel="icon" type="image/png">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark-4d9afe2b8d18ee9fa5d0d57b5ed4214d.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-47804f2cdcae3976e68a59ec217d6a6c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark-ae9780529e804df46ec8376ca6972a7b.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-47804f2cdcae3976e68a59ec217d6a6c.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+</head>
+
+<body class="nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../../images/lseqmdl-logo.png" alt="" class="navbar-logo light-content">
+    <img src="../../images/lseqmdl-logo.png" alt="" class="navbar-logo dark-content">
+    </a>
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Hybrid Bias Correction</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-get-started" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Get Started</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-get-started">    
+        <li>
+    <a class="dropdown-item" href="../../get-started/installation.html">
+ <span class="dropdown-text">Installation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../get-started/quick-start.html">
+ <span class="dropdown-text">Quickstart</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../get-started/configuration.html">
+ <span class="dropdown-text">Configuration</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../get-started/data-model.html">
+ <span class="dropdown-text">Data Model</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li>
+    <a class="dropdown-item" href="../../tutorials/data-preparation.html">
+ <span class="dropdown-text">Data Preparation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/full-pipeline.html">
+ <span class="dropdown-text">Full Pipeline</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/qa-framework.html">
+ <span class="dropdown-text">QA Framework</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../tutorials/station-validation.html">
+ <span class="dropdown-text">Station Validation</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-documentation" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Documentation</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-documentation">    
+        <li>
+    <a class="dropdown-item" href="../../methodology/index.html">
+ <span class="dropdown-text">Methodology</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../implementation/index.html">
+ <span class="dropdown-text">Implementation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../user-guide/index.html">
+ <span class="dropdown-text">User Guide</span></a>
+  </li>  
+        <li><hr class="dropdown-divider"></li>
+        <li>
+    <a class="dropdown-item" href="../../technical/architecture.html">
+ <span class="dropdown-text">Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../technical/api-reference/index.html">
+ <span class="dropdown-text">API Reference</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../technical/validation.html">
+ <span class="dropdown-text">Validation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../../technical/cf-compliance.html">
+ <span class="dropdown-text">CF Compliance</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../../faq.html"> 
+<span class="menu-text">FAQ</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../changelog.html"> 
+<span class="menu-text">Changelog</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/bennyistanto/hybrid-bias-correction"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#src.distribution_fitting" id="toc-src.distribution_fitting" class="nav-link active" data-scroll-target="#src.distribution_fitting">distribution_fitting</a>
+  <ul class="collapse">
+  <li><a href="#functions" id="toc-functions" class="nav-link" data-scroll-target="#functions">Functions</a>
+  <ul class="collapse">
+  <li><a href="#src.distribution_fitting.calculate_l_moments" id="toc-src.distribution_fitting.calculate_l_moments" class="nav-link" data-scroll-target="#src.distribution_fitting.calculate_l_moments">calculate_l_moments</a></li>
+  <li><a href="#src.distribution_fitting.cross_validate_gpd" id="toc-src.distribution_fitting.cross_validate_gpd" class="nav-link" data-scroll-target="#src.distribution_fitting.cross_validate_gpd">cross_validate_gpd</a></li>
+  <li><a href="#src.distribution_fitting.fit_cpc_parameters_on_native_grid" id="toc-src.distribution_fitting.fit_cpc_parameters_on_native_grid" class="nav-link" data-scroll-target="#src.distribution_fitting.fit_cpc_parameters_on_native_grid">fit_cpc_parameters_on_native_grid</a></li>
+  <li><a href="#src.distribution_fitting.fit_gamma_distribution" id="toc-src.distribution_fitting.fit_gamma_distribution" class="nav-link" data-scroll-target="#src.distribution_fitting.fit_gamma_distribution">fit_gamma_distribution</a></li>
+  <li><a href="#src.distribution_fitting.fit_generalized_pareto_distribution" id="toc-src.distribution_fitting.fit_generalized_pareto_distribution" class="nav-link" data-scroll-target="#src.distribution_fitting.fit_generalized_pareto_distribution">fit_generalized_pareto_distribution</a></li>
+  <li><a href="#src.distribution_fitting.gamma_quantile_mapping" id="toc-src.distribution_fitting.gamma_quantile_mapping" class="nav-link" data-scroll-target="#src.distribution_fitting.gamma_quantile_mapping">gamma_quantile_mapping</a></li>
+  <li><a href="#src.distribution_fitting.gamma_quantile_mapping_precomputed" id="toc-src.distribution_fitting.gamma_quantile_mapping_precomputed" class="nav-link" data-scroll-target="#src.distribution_fitting.gamma_quantile_mapping_precomputed">gamma_quantile_mapping_precomputed</a></li>
+  <li><a href="#src.distribution_fitting.interpolate_cpc_params_to_imerg_grid" id="toc-src.distribution_fitting.interpolate_cpc_params_to_imerg_grid" class="nav-link" data-scroll-target="#src.distribution_fitting.interpolate_cpc_params_to_imerg_grid">interpolate_cpc_params_to_imerg_grid</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/bennyistanto/hybrid-bias-correction/blob/main/technical/api-reference/distribution_fitting.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/bennyistanto/hybrid-bias-correction/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"><h1 class="title display-7"></h1></header><div class="quarto-title-block"><div class="quarto-title-tools-only"><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i></button></div></div>
+
+
+
+
+
+<section id="src.distribution_fitting" class="level1">
+<h1>distribution_fitting</h1>
+<p><code>distribution_fitting</code></p>
+<p>Module: distribution_fitting.py</p>
+<p>This module contains functions for statistical distribution fitting and quantile mapping used in the bias correction workflow. It includes functions for: - Calculating L-moments and L-moment ratios (using unbiased PWM estimators from Hosking 1990). - Fitting a gamma distribution using MLE (scipy.stats.gamma.fit with floc=0). - Fitting a Generalized Pareto Distribution (GPD) to data above a threshold. - Performing K-Fold cross-validation to obtain stable GPD parameters. - Applying gamma distribution-based quantile mapping with GPD tail adjustment using proper conditional probability mapping for extreme values.</p>
+<p>Dependencies: - Imports default parameters from the config module. - Uses scipy.stats and sklearn.model_selection for statistical calculations.</p>
+<p><strong>Author</strong>: Benny Istanto Applied Climatology Study Program, Department of Geophysics and Meteorology, Bogor Agricultural University, Indonesia Email: bennyistanto@apps.ipb.ac.id</p>
+<p>with supervision from Prof.&nbsp;Rizaldi Boer and Dr.&nbsp;I Putu Santikayasa</p>
+<p>Update: 2026.03</p>
+<section id="functions" class="level2">
+<h2 class="anchored" data-anchor-id="functions">Functions</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#src.distribution_fitting.calculate_l_moments">calculate_l_moments</a></td>
+<td>Calculate L-moments and L-moment ratios for the given data.</td>
+</tr>
+<tr class="even">
+<td><a href="#src.distribution_fitting.cross_validate_gpd">cross_validate_gpd</a></td>
+<td>Cross-validate GPD fitting by splitting data into folds.</td>
+</tr>
+<tr class="odd">
+<td><a href="#src.distribution_fitting.fit_cpc_parameters_on_native_grid">fit_cpc_parameters_on_native_grid</a></td>
+<td>Fit gamma and GPD distribution parameters at each CPC native-resolution cell.</td>
+</tr>
+<tr class="even">
+<td><a href="#src.distribution_fitting.fit_gamma_distribution">fit_gamma_distribution</a></td>
+<td>Fit a gamma distribution to the data using Maximum Likelihood Estimation (MLE)</td>
+</tr>
+<tr class="odd">
+<td><a href="#src.distribution_fitting.fit_generalized_pareto_distribution">fit_generalized_pareto_distribution</a></td>
+<td>Fit a Generalized Pareto Distribution (GPD) to the excesses above the threshold.</td>
+</tr>
+<tr class="even">
+<td><a href="#src.distribution_fitting.gamma_quantile_mapping">gamma_quantile_mapping</a></td>
+<td>Apply gamma distribution-based quantile mapping with tail adjustment</td>
+</tr>
+<tr class="odd">
+<td><a href="#src.distribution_fitting.gamma_quantile_mapping_precomputed">gamma_quantile_mapping_precomputed</a></td>
+<td>Apply gamma distribution-based quantile mapping with GPD tail adjustment,</td>
+</tr>
+<tr class="even">
+<td><a href="#src.distribution_fitting.interpolate_cpc_params_to_imerg_grid">interpolate_cpc_params_to_imerg_grid</a></td>
+<td>Bilinearly interpolate CPC distribution parameters from native ~0.5° to</td>
+</tr>
+</tbody>
+</table>
+<section id="src.distribution_fitting.calculate_l_moments" class="level3">
+<h3 class="anchored" data-anchor-id="src.distribution_fitting.calculate_l_moments">calculate_l_moments</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>distribution_fitting.calculate_l_moments(data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Calculate L-moments and L-moment ratios for the given data.</p>
+<p>L-moments are statistics used to describe the shape of a probability distribution. They are analogous to conventional moments but can be more robust to outliers.</p>
+<p>Uses the unbiased PWM estimators from Hosking (1990): b_r = (1/n) * sum_{i=1}^{n} C(i-1,r)/C(n-1,r) * x_{i:n} where x_{i:n} are the order statistics.</p>
+<p>Parameters: data (numpy.ndarray): The input data.</p>
+<p>Returns: tuple: L-moments (l1, l2, l3, l4) and L-moment ratios (t2, t3, t4)</p>
+</section>
+<section id="src.distribution_fitting.cross_validate_gpd" class="level3">
+<h3 class="anchored" data-anchor-id="src.distribution_fitting.cross_validate_gpd">cross_validate_gpd</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>distribution_fitting.cross_validate_gpd(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    data,</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    threshold,</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    n_splits<span class="op">=</span>N_SPLITS_GPD_CROSSVALIDATE,</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Cross-validate GPD fitting by splitting data into folds.</p>
+<p>This function uses K-Fold cross-validation to assess the stability and reliability of the GPD parameter estimates.</p>
+<p>Parameters: data (numpy.ndarray): Array of data values. threshold (float): Threshold value for defining the excesses. n_splits (int, optional): Number of cross-validation splits. Default is 5.</p>
+<p>Returns: tuple: Averaged parameters of the GPD from cross-validation (shape, location, scale).</p>
+</section>
+<section id="src.distribution_fitting.fit_cpc_parameters_on_native_grid" class="level3">
+<h3 class="anchored" data-anchor-id="src.distribution_fitting.fit_cpc_parameters_on_native_grid">fit_cpc_parameters_on_native_grid</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>distribution_fitting.fit_cpc_parameters_on_native_grid(cpc_native_dekad)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Fit gamma and GPD distribution parameters at each CPC native-resolution cell.</p>
+<p>This avoids redundantly fitting the same CPC time series 25 times (as happens when CPC is nearest-neighbour regridded to 0.1°). Instead, parameters are fitted once per ~0.5° cell and later interpolated to the IMERG grid.</p>
+<p>Based on the BCSD principle (Wood et al.&nbsp;2004): correct at reference resolution, then disaggregate smoothly.</p>
+<section id="parameters" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters">Parameters</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>cpc_native_dekad</td>
+<td><a href="`xarray`">xarray</a>.<a href="`xarray.DataArray`">DataArray</a></td>
+<td>CPC precipitation at native ~0.5° resolution for one dekad across all years. Shape (n_time, n_lat_cpc, n_lon_cpc).</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns">Returns</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 3%">
+<col style="width: 10%">
+<col style="width: 86%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>dict of xarray.DataArray</td>
+<td>Dictionary with 9 parameter arrays at CPC native resolution: ‘gamma_shape’, ‘gamma_scale’, ‘gpd_threshold’, ‘gpd_shape’, ‘gpd_loc’, ‘gpd_scale’, ‘upper_cap’, ‘p_threshold’, ‘p_dry_cpc’. Ocean/invalid cells are NaN.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes">Notes</h4>
+<p>Fixes applied (2026.04): * Fix C (Cannon 2015 §3.2): gamma distribution fitted on WET-day values only (&gt; WET_DAY_THRESHOLD), not on all values including zeros. The GPD threshold is also computed from wet values only. * Fix A (Coles 2001): GPD fitting inside cross_validate_gpd uses floc=0 (see fit_generalized_pareto_distribution). * New: p_dry_cpc is returned per cell so the downstream mapping step can apply Cannon dry-day handling using the interpolated dry-day frequency at each IMERG pixel.</p>
+</section>
+</section>
+<section id="src.distribution_fitting.fit_gamma_distribution" class="level3">
+<h3 class="anchored" data-anchor-id="src.distribution_fitting.fit_gamma_distribution">fit_gamma_distribution</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>distribution_fitting.fit_gamma_distribution(data)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Fit a gamma distribution to the data using Maximum Likelihood Estimation (MLE) via scipy.stats.gamma.fit with location fixed at zero.</p>
+<p>For precipitation data, the gamma distribution is a natural choice as it models positive-valued, right-skewed random variables. Fixing loc=0 ensures the distribution starts at zero, which is physically meaningful for precipitation.</p>
+<p>Parameters: data (numpy.ndarray): Array of data values.</p>
+<p>Returns: tuple: Fitted parameters (shape, loc, scale) of the gamma distribution.</p>
+</section>
+<section id="src.distribution_fitting.fit_generalized_pareto_distribution" class="level3">
+<h3 class="anchored" data-anchor-id="src.distribution_fitting.fit_generalized_pareto_distribution">fit_generalized_pareto_distribution</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>distribution_fitting.fit_generalized_pareto_distribution(data, threshold)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Fit a Generalized Pareto Distribution (GPD) to the excesses above the threshold.</p>
+<p>The GPD is often used in extreme value theory to model the tail of a distribution. It’s particularly useful for modeling events that exceed a high threshold.</p>
+<p>Parameters: data (numpy.ndarray): Array of data values. threshold (float): Threshold value for defining the excesses.</p>
+<p>Returns: tuple: Fitted parameters of the GPD (shape, location, scale).</p>
+</section>
+<section id="src.distribution_fitting.gamma_quantile_mapping" class="level3">
+<h3 class="anchored" data-anchor-id="src.distribution_fitting.gamma_quantile_mapping">gamma_quantile_mapping</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>distribution_fitting.gamma_quantile_mapping(imerg_values, cpc_values)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Apply gamma distribution-based quantile mapping with tail adjustment to correct the distribution of precipitation data.</p>
+<p>This function fits gamma distributions to the IMERG and CPC precipitation values using MLE (scipy.stats.gamma.fit). It then computes the cumulative distribution function (CDF) of the IMERG values and applies the inverse CDF of the CPC values to obtain the corrected precipitation values. Additionally, it adjusts the tails using the Generalized Pareto Distribution (GPD) to better capture extreme values.</p>
+<p>The GPD tail adjustment uses proper conditional probability mapping: For values above the threshold, the unconditional CDF value is mapped to the conditional exceedance probability before applying the GPD inverse CDF.</p>
+<p>Parameters: imerg_values (numpy.ndarray): Array of IMERG precipitation values. cpc_values (numpy.ndarray): Array of CPC precipitation values.</p>
+<p>Returns: numpy.ndarray: Corrected precipitation values after gamma quantile mapping with tail adjustment.</p>
+<section id="notes-1" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes-1">Notes</h4>
+<p>Fixes applied (2026.04): * Fix C (Cannon 2015 §3.2): gamma distributions are fitted on wet-day values only (&gt; WET_DAY_THRESHOLD). The dry-day fraction is handled explicitly via the unconditional CDF construction, and sub-threshold IMERG values are mapped either to zero (when the unconditional probability is below the CPC dry-day fraction) or through the conditional wet CDF of CPC. This prevents drizzle days from contaminating the gamma body and matches the CPC dry-day frequency. * Fix B: GPD substitution is triggered on IMERG’s own 80th percentile of wet values, not on the CPC threshold, and the conditional probability is computed consistently in unconditional CDF space. * Fix A (Coles 2001): GPD fitting uses floc=0 internally.</p>
+</section>
+</section>
+<section id="src.distribution_fitting.gamma_quantile_mapping_precomputed" class="level3">
+<h3 class="anchored" data-anchor-id="src.distribution_fitting.gamma_quantile_mapping_precomputed">gamma_quantile_mapping_precomputed</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>distribution_fitting.gamma_quantile_mapping_precomputed(</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    imerg_values,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    cpc_gamma_shape,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    cpc_gamma_scale,</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    cpc_gpd_threshold,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    cpc_gpd_shape,</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    cpc_gpd_loc,</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    cpc_gpd_scale,</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    cpc_upper_cap,</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>    cpc_p_threshold,</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    p_dry_cpc,</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Apply gamma distribution-based quantile mapping with GPD tail adjustment, using pre-computed CPC-side parameters instead of fitting CPC per pixel.</p>
+<p>This is the BCSD-path counterpart to gamma_quantile_mapping(). Statistical logic is identical, but CPC parameters come from the native-resolution fit (fit_cpc_parameters_on_native_grid) and are bilinearly interpolated to the IMERG grid, eliminating 0.5° block artefacts.</p>
+<section id="parameters-1" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-1">Parameters</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>imerg_values</td>
+<td><a href="`numpy`">numpy</a>.<a href="`numpy.ndarray`">ndarray</a></td>
+<td>IMERG precipitation time series for one pixel.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>cpc_gamma_shape</td>
+<td><a href="`float`">float</a></td>
+<td>Pre-computed CPC gamma shape (fitted on wet values only, Fix C).</td>
+<td><em>required</em></td>
+</tr>
+<tr class="odd">
+<td>cpc_gamma_scale</td>
+<td><a href="`float`">float</a></td>
+<td>Pre-computed CPC gamma scale (fitted on wet values only, Fix C).</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>cpc_gpd_threshold</td>
+<td><a href="`float`">float</a></td>
+<td>Pre-computed CPC GPD threshold (80th percentile of wet values).</td>
+<td><em>required</em></td>
+</tr>
+<tr class="odd">
+<td>cpc_gpd_shape</td>
+<td><a href="`float`">float</a></td>
+<td>Pre-computed CPC GPD shape (fitted with floc=0, Fix A).</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>cpc_gpd_loc</td>
+<td><a href="`float`">float</a></td>
+<td>Pre-computed CPC GPD location.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="odd">
+<td>cpc_gpd_scale</td>
+<td><a href="`float`">float</a></td>
+<td>Pre-computed CPC GPD scale.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>cpc_upper_cap</td>
+<td><a href="`float`">float</a></td>
+<td>Pre-computed CPC upper cap (99.9th percentile of wet values).</td>
+<td><em>required</em></td>
+</tr>
+<tr class="odd">
+<td>cpc_p_threshold</td>
+<td><a href="`float`">float</a></td>
+<td>Pre-computed CPC gamma CDF value at the GPD threshold.</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>p_dry_cpc</td>
+<td><a href="`float`">float</a></td>
+<td>Pre-computed CPC dry-day fraction (fraction of days &lt;= WET_DAY_THRESHOLD). Required for Cannon 2015 §3.2 dry-day handling (Fix C).</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns-1" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-1">Returns</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td><a href="`numpy`">numpy</a>.<a href="`numpy.ndarray`">ndarray</a></td>
+<td>Corrected precipitation values after quantile mapping.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="notes-2" class="level4 doc-section doc-section-notes">
+<h4 class="doc-section doc-section-notes anchored" data-anchor-id="notes-2">Notes</h4>
+<p>Fixes applied (2026.04): * Fix C (Cannon 2015 §3.2): IMERG gamma fitted on wet-day values only; Cannon dry-day handling uses p_dry_imerg (per pixel) and p_dry_cpc (interpolated from native CPC fit) to match dry-day frequencies. * Fix B: GPD substitution triggered on IMERG-side 80th percentile of wet values, with conditional probability computed in the unconditional CDF space for consistency between gamma body and GPD tail. * Fix A (Coles 2001): inherited via cpc_gpd_* which were fitted with floc=0 upstream in cross_validate_gpd.</p>
+</section>
+</section>
+<section id="src.distribution_fitting.interpolate_cpc_params_to_imerg_grid" class="level3">
+<h3 class="anchored" data-anchor-id="src.distribution_fitting.interpolate_cpc_params_to_imerg_grid">interpolate_cpc_params_to_imerg_grid</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>distribution_fitting.interpolate_cpc_params_to_imerg_grid(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    cpc_params,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    target_lat,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    target_lon,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Bilinearly interpolate CPC distribution parameters from native ~0.5° to the IMERG 0.1° grid. Uses a two-pass approach: bilinear first, then nearest-neighbour to fill boundary NaN values.</p>
+<section id="parameters-2" class="level4 doc-section doc-section-parameters">
+<h4 class="doc-section doc-section-parameters anchored" data-anchor-id="parameters-2">Parameters</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>cpc_params</td>
+<td>dict of xarray.DataArray</td>
+<td>CPC distribution parameters at native resolution, as returned by fit_cpc_parameters_on_native_grid().</td>
+<td><em>required</em></td>
+</tr>
+<tr class="even">
+<td>target_lat</td>
+<td><a href="`numpy`">numpy</a>.<a href="`numpy.ndarray`">ndarray</a></td>
+<td>Target latitude values (IMERG grid).</td>
+<td><em>required</em></td>
+</tr>
+<tr class="odd">
+<td>target_lon</td>
+<td><a href="`numpy`">numpy</a>.<a href="`numpy.ndarray`">ndarray</a></td>
+<td>Target longitude values (IMERG grid).</td>
+<td><em>required</em></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="returns-2" class="level4 doc-section doc-section-returns">
+<h4 class="doc-section doc-section-returns anchored" data-anchor-id="returns-2">Returns</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 10%">
+<col style="width: 32%">
+<col style="width: 57%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td></td>
+<td>dict of xarray.DataArray</td>
+<td>Interpolated parameters at IMERG resolution.</td>
+</tr>
+</tbody>
+</table>
+
+
+<!-- -->
+
+</section>
+</section>
+</section>
+</section>
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+    const viewSource = window.document.getElementById('quarto-view-source') ||
+                       window.document.getElementById('quarto-code-tools-source');
+    if (viewSource) {
+      const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+      viewSource.addEventListener("click", function(e) {
+        if (sourceUrl) {
+          // rstudio viewer pane
+          if (/\bcapabilities=\b/.test(window.location)) {
+            window.open(sourceUrl);
+          } else {
+            window.location.href = sourceUrl;
+          }
+        } else {
+          const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+          modal.show();
+        }
+        return false;
+      });
+    }
+    function toggleCodeHandler(show) {
+      return function(e) {
+        const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+        for (let i=0; i<detailsSrc.length; i++) {
+          const details = detailsSrc[i].parentElement;
+          if (show) {
+            details.open = true;
+          } else {
+            details.removeAttribute("open");
+          }
+        }
+        const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+        const fromCls = show ? "hidden" : "unhidden";
+        const toCls = show ? "unhidden" : "hidden";
+        for (let i=0; i<cellCodeDivs.length; i++) {
+          const codeDiv = cellCodeDivs[i];
+          if (codeDiv.classList.contains(fromCls)) {
+            codeDiv.classList.remove(fromCls);
+            codeDiv.classList.add(toCls);
+          } 
+        }
+        return false;
+      }
+    }
+    const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+    if (hideAllCode) {
+      hideAllCode.addEventListener("click", toggleCodeHandler(false));
+    }
+    const showAllCode = window.document.getElementById("quarto-show-all-code");
+    if (showAllCode) {
+      showAllCode.addEventListener("click", toggleCodeHandler(true));
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/bennyistanto\.github\.io\/hybrid-bias-correction");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+            // default icon
+            link.classList.add("external");
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu"># distribution_fitting { #src.distribution_fitting }</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="in">`distribution_fitting`</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>Module: distribution_fitting.py</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>This module contains functions for statistical distribution fitting and quantile mapping</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>used in the bias correction workflow. It includes functions for:</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>Calculating L-moments and L-moment ratios (using unbiased PWM estimators from Hosking 1990).</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>Fitting a gamma distribution using MLE (scipy.stats.gamma.fit with floc=0).</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>Fitting a Generalized Pareto Distribution (GPD) to data above a threshold.</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>Performing K-Fold cross-validation to obtain stable GPD parameters.</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>Applying gamma distribution-based quantile mapping with GPD tail adjustment</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>    using proper conditional probability mapping for extreme values.</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>Dependencies:</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>Imports default parameters from the config module.</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a><span class="ss">  - </span>Uses scipy.stats and sklearn.model_selection for statistical calculations.</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>**Author**:</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  Benny Istanto</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  Applied Climatology Study Program, Department of Geophysics and Meteorology,</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  Bogor Agricultural University, Indonesia</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  Email: bennyistanto@apps.ipb.ac.id</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>Update: 2026.03</span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a><span class="fu">## Functions</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name <span class="pp">|</span> Description <span class="pp">|</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a><span class="pp">| ---</span> <span class="pp">| ---</span> <span class="pp">|</span></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">calculate_l_moments</span><span class="co">](#src.distribution_fitting.calculate_l_moments)</span> <span class="pp">|</span> Calculate L-moments and L-moment ratios for the given data. <span class="pp">|</span></span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">cross_validate_gpd</span><span class="co">](#src.distribution_fitting.cross_validate_gpd)</span> <span class="pp">|</span> Cross-validate GPD fitting by splitting data into folds. <span class="pp">|</span></span>
+<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">fit_cpc_parameters_on_native_grid</span><span class="co">](#src.distribution_fitting.fit_cpc_parameters_on_native_grid)</span> <span class="pp">|</span> Fit gamma and GPD distribution parameters at each CPC native-resolution cell. <span class="pp">|</span></span>
+<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">fit_gamma_distribution</span><span class="co">](#src.distribution_fitting.fit_gamma_distribution)</span> <span class="pp">|</span> Fit a gamma distribution to the data using Maximum Likelihood Estimation (MLE) <span class="pp">|</span></span>
+<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">fit_generalized_pareto_distribution</span><span class="co">](#src.distribution_fitting.fit_generalized_pareto_distribution)</span> <span class="pp">|</span> Fit a Generalized Pareto Distribution (GPD) to the excesses above the threshold. <span class="pp">|</span></span>
+<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">gamma_quantile_mapping</span><span class="co">](#src.distribution_fitting.gamma_quantile_mapping)</span> <span class="pp">|</span> Apply gamma distribution-based quantile mapping with tail adjustment <span class="pp">|</span></span>
+<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">gamma_quantile_mapping_precomputed</span><span class="co">](#src.distribution_fitting.gamma_quantile_mapping_precomputed)</span> <span class="pp">|</span> Apply gamma distribution-based quantile mapping with GPD tail adjustment, <span class="pp">|</span></span>
+<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> <span class="co">[</span><span class="ot">interpolate_cpc_params_to_imerg_grid</span><span class="co">](#src.distribution_fitting.interpolate_cpc_params_to_imerg_grid)</span> <span class="pp">|</span> Bilinearly interpolate CPC distribution parameters from native ~0.5° to <span class="pp">|</span></span>
+<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a><span class="fu">### calculate_l_moments { #src.distribution_fitting.calculate_l_moments }</span></span>
+<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>distribution_fitting.calculate_l_moments(data)</span>
+<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>Calculate L-moments and L-moment ratios for the given data.</span>
+<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>L-moments are statistics used to describe the shape of a probability distribution.</span>
+<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>They are analogous to conventional moments but can be more robust to outliers.</span>
+<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>Uses the unbiased PWM estimators from Hosking (1990):</span>
+<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>    b_r = (1/n) * sum_{i=1}^{n} C(i-1,r)/C(n-1,r) * x_{i:n}</span>
+<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>where x_{i:n} are the order statistics.</span>
+<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>Parameters:</span>
+<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>data (numpy.ndarray): The input data.</span>
+<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a>Returns:</span>
+<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>tuple: L-moments (l1, l2, l3, l4) and L-moment ratios (t2, t3, t4)</span>
+<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a><span class="fu">### cross_validate_gpd { #src.distribution_fitting.cross_validate_gpd }</span></span>
+<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>distribution_fitting.cross_validate_gpd(</span>
+<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a>    data,</span>
+<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>    threshold,</span>
+<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a>    n_splits<span class="op">=</span>N_SPLITS_GPD_CROSSVALIDATE,</span>
+<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-73"><a href="#cb9-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-74"><a href="#cb9-74" aria-hidden="true" tabindex="-1"></a>Cross-validate GPD fitting by splitting data into folds.</span>
+<span id="cb9-75"><a href="#cb9-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-76"><a href="#cb9-76" aria-hidden="true" tabindex="-1"></a>This function uses K-Fold cross-validation to assess the stability and reliability</span>
+<span id="cb9-77"><a href="#cb9-77" aria-hidden="true" tabindex="-1"></a>of the GPD parameter estimates.</span>
+<span id="cb9-78"><a href="#cb9-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-79"><a href="#cb9-79" aria-hidden="true" tabindex="-1"></a>Parameters:</span>
+<span id="cb9-80"><a href="#cb9-80" aria-hidden="true" tabindex="-1"></a>data (numpy.ndarray): Array of data values.</span>
+<span id="cb9-81"><a href="#cb9-81" aria-hidden="true" tabindex="-1"></a>threshold (float): Threshold value for defining the excesses.</span>
+<span id="cb9-82"><a href="#cb9-82" aria-hidden="true" tabindex="-1"></a>n_splits (int, optional): Number of cross-validation splits. Default is 5.</span>
+<span id="cb9-83"><a href="#cb9-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-84"><a href="#cb9-84" aria-hidden="true" tabindex="-1"></a>Returns:</span>
+<span id="cb9-85"><a href="#cb9-85" aria-hidden="true" tabindex="-1"></a>tuple: Averaged parameters of the GPD from cross-validation (shape, location, scale).</span>
+<span id="cb9-86"><a href="#cb9-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-87"><a href="#cb9-87" aria-hidden="true" tabindex="-1"></a><span class="fu">### fit_cpc_parameters_on_native_grid { #src.distribution_fitting.fit_cpc_parameters_on_native_grid }</span></span>
+<span id="cb9-88"><a href="#cb9-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-89"><a href="#cb9-89" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb9-90"><a href="#cb9-90" aria-hidden="true" tabindex="-1"></a>distribution_fitting.fit_cpc_parameters_on_native_grid(cpc_native_dekad)</span>
+<span id="cb9-91"><a href="#cb9-91" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-92"><a href="#cb9-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-93"><a href="#cb9-93" aria-hidden="true" tabindex="-1"></a>Fit gamma and GPD distribution parameters at each CPC native-resolution cell.</span>
+<span id="cb9-94"><a href="#cb9-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-95"><a href="#cb9-95" aria-hidden="true" tabindex="-1"></a>This avoids redundantly fitting the same CPC time series 25 times (as happens</span>
+<span id="cb9-96"><a href="#cb9-96" aria-hidden="true" tabindex="-1"></a>when CPC is nearest-neighbour regridded to 0.1°). Instead, parameters are</span>
+<span id="cb9-97"><a href="#cb9-97" aria-hidden="true" tabindex="-1"></a>fitted once per ~0.5° cell and later interpolated to the IMERG grid.</span>
+<span id="cb9-98"><a href="#cb9-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-99"><a href="#cb9-99" aria-hidden="true" tabindex="-1"></a>Based on the BCSD principle (Wood et al. 2004): correct at reference resolution,</span>
+<span id="cb9-100"><a href="#cb9-100" aria-hidden="true" tabindex="-1"></a>then disaggregate smoothly.</span>
+<span id="cb9-101"><a href="#cb9-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-102"><a href="#cb9-102" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb9-103"><a href="#cb9-103" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-104"><a href="#cb9-104" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name             <span class="pp">|</span> Type                                               <span class="pp">|</span> Description                                                                                                        <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb9-105"><a href="#cb9-105" aria-hidden="true" tabindex="-1"></a><span class="pp">|------------------|----------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|------------|</span></span>
+<span id="cb9-106"><a href="#cb9-106" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> cpc_native_dekad <span class="pp">|</span> <span class="co">[</span><span class="ot">xarray</span><span class="co">](`xarray`)</span>.<span class="co">[</span><span class="ot">DataArray</span><span class="co">](`xarray.DataArray`)</span> <span class="pp">|</span> CPC precipitation at native ~0.5° resolution for one dekad across all years. Shape (n_time, n_lat_cpc, n_lon_cpc). <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb9-107"><a href="#cb9-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-108"><a href="#cb9-108" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb9-109"><a href="#cb9-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-110"><a href="#cb9-110" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type                     <span class="pp">|</span> Description                                                                                                                                                                                                            <span class="pp">|</span></span>
+<span id="cb9-111"><a href="#cb9-111" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|</span></span>
+<span id="cb9-112"><a href="#cb9-112" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> dict of xarray.DataArray <span class="pp">|</span> Dictionary with 9 parameter arrays at CPC native resolution: 'gamma_shape', 'gamma_scale', 'gpd_threshold', 'gpd_shape', 'gpd_loc', 'gpd_scale', 'upper_cap', 'p_threshold', 'p_dry_cpc'. Ocean/invalid cells are NaN. <span class="pp">|</span></span>
+<span id="cb9-113"><a href="#cb9-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-114"><a href="#cb9-114" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb9-115"><a href="#cb9-115" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-116"><a href="#cb9-116" aria-hidden="true" tabindex="-1"></a>Fixes applied (2026.04):</span>
+<span id="cb9-117"><a href="#cb9-117" aria-hidden="true" tabindex="-1"></a><span class="ss">  * </span>Fix C (Cannon 2015 §3.2): gamma distribution fitted on WET-day values</span>
+<span id="cb9-118"><a href="#cb9-118" aria-hidden="true" tabindex="-1"></a>    only (&gt; WET_DAY_THRESHOLD), not on all values including zeros. The</span>
+<span id="cb9-119"><a href="#cb9-119" aria-hidden="true" tabindex="-1"></a>    GPD threshold is also computed from wet values only.</span>
+<span id="cb9-120"><a href="#cb9-120" aria-hidden="true" tabindex="-1"></a><span class="ss">  * </span>Fix A (Coles 2001): GPD fitting inside cross_validate_gpd uses</span>
+<span id="cb9-121"><a href="#cb9-121" aria-hidden="true" tabindex="-1"></a>    floc=0 (see fit_generalized_pareto_distribution).</span>
+<span id="cb9-122"><a href="#cb9-122" aria-hidden="true" tabindex="-1"></a><span class="ss">  * </span>New: p_dry_cpc is returned per cell so the downstream mapping</span>
+<span id="cb9-123"><a href="#cb9-123" aria-hidden="true" tabindex="-1"></a>    step can apply Cannon dry-day handling using the interpolated</span>
+<span id="cb9-124"><a href="#cb9-124" aria-hidden="true" tabindex="-1"></a>    dry-day frequency at each IMERG pixel.</span>
+<span id="cb9-125"><a href="#cb9-125" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-126"><a href="#cb9-126" aria-hidden="true" tabindex="-1"></a><span class="fu">### fit_gamma_distribution { #src.distribution_fitting.fit_gamma_distribution }</span></span>
+<span id="cb9-127"><a href="#cb9-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-128"><a href="#cb9-128" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb9-129"><a href="#cb9-129" aria-hidden="true" tabindex="-1"></a>distribution_fitting.fit_gamma_distribution(data)</span>
+<span id="cb9-130"><a href="#cb9-130" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-131"><a href="#cb9-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-132"><a href="#cb9-132" aria-hidden="true" tabindex="-1"></a>Fit a gamma distribution to the data using Maximum Likelihood Estimation (MLE)</span>
+<span id="cb9-133"><a href="#cb9-133" aria-hidden="true" tabindex="-1"></a>via scipy.stats.gamma.fit with location fixed at zero.</span>
+<span id="cb9-134"><a href="#cb9-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-135"><a href="#cb9-135" aria-hidden="true" tabindex="-1"></a>For precipitation data, the gamma distribution is a natural choice as it models</span>
+<span id="cb9-136"><a href="#cb9-136" aria-hidden="true" tabindex="-1"></a>positive-valued, right-skewed random variables. Fixing loc=0 ensures the distribution</span>
+<span id="cb9-137"><a href="#cb9-137" aria-hidden="true" tabindex="-1"></a>starts at zero, which is physically meaningful for precipitation.</span>
+<span id="cb9-138"><a href="#cb9-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-139"><a href="#cb9-139" aria-hidden="true" tabindex="-1"></a>Parameters:</span>
+<span id="cb9-140"><a href="#cb9-140" aria-hidden="true" tabindex="-1"></a>data (numpy.ndarray): Array of data values.</span>
+<span id="cb9-141"><a href="#cb9-141" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-142"><a href="#cb9-142" aria-hidden="true" tabindex="-1"></a>Returns:</span>
+<span id="cb9-143"><a href="#cb9-143" aria-hidden="true" tabindex="-1"></a>tuple: Fitted parameters (shape, loc, scale) of the gamma distribution.</span>
+<span id="cb9-144"><a href="#cb9-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-145"><a href="#cb9-145" aria-hidden="true" tabindex="-1"></a><span class="fu">### fit_generalized_pareto_distribution { #src.distribution_fitting.fit_generalized_pareto_distribution }</span></span>
+<span id="cb9-146"><a href="#cb9-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-147"><a href="#cb9-147" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb9-148"><a href="#cb9-148" aria-hidden="true" tabindex="-1"></a>distribution_fitting.fit_generalized_pareto_distribution(data, threshold)</span>
+<span id="cb9-149"><a href="#cb9-149" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-150"><a href="#cb9-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-151"><a href="#cb9-151" aria-hidden="true" tabindex="-1"></a>Fit a Generalized Pareto Distribution (GPD) to the excesses above the threshold.</span>
+<span id="cb9-152"><a href="#cb9-152" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-153"><a href="#cb9-153" aria-hidden="true" tabindex="-1"></a>The GPD is often used in extreme value theory to model the tail of a distribution.</span>
+<span id="cb9-154"><a href="#cb9-154" aria-hidden="true" tabindex="-1"></a>It's particularly useful for modeling events that exceed a high threshold.</span>
+<span id="cb9-155"><a href="#cb9-155" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-156"><a href="#cb9-156" aria-hidden="true" tabindex="-1"></a>Parameters:</span>
+<span id="cb9-157"><a href="#cb9-157" aria-hidden="true" tabindex="-1"></a>data (numpy.ndarray): Array of data values.</span>
+<span id="cb9-158"><a href="#cb9-158" aria-hidden="true" tabindex="-1"></a>threshold (float): Threshold value for defining the excesses.</span>
+<span id="cb9-159"><a href="#cb9-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-160"><a href="#cb9-160" aria-hidden="true" tabindex="-1"></a>Returns:</span>
+<span id="cb9-161"><a href="#cb9-161" aria-hidden="true" tabindex="-1"></a>tuple: Fitted parameters of the GPD (shape, location, scale).</span>
+<span id="cb9-162"><a href="#cb9-162" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-163"><a href="#cb9-163" aria-hidden="true" tabindex="-1"></a><span class="fu">### gamma_quantile_mapping { #src.distribution_fitting.gamma_quantile_mapping }</span></span>
+<span id="cb9-164"><a href="#cb9-164" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-165"><a href="#cb9-165" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb9-166"><a href="#cb9-166" aria-hidden="true" tabindex="-1"></a>distribution_fitting.gamma_quantile_mapping(imerg_values, cpc_values)</span>
+<span id="cb9-167"><a href="#cb9-167" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-168"><a href="#cb9-168" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-169"><a href="#cb9-169" aria-hidden="true" tabindex="-1"></a>Apply gamma distribution-based quantile mapping with tail adjustment</span>
+<span id="cb9-170"><a href="#cb9-170" aria-hidden="true" tabindex="-1"></a>to correct the distribution of precipitation data.</span>
+<span id="cb9-171"><a href="#cb9-171" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-172"><a href="#cb9-172" aria-hidden="true" tabindex="-1"></a>This function fits gamma distributions to the IMERG and CPC precipitation values using</span>
+<span id="cb9-173"><a href="#cb9-173" aria-hidden="true" tabindex="-1"></a>MLE (scipy.stats.gamma.fit). It then computes the cumulative distribution function (CDF) of</span>
+<span id="cb9-174"><a href="#cb9-174" aria-hidden="true" tabindex="-1"></a>the IMERG values and applies the inverse CDF of the CPC values to obtain the corrected</span>
+<span id="cb9-175"><a href="#cb9-175" aria-hidden="true" tabindex="-1"></a>precipitation values. Additionally, it adjusts the tails using the Generalized Pareto</span>
+<span id="cb9-176"><a href="#cb9-176" aria-hidden="true" tabindex="-1"></a>Distribution (GPD) to better capture extreme values.</span>
+<span id="cb9-177"><a href="#cb9-177" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-178"><a href="#cb9-178" aria-hidden="true" tabindex="-1"></a>The GPD tail adjustment uses proper conditional probability mapping:</span>
+<span id="cb9-179"><a href="#cb9-179" aria-hidden="true" tabindex="-1"></a>For values above the threshold, the unconditional CDF value is mapped to the conditional</span>
+<span id="cb9-180"><a href="#cb9-180" aria-hidden="true" tabindex="-1"></a>exceedance probability before applying the GPD inverse CDF.</span>
+<span id="cb9-181"><a href="#cb9-181" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-182"><a href="#cb9-182" aria-hidden="true" tabindex="-1"></a>Parameters:</span>
+<span id="cb9-183"><a href="#cb9-183" aria-hidden="true" tabindex="-1"></a>imerg_values (numpy.ndarray): Array of IMERG precipitation values.</span>
+<span id="cb9-184"><a href="#cb9-184" aria-hidden="true" tabindex="-1"></a>cpc_values (numpy.ndarray): Array of CPC precipitation values.</span>
+<span id="cb9-185"><a href="#cb9-185" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-186"><a href="#cb9-186" aria-hidden="true" tabindex="-1"></a>Returns:</span>
+<span id="cb9-187"><a href="#cb9-187" aria-hidden="true" tabindex="-1"></a>numpy.ndarray: Corrected precipitation values after gamma quantile mapping with</span>
+<span id="cb9-188"><a href="#cb9-188" aria-hidden="true" tabindex="-1"></a>tail adjustment.</span>
+<span id="cb9-189"><a href="#cb9-189" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-190"><a href="#cb9-190" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb9-191"><a href="#cb9-191" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-192"><a href="#cb9-192" aria-hidden="true" tabindex="-1"></a>Fixes applied (2026.04):</span>
+<span id="cb9-193"><a href="#cb9-193" aria-hidden="true" tabindex="-1"></a><span class="ss">  * </span>Fix C (Cannon 2015 §3.2): gamma distributions are fitted on wet-day</span>
+<span id="cb9-194"><a href="#cb9-194" aria-hidden="true" tabindex="-1"></a>    values only (&gt; WET_DAY_THRESHOLD). The dry-day fraction is handled</span>
+<span id="cb9-195"><a href="#cb9-195" aria-hidden="true" tabindex="-1"></a>    explicitly via the unconditional CDF construction, and sub-threshold</span>
+<span id="cb9-196"><a href="#cb9-196" aria-hidden="true" tabindex="-1"></a>    IMERG values are mapped either to zero (when the unconditional</span>
+<span id="cb9-197"><a href="#cb9-197" aria-hidden="true" tabindex="-1"></a>    probability is below the CPC dry-day fraction) or through the</span>
+<span id="cb9-198"><a href="#cb9-198" aria-hidden="true" tabindex="-1"></a>    conditional wet CDF of CPC. This prevents drizzle days from</span>
+<span id="cb9-199"><a href="#cb9-199" aria-hidden="true" tabindex="-1"></a>    contaminating the gamma body and matches the CPC dry-day frequency.</span>
+<span id="cb9-200"><a href="#cb9-200" aria-hidden="true" tabindex="-1"></a><span class="ss">  * </span>Fix B: GPD substitution is triggered on IMERG's own 80th percentile</span>
+<span id="cb9-201"><a href="#cb9-201" aria-hidden="true" tabindex="-1"></a>    of wet values, not on the CPC threshold, and the conditional</span>
+<span id="cb9-202"><a href="#cb9-202" aria-hidden="true" tabindex="-1"></a>    probability is computed consistently in unconditional CDF space.</span>
+<span id="cb9-203"><a href="#cb9-203" aria-hidden="true" tabindex="-1"></a><span class="ss">  * </span>Fix A (Coles 2001): GPD fitting uses floc=0 internally.</span>
+<span id="cb9-204"><a href="#cb9-204" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-205"><a href="#cb9-205" aria-hidden="true" tabindex="-1"></a><span class="fu">### gamma_quantile_mapping_precomputed { #src.distribution_fitting.gamma_quantile_mapping_precomputed }</span></span>
+<span id="cb9-206"><a href="#cb9-206" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-207"><a href="#cb9-207" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb9-208"><a href="#cb9-208" aria-hidden="true" tabindex="-1"></a>distribution_fitting.gamma_quantile_mapping_precomputed(</span>
+<span id="cb9-209"><a href="#cb9-209" aria-hidden="true" tabindex="-1"></a>    imerg_values,</span>
+<span id="cb9-210"><a href="#cb9-210" aria-hidden="true" tabindex="-1"></a>    cpc_gamma_shape,</span>
+<span id="cb9-211"><a href="#cb9-211" aria-hidden="true" tabindex="-1"></a>    cpc_gamma_scale,</span>
+<span id="cb9-212"><a href="#cb9-212" aria-hidden="true" tabindex="-1"></a>    cpc_gpd_threshold,</span>
+<span id="cb9-213"><a href="#cb9-213" aria-hidden="true" tabindex="-1"></a>    cpc_gpd_shape,</span>
+<span id="cb9-214"><a href="#cb9-214" aria-hidden="true" tabindex="-1"></a>    cpc_gpd_loc,</span>
+<span id="cb9-215"><a href="#cb9-215" aria-hidden="true" tabindex="-1"></a>    cpc_gpd_scale,</span>
+<span id="cb9-216"><a href="#cb9-216" aria-hidden="true" tabindex="-1"></a>    cpc_upper_cap,</span>
+<span id="cb9-217"><a href="#cb9-217" aria-hidden="true" tabindex="-1"></a>    cpc_p_threshold,</span>
+<span id="cb9-218"><a href="#cb9-218" aria-hidden="true" tabindex="-1"></a>    p_dry_cpc,</span>
+<span id="cb9-219"><a href="#cb9-219" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-220"><a href="#cb9-220" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-221"><a href="#cb9-221" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-222"><a href="#cb9-222" aria-hidden="true" tabindex="-1"></a>Apply gamma distribution-based quantile mapping with GPD tail adjustment,</span>
+<span id="cb9-223"><a href="#cb9-223" aria-hidden="true" tabindex="-1"></a>using pre-computed CPC-side parameters instead of fitting CPC per pixel.</span>
+<span id="cb9-224"><a href="#cb9-224" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-225"><a href="#cb9-225" aria-hidden="true" tabindex="-1"></a>This is the BCSD-path counterpart to gamma_quantile_mapping(). Statistical</span>
+<span id="cb9-226"><a href="#cb9-226" aria-hidden="true" tabindex="-1"></a>logic is identical, but CPC parameters come from the native-resolution fit</span>
+<span id="cb9-227"><a href="#cb9-227" aria-hidden="true" tabindex="-1"></a>(fit_cpc_parameters_on_native_grid) and are bilinearly interpolated to the</span>
+<span id="cb9-228"><a href="#cb9-228" aria-hidden="true" tabindex="-1"></a>IMERG grid, eliminating 0.5° block artefacts.</span>
+<span id="cb9-229"><a href="#cb9-229" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-230"><a href="#cb9-230" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb9-231"><a href="#cb9-231" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-232"><a href="#cb9-232" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name              <span class="pp">|</span> Type                                        <span class="pp">|</span> Description                                                                                                                        <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb9-233"><a href="#cb9-233" aria-hidden="true" tabindex="-1"></a><span class="pp">|-------------------|---------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|------------|</span></span>
+<span id="cb9-234"><a href="#cb9-234" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> imerg_values      <span class="pp">|</span> <span class="co">[</span><span class="ot">numpy</span><span class="co">](`numpy`)</span>.<span class="co">[</span><span class="ot">ndarray</span><span class="co">](`numpy.ndarray`)</span> <span class="pp">|</span> IMERG precipitation time series for one pixel.                                                                                     <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb9-235"><a href="#cb9-235" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> cpc_gamma_shape   <span class="pp">|</span> <span class="co">[</span><span class="ot">float</span><span class="co">](`float`)</span>                            <span class="pp">|</span> Pre-computed CPC gamma shape (fitted on wet values only, Fix C).                                                                   <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb9-236"><a href="#cb9-236" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> cpc_gamma_scale   <span class="pp">|</span> <span class="co">[</span><span class="ot">float</span><span class="co">](`float`)</span>                            <span class="pp">|</span> Pre-computed CPC gamma scale (fitted on wet values only, Fix C).                                                                   <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb9-237"><a href="#cb9-237" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> cpc_gpd_threshold <span class="pp">|</span> <span class="co">[</span><span class="ot">float</span><span class="co">](`float`)</span>                            <span class="pp">|</span> Pre-computed CPC GPD threshold (80th percentile of wet values).                                                                    <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb9-238"><a href="#cb9-238" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> cpc_gpd_shape     <span class="pp">|</span> <span class="co">[</span><span class="ot">float</span><span class="co">](`float`)</span>                            <span class="pp">|</span> Pre-computed CPC GPD shape (fitted with floc=0, Fix A).                                                                            <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb9-239"><a href="#cb9-239" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> cpc_gpd_loc       <span class="pp">|</span> <span class="co">[</span><span class="ot">float</span><span class="co">](`float`)</span>                            <span class="pp">|</span> Pre-computed CPC GPD location.                                                                                                     <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb9-240"><a href="#cb9-240" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> cpc_gpd_scale     <span class="pp">|</span> <span class="co">[</span><span class="ot">float</span><span class="co">](`float`)</span>                            <span class="pp">|</span> Pre-computed CPC GPD scale.                                                                                                        <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb9-241"><a href="#cb9-241" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> cpc_upper_cap     <span class="pp">|</span> <span class="co">[</span><span class="ot">float</span><span class="co">](`float`)</span>                            <span class="pp">|</span> Pre-computed CPC upper cap (99.9th percentile of wet values).                                                                      <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb9-242"><a href="#cb9-242" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> cpc_p_threshold   <span class="pp">|</span> <span class="co">[</span><span class="ot">float</span><span class="co">](`float`)</span>                            <span class="pp">|</span> Pre-computed CPC gamma CDF value at the GPD threshold.                                                                             <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb9-243"><a href="#cb9-243" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> p_dry_cpc         <span class="pp">|</span> <span class="co">[</span><span class="ot">float</span><span class="co">](`float`)</span>                            <span class="pp">|</span> Pre-computed CPC dry-day fraction (fraction of days &lt;= WET_DAY_THRESHOLD). Required for Cannon 2015 §3.2 dry-day handling (Fix C). <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb9-244"><a href="#cb9-244" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-245"><a href="#cb9-245" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb9-246"><a href="#cb9-246" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-247"><a href="#cb9-247" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type                                        <span class="pp">|</span> Description                                            <span class="pp">|</span></span>
+<span id="cb9-248"><a href="#cb9-248" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|---------------------------------------------|--------------------------------------------------------|</span></span>
+<span id="cb9-249"><a href="#cb9-249" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> <span class="co">[</span><span class="ot">numpy</span><span class="co">](`numpy`)</span>.<span class="co">[</span><span class="ot">ndarray</span><span class="co">](`numpy.ndarray`)</span> <span class="pp">|</span> Corrected precipitation values after quantile mapping. <span class="pp">|</span></span>
+<span id="cb9-250"><a href="#cb9-250" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-251"><a href="#cb9-251" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Notes {.doc-section .doc-section-notes}</span></span>
+<span id="cb9-252"><a href="#cb9-252" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-253"><a href="#cb9-253" aria-hidden="true" tabindex="-1"></a>Fixes applied (2026.04):</span>
+<span id="cb9-254"><a href="#cb9-254" aria-hidden="true" tabindex="-1"></a><span class="ss">  * </span>Fix C (Cannon 2015 §3.2): IMERG gamma fitted on wet-day values only;</span>
+<span id="cb9-255"><a href="#cb9-255" aria-hidden="true" tabindex="-1"></a>    Cannon dry-day handling uses p_dry_imerg (per pixel) and p_dry_cpc</span>
+<span id="cb9-256"><a href="#cb9-256" aria-hidden="true" tabindex="-1"></a>    (interpolated from native CPC fit) to match dry-day frequencies.</span>
+<span id="cb9-257"><a href="#cb9-257" aria-hidden="true" tabindex="-1"></a><span class="ss">  * </span>Fix B: GPD substitution triggered on IMERG-side 80th percentile of</span>
+<span id="cb9-258"><a href="#cb9-258" aria-hidden="true" tabindex="-1"></a>    wet values, with conditional probability computed in the unconditional</span>
+<span id="cb9-259"><a href="#cb9-259" aria-hidden="true" tabindex="-1"></a>    CDF space for consistency between gamma body and GPD tail.</span>
+<span id="cb9-260"><a href="#cb9-260" aria-hidden="true" tabindex="-1"></a><span class="ss">  * </span>Fix A (Coles 2001): inherited via cpc_gpd_* which were fitted with</span>
+<span id="cb9-261"><a href="#cb9-261" aria-hidden="true" tabindex="-1"></a>    floc=0 upstream in cross_validate_gpd.</span>
+<span id="cb9-262"><a href="#cb9-262" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-263"><a href="#cb9-263" aria-hidden="true" tabindex="-1"></a><span class="fu">### interpolate_cpc_params_to_imerg_grid { #src.distribution_fitting.interpolate_cpc_params_to_imerg_grid }</span></span>
+<span id="cb9-264"><a href="#cb9-264" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-265"><a href="#cb9-265" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb9-266"><a href="#cb9-266" aria-hidden="true" tabindex="-1"></a>distribution_fitting.interpolate_cpc_params_to_imerg_grid(</span>
+<span id="cb9-267"><a href="#cb9-267" aria-hidden="true" tabindex="-1"></a>    cpc_params,</span>
+<span id="cb9-268"><a href="#cb9-268" aria-hidden="true" tabindex="-1"></a>    target_lat,</span>
+<span id="cb9-269"><a href="#cb9-269" aria-hidden="true" tabindex="-1"></a>    target_lon,</span>
+<span id="cb9-270"><a href="#cb9-270" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-271"><a href="#cb9-271" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb9-272"><a href="#cb9-272" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-273"><a href="#cb9-273" aria-hidden="true" tabindex="-1"></a>Bilinearly interpolate CPC distribution parameters from native ~0.5° to</span>
+<span id="cb9-274"><a href="#cb9-274" aria-hidden="true" tabindex="-1"></a>the IMERG 0.1° grid. Uses a two-pass approach: bilinear first, then</span>
+<span id="cb9-275"><a href="#cb9-275" aria-hidden="true" tabindex="-1"></a>nearest-neighbour to fill boundary NaN values.</span>
+<span id="cb9-276"><a href="#cb9-276" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-277"><a href="#cb9-277" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Parameters {.doc-section .doc-section-parameters}</span></span>
+<span id="cb9-278"><a href="#cb9-278" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-279"><a href="#cb9-279" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name       <span class="pp">|</span> Type                                        <span class="pp">|</span> Description                                                                                           <span class="pp">|</span> Default    <span class="pp">|</span></span>
+<span id="cb9-280"><a href="#cb9-280" aria-hidden="true" tabindex="-1"></a><span class="pp">|------------|---------------------------------------------|-------------------------------------------------------------------------------------------------------|------------|</span></span>
+<span id="cb9-281"><a href="#cb9-281" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> cpc_params <span class="pp">|</span> dict of xarray.DataArray                    <span class="pp">|</span> CPC distribution parameters at native resolution, as returned by fit_cpc_parameters_on_native_grid(). <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb9-282"><a href="#cb9-282" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> target_lat <span class="pp">|</span> <span class="co">[</span><span class="ot">numpy</span><span class="co">](`numpy`)</span>.<span class="co">[</span><span class="ot">ndarray</span><span class="co">](`numpy.ndarray`)</span> <span class="pp">|</span> Target latitude values (IMERG grid).                                                                  <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb9-283"><a href="#cb9-283" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> target_lon <span class="pp">|</span> <span class="co">[</span><span class="ot">numpy</span><span class="co">](`numpy`)</span>.<span class="co">[</span><span class="ot">ndarray</span><span class="co">](`numpy.ndarray`)</span> <span class="pp">|</span> Target longitude values (IMERG grid).                                                                 <span class="pp">|</span> _required_ <span class="pp">|</span></span>
+<span id="cb9-284"><a href="#cb9-284" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-285"><a href="#cb9-285" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Returns {.doc-section .doc-section-returns}</span></span>
+<span id="cb9-286"><a href="#cb9-286" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-287"><a href="#cb9-287" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span> Name   <span class="pp">|</span> Type                     <span class="pp">|</span> Description                                  <span class="pp">|</span></span>
+<span id="cb9-288"><a href="#cb9-288" aria-hidden="true" tabindex="-1"></a><span class="pp">|--------|--------------------------|----------------------------------------------|</span></span>
+<span id="cb9-289"><a href="#cb9-289" aria-hidden="true" tabindex="-1"></a><span class="pp">|</span>        <span class="pp">|</span> dict of xarray.DataArray <span class="pp">|</span> Interpolated parameters at IMERG resolution. <span class="pp">|</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Benny Istanto.</p>
+</div>   
+    <div class="nav-footer-center">
+<p>Built with <a href="https://quarto.org/">Quarto</a></p>
+<div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/bennyistanto/hybrid-bias-correction/blob/main/technical/api-reference/distribution_fitting.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/bennyistanto/hybrid-bias-correction/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/bennyistanto/hybrid-bias-correction">
+      <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+    </a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+
+<script src="../../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

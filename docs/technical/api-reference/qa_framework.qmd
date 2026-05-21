@@ -1,0 +1,321 @@
+# qa_framework { #src.qa_framework }
+
+`qa_framework`
+
+Module: qa_framework.py
+
+Quality Assessment (QA) framework for bias-corrected precipitation products.
+
+This module computes composite quality indices from the raw verification metrics
+produced by ``metrics.py``. It implements a three-tier quality assessment:
+
+1. **Basic Statistical Quality** (config weight 0.4):
+   Combines Relative Bias, RMSE, and NSE into a single normalized score [0, 1].
+   Note: Pearson Correlation is intentionally excluded here because it is
+   already embedded within NSE (Gupta et al., 2009). Including both would
+   double-count the linear association component.
+
+2. **Distribution Quality** (config weight 0.3):
+   Evaluates how well the corrected product preserves the full precipitation
+   distribution: extreme percentiles (p90/p95/p99) with highest weight
+   (primary target of GPD tail adjustment), general percentiles (p25/p50/p75),
+   variability (std dev ratio), and KS p-value (formal distribution test).
+
+3. **Temporal Quality** (config weight 0.3):
+   Assesses preservation of temporal patterns: CSI for balanced event detection
+   skill, POD/FAR for detection vs false alarm trade-off, and dry spell length
+   for sequencing. CSI is preferred over correlation to avoid double-counting
+   with NSE in Basic Statistical Quality.
+
+These three components combine into:
+- **Continuous Quality Index (CQI)**: weighted average, range [0, 1].
+- **Categorical Quality**: Poor (<0.4), Fair (0.4-0.6), Good (0.6-0.8),
+  Excellent (>=0.8).
+- **Confidence Level**: reliability estimate based on metric consistency,
+  sample size, and distribution agreement (KS p-value, where HIGH p-value
+  indicates similar distributions and thus high confidence).
+
+## References {.doc-section .doc-section-references}
+
+- WMO (2017), Guidelines on the Calculation of Climate Normals.
+- Gupta, H. V. et al. (2009), Decomposition of the mean squared error and
+  NSE performance criteria. J. Hydrology, 377(1-2), 80-91.
+- Wilks, D.S. (2011), Statistical Methods in the Atmospheric Sciences, 3rd ed.
+- Entekhabi et al. (2010), Performance Metrics for Soil Moisture Retrievals.
+- Ebert, E. (2007), Methods for verifying satellite precipitation estimates.
+
+## Author {.doc-section .doc-section-author}
+
+Benny Istanto
+  Applied Climatology Study Program, Department of Geophysics and Meteorology,
+  Bogor Agricultural University, Indonesia
+  Email: bennyistanto@apps.ipb.ac.id
+
+  with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
+
+Update: 2026.03
+
+## Functions
+
+| Name | Description |
+| --- | --- |
+| [calculate_basic_statistical_quality](#src.qa_framework.calculate_basic_statistical_quality) | Calculate basic statistical quality score combining fundamental metrics. |
+| [calculate_confidence](#src.qa_framework.calculate_confidence) | Estimate confidence in the quality assessment. |
+| [calculate_distribution_quality](#src.qa_framework.calculate_distribution_quality) | Calculate distribution quality score from percentile matching, variability, |
+| [calculate_overall_quality](#src.qa_framework.calculate_overall_quality) | Calculate Continuous Quality Index (CQI) and categorical classification. |
+| [calculate_temporal_quality](#src.qa_framework.calculate_temporal_quality) | Calculate temporal quality score for pattern and event preservation. |
+| [compute_quality_assessment](#src.qa_framework.compute_quality_assessment) | Run the full quality assessment pipeline on a metrics dataset. |
+| [run_qa_pipeline](#src.qa_framework.run_qa_pipeline) | Run quality assessment for all 9 reference-vs-test combinations. |
+| [save_quality_assessment](#src.qa_framework.save_quality_assessment) | Save quality assessment results to CF-1.8 compliant NetCDF. |
+
+### calculate_basic_statistical_quality { #src.qa_framework.calculate_basic_statistical_quality }
+
+```python
+qa_framework.calculate_basic_statistical_quality(metrics, weights=None)
+```
+
+Calculate basic statistical quality score combining fundamental metrics.
+
+Each metric is normalized to [0, 1] where 1 = perfect:
+- Relative Bias: 1 - min(|RB|, 1). Penalizes both over- and under-estimation.
+- RMSE: exp(-RMSE / 5). Exponential decay; RMSE of 5 mm/day scores ~0.37.
+- NSE: clipped to [0, 1]. Values < 0 (worse than climatology) score 0.
+
+Note: Pearson Correlation is intentionally excluded here because it is
+already embedded within NSE (Nash-Sutcliffe Efficiency). Including both
+would double-count the linear association component. NSE is preferred
+because it integrates correlation, bias, and variability into a single
+measure (Gupta et al., 2009).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type                                           | Description                                                                                                                   | Default    |
+|---------|------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------|------------|
+| metrics | [xarray](`xarray`).[Dataset](`xarray.Dataset`) | Dataset containing at least: relative_bias, rmse, nse.                                                                        | _required_ |
+| weights | [dict](`dict`)                                 | Custom weights for each metric. Keys: 'relative_bias', 'rmse', 'nse'. Must sum to 1.0. Default: RB=0.30, RMSE=0.30, NSE=0.40. | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                               | Description                                    |
+|--------|----------------------------------------------------|------------------------------------------------|
+|        | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | Basic statistical quality score, range [0, 1]. |
+
+### calculate_confidence { #src.qa_framework.calculate_confidence }
+
+```python
+qa_framework.calculate_confidence(metrics, continuous_quality)
+```
+
+Estimate confidence in the quality assessment.
+
+Confidence is derived from:
+- **Metric consistency**: agreement among different metrics (low std = high
+  confidence). If bias, NSE, POD, and FAR all agree, the assessment
+  is more trustworthy.
+- **Distribution agreement**: KS-test p-value used directly (NOT inverted).
+  A HIGH p-value means the reference and test distributions are NOT
+  statistically different, indicating the correction successfully matched
+  the reference distribution, thus warranting HIGH confidence.
+- **Sample size** (timeseries only): fraction of non-NaN years.
+
+For single dekad: Confidence = 0.6 * consistency + 0.4 * dist_agreement.
+For timeseries:   Confidence = 0.4 * sample + 0.3 * dist_agreement + 0.3 * consistency.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name               | Type                                               | Description                           | Default    |
+|--------------------|----------------------------------------------------|---------------------------------------|------------|
+| metrics            | [xarray](`xarray`).[Dataset](`xarray.Dataset`)     | Raw metrics dataset.                  | _required_ |
+| continuous_quality | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | CQI score (used for shape reference). | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                               | Description                     |
+|--------|----------------------------------------------------|---------------------------------|
+|        | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | Confidence level, range [0, 1]. |
+
+### calculate_distribution_quality { #src.qa_framework.calculate_distribution_quality }
+
+```python
+qa_framework.calculate_distribution_quality(metrics, weights=None)
+```
+
+Calculate distribution quality score from percentile matching, variability,
+and formal distribution testing.
+
+Evaluates four aspects:
+1. **Extreme percentile matching** (p90, p95, p99): how well the upper
+   tail is reproduced. The 99th percentile has higher weight because
+   extremes are the primary target of the GPD tail adjustment. This is
+   the most important sub-component for our EQM+GPD workflow.
+2. **General percentile matching** (p25, p50, p75): how well the bulk
+   distribution is reproduced. Score = 1 - |test - ref| / (ref + 0.1).
+3. **Variability preservation**: |1 - stdev_ratio|. A ratio of 1 means
+   perfect variability preservation.
+4. **KS p-value**: formal two-sample Kolmogorov-Smirnov test. A high
+   p-value means no statistical evidence that the distributions differ,
+   indicating successful correction. This provides a rigorous statistical
+   complement to the empirical percentile comparisons.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type                                           | Description                                                                                                                           | Default    |
+|---------|------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------|------------|
+| metrics | [xarray](`xarray`).[Dataset](`xarray.Dataset`) | Dataset containing percentile variables (p25_ref, p25_test, etc.), stdev_ratio, and ks_pvalue.                                        | _required_ |
+| weights | [dict](`dict`)                                 | Weights for 'extreme_percentiles', 'general_percentiles', 'variability', 'ks_test'. Must sum to 1.0. Default: 0.45, 0.25, 0.15, 0.15. | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                               | Description                               |
+|--------|----------------------------------------------------|-------------------------------------------|
+|        | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | Distribution quality score, range [0, 1]. |
+
+### calculate_overall_quality { #src.qa_framework.calculate_overall_quality }
+
+```python
+qa_framework.calculate_overall_quality(
+    basic_score,
+    dist_score,
+    temporal_score,
+    component_weights=None,
+    categorical_thresholds=None,
+)
+```
+
+Calculate Continuous Quality Index (CQI) and categorical classification.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name                   | Type                                               | Description                                                                       | Default    |
+|------------------------|----------------------------------------------------|-----------------------------------------------------------------------------------|------------|
+| basic_score            | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | Basic statistical quality score [0, 1].                                           | _required_ |
+| dist_score             | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | Distribution quality score [0, 1].                                                | _required_ |
+| temporal_score         | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | Temporal quality score [0, 1].                                                    | _required_ |
+| component_weights      | [dict](`dict`)                                     | Weights for 'basic_stats', 'distribution', 'temporal'. Default: 0.35, 0.35, 0.30. | `None`     |
+| categorical_thresholds | [dict](`dict`)                                     | Thresholds for 'excellent', 'good', 'fair'. Default: 0.8, 0.6, 0.4.               | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name                | Type                                               | Description                                                        |
+|---------------------|----------------------------------------------------|--------------------------------------------------------------------|
+| continuous_quality  | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | CQI score, range [0, 1].                                           |
+| categorical_quality | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | Classification: 4=Excellent, 3=Good, 2=Fair, 1=Poor, -9999=NoData. |
+
+### calculate_temporal_quality { #src.qa_framework.calculate_temporal_quality }
+
+```python
+qa_framework.calculate_temporal_quality(metrics, weights=None)
+```
+
+Calculate temporal quality score for pattern and event preservation.
+
+Evaluates three aspects:
+1. **CSI (Critical Success Index)**: the most balanced categorical metric,
+   simultaneously penalizing both misses and false alarms. Unlike POD
+   (ignores false alarms) or FAR (ignores misses), CSI provides a single
+   measure of overall event detection skill (Wilks, 2011).
+2. **Event timing**: weighted combination of POD and (1-FAR).
+   POD measures detection of real events; (1-FAR) penalizes false alarms.
+3. **Dry spell preservation**: how well dry periods are maintained.
+   Score = 1 - |dsl_test - dsl_ref| / (dsl_ref + epsilon).
+
+Note: Pearson Correlation is intentionally excluded here to avoid
+double-counting with Basic Statistical Quality, where it is embedded
+within NSE. CSI is used instead as it provides independent information
+about categorical event detection accuracy.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name    | Type                                           | Description                                                                                       | Default    |
+|---------|------------------------------------------------|---------------------------------------------------------------------------------------------------|------------|
+| metrics | [xarray](`xarray`).[Dataset](`xarray.Dataset`) | Dataset containing: csi, pod, far, dsl_ref, dsl_test.                                             | _required_ |
+| weights | [dict](`dict`)                                 | Weights for 'csi', 'event_timing', 'spell_preservation'. Must sum to 1.0. Default: 0.4, 0.3, 0.3. | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                               | Description                           |
+|--------|----------------------------------------------------|---------------------------------------|
+|        | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | Temporal quality score, range [0, 1]. |
+
+### compute_quality_assessment { #src.qa_framework.compute_quality_assessment }
+
+```python
+qa_framework.compute_quality_assessment(
+    metrics_ds,
+    component_weights=None,
+    categorical_thresholds=None,
+)
+```
+
+Run the full quality assessment pipeline on a metrics dataset.
+
+This is a convenience function that chains all component calculations
+and returns a single Dataset with all quality variables.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name                   | Type                                           | Description                                                                                                | Default    |
+|------------------------|------------------------------------------------|------------------------------------------------------------------------------------------------------------|------------|
+| metrics_ds             | [xarray](`xarray`).[Dataset](`xarray.Dataset`) | Raw metrics from ``metrics.compute_dekad_metrics_timeseries`` or ``metrics.compute_single_dekad_metrics``. | _required_ |
+| component_weights      | [dict](`dict`)                                 | Weights for basic/distribution/temporal components.                                                        | `None`     |
+| categorical_thresholds | [dict](`dict`)                                 | Thresholds for categorical classification.                                                                 | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                           | Description                                                                                                                                                              |
+|--------|------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | [xarray](`xarray`).[Dataset](`xarray.Dataset`) | Quality assessment dataset with variables: basic_statistical_quality, distribution_quality, temporal_quality, continuous_quality, categorical_quality, confidence_level. |
+
+### run_qa_pipeline { #src.qa_framework.run_qa_pipeline }
+
+```python
+qa_framework.run_qa_pipeline(month, dekad, mode='single')
+```
+
+Run quality assessment for all 9 reference-vs-test combinations.
+
+Loads each metrics NetCDF produced by ``metrics.run_metrics_pipeline``,
+runs :func:`compute_quality_assessment`, and saves the result via
+:func:`save_quality_assessment`.
+
+Combinations: {CPC, IMERGL, IMERGF} × {LS, LSEQM, LSEQM+DL}.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name   | Type         | Description                                                                                                                        | Default    |
+|--------|--------------|------------------------------------------------------------------------------------------------------------------------------------|------------|
+| month  | [int](`int`) | Month number (1-12).                                                                                                               | _required_ |
+| dekad  | [int](`int`) | Dekad number (1, 2, or 3).                                                                                                         | _required_ |
+| mode   | [str](`str`) | ``'single'`` (default) - aggregated across all years, dims=(lat, lon). ``'timeseries'`` - per-year quality, dims=(time, lat, lon). | `'single'` |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type        | Description                                                        |
+|--------|-------------|--------------------------------------------------------------------|
+|        | list of str | Paths to the saved quality NetCDF files (None for skipped combos). |
+
+### save_quality_assessment { #src.qa_framework.save_quality_assessment }
+
+```python
+qa_framework.save_quality_assessment(
+    quality_ds,
+    out_file,
+    description='Bias Correction Quality Assessment',
+)
+```
+
+Save quality assessment results to CF-1.8 compliant NetCDF.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name        | Type                                           | Description                                  | Default                                |
+|-------------|------------------------------------------------|----------------------------------------------|----------------------------------------|
+| quality_ds  | [xarray](`xarray`).[Dataset](`xarray.Dataset`) | Dataset from ``compute_quality_assessment``. | _required_                             |
+| out_file    | [str](`str`)                                   | Output file path.                            | _required_                             |
+| description | [str](`str`)                                   | Title for the dataset global attribute.      | `'Bias Correction Quality Assessment'` |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                 | Description                             |
+|--------|----------------------|-----------------------------------------|
+|        | [str](`str`) or None | Path to saved file, or None if skipped. |

@@ -1,0 +1,132 @@
+---
+title: "Quickstart"
+description: "Run the existing pipeline notebooks against the Bali example or the full-Indonesia bundle."
+---
+
+There is no separate quickstart notebook. The same notebooks that produced the manuscript results are the entry points for everything: only the config you point them at changes.
+
+| Notebook | Stage |
+|----------|-------|
+| `02_lseqmdl_bias_correction.ipynb` | LS, LSEQM, LSEQM+DL correction |
+| `03_measuring_performances.ipynb`  | Per-pixel WMO metrics |
+| `04_qa_framework.ipynb`            | Continuous Quality Index |
+| `05_station_validation.ipynb`      | Independent BMKG station checks |
+| `06_visualisation_hub.ipynb`       | Figures and Taylor diagrams |
+
+All five live in [notebooks/](https://github.com/bennyistanto/hybrid-bias-correction/tree/main/notebooks) and open directly in Google Colab.
+
+## What you choose: the AOI
+
+You have two options. Both use the same notebooks. The only difference is which config file you point them at.
+
+::: {.feature-card}
+**Option A - Bali example (recommended for first run).** Uses `config_bali.yml` and the 11 MB Bali bundle that ships in the repository under [data/example_bali/](https://github.com/bennyistanto/hybrid-bias-correction/tree/main/data/example_bali). End-to-end on a free Colab CPU in under an hour.
+:::
+
+::: {.feature-card}
+**Option B - Full Indonesia.** Uses `config.yml` and the Indonesia input bundle published on Zenodo. End-to-end is heavier (hours on Colab CPU, much faster on GPU). Use this once Bali looks correct.
+:::
+
+## Step-by-step (Colab)
+
+### 1. Get the repository and data into Drive
+
+```bash
+# In Drive, expected layout after this step:
+# /MyDrive/hybrid-bias-correction/
+#   src/
+#   notebooks/
+#   config.yml
+#   config_bali.yml
+#   data/example_bali/        <- ships with the repo for Option A
+#   data/input/  data/output/  data/mask/   <- from Zenodo for Option B
+```
+
+The simplest path: download the repository as a ZIP, upload it to Drive, and unzip into `/MyDrive/hybrid-bias-correction/`. For Option B, also drop the Zenodo bundle into `/MyDrive/hybrid-bias-correction/data/`.
+
+### 2. Open notebook 02 in Colab
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/bennyistanto/hybrid-bias-correction/blob/main/notebooks/02_lseqmdl_bias_correction.ipynb)
+
+The notebook opens with the GitHub copy; saving will prompt for a Drive copy. Same approach for nb03, nb04, nb05, nb06 - badges on their respective tutorial pages.
+
+### 3. Mount Drive
+
+Run the **Section 1** cell. It mounts `/content/drive` and unmounts cleanly if a stale mount is present.
+
+### 4. Point at the right config
+
+Every notebook has the same toggle near the top of **Step 1 (Setup Environment)**:
+
+```python
+# ===========================================================================
+# AOI config selector
+#   'config.yml'      -> full Indonesia (Zenodo input/output bundle)
+#   'config_bali.yml' -> Bali example (ships with the repo, ~11 MB)
+# Edit this single line to switch the entire pipeline between the two.
+# ===========================================================================
+CONFIG_FILE = 'config.yml'
+```
+
+To run the Bali example, change the last line to:
+
+```python
+CONFIG_FILE = 'config_bali.yml'
+```
+
+Nothing else needs editing. Paths, parameters, and output directories are all resolved from whichever config is selected. The same toggle exists in nb02, nb03, nb04, nb05, and nb06 - keep them in sync (all five on `'config.yml'` for the full run, all five on `'config_bali.yml'` for the Bali example).
+
+### 5. Verify and run
+
+After the setup cell prints, you should see Bali-scoped paths:
+
+```
+Configuration loaded successfully:
+  Main directory  : /content/drive/MyDrive/hybrid-bias-correction
+  Input directory : /content/drive/MyDrive/hybrid-bias-correction/data/example_bali
+  Output directory: /content/drive/MyDrive/hybrid-bias-correction/data/example_bali/output
+  IMERGL file     : .../bali_imergl.nc4
+  CPC file        : .../bali_cpcuni.nc4
+  Mask file       : .../bali_mask.nc
+```
+
+From there, run cells in order. The batch correction loop in **Step 11** writes outputs to `data/example_bali/output/`. Then open notebooks 03 through 06 in the same Drive session to compute metrics, QA, station validation, and figures - each follows the same setup pattern.
+
+## Step-by-step (local)
+
+Same flow, with two differences:
+
+- Skip the Drive mount cell.
+- In the setup cell, set `ROOT` to your local checkout path instead of the `/content/drive/...` default:
+
+```python
+ROOT = '/Users/you/projects/hybrid-bias-correction'   # or your Windows path
+```
+
+## What you get
+
+After running notebook 02 over all 36 dekads, your `output/` tree looks like this (Bali example):
+
+```
+data/example_bali/output/
+  corrected_ls/        36 NetCDFs
+  corrected_lseqm/     36 NetCDFs
+  corrected_lseqmdl/   36 NetCDFs
+  trained_models/      36 .keras + normalisation JSONs
+  station_density/     confidence mask NetCDF
+```
+
+After notebooks 03 - 06, the rest of the tree is populated:
+
+```
+  metrics_{ls,lseqm,lseqmdl}/    per-pixel WMO metrics
+  quality_{ls,lseqm,lseqmdl}/    CQI components
+  station_validation/            CSVs and Taylor diagrams
+  figures/                       PNGs
+```
+
+## Next steps
+
+- Read [Methodology > Overview](../methodology/index.qmd) to understand what each stage does
+- See [User Guide > Configuration Recipes](../user-guide/config-recipes.qmd) for common config edits
+- Adapt to a new region: [User Guide > AOI Setup](../user-guide/aoi-setup.qmd)

@@ -1,0 +1,70 @@
+---
+title: "Blending - Implementation"
+description: "How LSEQM and the CNN output are combined per pixel."
+---
+
+For the theory, see [Methodology > Blending](../methodology/blending.qmd). This page is the algorithm view.
+
+## Where it lives
+
+The blend is the final step inside `run_correction_pipeline()` in [`src/bias_correction.py`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/bias_correction.py), after LS, EQM (LSEQM), and CNN apply.
+
+## The formula in code
+
+```python
+# Conceptual
+confidence = load_confidence_mask(config.CONFIDENCE_MASK_FILE)
+effective_alpha = 1.0 - confidence * (1.0 - DL_BLEND_ALPHA)
+
+# Selective application: blend only above GPD threshold
+extreme_mask = lseqm_field > interp_cpc_params['gpd_threshold']
+blended = xr.where(
+    extreme_mask,
+    effective_alpha * lseqm_field + (1.0 - effective_alpha) * cnn_field,
+    lseqm_field
+)
+```
+
+Three things to notice:
+
+1. **`effective_alpha` is spatial**, derived from `confidence`. Each pixel can have a different blend weight.
+2. **The blend only fires above the GPD threshold.** Sub-threshold pixels keep LSEQM exactly. This is the "DL refines extremes, not the body" design decision.
+3. **`confidence == 0` -> `effective_alpha == 1.0` -> pure LSEQM.** Cells with no nearby stations get no DL contribution, regardless of `DL_BLEND_ALPHA`.
+
+## Where the inputs come from
+
+| Input | Source |
+|-------|--------|
+| `lseqm_field` | Output of the `lseqm()` call earlier in `run_correction_pipeline()` |
+| `cnn_field` | Output of `apply_cnn_to_field(model, lseqm_field, norm_stats)` |
+| `confidence` | `load_confidence_mask(config.CONFIDENCE_MASK_FILE)` - cached after first call |
+| `DL_BLEND_ALPHA` | Module-level constant set by `initialize_config()` from `deep_learning.blend_alpha` |
+| GPD threshold | Already interpolated to the 0.1 deg grid via `interp_cpc_params['gpd_threshold']` |
+
+## Save
+
+The blended field is written via `save_corrected_precip(blended, ..., method_abbr='lseqmdl', folder=lseqmdl_corrected_precip_path)` to `data/output/corrected_lseqmdl/`. Land-sea mask applied at write time using `_cfg.mask_file` (dynamic, so the Bali config is picked up correctly mid-session).
+
+## Cost
+
+Negligible. The blend is a per-pixel multiply and add. For Indonesia: <1 second per dekad. For Bali: instant.
+
+## Failure modes
+
+- **`use_confidence_mask: false`** -> `confidence` is uniform 1.0 everywhere -> `effective_alpha = DL_BLEND_ALPHA` everywhere -> uniform blend regardless of gauge density. Useful for ablation experiments.
+- **`DL_BLEND_ALPHA: 1.0`** -> `effective_alpha = 1.0` everywhere -> output equals LSEQM. Effectively disables DL while keeping the saved file path. Useful as a sanity check.
+- **CNN output has NaN at some pixels** (rare but possible if upstream had NaN in the input field): the blend propagates NaN at those pixels. Land-sea mask at save time turns it into a known NaN, not a silent bug.
+
+## What this gives you
+
+- A field that is **identical to LSEQM** in gauge-sparse cells.
+- A field that **lifts toward CNN** in gauge-dense cells on extreme days.
+- A field that **never deviates from LSEQM** below the GPD threshold, regardless of DL output.
+
+The [QA Framework tutorial](../tutorials/qa-framework.qmd) has a `confidence_jan_d2.png` figure that visualises where this transition happens for Bali.
+
+## Related code
+
+- [`src/bias_correction.py::run_correction_pipeline`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/bias_correction.py) - blend lives at the end, lines ~330-360.
+- [`src/station_density.py::load_confidence_mask`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/station_density.py) - cached load.
+- [`src/io.py::save_corrected_precip`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/io.py) - write + mask.

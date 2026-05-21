@@ -1,0 +1,61 @@
+---
+title: "Linear Scaling - Implementation"
+description: "How LS is computed in src/bias_correction.py."
+---
+
+For the theory, see [Methodology > Linear Scaling](../methodology/linear-scaling.qmd). This page is the algorithm view.
+
+## Entry point
+
+The LS step lives inside the `lseqm()` function in [`src/bias_correction.py`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/bias_correction.py). It runs as the first stage before EQM.
+
+```python
+# Conceptual (simplified) - actual code is interleaved with EQM logic
+imerg_mean = imerg_dekad_data.mean(dim='time')
+
+if _use_native_cpc:
+    cpc_native_mean = cpc_native_dekad.mean(dim='time')
+    cpc_mean = cpc_native_mean.interp(
+        lat=imerg_dekad_data.lat, lon=imerg_dekad_data.lon, method='linear'
+    )
+    cpc_mean = cpc_mean.fillna(
+        cpc_native_mean.reindex(
+            lat=imerg_dekad_data.lat, lon=imerg_dekad_data.lon, method='nearest'
+        )
+    )
+else:
+    cpc_mean = cpc_dekad_data.mean(dim='time')
+
+ls_scale_factor = xr.where(imerg_mean != 0, cpc_mean / imerg_mean, 1)
+ls_corrected_precip = imerg_dekad_data * ls_scale_factor
+```
+
+## Two paths through LS
+
+| Path | Triggered by | What it does |
+|------|--------------|--------------|
+| **Smooth (BCSD)** | `cpc_native_ds` is passed | CPC mean is computed at 0.5 deg, bilinearly interpolated to the IMERG 0.1 deg grid. Eliminates the 5x5 block boundary artefact you get from CPC's nearest-neighbour downscaling. |
+| **Per-pixel** | `cpc_native_ds=None` | CPC mean is computed directly on the 0.1 deg grid. Faster, but the downscaled CPC grid has visible block edges. |
+
+The smooth path is the default in the notebooks (nb02 passes `cpc_native_ds=cpc_ds_native`).
+
+## Edge handling on small AOIs
+
+The `reindex(method='nearest')` fillna at line 8 (in the snippet above) is the one that matters. `interp(method='nearest')` returns NaN outside the convex hull of source cell centres; `reindex(method='nearest')` is a pure label lookup with no convex-hull restriction.
+
+This was a real bug surfaced by Bali: the OLD code used `interp(method='nearest')` for the fallback, which meant the AOI-edge rows came back NaN whenever the CPC native cells did not fully bracket the AOI bbox. See the [Changelog](../changelog.qmd) for the full story.
+
+## Cost
+
+- **Memory**: one full IMERG dekad slice + one CPC dekad slice, both 0.1 deg, both reduced to a per-cell mean. For Indonesia (171 x 461) that is two arrays of about 0.3 MB each. Negligible.
+- **Time**: per dekad, dominated by the `imerg.mean('time')` reduction. On Bali, sub-second.
+
+## Where the output goes
+
+`save_corrected_precip(ls_corrected_precip, ..., method_abbr='ls', folder=ls_corrected_precip_path)` writes a per-dekad NetCDF under `data/output/corrected_ls/`. The land-sea mask is applied at write time.
+
+## Related code
+
+- [`src/bias_correction.py::lseqm`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/bias_correction.py) - LS lives at lines ~150-180.
+- [`src/io.py::save_corrected_precip`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/io.py) - the write path. Closed under a fixed `_cfg.mask_file` lookup so `initialize_config('config_bali.yml')` is picked up dynamically.
+- [`src/utility.py::apply_land_sea_mask`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/utility.py) - mask application using `reindex(method='nearest')`.

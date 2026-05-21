@@ -44,8 +44,9 @@ References
 Author
 ------
 Benny Istanto
-  - Geospatial Operations Support Team, DEC Data Group, The World Bank
-  - Applied Climatology Study Program, Bogor Agricultural University, Indonesia
+  Applied Climatology Study Program, Department of Geophysics and Meteorology,
+  Bogor Agricultural University, Indonesia
+  Email: bennyistanto@apps.ipb.ac.id
 
   with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
@@ -398,7 +399,7 @@ def calculate_confidence(metrics, continuous_quality):
     """
     try:
         # Metric consistency: stdev across normalized metrics
-        # Using RB, NSE, POD, 1-FAR — all normalized to [0, 1] where 1 = good
+        # Using RB, NSE, POD, 1-FAR - all normalized to [0, 1] where 1 = good
         arr_rb = np.maximum(1 - np.abs(metrics['relative_bias']), 0)
         arr_nse = np.maximum(np.minimum(metrics['nse'], 1), 0)
         arr_pod = metrics['pod']
@@ -528,13 +529,13 @@ def save_quality_assessment(quality_ds, out_file,
     quality_ds.attrs.update({
         'title': description,
         'Conventions': 'CF-1.8',
-        'institution': 'The World Bank',
+        'institution': 'Bogor Agricultural University',
         'source': 'Bias Correction Quality Assessment',
         'references': 'WMO Guidelines for Precipitation Verification',
         'history': f'Created on {pd.Timestamp.now()}',
         'creator_name': 'Benny Istanto',
         'creator_role': 'Climate Geographer',
-        'creator_email': 'bistanto@worldbank.org',
+        'creator_email': 'bennyistanto@apps.ipb.ac.id',
     })
 
     if 'lat' in quality_ds.coords:
@@ -579,8 +580,8 @@ def run_qa_pipeline(month, dekad, mode='single'):
     dekad : int
         Dekad number (1, 2, or 3).
     mode : str, optional
-        ``'single'`` (default) — aggregated across all years, dims=(lat, lon).
-        ``'timeseries'`` — per-year quality, dims=(time, lat, lon).
+        ``'single'`` (default) - aggregated across all years, dims=(lat, lon).
+        ``'timeseries'`` - per-year quality, dims=(time, lat, lon).
 
     Returns
     -------
@@ -628,7 +629,7 @@ def run_qa_pipeline(month, dekad, mode='single'):
 
             if not os.path.isfile(metrics_fpath):
                 logging.info(
-                    f"[{combo_num}/9] Metrics not found: {metrics_fname} — skipping"
+                    f"[{combo_num}/9] Metrics not found: {metrics_fname} - skipping"
                 )
                 output_files.append(None)
                 continue
@@ -636,35 +637,37 @@ def run_qa_pipeline(month, dekad, mode='single'):
             logging.info(f"[{combo_num}/9] {ref_label} vs {test_label} ({mode})")
 
             try:
-                metrics_ds = xr.open_dataset(
+                # with-block closes the file on both success and exception
+                # paths. The previous version closed only on success; if
+                # compute_quality_assessment or save_quality_assessment
+                # raised, the NetCDF handle leaked.
+                with xr.open_dataset(
                     metrics_fpath, engine=NETCDF_ENGINE,
                     decode_timedelta=False,
-                )
+                ) as metrics_ds:
+                    # Run full quality assessment (use config weights if set)
+                    quality_ds = compute_quality_assessment(
+                        metrics_ds,
+                        component_weights=config.QA_COMPONENT_WEIGHTS,
+                    )
 
-                # Run full quality assessment (use config weights if set)
-                quality_ds = compute_quality_assessment(
-                    metrics_ds,
-                    component_weights=config.QA_COMPONENT_WEIGHTS,
-                )
+                    # Build output path
+                    quality_fname = (
+                        f"{config.FILENAME_PREFIX}_{quality_prefix}_{ref_label}_{test_label}"
+                        f"_month{month_str}_dekad{dekad_str}.nc4"
+                    )
+                    os.makedirs(quality_dir, exist_ok=True)
+                    quality_fpath = os.path.join(quality_dir, quality_fname)
 
-                # Build output path
-                quality_fname = (
-                    f"{config.FILENAME_PREFIX}_{quality_prefix}_{ref_label}_{test_label}"
-                    f"_month{month_str}_dekad{dekad_str}.nc4"
-                )
-                os.makedirs(quality_dir, exist_ok=True)
-                quality_fpath = os.path.join(quality_dir, quality_fname)
+                    desc = (
+                        f"{ref_label.upper()} vs {test_label.upper()} "
+                        f" - {mode} quality assessment"
+                    )
+                    result = save_quality_assessment(
+                        quality_ds, quality_fpath, description=desc
+                    )
+                    output_files.append(result)
 
-                desc = (
-                    f"{ref_label.upper()} vs {test_label.upper()} "
-                    f"— {mode} quality assessment"
-                )
-                result = save_quality_assessment(
-                    quality_ds, quality_fpath, description=desc
-                )
-                output_files.append(result)
-
-                metrics_ds.close()
                 logging.info(f"  Done: {quality_fname}")
 
             except Exception as e:

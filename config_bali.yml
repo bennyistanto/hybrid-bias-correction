@@ -1,0 +1,151 @@
+# =============================================================================
+# Hybrid Bias Correction (LSEQM+DL) - Bali Example Configuration
+# =============================================================================
+#
+# Smaller-AOI configuration that points at data/example_bali/, used by the
+# documentation tutorials and the Colab quickstart. End-to-end runs against
+# this config complete in minutes on a CPU-only Colab session.
+#
+# To use:
+#   from src.config import initialize_config
+#   initialize_config('config_bali.yml')
+#
+# Differences vs config.yml:
+#   - filename_prefix:  "bali_cli" instead of "idn_cli"
+#   - aoi:              Bali bbox (9 x 14 cells at 0.1 deg)
+#   - input_files:      point at data/example_bali/*
+#   - mask_file:        data/example_bali/bali_mask.nc
+#   - station_density.lat_range / lon_range: shrunk to the Bali bbox
+#
+# Everything else (statistical params, DL hyperparameters, QA weights, region
+# mapping, metrics) matches config.yml so results are directly comparable to
+# the full-Indonesia run.
+# =============================================================================
+
+general:
+  filename_prefix: "bali_cli"
+
+aoi:
+  lat_range: [-8.85, -8.05]
+  lon_range: [114.45, 115.75]
+
+directories:
+  # --- Windows (native) ---
+  # main_dir: "C:/Users/benny/OneDrive/Documents/Github/hybrid-bias-correction"
+
+  # --- Windows Subsystem for Linux (WSL) ---
+  # main_dir: "/mnt/c/Users/benny/OneDrive/Documents/Github/hybrid-bias-correction"
+
+  # --- Google Colab (repo cloned to /content) ---
+  main_dir: "/content/hybrid-bias-correction"
+
+  # --- macOS / Linux ---
+  # main_dir: "/home/benny/projects/hybrid-bias-correction"
+
+  input_dir: "{main_dir}/data/example_bali"
+  output_dir: "{main_dir}/data/example_bali/output"
+
+input_files:
+  imergl_file: "{input_dir}/bali_imergl.nc4"
+  imergf_file: "{input_dir}/bali_imergf.nc4"
+  cpc_file: "{input_dir}/bali_cpcuni.nc4"
+  cpc_native_file: "{input_dir}/bali_cpcuni_native05.nc4"
+  mask_file: "{input_dir}/bali_mask.nc"
+
+variable_names:
+  imerg_precip_var: "precipitation"
+  cpc_precip_var: "precip"
+  mask_var: "land"
+
+output_dirs:
+  ls_corrected: "{output_dir}/corrected_ls"
+  lseqm_corrected: "{output_dir}/corrected_lseqm"
+  lseqmdl_corrected: "{output_dir}/corrected_lseqmdl"
+  trained_models: "{output_dir}/trained_models"
+  metrics: "{output_dir}/metrics_{method}"
+  quality: "{output_dir}/quality_{method}"
+
+output_filename_template: "{folder}/{filename_prefix}_{method_abbr}_corrected_imergl_month{month_str}_dekad{dekad_str}.nc4"
+
+statistical_params:
+  n_splits_gpd_crossvalidate: 5
+  gpd_threshold_percentile: 80
+  upper_cap_threshold_percentile: 99.9
+
+deep_learning:
+  epochs: 50
+  batch_size: 64
+  validation_split: 0.2
+  early_stopping_patience: 5
+  optimizer: "adam"
+  dropout_rate_1: 0.2
+  dropout_rate_2: 0.3
+  dropout_rate_dense: 0.4
+  filter_size_1: [3, 3]
+  filter_size_2: [3, 3]
+  num_filters_1: 32
+  num_filters_2: 64
+  dense_layer_size: 128
+  blend_alpha: 0.7
+
+station_density:
+  use_confidence_mask: true
+  station_file: "{input_dir}/bali_stations_location.csv"
+  confidence_mask_file: "{output_dir}/station_density/confidence_mask_station_density.nc4"
+  cpc_resolution: 0.5
+  smoothing_sigma: 1.0
+  saturation_count: 2
+  lat_range: [-8.85, -8.05]
+  lon_range: [114.45, 115.75]
+
+station_validation:
+  station_data_file: "{input_dir}/bali_stations_data.csv"
+  missing_sentinel: 8888.0
+  min_valid_days: 30
+  output_dir: "{output_dir}/station_validation"
+
+region_mapping:
+  island_order:
+    - Bali Nusa Tenggara
+  province_to_region:
+    Bali: Bali Nusa Tenggara
+
+metrics:
+  wet_day_threshold: 1.0
+
+quality_assessment:
+  component_weights:
+    basic_stats: 0.4
+    distribution: 0.3
+    temporal: 0.3
+  categorical_thresholds:
+    excellent: 0.8
+    good: 0.6
+    fair: 0.4
+
+# Admin boundary overlay. adm0 (country outline) is commented out for Bali
+# because a thick country outline would cut off most of the small AOI;
+# uncomment to draw it. Comment any other line to turn off that layer.
+# Drop this whole block to fall back to cartopy Natural Earth.
+visualisation:
+  # Padding (deg) added to each side of the AOI when drawing map axes.
+  # 0.1 = one IMERG cell of margin around Bali so the island outline is not
+  # flush with the panel edge.
+  map_extent_pad: 0.1
+
+  boundary_dir: "{main_dir}/data/subset/bnd"
+  boundaries:
+    - {file: "idn_bnd_adm2.shp", linewidth: 0.3, edgecolor: "gray",    alpha: 0.6}
+    - {file: "idn_bnd_adm1.shp", linewidth: 0.6, edgecolor: "dimgray", alpha: 0.9}
+    # - {file: "idn_bnd_adm0.shp", linewidth: 1.2, edgecolor: "black",   alpha: 1.0}
+
+runtime:
+  interactive: false
+  existing_file_action: "skip"
+  existing_model_action: "use_existing"
+
+netcdf_encoding:
+  precipitation:
+    dtype: "float32"
+    zlib: true
+    _FillValue: .nan

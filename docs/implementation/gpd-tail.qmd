@@ -1,0 +1,65 @@
+---
+title: "GPD Tail - Implementation"
+description: "How the Generalized Pareto fit is performed and applied per cell."
+---
+
+For the theory, see [Methodology > GPD Tail](../methodology/gpd-tail.qmd). This page is the algorithm view.
+
+## Where the GPD lives in the code
+
+GPD fitting and application are both inside `gamma_quantile_mapping_precomputed()` (the per-cell EQM function) in [`src/distribution_fitting.py`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/distribution_fitting.py). The CPC GPD parameters are computed once per dekad cell by `fit_cpc_parameters_on_native_grid()` and reused for every IMERG sample at that cell.
+
+## K-Fold cross-validation for stability
+
+GPD fits are notoriously sensitive to threshold choice and sample size. The framework runs **K-Fold cross-validation** (default K=5) and uses the **mean** shape and scale across folds:
+
+```python
+# Conceptual
+for k in range(n_splits):
+    train_idx, _ = kfold.split(exceedances)
+    shape_k, _, scale_k = genpareto.fit(exceedances[train_idx], floc=0)
+    shapes.append(shape_k)
+    scales.append(scale_k)
+gpd_shape = np.mean(shapes)
+gpd_scale = np.mean(scales)
+```
+
+This reduces variance in the parameter estimates - particularly important in dry-season dekads where there may be only 30-50 exceedances total.
+
+## Fix A: floc=0 (Coles 2001)
+
+The GPD fit uses `floc=0` (location parameter fixed to zero), which is the convention from Coles (2001) for exceedances. Without this, scipy's `genpareto.fit` is free to shift the distribution origin and can produce nonsensical shape estimates.
+
+## Fix B: conditional probability in unconditional CDF space
+
+When deciding whether an IMERG sample falls in the gamma body or the GPD tail, the threshold comparison is done in the **unconditional** CDF (`p_dry + (1-p_dry) * F_wet`), not the wet-only CDF. This keeps the gamma-to-GPD boundary consistent regardless of how dry the cell is.
+
+See `gamma_quantile_mapping_precomputed` lines ~560-610 for the full logic.
+
+## Fix C: wet-day sample only
+
+Both the IMERG and CPC gamma fits use **only wet days** (precip > `WET_DAY_THRESHOLD`). Including dry days would force the gamma to fit a spike at zero, which it cannot do.
+
+## Upper cap
+
+After GPD-mapping, values are capped at the 99.9th percentile of the CPC reference (configurable via `upper_cap_threshold_percentile`). This is a safety net against numerical extrapolation when the IMERG sample sits in the deep tail of its own distribution but the CPC fit is uncertain.
+
+## Failure modes
+
+- **Fewer than `n_splits_gpd_crossvalidate * minimum_per_fold` exceedances**: the K-Fold split fails. Mitigations in [Troubleshooting](../user-guide/troubleshooting.qmd).
+- **Negative gamma shape or scale** from the fit: the cell returns all-NaN (line 557-558 in `distribution_fitting.py`).
+- **Shape parameter close to zero**: the GPD becomes exponential. This is numerically stable but flags an underdetermined tail.
+
+## Cost
+
+Per cell, per dekad: 5 fits of a 2-parameter distribution on ~30-50 exceedances. Sub-millisecond. Across Indonesia (~79k land cells) the K-Fold GPD step adds ~1-2 minutes per dekad to nb02 - a small fraction of total runtime.
+
+## Sensitivity
+
+The 80th-percentile threshold is acknowledged as a sensitivity parameter that was not formally optimised. The paper carries this caveat; the docs do too. See the [Methodology > GPD Tail](../methodology/gpd-tail.qmd#sensitivity-caveats) callout.
+
+## Related code
+
+- [`src/distribution_fitting.py::cross_validate_gpd`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/distribution_fitting.py) - the K-Fold loop.
+- [`src/distribution_fitting.py::fit_cpc_parameters_on_native_grid`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/distribution_fitting.py) - per-cell fitter (gamma + GPD + dry-day mass together).
+- [`src/distribution_fitting.py::gamma_quantile_mapping_precomputed`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/distribution_fitting.py) - applies the fitted parameters to each IMERG sample.

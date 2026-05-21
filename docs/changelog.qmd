@@ -1,0 +1,45 @@
+---
+title: "Changelog"
+description: "Release notes for the framework and the documentation site."
+---
+
+The framework uses [DateVer](https://github.com/datever/datever) (`vYYYY.MM`)
+for releases. Patches within a release use `vYYYY.MM.N`.
+
+## v2026.05 - first public release
+
+The first public release of the Hybrid Bias Correction framework. This is
+the codebase developed for the MSc thesis on daily satellite precipitation
+bias correction over Indonesia, refactored into a reproducible Python
+package for the broader community.
+
+### What's in this release
+
+- **The framework** (`src/`) - Linear Scaling, Empirical Quantile Mapping
+  with a Generalized Pareto tail, and a CNN refinement gated by
+  station-density confidence. Implemented as a Python package with one
+  driver config per region.
+- **Notebooks** (`notebooks/`) - end-to-end pipeline from AOI definition
+  and data acquisition through bias correction, metrics, QA, station
+  validation, and visualisation.
+- **Bali example bundle** (`data/example_bali/`, 11 MB) - ships with the
+  repo and runs end to end in ~15 minutes on a free Colab CPU.
+- **Indonesia data bundle** - 2001-2025 inputs, masks, and outputs (~42 GB)
+  published at [Zenodo 10.5281/zenodo.20287847](https://zenodo.org/records/20287847).
+- **Documentation** (this site) - Methodology, Implementation, Tutorials,
+  Bali Results, FAQ, and auto-generated API Reference.
+
+### Companion publications
+
+- MSc thesis (Istanto, in preparation).
+- Journal manuscript on the methodology and Indonesia validation: under review at *Remote Sensing* (MDPI).
+- Journal of Open Source Software paper on the framework itself (in preparation).
+
+## Backlog
+
+- Replace the CNN architecture with a U-Net to avoid the Flatten -> Dense bottleneck.
+- Formal sensitivity analysis over `blend_alpha`, `gpd_threshold_percentile`,
+  and `saturation_count`.
+- Continuous-integration smoke test that runs the Bali pipeline on every PR.
+- `tf.keras.backend.clear_session()` between dekads in nb02 for memory
+  predictability on Indonesia-scale runs.

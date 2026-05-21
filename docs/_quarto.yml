@@ -1,0 +1,186 @@
+project:
+  type: website
+  output-dir: ../_site
+  render:
+    - "*.qmd"
+    - "!_legacy/"
+
+website:
+  title: "Hybrid Bias Correction"
+  description: "Values, Distributions, Extremes - with Neural Refinement. A Python framework for daily satellite precipitation bias correction."
+  favicon: images/favicon.png
+  site-url: https://bennyistanto.github.io/hybrid-bias-correction
+  repo-url: https://github.com/bennyistanto/hybrid-bias-correction
+  repo-actions: [source, issue]
+  back-to-top-navigation: true
+  page-navigation: true
+
+  navbar:
+    background: primary
+    logo: images/lseqmdl-logo-dark-background.png
+    search: true
+    left:
+      - text: "Home"
+        href: index.qmd
+      - text: "Get Started"
+        menu:
+          - text: "Installation"
+            href: get-started/installation.qmd
+          - text: "Quickstart"
+            href: get-started/quick-start.qmd
+          - text: "Configuration"
+            href: get-started/configuration.qmd
+          - text: "Data Model"
+            href: get-started/data-model.qmd
+      - text: "Tutorials"
+        menu:
+          - text: "Data Preparation"
+            href: tutorials/data-preparation.qmd
+          - text: "Full Pipeline"
+            href: tutorials/full-pipeline.qmd
+          - text: "QA Framework"
+            href: tutorials/qa-framework.qmd
+          - text: "Station Validation"
+            href: tutorials/station-validation.qmd
+      - text: "Documentation"
+        menu:
+          - text: "Methodology"
+            href: methodology/index.qmd
+          - text: "Implementation"
+            href: implementation/index.qmd
+          - text: "User Guide"
+            href: user-guide/index.qmd
+          - text: "---"
+          - text: "Architecture"
+            href: technical/architecture.qmd
+          - text: "API Reference"
+            href: technical/api-reference/index.qmd
+          - text: "Validation"
+            href: technical/validation.qmd
+          - text: "CF Compliance"
+            href: technical/cf-compliance.qmd
+      - text: "FAQ"
+        href: faq.qmd
+      - text: "Changelog"
+        href: changelog.qmd
+
+    right:
+      - icon: github
+        href: https://github.com/bennyistanto/hybrid-bias-correction
+        aria-label: GitHub
+
+  sidebar:
+    - title: "Get Started"
+      style: "floating"
+      background: light
+      contents:
+        - get-started/installation.qmd
+        - get-started/quick-start.qmd
+        - get-started/configuration.qmd
+        - get-started/data-model.qmd
+
+    - title: "Methodology"
+      style: "floating"
+      background: light
+      contents:
+        - methodology/index.qmd
+        - text: "---"
+        - section: "Statistical Core"
+          contents:
+            - methodology/linear-scaling.qmd
+            - methodology/eqm.qmd
+            - methodology/gpd-tail.qmd
+        - section: "Deep Learning Layer"
+          contents:
+            - methodology/cnn-refinement.qmd
+            - methodology/confidence-mask.qmd
+            - methodology/blending.qmd
+
+    - title: "Implementation"
+      style: "floating"
+      background: light
+      contents:
+        - implementation/index.qmd
+        - text: "---"
+        - section: "Statistical Core"
+          contents:
+            - implementation/linear-scaling.qmd
+            - implementation/eqm.qmd
+            - implementation/gpd-tail.qmd
+        - section: "Deep Learning Layer"
+          contents:
+            - implementation/cnn-refinement.qmd
+            - implementation/confidence-mask.qmd
+            - implementation/blending.qmd
+
+    - title: "Tutorials"
+      style: "floating"
+      background: light
+      contents:
+        - tutorials/index.qmd
+        - text: "---"
+        - tutorials/data-preparation.qmd
+        - tutorials/full-pipeline.qmd
+        - tutorials/qa-framework.qmd
+        - tutorials/station-validation.qmd
+
+    - title: "User Guide"
+      style: "floating"
+      background: light
+      contents:
+        - user-guide/index.qmd
+        - text: "---"
+        - user-guide/aoi-setup.qmd
+        - user-guide/config-recipes.qmd
+        - user-guide/output-structure.qmd
+        - user-guide/troubleshooting.qmd
+
+    - title: "Technical Documentation"
+      style: "floating"
+      background: light
+      contents:
+        - technical/index.qmd
+        - text: "---"
+        - technical/architecture.qmd
+        - technical/api-reference/index.qmd
+        - technical/validation.qmd
+        - technical/cf-compliance.qmd
+
+  page-footer:
+    background: light
+    left: |
+      © 2026 Benny Istanto. Licensed under [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/).
+    center: |
+      Built with [Quarto](https://quarto.org/)
+    right:
+      - icon: github
+        href: https://github.com/bennyistanto/hybrid-bias-correction
+        aria-label: GitHub
+
+format:
+  html:
+    theme:
+      light: [cosmo, styles.css]
+      dark: [cosmo, styles-dark.css]
+    toc: true
+    toc-depth: 3
+    code-copy: true
+    code-fold: false
+    code-tools:
+      source: true
+      toggle: false
+      caption: none
+    number-sections: false
+    link-external-newwindow: true
+    link-external-icon: true
+    smooth-scroll: true
+    fig-width: 8
+    fig-height: 6
+    fig-dpi: 300
+
+execute:
+  freeze: auto
+  echo: true
+  warning: false
+  message: false
+  eval: true

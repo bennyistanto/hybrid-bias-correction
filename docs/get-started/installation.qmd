@@ -1,0 +1,79 @@
+---
+title: "Installation"
+description: "Run on Colab if you can; install locally if you must."
+---
+
+::: {.callout-tip}
+## Run on Colab to avoid TensorFlow install pain
+
+The framework's CNN refinement step depends on **TensorFlow**, which is the most fragile dependency in the stack. On Windows it needs specific Visual C++ runtimes; on WSL it sometimes refuses to load with `cannot enable executable stack`; on Apple Silicon you have to pick between `tensorflow` and `tensorflow-metal` and they fight; on Linux with a GPU you need an exact CUDA toolkit version that matches the TF version you pinned.
+
+**Google Colab sidesteps all of it.** TensorFlow is pre-installed on Colab, the GPU is provisioned for you, and the same notebooks that ran our Bali results run there unchanged. For most users the right answer is: clone the repo to Google Drive (or `git clone` from a Colab cell), and run the notebooks on Colab.
+
+If you insist on a local install, make sure your TensorFlow install actually works **before** you start - run `python -c "import tensorflow as tf; print(tf.__version__); print(tf.config.list_physical_devices())"` and confirm both lines return. A broken TensorFlow will let LS and LSEQM run fine but quietly fail the LSEQM+DL step.
+:::
+
+## Requirements
+
+- Python 3.10 to 3.12 (3.12 recommended)
+- ~2 GB free disk for the Bali example bundle and its outputs
+- Optional: a CUDA-capable GPU for faster CNN training (a CPU finishes the Bali example in ~15 minutes)
+
+## Option 1 - Google Colab (recommended)
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/bennyistanto/hybrid-bias-correction/blob/main/notebooks/02_lseqmdl_bias_correction.ipynb)
+
+1. Open the notebook on Colab via the badge above (or via any tutorial page).
+2. Run the first cell - it clones this repository onto Drive and points Python at `src/`.
+3. Continue with the [Quickstart](quick-start.qmd) walkthrough.
+
+TensorFlow is already installed on Colab, so the CNN refinement step works out of the box. No GPU setup needed; the free runtime is enough for the Bali example and most regional runs.
+
+## Option 2 - Local install (conda / mamba)
+
+```bash
+git clone https://github.com/bennyistanto/hybrid-bias-correction.git
+cd hybrid-bias-correction
+
+mamba env create -f environment.yml
+mamba activate climate
+```
+
+The environment pins the geospatial stack (`xarray`, `netCDF4`, `rasterio`), the statistical stack (`scipy`, `scikit-learn`), and `tensorflow` for the CNN step. Pure-pip installs work but you'll have to handle GDAL / netCDF wheels on Windows yourself.
+
+::: {.callout-warning}
+**Verify TensorFlow before running the pipeline.** A broken TensorFlow is the single most common local-install failure. From the activated env:
+
+```bash
+python -c "import tensorflow as tf; print(tf.__version__); print(tf.config.list_physical_devices())"
+```
+
+If that does *not* print a version string and a device list, **fix it before proceeding** - the CNN refinement step will fail at run time, often with a cryptic error several minutes into nb02. See [Troubleshooting](../user-guide/troubleshooting.qmd) for the most common failure modes.
+
+The rest of the framework (LS + EQM + GPD) will run without TensorFlow if you really cannot install it; you just lose the LSEQM+DL stage.
+:::
+
+## Verify the install
+
+```bash
+python -c "import src.config as c; c.initialize_config('config_bali.yml'); print('OK')"
+```
+
+If that prints `OK`, the environment, the package, and the Bali example data are wired up correctly.
+
+## What you get
+
+After clone the public tree looks like this (abbreviated):
+
+```
+hybrid-bias-correction/
+  config.yml              # Indonesia operational config
+  config_bali.yml         # Bali example config (used by tutorials)
+  src/                    # Library code (importable as `src`)
+  notebooks/              # Jupyter notebooks (nb00-nb07)
+  data/example_bali/      # 11 MB Bali bundle (ships with the repo)
+  data/mask/aoi/          # AOI mask definitions
+  docs/                   # This documentation site (Quarto source)
+```
+
+The full-Indonesia inputs and outputs are not committed to the repository. They live on Zenodo at [zenodo.org/records/20287847](https://zenodo.org/records/20287847) - download the bundle, extract, and point `config.yml` at the extracted directories to reproduce the Indonesia results.

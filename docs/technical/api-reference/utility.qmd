@@ -1,0 +1,157 @@
+# utility { #src.utility }
+
+`utility`
+
+Module: utility.py
+
+This module provides utility functions used throughout the bias correction workflow.
+It includes functions for:
+  - Prompting the user for a decision when an output file already exists (with non-interactive support).
+  - Loading and caching the land-sea mask to avoid repeated I/O.
+  - Applying a land-sea mask to xarray datasets.
+  - Ensuring that the time index of a dataset is strictly monotonic and free of duplicates.
+  - Reindexing and aligning datasets with a reference dataset.
+
+These functions help prepare data and manage I/O operations in the overall workflow.
+
+**Author**:
+  Benny Istanto
+  Applied Climatology Study Program, Department of Geophysics and Meteorology,
+  Bogor Agricultural University, Indonesia
+  Email: bennyistanto@apps.ipb.ac.id
+
+  with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
+
+Update: 2026.03
+
+## Functions
+
+| Name | Description |
+| --- | --- |
+| [apply_land_sea_mask](#src.utility.apply_land_sea_mask) | Apply the land-sea mask to the input dataset. |
+| [ensure_strict_monotonic_time](#src.utility.ensure_strict_monotonic_time) | Ensure the time index in the dataset is strictly monotonic, sorted, and duplicates are removed. |
+| [load_mask](#src.utility.load_mask) | Load the land-sea mask from a NetCDF file, with caching to avoid repeated I/O. |
+| [reindex_and_align_with_monotonicity](#src.utility.reindex_and_align_with_monotonicity) | Reindex and align the secondary dataset with a reference dataset while ensuring |
+| [reset_user_choice](#src.utility.reset_user_choice) | Reset the stored user choice (useful when processing a new batch). |
+| [set_user_decision](#src.utility.set_user_decision) | Get the user's decision when an output file already exists. |
+
+### apply_land_sea_mask { #src.utility.apply_land_sea_mask }
+
+```python
+utility.apply_land_sea_mask(data, mask_file, mask_var=None)
+```
+
+Apply the land-sea mask to the input dataset.
+
+Uses cached mask to avoid repeated file I/O. The mask is interpolated
+(nearest-neighbor) to match the data resolution if needed.
+
+#### Parameters: {.doc-section .doc-section-parameters}
+
+data : xarray.DataArray or xarray.Dataset
+    The data to which the land-sea mask should be applied.
+mask_file : str
+    Path to the NetCDF file containing the land-sea mask.
+mask_var : str, optional
+    Variable name for the land mask. If None, uses config.MASK_VAR.
+
+#### Returns: {.doc-section .doc-section-returns}
+
+xarray.DataArray or xarray.Dataset
+    The data with the land-sea mask applied (ocean pixels set to NaN).
+
+### ensure_strict_monotonic_time { #src.utility.ensure_strict_monotonic_time }
+
+```python
+utility.ensure_strict_monotonic_time(ds)
+```
+
+Ensure the time index in the dataset is strictly monotonic, sorted, and duplicates are removed.
+
+#### Parameters: {.doc-section .doc-section-parameters}
+
+ds : xarray.Dataset
+    The dataset to process.
+
+#### Returns: {.doc-section .doc-section-returns}
+
+xarray.Dataset
+    The dataset with a cleaned and strictly monotonic time index.
+
+### load_mask { #src.utility.load_mask }
+
+```python
+utility.load_mask(mask_file, mask_var=None)
+```
+
+Load the land-sea mask from a NetCDF file, with caching to avoid repeated I/O.
+
+The mask is loaded once per unique file path and cached for subsequent calls.
+
+#### Parameters: {.doc-section .doc-section-parameters}
+
+mask_file : str
+    Path to the NetCDF file containing the land-sea mask.
+mask_var : str, optional
+    Variable name for the land mask. If None, uses config.MASK_VAR.
+
+#### Returns: {.doc-section .doc-section-returns}
+
+xarray.DataArray
+    The land-sea mask (1 = land, 0 = sea/ocean).
+
+### reindex_and_align_with_monotonicity { #src.utility.reindex_and_align_with_monotonicity }
+
+```python
+utility.reindex_and_align_with_monotonicity(
+    reference_ds,
+    secondary_ds,
+    land_sea_mask,
+)
+```
+
+Reindex and align the secondary dataset with a reference dataset while ensuring
+the reference dataset has a strictly monotonic, duplicate-free time index.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name          | Type                                               | Description                                               | Default    |
+|---------------|----------------------------------------------------|-----------------------------------------------------------|------------|
+| reference_ds  | [xarray](`xarray`).[Dataset](`xarray.Dataset`)     | The reference dataset (e.g., IMERG) to which we'll align. | _required_ |
+| secondary_ds  | [xarray](`xarray`).[Dataset](`xarray.Dataset`)     | The secondary dataset (e.g., CPC) that needs alignment.   | _required_ |
+| land_sea_mask | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | Land-sea mask for spatial alignment.                      | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                                                                                                 | Description                                                          |
+|--------|----------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------|
+|        | [tuple](`tuple`)([xarray](`xarray`).[Dataset](`xarray.Dataset`), [xarray](`xarray`).[DataArray](`xarray.DataArray`)) | The aligned secondary dataset and a spatially aligned land-sea mask. |
+
+### reset_user_choice { #src.utility.reset_user_choice }
+
+```python
+utility.reset_user_choice()
+```
+
+Reset the stored user choice (useful when processing a new batch).
+
+### set_user_decision { #src.utility.set_user_decision }
+
+```python
+utility.set_user_decision(interactive=None)
+```
+
+Get the user's decision when an output file already exists.
+
+In interactive mode, prompts the user once and remembers the choice for the session.
+In non-interactive mode, returns the default action from config.
+
+#### Parameters: {.doc-section .doc-section-parameters}
+
+interactive : bool, optional
+    Override the config INTERACTIVE setting. If None, uses config value.
+
+#### Returns: {.doc-section .doc-section-returns}
+
+str
+    The user's decision - 'O' for Overwrite, 'S' for Skip, or 'A' for Abort.

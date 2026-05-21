@@ -8,7 +8,7 @@ description = "A hybrid bias correction workflow for satellite precipitation"
 readme = { file = "README.md", content-type = "text/markdown" }
 license = { file = "LICENSE" }
 keywords = ["bias correction", "satellite precipitation estimates", "deep learning", "empirical quantile mapping", "linear scaling"]
-authors = [{ name = "Benny Istanto", email = "bistanto@worldbank.org" }]
+authors = [{ name = "Benny Istanto", email = "bennyistanto@apps.ipb.ac.id" }]
 classifiers = [
 	"Programming Language :: Python :: 3",
 	"License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
@@ -56,7 +56,7 @@ geo = [
 	"cmocean>=3.0",
 ]
 dl = [
-	# Deep Learning — only needed for the DL refinement step
+	# Deep Learning - only needed for the DL refinement step
 	"tensorflow>=2.16",
 ]
 all = [
@@ -66,29 +66,32 @@ all = [
 	"pycountry>=22.3.5",
 ]
 jupyter = [
-	# Core Jupyter interfaces
+	# Minimal Jupyter stack to run the notebooks. No productivity extensions
+	# here - those belong in [dev].
 	"jupyterlab>=4.0",
 	"notebook>=7.0",
 	"ipykernel>=6.0",
-	# Widgets and rich display
 	"ipywidgets>=8.0",
 	"nbformat>=5.9",
 	"nbconvert>=7.0",
-	# Productivity extensions
 	"tqdm>=4.65",
+]
+docs = [
+	# Docs site is Quarto-based (binary, not pip-installed). The Python-side
+	# extras only cover the auto-API reference generator.
+	# quartodoc 0.11.x calls parse_numpy(..., allow_section_blank_line=...)
+	# which newer griffe rejects, so pin both.
+	"quartodoc>=0.11,<0.12",
+	"griffe<1.0",
+]
+dev = [
+	# Development extras: notebooks + linting + JupyterLab productivity
+	# tools that are nice to have but not required to run the framework.
+	"hybrid-bias-correction[jupyter]",
+	"ruff",
 	"jupyterlab-git>=0.50",
 	"jupyterlab-lsp>=5.0",
 	"python-lsp-server>=1.9",
-	"jupyter-contrib-nbextensions",
-]
-docs = [
-	"docutils==0.17.1",
-	"jupyter-book>=1,<2",
-]
-dev = [
-	# Everything for development: jupyter + linting
-	"hybrid-bias-correction[jupyter]",
-	"ruff",
 ]
 
 [project.urls]

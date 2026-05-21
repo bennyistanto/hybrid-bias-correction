@@ -1,0 +1,58 @@
+# quartodoc configuration for the Hybrid Bias Correction API reference.
+#
+# To build:
+#     pip install quartodoc
+#     cd docs/
+#     quartodoc build
+#     quarto render
+#
+# Generated pages land under docs/technical/api-reference/.
+# Edit docstrings in src/*.py, not the generated .qmd files.
+
+quartodoc:
+  style: pkgdown
+  dir: technical/api-reference
+  package: src
+  # The `src` package lives at the repo root, one level above docs/.
+  # Prepend that path so dynamic_import can find it.
+  source_dir: ..
+  title: "API Reference"
+  sidebar: _sidebar.yml
+  render_interlinks: true
+
+  sections:
+    - title: "Configuration"
+      desc: "Loading config.yml, placeholder resolution, attribute exposure."
+      contents:
+        - config
+
+    - title: "I/O and Utilities"
+      desc: "Loading NetCDFs, aligning grids, applying masks."
+      contents:
+        - io
+        - utility
+
+    - title: "Statistical Bias Correction"
+      desc: "Linear Scaling, LSEQM, distribution fits."
+      contents:
+        - bias_correction
+        - distribution_fitting
+
+    - title: "Deep Learning"
+      desc: "CNN architecture, training, application."
+      contents:
+        - deep_learning
+        - station_density
+
+    - title: "Metrics and QA"
+      desc: "WMO metrics, Continuous Quality Index."
+      contents:
+        - metrics
+        - qa_framework
+
+    - title: "Validation and Visualisation"
+      desc: "Station validation, Taylor diagrams, plotting."
+      contents:
+        - station_validation
+        - taylor_diagram
+        - visualisation

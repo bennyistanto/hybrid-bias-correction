@@ -13,8 +13,9 @@ These functions help prepare data and manage I/O operations in the overall workf
 
 **Author**:
   Benny Istanto
-  - Geospatial Operations Support Team, DEC Data Group, The World Bank, United States. Email: bistanto@worldbank.org
-  - Applied Climatology Study Program, Bogor Agricultural University, Indonesia. Email: bennyistanto@ipb.ac.id
+  Applied Climatology Study Program, Department of Geophysics and Meteorology,
+  Bogor Agricultural University, Indonesia
+  Email: bennyistanto@apps.ipb.ac.id
 
   with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
@@ -158,8 +159,15 @@ def apply_land_sea_mask(
     # Load mask from cache
     land_sea_mask = load_mask(mask_file, mask_var)
 
-    # Interpolate the mask to match data resolution
-    land_sea_mask_reindexed = land_sea_mask.interp(
+    # Align the mask to the data grid. Use reindex(method='nearest') rather
+    # than interp(method='nearest'): reindex is a pure lookup tolerant of
+    # small numerical differences in coordinate values, while interp goes
+    # through scipy and returns NaN for any target outside the mask's
+    # coordinate range. The latter silently drops the southernmost row and
+    # westernmost column when data and mask coords differ in dtype (e.g.
+    # data is float32, mask is float64), because the float32 representation
+    # of the boundary value is slightly outside the float64 range.
+    land_sea_mask_reindexed = land_sea_mask.reindex(
         lat=data.lat, lon=data.lon, method="nearest"
     )
 

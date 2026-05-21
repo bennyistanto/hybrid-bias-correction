@@ -16,8 +16,9 @@ Dependencies:
 
 **Author**:
   Benny Istanto
-  - Geospatial Operations Support Team, DEC Data Group, The World Bank, United States. Email: bistanto@worldbank.org
-  - Applied Climatology Study Program, Bogor Agricultural University, Indonesia. Email: bennyistanto@ipb.ac.id
+  Applied Climatology Study Program, Department of Geophysics and Meteorology,
+  Bogor Agricultural University, Indonesia
+  Email: bennyistanto@apps.ipb.ac.id
 
   with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
@@ -414,15 +415,21 @@ def interpolate_cpc_params_to_imerg_grid(
     interp_params = {}
 
     for name, param_da in cpc_params.items():
-        # Pass 1: bilinear interpolation
+        # Pass 1: bilinear interpolation (NaN outside the convex hull of
+        # CPC-native cell centres; bites small AOIs where the AOI extent
+        # reaches outside the centres, e.g. Bali on a 2 x 4 CPC tile).
         interp_da = param_da.interp(
             lat=target_lat, lon=target_lon, method='linear'
         )
 
-        # Pass 2: fill boundary NaN with nearest-neighbour
+        # Pass 2: fill boundary NaN with true unrestricted nearest-neighbour.
+        # Note: interp(method='nearest') ALSO returns NaN beyond the convex
+        # hull (it goes through scipy.interpolate with bounds_error=False),
+        # which silently broke small AOIs. reindex(method='nearest') is a
+        # pure lookup with no convex-hull restriction.
         n_nan_before = int(interp_da.isnull().sum().item())
         if n_nan_before > 0:
-            nearest_da = param_da.interp(
+            nearest_da = param_da.reindex(
                 lat=target_lat, lon=target_lon, method='nearest'
             )
             interp_da = interp_da.fillna(nearest_da)
@@ -434,7 +441,7 @@ def interpolate_cpc_params_to_imerg_grid(
         if key in interp_params:
             interp_params[key] = interp_params[key].clip(min=1e-6)
 
-    # Clip p_dry_cpc to [0, 1] — bilinear interpolation of a probability
+    # Clip p_dry_cpc to [0, 1] - bilinear interpolation of a probability
     # can numerically drift slightly outside the valid range.
     if 'p_dry_cpc' in interp_params:
         interp_params['p_dry_cpc'] = interp_params['p_dry_cpc'].clip(min=0.0, max=1.0)
@@ -541,7 +548,7 @@ def gamma_quantile_mapping_precomputed(
 
     imerg_wet = imerg_valid[is_wet_imerg]
     if len(imerg_wet) < 5:
-        # Too few wet days — output all zeros
+        # Too few wet days - output all zeros
         corrected_flat = np.full_like(imerg_flat, np.nan)
         corrected_flat[valid_mask] = 0.0
         return corrected_flat.reshape(original_shape)
@@ -672,7 +679,7 @@ def gamma_quantile_mapping(
     imerg_valid = imerg_flat[valid_mask]
     cpc_valid = cpc_flat[valid_mask]
 
-    # Edge case: no data (ocean/masked pixels — no warning expected)
+    # Edge case: no data (ocean/masked pixels - no warning expected)
     if imerg_valid.size == 0 or cpc_valid.size == 0:
         return np.full(original_shape, np.nan)
 
@@ -692,7 +699,7 @@ def gamma_quantile_mapping(
     cpc_wet = cpc_valid[is_wet_cpc]
 
     if len(imerg_wet) < 5 or len(cpc_wet) < 5:
-        # Too few wet days for a reliable mapping — return all zeros (dry pixel).
+        # Too few wet days for a reliable mapping - return all zeros (dry pixel).
         corrected_values_flat = np.full_like(imerg_flat, np.nan)
         corrected_values_flat[valid_mask] = 0.0
         return corrected_values_flat.reshape(original_shape)

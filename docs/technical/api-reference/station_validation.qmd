@@ -1,0 +1,466 @@
+# station_validation { #src.station_validation }
+
+`station_validation`
+
+Module: station_validation.py
+
+Independent validation of bias-corrected precipitation products against
+weather station observations.
+
+This module compares gridded bias-corrected products (e.g., LSEQM, LSEQMDL)
+against point-scale daily precipitation measurements from BMKG weather
+stations. This provides an independent ground-truth validation that is
+separate from the QA framework (which compares corrected IMERG vs CPC).
+
+The validation workflow:
+1. Load station locations and daily precipitation observations
+2. Extract gridded product values at station locations (nearest grid cell)
+3. Compute per-station verification metrics using compute_pixel_metrics()
+4. Multi-threshold categorical verification (WMO/TD-No. 1485 compliant)
+5. Aggregate results into summary statistics
+
+Key design decisions:
+- Reuses ``compute_pixel_metrics()`` from metrics.py for consistency
+- Reuses ``load_station_locations()`` from station_density.py (DRY)
+- Handles BMKG missing data sentinel (8888.0) and empty cells
+- Station data date format: DD-MM-YYYY
+- Multi-threshold verification follows WMO/WGNE standard contingency table
+  metrics: POD, FAR, CSI, FBI, ETS, HSS, HK
+
+## References {.doc-section .doc-section-references}
+
+- WMO (2023), Guidelines for the WMO Evaluation of Records of Weather and
+  Climate Extremes, WMO-No. 1317.
+- WMO (2009), Recommendations for the Verification and Intercomparison of
+  QPFs and PQPFs from Operational NWP Models (Revision 2),
+  WMO/TD-No. 1485, WWRP 2009-1.
+- WMO (2008), Guide to Meteorological Instruments and Methods of
+  Observation, WMO-No. 8.
+- WMO (2018), Guide to Climatological Practices, WMO-No. 100.
+- Ebert, E. (2007), Methods for verifying satellite precipitation estimates.
+- Wilks, D. S. (2011), Statistical Methods in the Atmospheric Sciences,
+  3rd ed., Academic Press.
+
+## Author {.doc-section .doc-section-author}
+
+Benny Istanto
+  Applied Climatology Study Program, Department of Geophysics and Meteorology,
+  Bogor Agricultural University, Indonesia
+  Email: bennyistanto@apps.ipb.ac.id
+
+  with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
+
+Update: 2026.03
+
+## Functions
+
+| Name | Description |
+| --- | --- |
+| [compute_multi_threshold_metrics](#src.station_validation.compute_multi_threshold_metrics) | Compute WMO-compliant categorical verification at multiple precipitation |
+| [compute_station_metrics](#src.station_validation.compute_station_metrics) | Compute per-station validation metrics. |
+| [extract_gridded_at_stations](#src.station_validation.extract_gridded_at_stations) | Extract gridded product timeseries at station locations using nearest |
+| [extract_metrics_at_stations](#src.station_validation.extract_metrics_at_stations) | Extract pixel-level gridded metrics at station locations. |
+| [extract_qa_at_stations](#src.station_validation.extract_qa_at_stations) | Extract pixel-level gridded QA values at station locations. |
+| [load_station_observations](#src.station_validation.load_station_observations) | Load daily precipitation observations from a BMKG station data CSV. |
+| [merge_station_metadata](#src.station_validation.merge_station_metadata) | Merge per-station metrics with station location metadata, including |
+| [plot_station_scatter](#src.station_validation.plot_station_scatter) | Generate a scatter plot of observed vs. predicted daily precipitation |
+| [plot_station_timeseries](#src.station_validation.plot_station_timeseries) | Generate a daily precipitation dot plot for a single station over time. |
+| [run_station_validation](#src.station_validation.run_station_validation) | End-to-end station validation pipeline. |
+| [save_station_validation](#src.station_validation.save_station_validation) | Save per-station validation results to CSV. |
+| [summarize_by_group](#src.station_validation.summarize_by_group) | Summarize station validation metrics grouped by region or province. |
+| [summarize_multi_threshold](#src.station_validation.summarize_multi_threshold) | Summarize multi-threshold metrics across all stations. |
+| [summarize_station_metrics](#src.station_validation.summarize_station_metrics) | Aggregate per-station metrics into summary statistics. |
+
+### compute_multi_threshold_metrics { #src.station_validation.compute_multi_threshold_metrics }
+
+```python
+station_validation.compute_multi_threshold_metrics(
+    obs_df,
+    gridded_df,
+    thresholds=None,
+)
+```
+
+Compute WMO-compliant categorical verification at multiple precipitation
+thresholds for each station.
+
+For each station and each threshold, builds the 2x2 contingency table
+and derives POD, FAR, CSI, FBI, ETS, HSS, and HK following
+WMO/TD-No. 1485 (WWRP 2009-1).
+
+Thresholds where a station has fewer than ``MIN_EVENTS_FOR_VERIFICATION``
+observed events are flagged with NaN (per WMO/TD-1485 guidance).
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type                                               | Description                                                                                   | Default    |
+|------------|----------------------------------------------------|-----------------------------------------------------------------------------------------------|------------|
+| obs_df     | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Station observations (DatetimeIndex, WMO station ID columns).                                 | _required_ |
+| gridded_df | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Gridded values at stations (DatetimeIndex, WMO station ID columns).                           | _required_ |
+| thresholds | sequence of float                                  | Precipitation thresholds in mm/day. Default: ``WMO_THRESHOLDS`` (1, 5, 10, 20, 50, 100, 150). | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                               | Description                                                                                                                                                                          |
+|--------|----------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Per-station multi-threshold metrics. Rows = station WMO IDs, Columns = ``{metric}_{threshold}mm`` (e.g., ``pod_20mm``, ``csi_50mm``, ``ets_100mm``). Also includes ``n_valid_days``. |
+
+### compute_station_metrics { #src.station_validation.compute_station_metrics }
+
+```python
+station_validation.compute_station_metrics(obs_df, gridded_df, threshold=1.0)
+```
+
+Compute per-station validation metrics.
+
+For each station column present in both DataFrames, extracts the
+overlapping time period, aligns, and calls ``compute_pixel_metrics()``
+from metrics.py.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type                                               | Description                                                     | Default    |
+|------------|----------------------------------------------------|-----------------------------------------------------------------|------------|
+| obs_df     | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Station observations (DatetimeIndex, station ID columns).       | _required_ |
+| gridded_df | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Gridded values at stations (DatetimeIndex, station ID columns). | _required_ |
+| threshold  | [float](`float`)                                   | Wet-day threshold in mm/day (default 1.0).                      | `1.0`      |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                               | Description                                                                                                                                                                                                         |
+|--------|----------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|        | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Per-station metrics table. Rows = stations (WMO IDs), Columns = 31 metric names from METRIC_NAMES. Includes additional columns: 'n_valid_days', 'station_name', 'lon', 'lat' (if station metadata is later merged). |
+
+### extract_gridded_at_stations { #src.station_validation.extract_gridded_at_stations }
+
+```python
+station_validation.extract_gridded_at_stations(gridded_da, station_df)
+```
+
+Extract gridded product timeseries at station locations using nearest
+grid cell.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type                                               | Description                                                                          | Default    |
+|------------|----------------------------------------------------|--------------------------------------------------------------------------------------|------------|
+| gridded_da | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | Gridded precipitation product with dims (time, lat, lon).                            | _required_ |
+| station_df | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Station locations with 'Lon', 'Lat', 'ID_WMO' columns (from load_station_locations). | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                               | Description                                                                                                     |
+|--------|----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+|        | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | DataFrame with DatetimeIndex and WMO station ID columns containing gridded product values at nearest grid cell. |
+
+### extract_metrics_at_stations { #src.station_validation.extract_metrics_at_stations }
+
+```python
+station_validation.extract_metrics_at_stations(
+    metrics_file,
+    station_df,
+    metric_names=None,
+)
+```
+
+Extract pixel-level gridded metrics at station locations.
+
+Opens a metrics NetCDF file (output of ``run_metrics_pipeline``),
+extracts variable values at each station's nearest grid cell, and
+returns a DataFrame.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type                                               | Description                                                 | Default    |
+|--------------|----------------------------------------------------|-------------------------------------------------------------|------------|
+| metrics_file | [str](`str`)                                       | Path to a metrics NetCDF file (2-D variables: lat × lon).   | _required_ |
+| station_df   | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Station locations with 'ID_WMO', 'Lon', 'Lat' columns.      | _required_ |
+| metric_names | list of str                                        | Variables to extract. If None, extracts all data variables. | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                               | Description                                      |
+|--------|----------------------------------------------------|--------------------------------------------------|
+|        | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Index = WMO station IDs, columns = metric names. |
+
+### extract_qa_at_stations { #src.station_validation.extract_qa_at_stations }
+
+```python
+station_validation.extract_qa_at_stations(qa_file, station_df, var_names=None)
+```
+
+Extract pixel-level gridded QA values at station locations.
+
+Opens a QA NetCDF file (output of ``run_qa_pipeline``), extracts
+variable values at each station's nearest grid cell. Handles both
+numeric (score) and categorical (category) variables.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type                                               | Description                                                 | Default    |
+|------------|----------------------------------------------------|-------------------------------------------------------------|------------|
+| qa_file    | [str](`str`)                                       | Path to a QA NetCDF file (2-D variables: lat × lon).        | _required_ |
+| station_df | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Station locations with 'ID_WMO', 'Lon', 'Lat' columns.      | _required_ |
+| var_names  | list of str                                        | Variables to extract. If None, extracts all data variables. | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                               | Description                                           |
+|--------|----------------------------------------------------|-------------------------------------------------------|
+|        | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Index = WMO station IDs, columns = QA variable names. |
+
+### load_station_observations { #src.station_validation.load_station_observations }
+
+```python
+station_validation.load_station_observations(
+    station_data_file,
+    station_location_file=None,
+)
+```
+
+Load daily precipitation observations from a BMKG station data CSV.
+
+Handles:
+- Date parsing (DD-MM-YYYY format)
+- Missing value replacement (8888.0 -> NaN, empty -> NaN)
+- Optional filtering to only stations present in the location file
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name                  | Type         | Description                                                          | Default    |
+|-----------------------|--------------|----------------------------------------------------------------------|------------|
+| station_data_file     | [str](`str`) | Path to CSV with columns: ID, Date, JD, then WMO station ID columns. | _required_ |
+| station_location_file | [str](`str`) | If provided, filters to only stations found in the location CSV.     | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                               | Description                                                                                                                         |
+|--------|----------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+|        | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | DataFrame with DatetimeIndex and WMO station ID columns (as int) containing daily precipitation in mm. Shape: (n_days, n_stations). |
+
+### merge_station_metadata { #src.station_validation.merge_station_metadata }
+
+```python
+station_validation.merge_station_metadata(metrics_df, station_df)
+```
+
+Merge per-station metrics with station location metadata, including
+optional Region and Province columns.
+
+If the station location CSV contains 'Region' and/or 'Province' columns,
+they are included. If 'Province' exists but 'Region' does not, region is
+inferred from ``config.REGION_MAPPING``.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type                                               | Description                                         | Default    |
+|------------|----------------------------------------------------|-----------------------------------------------------|------------|
+| metrics_df | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Per-station metrics (index = WMO station IDs).      | _required_ |
+| station_df | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Station metadata from ``load_station_locations()``. | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                               | Description                                                                                             |
+|--------|----------------------------------------------------|---------------------------------------------------------------------------------------------------------|
+|        | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Metrics with metadata columns prepended: Station, Lon, Lat, Elevation, and optionally Region, Province. |
+
+### plot_station_scatter { #src.station_validation.plot_station_scatter }
+
+```python
+station_validation.plot_station_scatter(
+    obs_df,
+    gridded_dict,
+    station_id,
+    station_df=None,
+    threshold=1.0,
+    figsize=(12, 5),
+)
+```
+
+Generate a scatter plot of observed vs. predicted daily precipitation
+for a single station, with one panel per correction method.
+
+This is an on-demand function - the user specifies which station to
+plot, avoiding mass generation of figures.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type                                               | Description                                                                                   | Default    |
+|--------------|----------------------------------------------------|-----------------------------------------------------------------------------------------------|------------|
+| obs_df       | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Station observations (DatetimeIndex, WMO station ID columns).                                 | _required_ |
+| gridded_dict | dict of {str: pandas.DataFrame}                    | Extracted gridded values keyed by method name (e.g., {'LS': df, 'LSEQM': df, 'LSEQMDL': df}). | _required_ |
+| station_id   | [int](`int`)                                       | WMO station ID to plot.                                                                       | _required_ |
+| station_df   | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Station metadata for title annotation.                                                        | `None`     |
+| threshold    | [float](`float`)                                   | Wet-day threshold line (default 1.0 mm).                                                      | `1.0`      |
+| figsize      | [tuple](`tuple`)                                   | Figure size (width, height) in inches.                                                        | `(12, 5)`  |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                                                                          | Description                                         |
+|--------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------|
+|        | [matplotlib](`matplotlib`).[figure](`matplotlib.figure`).[Figure](`matplotlib.figure.Figure`) | The generated figure (also displayed via plt.show). |
+
+### plot_station_timeseries { #src.station_validation.plot_station_timeseries }
+
+```python
+station_validation.plot_station_timeseries(
+    obs_df,
+    gridded_dict,
+    station_id,
+    station_df=None,
+    thresholds=(5, 10, 20, 50, 100),
+    figsize=(16, 6),
+)
+```
+
+Generate a daily precipitation dot plot for a single station over time.
+
+Each dataset (observed + gridded products) is plotted as semi-transparent
+dots along the time axis. Horizontal dashed lines mark WMO rainfall
+intensity thresholds for visual context.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name         | Type                                               | Description                                                                                      | Default                |
+|--------------|----------------------------------------------------|--------------------------------------------------------------------------------------------------|------------------------|
+| obs_df       | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Station observations (DatetimeIndex, WMO station ID columns).                                    | _required_             |
+| gridded_dict | dict of {str: pandas.DataFrame}                    | Extracted gridded values keyed by method name (e.g., {'LS': df, 'LSEQM': df, 'LSEQMDL': df}).    | _required_             |
+| station_id   | [int](`int`)                                       | WMO station ID to plot.                                                                          | _required_             |
+| station_df   | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Station metadata for title annotation.                                                           | `None`                 |
+| thresholds   | tuple of float                                     | Precipitation thresholds (mm/day) for horizontal reference lines. Default: (5, 10, 20, 50, 100). | `(5, 10, 20, 50, 100)` |
+| figsize      | [tuple](`tuple`)                                   | Figure size (width, height) in inches.                                                           | `(16, 6)`              |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                                                                          | Description                                         |
+|--------|-----------------------------------------------------------------------------------------------|-----------------------------------------------------|
+|        | [matplotlib](`matplotlib`).[figure](`matplotlib.figure`).[Figure](`matplotlib.figure.Figure`) | The generated figure (also displayed via plt.show). |
+
+### run_station_validation { #src.station_validation.run_station_validation }
+
+```python
+station_validation.run_station_validation(
+    gridded_da,
+    station_location_file,
+    station_data_file,
+    threshold=1.0,
+)
+```
+
+End-to-end station validation pipeline.
+
+Chains: load locations -> load observations -> extract gridded at
+stations -> compute metrics -> summarize.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name                  | Type                                               | Description                                                              | Default    |
+|-----------------------|----------------------------------------------------|--------------------------------------------------------------------------|------------|
+| gridded_da            | [xarray](`xarray`).[DataArray](`xarray.DataArray`) | Bias-corrected gridded precipitation product with dims (time, lat, lon). | _required_ |
+| station_location_file | [str](`str`)                                       | Path to station location CSV.                                            | _required_ |
+| station_data_file     | [str](`str`)                                       | Path to station observation data CSV.                                    | _required_ |
+| threshold             | [float](`float`)                                   | Wet-day threshold in mm/day (default 1.0).                               | `1.0`      |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                                            | Description                                             |
+|--------|-----------------------------------------------------------------|---------------------------------------------------------|
+|        | tuple of (pandas.DataFrame, pandas.DataFrame, pandas.DataFrame) | (per_station_metrics, summary_stats, station_locations) |
+
+### save_station_validation { #src.station_validation.save_station_validation }
+
+```python
+station_validation.save_station_validation(
+    metrics_df,
+    station_df,
+    output_file,
+    method_name='LSEQMDL',
+)
+```
+
+Save per-station validation results to CSV.
+
+Merges metrics with station metadata (name, lon, lat, elevation) and
+saves as CSV.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name        | Type                                               | Description                                                 | Default     |
+|-------------|----------------------------------------------------|-------------------------------------------------------------|-------------|
+| metrics_df  | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Per-station metrics (index = WMO station IDs).              | _required_  |
+| station_df  | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Station metadata with ID_WMO, Station, Lon, Lat, Elevation. | _required_  |
+| output_file | [str](`str`)                                       | Output file path (.csv).                                    | _required_  |
+| method_name | [str](`str`)                                       | Name of correction method for metadata.                     | `'LSEQMDL'` |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type         | Description         |
+|--------|--------------|---------------------|
+|        | [str](`str`) | Path to saved file. |
+
+### summarize_by_group { #src.station_validation.summarize_by_group }
+
+```python
+station_validation.summarize_by_group(metrics_df, group_col, key_metrics=None)
+```
+
+Summarize station validation metrics grouped by region or province.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name        | Type                                               | Description                                                                                                             | Default    |
+|-------------|----------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------|------------|
+| metrics_df  | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Per-station metrics with a group column (e.g., 'Region' or 'Province') already merged via ``merge_station_metadata()``. | _required_ |
+| group_col   | [str](`str`)                                       | Column name to group by (e.g., 'Region', 'Province').                                                                   | _required_ |
+| key_metrics | list of str                                        | Metric column names to summarize. Default: a representative set of continuous and categorical metrics.                  | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                               | Description                                                                                                                  |
+|--------|----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
+|        | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Summary table: index = group name, columns = metric statistics (count, median, mean, std). Groups are sorted alphabetically. |
+
+### summarize_multi_threshold { #src.station_validation.summarize_multi_threshold }
+
+```python
+station_validation.summarize_multi_threshold(mt_df, thresholds=None)
+```
+
+Summarize multi-threshold metrics across all stations.
+
+Produces a compact table: rows = thresholds, columns = metric medians
+(and IQR). This is the primary output for comparing how skill degrades
+with increasing precipitation intensity.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type                                               | Description                                                                     | Default    |
+|------------|----------------------------------------------------|---------------------------------------------------------------------------------|------------|
+| mt_df      | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Per-station multi-threshold metrics from ``compute_multi_threshold_metrics()``. | _required_ |
+| thresholds | sequence of float                                  | Thresholds to include. Default: ``WMO_THRESHOLDS``.                             | `None`     |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                               | Description                                                                                                                 |
+|--------|----------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+|        | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Summary table with index = threshold (mm), columns = metric statistics (e.g., ``pod_median``, ``csi_median``, ``ets_p25``). |
+
+### summarize_station_metrics { #src.station_validation.summarize_station_metrics }
+
+```python
+station_validation.summarize_station_metrics(metrics_df)
+```
+
+Aggregate per-station metrics into summary statistics.
+
+#### Parameters {.doc-section .doc-section-parameters}
+
+| Name       | Type                                               | Description                                             | Default    |
+|------------|----------------------------------------------------|---------------------------------------------------------|------------|
+| metrics_df | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Per-station metrics from ``compute_station_metrics()``. | _required_ |
+
+#### Returns {.doc-section .doc-section-returns}
+
+| Name   | Type                                               | Description                                                                                                                                  |
+|--------|----------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|
+|        | [pandas](`pandas`).[DataFrame](`pandas.DataFrame`) | Summary statistics (count, mean, median, std, min, max) for each metric across all stations. Rows = statistic names, Columns = metric names. |

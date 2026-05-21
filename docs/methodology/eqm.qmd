@@ -1,0 +1,37 @@
+---
+title: "Empirical Quantile Mapping"
+description: "Distribution-shape correction with a Gamma body."
+---
+
+EQM maps each quantile of the LS-corrected IMERG distribution to the same quantile of CPC. The result is a field whose marginal distribution at each pixel matches the reference, while the temporal sequence (which day was wet, which was dry) is inherited from the satellite.
+
+## The transformation
+
+For a daily value $P^{LS}$ at quantile $q$:
+
+$$
+P^{EQM} = F^{-1}_{CPC, d}\left( F^{LS, d}(P^{LS}) \right)
+$$
+
+where $F^{LS, d}$ is the empirical CDF of the LS-corrected IMERG field for dekad $d$, and $F^{-1}_{CPC, d}$ is the inverse empirical CDF of CPC for the same dekad.
+
+## Why a Gamma body, GPD tail
+
+The empirical CDF is well behaved in the body of the distribution (frequent values, well sampled). It becomes unreliable above ~80th percentile, where you may only have a handful of exceedances per dekad. Two failure modes are common:
+
+- **Saturation at the highest observed quantile.** An empirical CDF cannot map a value larger than the largest CPC observation; large IMERG events get clipped.
+- **Discrete jumps in the tail.** With few exceedances, the empirical inverse CDF is a step function with visible discontinuities.
+
+To prevent both, the body is fit with a parametric Gamma distribution (which provides a smooth interpolation) and the tail is replaced by a GPD fit above the 80th percentile. See [GPD Tail](gpd-tail.qmd).
+
+## Wet / dry handling
+
+Days with $P^{LS} < 1.0$ mm are treated as dry and mapped to zero before fitting, to avoid spurious drizzle on the right-hand tail of the gamma. The 1.0 mm threshold is the value used in WMO categorical metrics; it is also the default `wet_day_threshold` in `config.yml`.
+
+## Implementation
+
+`src/bias_correction.py` - the `lseqm()` function, which calls `src/distribution_fitting.py` for the Gamma and GPD fits.
+
+::: {.callout-tip}
+The full LSEQM correction (LS + EQM + GPD) is what the framework labels `lseqm`. The chain runs as one function call per dekad.
+:::

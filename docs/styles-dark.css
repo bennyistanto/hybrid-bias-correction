@@ -1,0 +1,235 @@
+/*-- scss:rules --*/
+/* =========================================================================
+   Hybrid Bias Correction — Dark theme overrides
+   Goals: high contrast, soft pastel cards on dark, accent stripes preserved.
+   ========================================================================= */
+
+:root {
+  --hbc-primary:        #6cb2e8;
+  --hbc-primary-soft:   #8fc4ec;
+  --hbc-accent:         #f7a86b;
+  --hbc-accent-soft:    #fac599;
+  --hbc-ink:            #e5ecf2;   /* near-white text on dark */
+  --hbc-ink-muted:      #a8b3bf;
+  --hbc-surface:        #0f1822;
+  --hbc-surface-2:      #1a2533;
+  --hbc-card:           #1c2735;
+  --hbc-card-border:    #2a3a4d;
+  --hbc-card-hover:     #243349;
+
+  /* lighter, dark-mode-tuned accent stripes (same hue family as light) */
+  --hbc-card-1: #6cb2e8;
+  --hbc-card-2: #f7a86b;
+  --hbc-card-3: #95c977;
+  --hbc-card-4: #e58aaa;
+  --hbc-card-5: #a695ee;
+  --hbc-card-6: #6cc2c2;
+}
+
+body {
+  color: var(--hbc-ink);
+  background: var(--hbc-surface);
+}
+
+/* ----------------------------------------------------------------------- */
+/* Hero banner                                                              */
+/* ----------------------------------------------------------------------- */
+.hero-banner {
+  background:
+    radial-gradient(circle at 0% 0%, rgba(247, 168, 107, 0.30), transparent 60%),
+    radial-gradient(circle at 100% 100%, rgba(166, 149, 238, 0.28), transparent 55%),
+    linear-gradient(135deg, #163a5a 0%, #0d2236 60%, #08151f 100%);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45), 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.hero-content h1 {
+  color: #ffffff;
+}
+
+.hero-content p {
+  color: rgba(255, 255, 255, 0.88);
+}
+
+/* ----------------------------------------------------------------------- */
+/* Feature cards - readable on dark                                         */
+/* ----------------------------------------------------------------------- */
+.feature-card {
+  background: var(--hbc-card);
+  border-color: var(--hbc-card-border);
+  border-left-color: var(--hbc-card-1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 1px 6px rgba(0, 0, 0, 0.20);
+}
+
+.feature-card:hover {
+  background: var(--hbc-card-hover);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35), 0 2px 4px rgba(0, 0, 0, 0.25);
+}
+
+.feature-card h3 {
+  color: var(--hbc-primary);
+}
+
+.feature-card p, .feature-card li, .feature-card ul {
+  color: var(--hbc-ink);
+}
+
+/* Rotating accent stripes in dark mode */
+.grid-container .feature-card:nth-child(6n+1) { border-left-color: var(--hbc-card-1); }
+.grid-container .feature-card:nth-child(6n+1) h3 { color: var(--hbc-card-1); }
+.grid-container .feature-card:nth-child(6n+2) { border-left-color: var(--hbc-card-2); }
+.grid-container .feature-card:nth-child(6n+2) h3 { color: var(--hbc-card-2); }
+.grid-container .feature-card:nth-child(6n+3) { border-left-color: var(--hbc-card-3); }
+.grid-container .feature-card:nth-child(6n+3) h3 { color: var(--hbc-card-3); }
+.grid-container .feature-card:nth-child(6n+4) { border-left-color: var(--hbc-card-4); }
+.grid-container .feature-card:nth-child(6n+4) h3 { color: var(--hbc-card-4); }
+.grid-container .feature-card:nth-child(6n+5) { border-left-color: var(--hbc-card-5); }
+.grid-container .feature-card:nth-child(6n+5) h3 { color: var(--hbc-card-5); }
+.grid-container .feature-card:nth-child(6n+6) { border-left-color: var(--hbc-card-6); }
+.grid-container .feature-card:nth-child(6n+6) h3 { color: var(--hbc-card-6); }
+
+/* ----------------------------------------------------------------------- */
+/* Code blocks                                                              */
+/* ----------------------------------------------------------------------- */
+pre {
+  border-color: var(--hbc-card-border);
+}
+
+:not(pre) > code {
+  background: var(--hbc-surface-2);
+  color: var(--hbc-accent-soft);
+}
+
+/* ----------------------------------------------------------------------- */
+/* Tables                                                                   */
+/* Quarto / Bootstrap defaults leak through; we override aggressively.      */
+/* ----------------------------------------------------------------------- */
+table,
+.table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--hbc-ink);
+  --bs-table-border-color: var(--hbc-card-border);
+  --bs-table-striped-bg: var(--hbc-card);
+  --bs-table-hover-bg: var(--hbc-card-hover);
+  background-color: transparent !important;
+  color: var(--hbc-ink) !important;
+  border-color: var(--hbc-card-border);
+}
+
+table thead,
+.table thead {
+  background: var(--hbc-surface-2);
+}
+
+table thead th,
+.table thead th {
+  color: var(--hbc-primary) !important;
+  border-bottom: 2px solid var(--hbc-primary-soft);
+  background: var(--hbc-surface-2);
+}
+
+table tbody,
+.table tbody {
+  background: transparent;
+}
+
+table tbody tr,
+.table tbody tr {
+  background-color: transparent !important;
+  color: var(--hbc-ink) !important;
+}
+
+table tbody tr:hover,
+.table tbody tr:hover {
+  background-color: var(--hbc-card-hover) !important;
+}
+
+table tbody td,
+.table tbody td,
+table tbody th,
+.table tbody th {
+  color: var(--hbc-ink) !important;
+  background-color: transparent !important;
+  border-bottom: 1px solid var(--hbc-card-border);
+}
+
+/* ----------------------------------------------------------------------- */
+/* Muted / small text - lighter on dark so it's readable                    */
+/* ----------------------------------------------------------------------- */
+.text-muted,
+.small,
+small {
+  color: var(--hbc-ink-muted) !important;
+}
+
+/* The block at the bottom of index.qmd uses both .text-muted .small */
+.text-muted.small,
+.text-muted .small {
+  color: var(--hbc-ink-muted) !important;
+}
+
+/* ----------------------------------------------------------------------- */
+/* Headings                                                                 */
+/* ----------------------------------------------------------------------- */
+h2 {
+  border-bottom-color: var(--hbc-surface-2);
+}
+
+/* ----------------------------------------------------------------------- */
+/* Navbar                                                                   */
+/* ----------------------------------------------------------------------- */
+.navbar {
+  background: linear-gradient(180deg, #0d2236 0%, #08151f 100%) !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid var(--hbc-card-border);
+}
+
+.navbar .nav-link:hover {
+  color: var(--hbc-accent) !important;
+}
+
+/* ----------------------------------------------------------------------- */
+/* Sidebar                                                                  */
+/* ----------------------------------------------------------------------- */
+.sidebar nav .sidebar-section {
+  color: var(--hbc-primary);
+}
+
+.sidebar a {
+  color: var(--hbc-ink);
+}
+
+.sidebar a:hover {
+  color: var(--hbc-accent);
+}
+
+/* ----------------------------------------------------------------------- */
+/* Links                                                                    */
+/* ----------------------------------------------------------------------- */
+a {
+  color: var(--hbc-primary);
+}
+
+a:hover {
+  color: var(--hbc-accent);
+}
+
+/* ----------------------------------------------------------------------- */
+/* Badges                                                                   */
+/* ----------------------------------------------------------------------- */
+.badge-custom {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.20);
+}
+
+/* ----------------------------------------------------------------------- */
+/* Callouts                                                                 */
+/* ----------------------------------------------------------------------- */
+.callout {
+  background-color: var(--hbc-card);
+  border-color: var(--hbc-card-border);
+}
+
+.callout .callout-body p,
+.callout .callout-body li {
+  color: var(--hbc-ink);
+}

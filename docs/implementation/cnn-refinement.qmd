@@ -1,0 +1,84 @@
+---
+title: "CNN Refinement - Implementation"
+description: "Keras model definition, training loop, and per-dekad reuse."
+---
+
+For the theory, see [Methodology > CNN Refinement](../methodology/cnn-refinement.qmd). This page is the algorithm view.
+
+![CNN layout - cross-referenced from [Methodology > CNN Refinement](../methodology/cnn-refinement.qmd).](../images/cnn-architecture.svg){#fig-cnn-arch-impl fig-align="center"}
+
+## Architecture in code
+
+The model is built in `build_cnn()` inside [`src/deep_learning.py`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/deep_learning.py):
+
+```python
+model = Sequential([
+    Input(shape=input_shape + (1,)),
+    Conv2D(num_filters_1, filter_size_1, activation='relu', padding='same'),
+    Dropout(dropout_rate_1),
+    Conv2D(num_filters_2, filter_size_2, activation='relu', padding='same'),
+    Dropout(dropout_rate_2),
+    Flatten(),
+    Dense(dense_layer_size, activation='relu'),
+    Dropout(dropout_rate_dense),
+    Dense(np.prod(input_shape)),    # linear output
+    Reshape(input_shape),
+])
+model.compile(optimizer=DL_OPTIMIZER, loss='mse')
+```
+
+`padding='same'` keeps the spatial dimensions through both Conv2D layers, so the output shape matches the input. The Flatten -> Dense bottleneck is where most of the parameters live - this is the "future U-Net" point in the [Changelog](../changelog.qmd#backlog-next-release) backlog.
+
+## Per-dekad model
+
+A separate model is trained for each of the 36 dekads. The function is:
+
+```python
+from src.deep_learning import train_cnn_for_dekad
+
+model, history = train_cnn_for_dekad(
+    lseqm_field, cpc_field, month, dekad,
+    epochs=50, batch_size=64,
+    validation_split=0.2,
+    early_stopping_patience=5,
+)
+```
+
+Inputs are `(n_samples, n_lat, n_lon)` arrays - one sample per (year, day-in-dekad) combination. For Indonesia 2001-2025 that is ~22 years x 10 days = ~220 samples per dekad. For Bali the same.
+
+Training stops on `val_loss` early-stopping (patience 5). On Bali / Colab CPU, a single dekad completes in ~40-90 seconds.
+
+## Persistence
+
+Trained models are saved to `data/output/trained_models/`:
+
+```
+trained_models/
+  {prefix}_cnn_month{MM}_dekad{D}.keras
+  {prefix}_cnn_month{MM}_dekad{D}_norm.json     # mean / std for input normalisation
+```
+
+The matching `_norm.json` is required for applying the model to new data - reloading the `.keras` alone is not enough.
+
+The notebooks (`02_lseqmdl_bias_correction.ipynb` Step 8) have a non-interactive switch via `existing_model_action` in config: `use_existing` reuses a previously trained model, `overwrite` retrains.
+
+## Application
+
+`apply_cnn_to_field(model, lseqm_field, norm_stats)` runs inference. The result is a refined extreme field that the blend step combines with LSEQM.
+
+## Memory notes for batch runs
+
+TensorFlow / Keras can pin process memory across calls. If you batch all 36 dekads in a single Python session (which the notebooks do), peak memory can grow even though each model is small. Two mitigations:
+
+- `tf.keras.backend.clear_session()` between dekads. Currently in the [Changelog backlog](../changelog.qmd#backlog-next-release).
+- Restart the kernel between nb02 (training) and nb06 (visualisation). The CNN model is not needed in nb06.
+
+## Cost
+
+Per dekad: training is dominated by the ~50 epochs over ~220 samples on the AOI grid. For Bali (9 x 14), the Flatten -> Dense weight matrix is small (~16k params); training takes ~40-90 seconds CPU. For Indonesia (171 x 461), the same Dense layer balloons to ~10 M params; training takes ~5-10 minutes per dekad on CPU.
+
+## Related code
+
+- [`src/deep_learning.py::build_cnn`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/deep_learning.py) - model definition.
+- [`src/deep_learning.py::train_cnn_for_dekad`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/deep_learning.py) - training wrapper with early stopping.
+- [`src/deep_learning.py::apply_cnn_to_field`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/deep_learning.py) - inference.

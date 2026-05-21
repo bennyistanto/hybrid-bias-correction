@@ -1,0 +1,75 @@
+---
+title: "Configuration Recipes"
+description: "Common edits to config.yml."
+---
+
+## Disable the CNN (run LSEQM only)
+
+Set `blend_alpha` to 1.0:
+
+```yaml
+deep_learning:
+  blend_alpha: 1.0
+```
+
+The CNN still trains but its output is multiplied by zero in the blend. To skip training entirely, comment out the CNN steps in `notebooks/02_lseqmdl_bias_correction.ipynb`.
+
+## Disable the confidence mask (uniform blend)
+
+```yaml
+station_density:
+  use_confidence_mask: false
+```
+
+The blend then uses a flat `blend_alpha` everywhere. Useful for an ablation: compare LSEQM+DL with the mask off and on to quantify what the mask is doing.
+
+## Change the GPD threshold
+
+```yaml
+statistical_params:
+  gpd_threshold_percentile: 90   # was 80
+```
+
+Higher thresholds give a cleaner separation between the gamma body and the GPD tail but reduce the number of exceedances per dekad. If you hit "too few exceedances" errors, lower the threshold or raise `wet_day_threshold` so that dry days are excluded.
+
+## Switch to non-interactive (batch) mode
+
+```yaml
+runtime:
+  interactive: false
+  existing_file_action: "skip"      # or "overwrite", "abort"
+  existing_model_action: "use_existing"
+```
+
+In `skip` mode, a re-run will not regenerate files that already exist. Use this when iterating on a single dekad - flip to `overwrite` for the cell you are changing.
+
+## Tighten the upper cap
+
+```yaml
+statistical_params:
+  upper_cap_threshold_percentile: 99.0   # was 99.9
+```
+
+Clips ~1% of the tail. Use if you see unrealistic spikes after the GPD step (rare but possible when exceedances are very heavy-tailed).
+
+## Run on Colab without a local checkout
+
+```yaml
+directories:
+  main_dir: "/content/hybrid-bias-correction"
+  input_dir: "{main_dir}/data/example_bali"
+  output_dir: "{main_dir}/data/example_bali/output"
+```
+
+The Bali config already has these values commented in; uncomment the Colab line and comment the WSL line.
+
+## Use a denser CNN
+
+```yaml
+deep_learning:
+  num_filters_1: 64        # was 32
+  num_filters_2: 128       # was 64
+  dense_layer_size: 256    # was 128
+```
+
+This nearly quadruples the parameter count of the Flatten -> Dense layer. Only worth doing if the val_loss plateau on the default network is well above your noise floor.
