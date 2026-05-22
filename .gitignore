@@ -35,26 +35,38 @@ docs/_build/
 _build/
 
 # ---------------------------------------------------------------------------
-# Data (committed: only the small Bali example bundle)
+# Data (committed: only the small Bali example bundle + folder READMEs)
 # ---------------------------------------------------------------------------
 # Indonesia operational input + output -> Zenodo 20287847
-data/input/
-data/output/
-data/downloads/
+# Use dir/* (not dir/) so the placeholder README.md exception below works.
+data/input/*
+data/output/*
+data/downloads/*
 
 # Indonesia full mask + global masks -> not needed for Bali example
-data/mask/iso3/
-data/mask/world/
+data/mask/iso3/*
+data/mask/world/*
 
 # Boundary subsets (Indonesia adm levels + global) -> too large for Git
-data/subset/adm0/
-data/subset/adm1/
-data/subset/bnd/
-data/subset/iso3/
-data/subset/world/
+data/subset/adm0/*
+data/subset/adm1/*
+data/subset/bnd/*
+data/subset/iso3/*
+data/subset/world/*
 
 # Bali run outputs are regenerable -> users run the notebooks
-data/example_bali/output/
+data/example_bali/output/*
+
+# Always allow the placeholder READMEs so empty data dirs are documented in fresh clones
+!data/input/README.md
+!data/output/README.md
+!data/downloads/README.md
+!data/mask/world/README.md
+!data/subset/adm0/README.md
+!data/subset/adm1/README.md
+!data/subset/bnd/README.md
+!data/subset/world/README.md
+!data/example_bali/output/README.md
 
 # ---------------------------------------------------------------------------
 # Python
@@ -67,7 +79,6 @@ env/
 build/
 develop-eggs/
 dist/
-downloads/
 eggs/
 .eggs/
 lib/
