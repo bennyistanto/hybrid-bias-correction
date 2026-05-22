@@ -17,7 +17,7 @@ Full documentation site: [https://bennyistanto.github.io/hybrid-bias-correction]
 | [Methodology](https://bennyistanto.github.io/hybrid-bias-correction/methodology/) | Theory behind each correction stage |
 | [Implementation](https://bennyistanto.github.io/hybrid-bias-correction/implementation/) | Algorithm view: which `src/` function does what |
 | [Tutorials](https://bennyistanto.github.io/hybrid-bias-correction/tutorials/) | Full pipeline walkthroughs against the Bali example |
-| [Bali Results](https://bennyistanto.github.io/hybrid-bias-correction/tutorials/bali-results.html) | Actual outputs the framework produces |
+| [Executed Notebooks](https://bennyistanto.github.io/hybrid-bias-correction/example-bali/) | nb00-nb06 rendered with all outputs intact (data prep + Bali pipeline) |
 | [FAQ](https://bennyistanto.github.io/hybrid-bias-correction/faq.html) | Basics + honest answers to reviewer-style questions |
 | [API Reference](https://bennyistanto.github.io/hybrid-bias-correction/technical/api-reference/) | Auto-generated module docs |
 
@@ -93,7 +93,7 @@ Mozilla Public License 2.0. See [LICENSE](LICENSE) or [https://www.mozilla.org/e
 **Benny Istanto** - [https://benny.istan.to/about](https://benny.istan.to/about)
 
   Applied Climatology Study Program, Department of Geophysics and Meteorology</br>
-  Bogor Agricultural University, Indonesia</br>
-  [bennyistanto@apps.ipb.ac.id](mailto:bennyistanto@apps.ipb.ac.id)</br>
+  [Bogor Agricultural University](https://www.ipb.ac.id/), Indonesia</br>
+  bennyistanto@apps.ipb.ac.id
 
 With supervision from [Prof. Rizaldi Boer](https://scholar.google.com/citations?user=jTPXEp8AAAAJ&hl=en) and [Dr. I Putu Santikayasa](https://scholar.google.com/citations?user=DcQ58z8AAAAJ&hl=en) as part of the MSc thesis.
