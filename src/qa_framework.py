@@ -521,7 +521,9 @@ def save_quality_assessment(quality_ds, out_file,
         decision = set_user_decision()
         if decision == 'S':
             logging.info(f"Skipping {out_file}")
-            return None
+            # File is there on disk - return its path so callers can find it
+            # for downstream inspection / plotting steps.
+            return out_file
         elif decision == 'A':
             from .io import BiasCorrectAbort
             raise BiasCorrectAbort("User chose to abort.")

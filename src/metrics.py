@@ -435,7 +435,9 @@ def save_metrics(metrics_ds, out_file, description="Bias Correction Metrics"):
         decision = set_user_decision()
         if decision == 'S':
             logging.info(f"Skipping file {out_file}")
-            return None
+            # File is there on disk - return its path so callers can find it
+            # for downstream inspection / plotting steps.
+            return out_file
         elif decision == 'A':
             logging.info("Aborting process.")
             from .io import BiasCorrectAbort

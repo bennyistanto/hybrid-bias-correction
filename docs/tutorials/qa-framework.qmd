@@ -29,6 +29,8 @@ Bali, January dekad 11-20, LSEQM+DL. Higher = better:
 
 ![Component scores - basic statistical, distribution, temporal](../images/bali/components_jan_d2.png)
 
+*Source: [nb06 Step 7 - Component Quality Maps](../example-bali/06_visualisation_hub_bali.html#step-7-component-quality-maps)*
+
 ## Categorical bands
 
 | CQI range | Class | Reading |
@@ -44,9 +46,13 @@ For each dekad and each method, `04_qa_framework.ipynb` writes a `quality_{metho
 
 ![CQI spatial - LS / LSEQM / LSEQM+DL, January dekad 11-20](../images/bali/cqi_spatial_jan_d2.png)
 
+*Source: [nb06 Step 4 - CQI Spatial Maps](../example-bali/06_visualisation_hub_bali.html#step-4-cqi-spatial-maps)*
+
 The categorical version uses the bands above:
 
 ![Categorical quality classification - January dekad 11-20](../images/bali/categorical_spatial_jan_d2.png)
+
+*Source: [nb06 Step 5 - Categorical Quality Maps](../example-bali/06_visualisation_hub_bali.html#step-5-categorical-quality-maps)*
 
 ## What the DL stage actually moves
 
@@ -54,9 +60,13 @@ The improvement map (LSEQM+DL minus LS) shows where the deep-learning stage shif
 
 ![CQI improvement - LSEQM+DL minus LS](../images/bali/improvement_jan_d2.png)
 
+*Source: [nb06 Step 6 - Method Improvement Map](../example-bali/06_visualisation_hub_bali.html#step-6-method-improvement-map)*
+
 In gauge-dense areas, the DL stage usually adds a small but consistent improvement. In gauge-sparse areas, the station-density confidence mask returns the result to LSEQM, so the improvement is zero by construction. The confidence map shows where each pixel sits on that scale:
 
 ![Confidence level - where DL has authority](../images/bali/confidence_jan_d2.png)
+
+*Source: [nb06 Step 8 - Confidence Map](../example-bali/06_visualisation_hub_bali.html#step-8-confidence-map)*
 
 ## Distribution and box plots
 
@@ -64,9 +74,13 @@ CQI distribution shows the histogram and CDF of pixel scores per method:
 
 ![CQI distribution - PDF and CDF](../images/bali/cqi_distribution_jan_d2.png)
 
+*Source: [nb06 Step 9 - CQI Distribution Analysis](../example-bali/06_visualisation_hub_bali.html#step-9-cqi-distribution-analysis)*
+
 Per-component box plots compare LS / LSEQM / LSEQM+DL on each component separately:
 
 ![Component box plots by method](../images/bali/component_boxplots_jan_d2.png)
+
+*Source: [nb06 Step 11 - Component Box Plots](../example-bali/06_visualisation_hub_bali.html#step-11-component-box-plots)*
 
 ## Interpreting changes between methods
 

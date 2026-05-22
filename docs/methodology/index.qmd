@@ -55,4 +55,4 @@ These were chosen by inspection rather than formal optimization. Sensitivity to 
 
 ## Temporal unit
 
-All parameters are fit per **dekad** (10-day window, 36 per year). See [Data Model](../get-started/data-model.qmd#time-discretization-the-dekad) for why.
+All parameters are fit per **dekad** (10-day window, 36 per year). See [Data Model](../get-started/data-model.qmd#dekad-temporal-convention) for why.

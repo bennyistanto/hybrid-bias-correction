@@ -27,7 +27,7 @@ model = Sequential([
 model.compile(optimizer=DL_OPTIMIZER, loss='mse')
 ```
 
-`padding='same'` keeps the spatial dimensions through both Conv2D layers, so the output shape matches the input. The Flatten -> Dense bottleneck is where most of the parameters live - this is the "future U-Net" point in the [Changelog](../changelog.qmd#backlog-next-release) backlog.
+`padding='same'` keeps the spatial dimensions through both Conv2D layers, so the output shape matches the input. The Flatten -> Dense bottleneck is where most of the parameters live - this is the "future U-Net" point in the [Changelog](../changelog.qmd#backlog) backlog.
 
 ## Per-dekad model
 
@@ -70,7 +70,7 @@ The notebooks (`02_lseqmdl_bias_correction.ipynb` Step 8) have a non-interactive
 
 TensorFlow / Keras can pin process memory across calls. If you batch all 36 dekads in a single Python session (which the notebooks do), peak memory can grow even though each model is small. Two mitigations:
 
-- `tf.keras.backend.clear_session()` between dekads. Currently in the [Changelog backlog](../changelog.qmd#backlog-next-release).
+- `tf.keras.backend.clear_session()` between dekads. Currently in the [Changelog backlog](../changelog.qmd#backlog).
 - Restart the kernel between nb02 (training) and nb06 (visualisation). The CNN model is not needed in nb06.
 
 ## Cost

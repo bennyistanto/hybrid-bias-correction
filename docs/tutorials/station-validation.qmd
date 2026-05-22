@@ -28,6 +28,53 @@ The batch cell (Step 12) iterates the 36 dekads. For each one:
 
 If you skip Step 2 (which loads `station_df` and `obs_df` interactively) and jump straight to the batch cell, it now **auto-loads** those variables - the batch is self-contained.
 
+## Single-station diagnostics
+
+Two on-demand views are useful before looking at the regional / Taylor summaries below. The figures here are pinned to the **four BMKG stations available in the Bali bundle**:
+
+| WMO | Station | Setting |
+|-----|---------|---------|
+| 97230 | I Gusti Ngurah Rai | Coastal airport, southern Bali |
+| 97232 | Geofisika Denpasar | Urban, central south |
+| 97234 | Kahang-Kahang | Inland (155 m elev), eastern Bali |
+| 97236 | Klimatologi Jembrana | Western Bali, near coast |
+
+Comparing the four lets you see how the framework behaves under different exposures (coastal vs inland, dense vs sparse local rain).
+
+### Per-station scatter against BMKG
+
+Step 8 plots BMKG observed vs each corrected product on the same axes, with 1:1 reference and per-product `r` / RMSE / NSE annotations. It surfaces the dry-bias floor in IMERG-L and the progressive tightening of the cloud as LS → LSEQM → LSEQM+DL are applied.
+
+::: {layout-ncol=2}
+![WMO 97230 - I Gusti Ngurah Rai (airport)](../images/bali/station_scatter_97230.png)
+
+![WMO 97232 - Geofisika Denpasar](../images/bali/station_scatter_97232.png)
+
+![WMO 97234 - Kahang-Kahang (inland)](../images/bali/station_scatter_97234.png)
+
+![WMO 97236 - Klimatologi Jembrana](../images/bali/station_scatter_97236.png)
+:::
+
+*Source: [nb05 Step 8 - Per-Station Scatter Plot](../example-bali/05_station_validation_bali.html#step-8-per-station-scatter-plot-on-demand)*
+
+### Daily time series
+
+Step 9 plots the daily series as dots (not lines, so missing days do not get interpolated visually). Black = BMKG observed across the full 2001-2025 record; the colored cluster is the January dekad 1 corrected series, set against IMERG and CPC as full-period baselines. WMO intensity thresholds (5, 10, 20, 50, 100 mm/day) are overlaid as horizontal references.
+
+::: {layout-ncol=2}
+![WMO 97230 - I Gusti Ngurah Rai (airport)](../images/bali/station_timeseries_97230.png)
+
+![WMO 97232 - Geofisika Denpasar](../images/bali/station_timeseries_97232.png)
+
+![WMO 97234 - Kahang-Kahang (inland)](../images/bali/station_timeseries_97234.png)
+
+![WMO 97236 - Klimatologi Jembrana](../images/bali/station_timeseries_97236.png)
+:::
+
+*Source: [nb05 Step 9 - Per-Station Daily Precipitation Time Series](../example-bali/05_station_validation_bali.html#step-9-per-station-daily-precipitation-time-series-on-demand)*
+
+The notebook supports any station in the loaded `obs_df`. The figures above are pinned to Bali; for other AOIs, change `STATION_WMO_ID` in nb05 Steps 8 / 9 and re-run.
+
 ## What nb06 then plots
 
 The nb06 station-validation batch reads the CSVs from nb05 and writes the figures discussed below.
@@ -38,6 +85,8 @@ One 2 × 3 panel of key metrics across all stations, per method. Bali, January d
 
 ![Station metric scatter maps - LSEQM+DL](../images/bali/station_metric_maps_jan_d2.png)
 
+*Source: [nb06 Step 21 - Station Metric Scatter Maps](../example-bali/06_visualisation_hub_bali.html#step-21-station-metric-scatter-maps)*
+
 The dot colour at each station encodes the metric value; the dot position is the station location. Bigger dots, or warmer / cooler colours away from neutral, flag stations where the method does poorly.
 
 ### Multi-threshold WMO curves
@@ -46,6 +95,8 @@ POD / FAR / CSI computed at multiple wet-day thresholds (1, 5, 10, 20, 50 mm) fo
 
 ![Multi-threshold performance curves](../images/bali/threshold_curves_jan_d2.png)
 
+*Source: [nb06 Step 22 - Multi-Threshold Performance Curves](../example-bali/06_visualisation_hub_bali.html#step-22-multi-threshold-performance-curves)*
+
 This is where the categorical impact of each correction stage is clearest: light-rain thresholds show LS already does most of the work; heavy-rain thresholds (20-50 mm) is where LSEQM+DL earns its keep.
 
 ### Regional box plots
@@ -53,6 +104,8 @@ This is where the categorical impact of each correction stage is clearest: light
 Regional aggregation collapses the per-station metrics by `region_mapping` (Sumatra, Jawa, Kalimantan, Sulawesi, Bali Nusa Tenggara, Maluku, Papua). For Bali the only region is "Bali Nusa Tenggara":
 
 ![Regional box plots](../images/bali/regional_boxplots_jan_d2.png)
+
+*Source: [nb06 Step 23 - Regional Box Plots](../example-bali/06_visualisation_hub_bali.html#step-23-regional-box-plots)*
 
 For the full Indonesia run, this view becomes much more interesting - it surfaces where the framework performs well and where it does not.
 
@@ -64,13 +117,19 @@ Domain-wide Taylor (pooled across all stations):
 
 ![Taylor diagram - domain-wide (pooled)](../images/bali/taylor_domain.png)
 
+*Source: [nb06 Step 13 - Domain-Wide Taylor Diagram](../example-bali/06_visualisation_hub_bali.html#step-13-domain-wide-taylor-diagram)*
+
 By-island (only Bali Nusa Tenggara for the Bali example; this becomes a real multi-panel figure on Indonesia):
 
 ![Taylor by island](../images/bali/taylor_by_island.png)
 
+*Source: [nb06 Step 14 - Taylor Diagrams by Island Group](../example-bali/06_visualisation_hub_bali.html#step-14-taylor-diagrams-by-island-group)*
+
 Per-station Taylor (one marker per station, with the cluster median as a larger marker):
 
 ![Taylor by station](../images/bali/taylor_by_station.png)
+
+*Source: [nb06 Step 16 - Station-Level Taylor Diagram](../example-bali/06_visualisation_hub_bali.html#step-16-station-level-taylor-diagram)*
 
 The Taylor design follows the paper figure: bottom "Standard Deviation" axis label, "Correlation" label at 45 degrees close to the outer arc, denser correlation ticks at 0.95+ with 2-decimal formatting, and a split legend (reference products vs bias-corrected products) anchored at the bottom of the figure.
 

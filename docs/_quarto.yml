@@ -3,6 +3,7 @@ project:
   output-dir: ../_site
   render:
     - "*.qmd"
+    - "example-bali/*.ipynb"
     - "!_legacy/"
 
 website:
@@ -42,6 +43,9 @@ website:
             href: tutorials/qa-framework.qmd
           - text: "Station Validation"
             href: tutorials/station-validation.qmd
+          - text: "---"
+          - text: "Executed Notebooks"
+            href: example-bali/index.qmd
       - text: "Documentation"
         menu:
           - text: "Methodology"
@@ -123,6 +127,19 @@ website:
         - tutorials/full-pipeline.qmd
         - tutorials/qa-framework.qmd
         - tutorials/station-validation.qmd
+        - text: "---"
+        - section: "Executed Notebooks"
+          contents:
+            - example-bali/index.qmd
+            - text: "Data Preparation"
+            - example-bali/00_define_aoi.ipynb
+            - example-bali/01_data_acquisition.ipynb
+            - text: "Bali Pipeline"
+            - example-bali/02_lseqmdl_bias_correction_bali.ipynb
+            - example-bali/03_measuring_performances_bali.ipynb
+            - example-bali/04_qa_framework_bali.ipynb
+            - example-bali/05_station_validation_bali.ipynb
+            - example-bali/06_visualisation_hub_bali.ipynb
 
     - title: "User Guide"
       style: "floating"

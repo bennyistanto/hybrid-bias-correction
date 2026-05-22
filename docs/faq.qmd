@@ -102,7 +102,7 @@ If snow is your target, the literature on snowfall bias correction has different
 
 The CNN was the simplest architecture that demonstrably moved the score on validation. We tested a U-Net during development and got similar skill at higher computational cost; the bottleneck for further improvement is not the network architecture but the **training-data quality** (how well CPC represents the truth in gauge-sparse areas).
 
-A U-Net or attention-based model would help if we had per-station temporal data densely enough to learn spatial patterns from scratch. We don't. The current CNN is intentionally conservative; replacing it with a heavier architecture is in the [Changelog backlog](changelog.qmd#backlog-next-release) for when training data improves.
+A U-Net or attention-based model would help if we had per-station temporal data densely enough to learn spatial patterns from scratch. We don't. The current CNN is intentionally conservative; replacing it with a heavier architecture is in the [Changelog backlog](changelog.qmd#backlog) for when training data improves.
 
 ### Why per-dekad and not a single CNN with seasonal embedding?
 
@@ -128,7 +128,7 @@ Open `output/station_density/confidence_mask_station_density.nc4` and inspect th
 
 ### Why don't you perform a formal sensitivity analysis on `blend_alpha`, `gpd_threshold_percentile`, and `saturation_count`?
 
-These three parameters were chosen by inspection rather than formal optimisation. We acknowledge this as a limitation in the paper and in this documentation. A formal sensitivity sweep is on the [Changelog backlog](changelog.qmd#backlog-next-release) for the next release.
+These three parameters were chosen by inspection rather than formal optimisation. We acknowledge this as a limitation in the paper and in this documentation. A formal sensitivity sweep is on the [Changelog backlog](changelog.qmd#backlog) for the next release.
 
 The honest answer is: the sensitivity surface is not flat - small changes in these parameters move CQI by a few percentage points in different ways across different regions. A region-by-region optimisation would be more rigorous than a single global setting, but adds complexity to the framework and shifts the "ground truth" problem onto the user's choice of regional weighting.
 

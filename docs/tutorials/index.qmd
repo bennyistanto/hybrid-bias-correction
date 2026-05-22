@@ -24,3 +24,7 @@ All tutorials run against the Bali example data and `config_bali.yml`. None of t
 ::: {.feature-card}
 **[Station Validation](station-validation.qmd)** - Independent validation against the 4 BMKG Bali stations (97230, 97232, 97234, 97236). Per-station scatter, multi-threshold curves, Taylor diagrams - with embedded Bali outputs.
 :::
+
+::: {.feature-card}
+**[Executed Notebooks](../example-bali/index.qmd)** - All 7 pipeline notebooks rendered as docs pages with outputs intact: nb00/nb01 (data preparation, run once per AOI) and nb02-nb06 (the Bali pipeline). Use these to inspect the exact `src/` calls and printed diagnostics that produced every figure in the tutorials above.
+:::

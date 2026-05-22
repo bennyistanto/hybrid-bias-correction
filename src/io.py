@@ -96,7 +96,9 @@ def save_corrected_precip(
 
         if decision == 'S':
             logging.info(f"Skipping file {output_file}")
-            return None  # Skip saving
+            # File is there on disk - return its path so callers can find it
+            # for downstream inspection / plotting steps.
+            return output_file
         elif decision == 'A':
             logging.info("Aborting process.")
             raise BiasCorrectAbort("User chose to abort the bias correction process.")

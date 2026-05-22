@@ -34,7 +34,7 @@ Full documentation site: [https://bennyistanto.github.io/hybrid-bias-correction]
 
 Indonesia operational input (IMERG + CPC + BMKG, 2001-2025, ~1.7 GB) and outputs (corrected NetCDFs, metrics, QA, station validation, figures, ~40 GB) are not stored in the repo. They are deposited on Zenodo with a citable DOI:
 
-[https://zenodo.org/records/20287847](https://zenodo.org/records/20287847)
+[https://doi.org/10.5281/zenodo.20287847](https://doi.org/10.5281/zenodo.20287847)
 
 To reproduce the Indonesia results: clone this repo, download the Zenodo bundle, point `config.yml` at the extracted directories, and run the notebooks.
 
@@ -96,4 +96,4 @@ Mozilla Public License 2.0. See [LICENSE](LICENSE) or [https://www.mozilla.org/e
   Bogor Agricultural University, Indonesia</br>
   [bennyistanto@apps.ipb.ac.id](mailto:bennyistanto@apps.ipb.ac.id)</br>
 
-With supervision from [Prof. Rizaldi Boer](https://scholar.google.co.id/citations?user=jTPXEp8AAAAJ&hl=id) and [Dr. I Putu Santikayasa](https://scholar.google.com/citations?user=DcQ58z8AAAAJ&hl=en) as part of the MSc thesis.
+With supervision from [Prof. Rizaldi Boer](https://scholar.google.com/citations?user=jTPXEp8AAAAJ&hl=en) and [Dr. I Putu Santikayasa](https://scholar.google.com/citations?user=DcQ58z8AAAAJ&hl=en) as part of the MSc thesis.

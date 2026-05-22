@@ -1025,10 +1025,11 @@ def plot_station_timeseries(obs_df, gridded_dict, station_id, station_df=None,
         color = threshold_colors.get(thr, '#888888')
         ax.axhline(y=thr, color=color, linestyle='--', linewidth=0.8,
                    alpha=0.6, zorder=1)
-        ax.text(ax.get_xlim()[1] if ax.get_xlim()[1] > 0 else 1.01, thr,
-                f' {thr} mm', color=color, fontsize=7,
+        # x in axes fraction (0-1), y in data coords (blended transform)
+        ax.text(1.005, thr, f' {thr} mm', color=color, fontsize=7,
                 va='center', ha='left',
-                transform=ax.get_yaxis_transform())
+                transform=ax.get_yaxis_transform(),
+                clip_on=False)
 
     # --- Formatting ---
     ax.set_xlabel('Date')

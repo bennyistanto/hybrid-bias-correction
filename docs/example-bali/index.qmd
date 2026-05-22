@@ -1,0 +1,43 @@
+---
+title: "Executed Notebooks"
+description: "The full pipeline rendered with real outputs - data preparation (any AOI) and the Bali example."
+---
+
+The pages in this section are the actual Jupyter notebooks rendered with all outputs intact. They were executed end-to-end so you can read them as static walkthroughs - nothing is regenerated when the docs site builds.
+
+Use them when you want to see:
+
+- Exactly which cells produced a given figure.
+- The full sequence of `src/` calls per stage.
+- What the printed diagnostics look like (shapes, warnings, station counts, accumulator sizes).
+
+## Data preparation (Step 0, any AOI)
+
+These two run once when you adapt the framework to a new region. The Bali bundle ships pre-prepared, so you can **skip them** for the Bali example.
+
+| Notebook | What it does |
+|----------|--------------|
+| [00 - Define AOI](00_define_aoi.ipynb) | Build the land-sea mask for your AOI: country boundary, bounding box, or user polygon. Output: `data/mask/aoi/{prefix}_mask.nc`. |
+| [01 - Data Acquisition](01_data_acquisition.ipynb) | Download IMERG-L, IMERG-F, CPC-UNI (both 0.1° and native 0.5°) for your AOI and time span. Stitches multi-year NetCDFs. |
+
+The conceptual walkthrough for these two lives in the [Data Preparation tutorial](../tutorials/data-preparation.qmd).
+
+## Bali pipeline (Step 2 onwards)
+
+These five are pre-pinned to `config_bali.yml` and operate on the 11 MB Bali bundle (`data/example_bali/`). They live in [`notebooks/example_bali/`](https://github.com/bennyistanto/hybrid-bias-correction/tree/main/notebooks/example_bali) in the repo.
+
+| Notebook | What it does |
+|----------|--------------|
+| [02 - LSEQM+DL bias correction](02_lseqmdl_bias_correction_bali.ipynb) | LS → LSEQM → LSEQM+DL for all 36 dekads, with CNN training and confidence-mask blending. |
+| [03 - Measuring performances](03_measuring_performances_bali.ipynb) | Computes the 31 WMO-style metrics per dekad for each method. |
+| [04 - QA framework](04_qa_framework_bali.ipynb) | Continuous Quality Index combining basic / distribution / temporal scores. |
+| [05 - Station validation](05_station_validation_bali.ipynb) | Independent BMKG-station validation, including per-station scatter and time series. |
+| [06 - Visualisation hub](06_visualisation_hub_bali.ipynb) | Compilation maps, Taylor diagrams, threshold curves, and regional box plots. |
+
+::: {.callout-note}
+**Re-running**: the Colab badge inside each notebook points at the *unexecuted* template in [`notebooks/`](https://github.com/bennyistanto/hybrid-bias-correction/tree/main/notebooks) (data prep) or [`notebooks/example_bali/`](https://github.com/bennyistanto/hybrid-bias-correction/tree/main/notebooks/example_bali) (Bali pipeline). The pages here are the rendered output of a prior local / Colab run and won't re-execute as you read them.
+:::
+
+::: {.callout-tip title="Adapting to your own AOI"}
+The `_bali` notebooks are the same code as the un-suffixed ones in `notebooks/`, with `CONFIG_FILE = 'config_bali.yml'` pinned. To run the framework on a different region: run nb00 + nb01 for that AOI, edit `config.yml` (or a copy), and point the un-suffixed notebooks at it - see the [Configuration guide](../get-started/configuration.qmd).
+:::

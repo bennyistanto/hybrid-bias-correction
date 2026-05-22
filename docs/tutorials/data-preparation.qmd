@@ -3,9 +3,11 @@ title: "Data Preparation"
 description: "Defining a new AOI and downloading the satellite and reference data for it."
 ---
 
-[![Open In Colab nb00](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/bennyistanto/hybrid-bias-correction/blob/main/notebooks/00_define_aoi.ipynb) — `nb00 Define AOI`
+[![Open In Colab nb00](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/bennyistanto/hybrid-bias-correction/blob/main/notebooks/00_define_aoi.ipynb) - `nb00 Define AOI`
 
-[![Open In Colab nb01](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/bennyistanto/hybrid-bias-correction/blob/main/notebooks/01_data_acquisition.ipynb) — `nb01 Data Acquisition`
+[![Open In Colab nb01](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/bennyistanto/hybrid-bias-correction/blob/main/notebooks/01_data_acquisition.ipynb) - `nb01 Data Acquisition`
+
+Executed renders of both notebooks (with outputs) are also available as docs pages: [nb00 - Define AOI](../example-bali/00_define_aoi.ipynb) and [nb01 - Data Acquisition](../example-bali/01_data_acquisition.ipynb).
 
 This is **Step 0** of the pipeline - run it once when you adapt the framework to a new region. You can skip it entirely for the Bali example; the data ships with the repo.
 
@@ -85,7 +87,7 @@ The native 0.5 deg file is critical for small AOIs. Clip it with one extra cell 
 The framework's independent validation needs daily station observations in a wide CSV format (one column per WMO station ID). For Indonesia, this comes from BMKG and is not downloadable via API. For other regions:
 
 - Check whether your national meteorological service publishes daily gauge observations.
-- The expected CSV format is documented in [Data Model](../get-started/data-model.qmd#inputs).
+- The expected CSV format is documented in [Data Model](../get-started/data-model.qmd#input-data-contract).
 - The Bali bundle includes a 4-station subset as an example.
 
 If you don't have station data, set `station_validation.station_data_file: null` and `station_density.use_confidence_mask: false` in your config. The framework will still produce corrected NetCDFs and CQI; only the independent station-validation step (nb05) will be skipped.
