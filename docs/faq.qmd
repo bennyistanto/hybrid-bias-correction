@@ -126,6 +126,20 @@ Open `output/station_density/confidence_mask_station_density.nc4` and inspect th
 - If essentially the whole AOI has `confidence == 1.0`, your network is dense enough that `saturation_count` may be too low - the DL is acting uniformly when you might want spatial weighting. Consider raising it.
 - The Bali example sits at confidence around 0.4-0.8 in southern Bali (4 stations clustered there) and near zero in the north. This is the regime where the confidence mask is most visible in the output.
 
+### Why does the Bali multi-threshold curve only show up to 50 mm? Where are the 100 and 150 mm points?
+
+This is intentional, not a bug. The code evaluates **seven** WMO thresholds (1, 5, 10, 20, 50, 100, 150 mm) - look at `WMO_THRESHOLDS` in `src/station_validation.py`. Two things conspire to cap the Bali figure at 50 mm:
+
+1. **WMO/TD-1485 (WWRP 2009-1) suppresses scores at sparse thresholds.** When fewer than 10 observed events at a station fall above the threshold within the evaluation window, the framework writes NaN for that station-threshold-method combination. POD / FAR / CSI computed on 1-2 events are not stable enough to report as skill.
+
+2. **Bali's 4 stations don't accumulate enough heavy-rain events.** Across the full 2001-2025 record, the four BMKG Bali stations show on average ~1.75 daily events >= 100 mm per dekad - well below the 10-event minimum. Inspecting `data/example_bali/output/station_validation/multi_threshold_summary_lseqmdl_month01_dekad01.csv` confirms: 100 mm has `n_stations: 0`, 150 mm same.
+
+The figure plotting function drops thresholds that are NaN across the entire panel, so the curve ends where the data stops. The 100 / 150 mm POD / FAR / CSI numbers exist in the per-station CSVs as NaN cells.
+
+On the **full-Indonesia run** with 180 BMKG stations, the upper thresholds populate and the curve extends to 150 mm (visible in the manuscript figure). The framework's behaviour is identical; only the sample size changes.
+
+If you adapt to your own AOI and want to see the upper thresholds, you need either (a) more stations, (b) a longer record, or (c) a wetter climate. There is no override - relaxing the 10-event minimum would produce noisy curves that misrepresent skill.
+
 ### Why don't you perform a formal sensitivity analysis on `blend_alpha`, `gpd_threshold_percentile`, and `saturation_count`?
 
 These three parameters were chosen by inspection rather than formal optimisation. We acknowledge this as a limitation in the paper and in this documentation. A formal sensitivity sweep is on the [Changelog backlog](changelog.qmd#backlog) for the next release.

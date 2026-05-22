@@ -91,13 +91,17 @@ The dot colour at each station encodes the metric value; the dot position is the
 
 ### Multi-threshold WMO curves
 
-POD / FAR / CSI computed at multiple wet-day thresholds (1, 5, 10, 20, 50 mm) for each method:
+POD / FAR / CSI computed at WMO thresholds (1, 5, 10, 20, 50, 100, 150 mm) for each method:
 
 ![Multi-threshold performance curves](../images/bali/threshold_curves_jan_d2.png)
 
 *Source: [nb06 Step 22 - Multi-Threshold Performance Curves](../example-bali/06_visualisation_hub_bali.html#step-22-multi-threshold-performance-curves)*
 
 This is where the categorical impact of each correction stage is clearest: light-rain thresholds show LS already does most of the work; heavy-rain thresholds (20-50 mm) is where LSEQM+DL earns its keep.
+
+::: {.callout-note}
+The Bali curve stops at 50 mm because the 4-station Bali sample doesn't accumulate enough observed events at 100 / 150 mm to pass the WMO/TD-1485 10-event minimum (per-station CSVs report NaN for those thresholds, and the plot drops empty levels). The framework still computes them; they populate when run against the full 180-station Indonesia network. See [FAQ - Why does the Bali multi-threshold curve only show up to 50 mm?](../faq.qmd#why-does-the-bali-multi-threshold-curve-only-show-up-to-50-mm-where-are-the-100-and-150-mm-points)
+:::
 
 ### Regional box plots
 
