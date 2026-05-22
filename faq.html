@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Basic questions and the harder ones a reviewer would ask.">
+
+<title>FAQ – Hybrid Bias Correction</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./images/favicon.png" rel="icon" type="image/png">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="./index.html" class="navbar-brand navbar-brand-logo">
+    <img src="./images/lseqmdl-logo-dark-background.png" alt="" class="navbar-logo">
+    </a>
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Hybrid Bias Correction</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-get-started" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Get Started</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-get-started">    
+        <li>
+    <a class="dropdown-item" href="./get-started/installation.html">
+ <span class="dropdown-text">Installation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./get-started/quick-start.html">
+ <span class="dropdown-text">Quickstart</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./get-started/configuration.html">
+ <span class="dropdown-text">Configuration</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./get-started/data-model.html">
+ <span class="dropdown-text">Data Model</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li>
+    <a class="dropdown-item" href="./tutorials/data-preparation.html">
+ <span class="dropdown-text">Data Preparation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./tutorials/full-pipeline.html">
+ <span class="dropdown-text">Full Pipeline</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./tutorials/qa-framework.html">
+ <span class="dropdown-text">QA Framework</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./tutorials/station-validation.html">
+ <span class="dropdown-text">Station Validation</span></a>
+  </li>  
+        <li><hr class="dropdown-divider"></li>
+        <li>
+    <a class="dropdown-item" href="./example-bali/index.html">
+ <span class="dropdown-text">Executed Notebooks</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-documentation" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Documentation</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-documentation">    
+        <li>
+    <a class="dropdown-item" href="./methodology/index.html">
+ <span class="dropdown-text">Methodology</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./implementation/index.html">
+ <span class="dropdown-text">Implementation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./user-guide/index.html">
+ <span class="dropdown-text">User Guide</span></a>
+  </li>  
+        <li><hr class="dropdown-divider"></li>
+        <li>
+    <a class="dropdown-item" href="./technical/architecture.html">
+ <span class="dropdown-text">Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./technical/api-reference/index.html">
+ <span class="dropdown-text">API Reference</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./technical/validation.html">
+ <span class="dropdown-text">Validation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./technical/cf-compliance.html">
+ <span class="dropdown-text">CF Compliance</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link active" href="./faq.html" aria-current="page"> 
+<span class="menu-text">FAQ</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./changelog.html"> 
+<span class="menu-text">Changelog</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/bennyistanto/hybrid-bias-correction"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#basics" id="toc-basics" class="nav-link active" data-scroll-target="#basics">Basics</a>
+  <ul class="collapse">
+  <li><a href="#what-is-a-dekad-and-why-use-it" id="toc-what-is-a-dekad-and-why-use-it" class="nav-link" data-scroll-target="#what-is-a-dekad-and-why-use-it">What is a dekad and why use it?</a></li>
+  <li><a href="#why-cpc-uni-and-not-just-gauge-data-directly" id="toc-why-cpc-uni-and-not-just-gauge-data-directly" class="nav-link" data-scroll-target="#why-cpc-uni-and-not-just-gauge-data-directly">Why CPC-UNI and not just gauge data directly?</a></li>
+  <li><a href="#what-is-the-difference-between-ls-lseqm-and-lseqmdl" id="toc-what-is-the-difference-between-ls-lseqm-and-lseqmdl" class="nav-link" data-scroll-target="#what-is-the-difference-between-ls-lseqm-and-lseqmdl">What is the difference between LS, LSEQM, and LSEQM+DL?</a></li>
+  <li><a href="#should-i-run-this-on-colab-or-locally" id="toc-should-i-run-this-on-colab-or-locally" class="nav-link" data-scroll-target="#should-i-run-this-on-colab-or-locally">Should I run this on Colab or locally?</a></li>
+  <li><a href="#do-i-need-a-gpu" id="toc-do-i-need-a-gpu" class="nav-link" data-scroll-target="#do-i-need-a-gpu">Do I need a GPU?</a></li>
+  <li><a href="#whats-the-input-data" id="toc-whats-the-input-data" class="nav-link" data-scroll-target="#whats-the-input-data">What’s the input data?</a></li>
+  <li><a href="#how-do-i-switch-from-indonesia-to-a-different-region" id="toc-how-do-i-switch-from-indonesia-to-a-different-region" class="nav-link" data-scroll-target="#how-do-i-switch-from-indonesia-to-a-different-region">How do I switch from Indonesia to a different region?</a></li>
+  </ul></li>
+  <li><a href="#methodology-and-honesty" id="toc-methodology-and-honesty" class="nav-link" data-scroll-target="#methodology-and-honesty">Methodology and honesty</a>
+  <ul class="collapse">
+  <li><a href="#why-is-correlation-often-below-0.5-even-after-correction-is-this-acceptable" id="toc-why-is-correlation-often-below-0.5-even-after-correction-is-this-acceptable" class="nav-link" data-scroll-target="#why-is-correlation-often-below-0.5-even-after-correction-is-this-acceptable">Why is correlation often below 0.5 even after correction? Is this acceptable?</a></li>
+  <li><a href="#why-does-lseqmdl-look-almost-identical-to-lseqm-in-my-aoi" id="toc-why-does-lseqmdl-look-almost-identical-to-lseqm-in-my-aoi" class="nav-link" data-scroll-target="#why-does-lseqmdl-look-almost-identical-to-lseqm-in-my-aoi">Why does LSEQM+DL look almost identical to LSEQM in my AOI?</a></li>
+  <li><a href="#does-this-work-for-sub-daily-timescales-hourly-30-minute" id="toc-does-this-work-for-sub-daily-timescales-hourly-30-minute" class="nav-link" data-scroll-target="#does-this-work-for-sub-daily-timescales-hourly-30-minute">Does this work for sub-daily timescales (hourly, 30-minute)?</a></li>
+  <li><a href="#can-i-use-this-for-snow" id="toc-can-i-use-this-for-snow" class="nav-link" data-scroll-target="#can-i-use-this-for-snow">Can I use this for snow?</a></li>
+  <li><a href="#why-cnn-and-not-u-net-transformer-diffusion-model" id="toc-why-cnn-and-not-u-net-transformer-diffusion-model" class="nav-link" data-scroll-target="#why-cnn-and-not-u-net-transformer-diffusion-model">Why CNN and not U-Net / transformer / diffusion model?</a></li>
+  <li><a href="#why-per-dekad-and-not-a-single-cnn-with-seasonal-embedding" id="toc-why-per-dekad-and-not-a-single-cnn-with-seasonal-embedding" class="nav-link" data-scroll-target="#why-per-dekad-and-not-a-single-cnn-with-seasonal-embedding">Why per-dekad and not a single CNN with seasonal embedding?</a></li>
+  <li><a href="#is-the-framework-appropriate-as-input-to-hydrological-models" id="toc-is-the-framework-appropriate-as-input-to-hydrological-models" class="nav-link" data-scroll-target="#is-the-framework-appropriate-as-input-to-hydrological-models">Is the framework appropriate as input to hydrological models?</a></li>
+  <li><a href="#how-do-i-know-if-my-aoi-has-enough-stations-for-the-confidence-mask-to-be-meaningful" id="toc-how-do-i-know-if-my-aoi-has-enough-stations-for-the-confidence-mask-to-be-meaningful" class="nav-link" data-scroll-target="#how-do-i-know-if-my-aoi-has-enough-stations-for-the-confidence-mask-to-be-meaningful">How do I know if my AOI has enough stations for the confidence mask to be meaningful?</a></li>
+  <li><a href="#why-dont-you-perform-a-formal-sensitivity-analysis-on-blend_alpha-gpd_threshold_percentile-and-saturation_count" id="toc-why-dont-you-perform-a-formal-sensitivity-analysis-on-blend_alpha-gpd_threshold_percentile-and-saturation_count" class="nav-link" data-scroll-target="#why-dont-you-perform-a-formal-sensitivity-analysis-on-blend_alpha-gpd_threshold_percentile-and-saturation_count">Why don’t you perform a formal sensitivity analysis on <code>blend_alpha</code>, <code>gpd_threshold_percentile</code>, and <code>saturation_count</code>?</a></li>
+  <li><a href="#what-happens-in-a-region-with-monsoon-onset-variability-that-breaks-the-fixed-dekad-calendar" id="toc-what-happens-in-a-region-with-monsoon-onset-variability-that-breaks-the-fixed-dekad-calendar" class="nav-link" data-scroll-target="#what-happens-in-a-region-with-monsoon-onset-variability-that-breaks-the-fixed-dekad-calendar">What happens in a region with monsoon onset variability that breaks the fixed dekad calendar?</a></li>
+  <li><a href="#what-does-correlation-low-tell-me-when-the-distribution-components-score-high" id="toc-what-does-correlation-low-tell-me-when-the-distribution-components-score-high" class="nav-link" data-scroll-target="#what-does-correlation-low-tell-me-when-the-distribution-components-score-high">What does “correlation low” tell me when the distribution components score high?</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/bennyistanto/hybrid-bias-correction/blob/main/faq.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/bennyistanto/hybrid-bias-correction/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">FAQ</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i></button></div></div>
+</div>
+
+<div>
+  <div class="description">
+    Basic questions and the harder ones a reviewer would ask.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>A mix of practical “how do I” questions and the methodological questions that come up most often when someone first looks at the results. Honest answers, including the limitations.</p>
+<div style="text-align: center;">
+<p><img src="images/lseqmdl-banner.png" class="img-fluid"></p>
+</div>
+<section id="basics" class="level2">
+<h2 class="anchored" data-anchor-id="basics">Basics</h2>
+<section id="what-is-a-dekad-and-why-use-it" class="level3">
+<h3 class="anchored" data-anchor-id="what-is-a-dekad-and-why-use-it">What is a dekad and why use it?</h3>
+<p>A dekad is a 10-day window. Each calendar month has three: days 1-10, 11-20, and 21-end (28 to 31). That gives 36 dekads per year.</p>
+<p>Bias correction parameters are fit independently per dekad to capture the wet-dry seasonal cycle. A single set of annual parameters washes out the monsoon and produces noticeably worse skill in tropical regions. Daily fitting would be over-parameterised given the available sample size; monthly fitting would smear the rapid onset and retreat of monsoon rains. Dekads are the WMO standard for agricultural-meteorological products and a reasonable middle ground.</p>
+</section>
+<section id="why-cpc-uni-and-not-just-gauge-data-directly" class="level3">
+<h3 class="anchored" data-anchor-id="why-cpc-uni-and-not-just-gauge-data-directly">Why CPC-UNI and not just gauge data directly?</h3>
+<p>CPC-UNI is a gauge-based gridded product that fills in the spaces between stations using a deterministic interpolation. The framework needs a <em>gridded</em> reference at every cell, every day - using raw gauge data would require interpolating ourselves, which is exactly what CPC has already done at the global scale.</p>
+<p>Raw BMKG gauge data is used independently in <a href="./tutorials/station-validation.html">station validation</a> as a <em>held-out</em> check on the correction. That validation is what makes the framework’s evaluation honest.</p>
+</section>
+<section id="what-is-the-difference-between-ls-lseqm-and-lseqmdl" class="level3">
+<h3 class="anchored" data-anchor-id="what-is-the-difference-between-ls-lseqm-and-lseqmdl">What is the difference between LS, LSEQM, and LSEQM+DL?</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>What it corrects</th>
+<th>How</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>LS</strong></td>
+<td>The mean</td>
+<td>Multiplies IMERG by <code>CPC_mean / IMERG_mean</code> per dekad per pixel</td>
+</tr>
+<tr class="even">
+<td><strong>LSEQM</strong></td>
+<td>The full distribution shape</td>
+<td>LS + Empirical Quantile Mapping (Gamma body) + Generalized Pareto tail</td>
+</tr>
+<tr class="odd">
+<td><strong>LSEQM+DL</strong></td>
+<td>The spatial pattern of extremes</td>
+<td>LSEQM + a CNN refinement, blended back via station-density confidence</td>
+</tr>
+</tbody>
+</table>
+<p>LS is the cheapest and most transparent. LSEQM is what does most of the distributional work. LSEQM+DL adds a spatial polish on top in gauge-dense areas.</p>
+</section>
+<section id="should-i-run-this-on-colab-or-locally" class="level3">
+<h3 class="anchored" data-anchor-id="should-i-run-this-on-colab-or-locally">Should I run this on Colab or locally?</h3>
+<p><strong>Colab, almost always.</strong> TensorFlow is notoriously fragile to install locally - on Windows it needs specific Visual C++ runtimes, on WSL it can hit <code>cannot enable executable stack</code>, on Apple Silicon you have to navigate <code>tensorflow-metal</code>, on Linux GPU you have to match an exact CUDA toolkit to the TF version. On Colab none of that is your problem: TensorFlow is pre-installed, the GPU is provisioned, and the framework’s CNN step works out of the box.</p>
+<p>Reach for a local install only if you have a working TensorFlow environment already, or if your data is too sensitive to upload to Drive. If you do install locally, verify TF first with <code>python -c "import tensorflow as tf; print(tf.__version__); print(tf.config.list_physical_devices())"</code> - a broken TF will let LS and LSEQM run but quietly fail the LSEQM+DL step. See <a href="./get-started/installation.html">Installation</a> and <a href="./user-guide/troubleshooting.html">Troubleshooting</a> for the failure modes.</p>
+</section>
+<section id="do-i-need-a-gpu" class="level3">
+<h3 class="anchored" data-anchor-id="do-i-need-a-gpu">Do I need a GPU?</h3>
+<p>No for the Bali example (CPU finishes in ~15 minutes). For the full Indonesia run, training 36 dekadal CNN models on CPU takes several hours; a GPU brings it down to about 30-60 minutes. The CNN is small (two Conv2D layers + a Flatten -&gt; Dense bottleneck). Colab’s free GPU runtime is enough for the Bali example and most regional runs.</p>
+</section>
+<section id="whats-the-input-data" class="level3">
+<h3 class="anchored" data-anchor-id="whats-the-input-data">What’s the input data?</h3>
+<ul>
+<li><strong>IMERG Late Run V07</strong> (NASA GPM) - the satellite product being corrected.</li>
+<li><strong>IMERG Final Run V07</strong> - a gauge-adjusted satellite product, used only as a comparison baseline in Taylor diagrams.</li>
+<li><strong>CPC-UNI</strong> (NOAA PSL) - the gauge-based reference. Both at 0.5 deg native and downscaled to 0.1 deg.</li>
+<li><strong>BMKG station observations</strong> - 180 stations across Indonesia (4 in the Bali bundle), used only for independent validation.</li>
+</ul>
+<p>See <a href="./get-started/data-model.html">Data Model</a> for the full table.</p>
+</section>
+<section id="how-do-i-switch-from-indonesia-to-a-different-region" class="level3">
+<h3 class="anchored" data-anchor-id="how-do-i-switch-from-indonesia-to-a-different-region">How do I switch from Indonesia to a different region?</h3>
+<p>Edit the <code>CONFIG_FILE</code> toggle at the top of each notebook (nb02-nb06) to point at your config, swap the <code>input_files</code> paths in that config, and adjust <code>aoi</code>, <code>region_mapping</code>, and <code>station_density</code> to your network. Detailed recipe in <a href="./user-guide/aoi-setup.html">AOI Setup</a>.</p>
+<hr>
+</section>
+</section>
+<section id="methodology-and-honesty" class="level2">
+<h2 class="anchored" data-anchor-id="methodology-and-honesty">Methodology and honesty</h2>
+<section id="why-is-correlation-often-below-0.5-even-after-correction-is-this-acceptable" class="level3">
+<h3 class="anchored" data-anchor-id="why-is-correlation-often-below-0.5-even-after-correction-is-this-acceptable">Why is correlation often below 0.5 even after correction? Is this acceptable?</h3>
+<p>Yes, and it’s the most important caveat to understand.</p>
+<p>Daily precipitation is a notoriously low-correlation field. The processes that produce rain on a given day at a given pixel are partly stochastic - even a perfect model would not reproduce the exact daily values, because the “ground truth” daily field itself has measurement uncertainty (CPC interpolates from sparse stations) and the satellite retrievals have their own retrieval error envelope.</p>
+<p>What bias correction <em>can</em> fix is the <strong>systematic</strong> part: the long-term mean, the distribution shape, the categorical wet-dry behaviour. It cannot fix the daily timing of individual rain events that satellite missed entirely.</p>
+<p>So a Pearson r of 0.3-0.5 against daily gauge observations is normal for corrected satellite precipitation at daily resolution. The framework reports it honestly; we do not aggregate to monthly to inflate the headline number. Look at the <strong>distribution</strong> and <strong>temporal</strong> components of the CQI to see what the correction is actually moving.</p>
+</section>
+<section id="why-does-lseqmdl-look-almost-identical-to-lseqm-in-my-aoi" class="level3">
+<h3 class="anchored" data-anchor-id="why-does-lseqmdl-look-almost-identical-to-lseqm-in-my-aoi">Why does LSEQM+DL look almost identical to LSEQM in my AOI?</h3>
+<p>Most likely the <strong>station-density confidence mask</strong> is returning your pixels to LSEQM. The DL contribution is gated:</p>
+<pre><code>effective_alpha = 1.0 - confidence × (1.0 - blend_alpha)</code></pre>
+<p>When <code>confidence == 0</code> (no nearby stations), <code>effective_alpha == 1.0</code>, output equals LSEQM exactly. Open <code>output/station_density/confidence_mask_station_density.nc4</code> and look at the confidence values across your AOI - if most of it is near zero, the DL is intentionally silent.</p>
+<p>This is a design feature: where there is no ground truth to validate against, the framework does not invent improvements.</p>
+</section>
+<section id="does-this-work-for-sub-daily-timescales-hourly-30-minute" class="level3">
+<h3 class="anchored" data-anchor-id="does-this-work-for-sub-daily-timescales-hourly-30-minute">Does this work for sub-daily timescales (hourly, 30-minute)?</h3>
+<p>No.&nbsp;The framework is daily-only. Three reasons:</p>
+<ol type="1">
+<li>The dekad parameter-fitting strategy assumes enough samples per cell per dekad (~220 daily samples for 22 years; sub-daily would push this up but the <em>parameter</em> would be unchanged because the dekad windowing is a property of the meteorology, not the sampling).</li>
+<li>CPC-UNI is a daily product. Any sub-daily reference would require a different gridded product (e.g.&nbsp;ERA5 hourly), which has its own biases.</li>
+<li>The diurnal cycle of precipitation is highly local; a single per-dekad correction parameter cannot capture it.</li>
+</ol>
+<p>For sub-daily applications, look at the GPM Late Run’s native 30-minute product and consider a different correction approach (e.g.&nbsp;quantile mapping per hour-of-day per dekad - large parameter explosion).</p>
+</section>
+<section id="can-i-use-this-for-snow" class="level3">
+<h3 class="anchored" data-anchor-id="can-i-use-this-for-snow">Can I use this for snow?</h3>
+<p>The framework is designed for liquid precipitation. IMERG itself has a known low bias over snow surfaces (the microwave retrievals struggle there), and CPC-UNI gauge data in snow regions has under-catch issues. The framework will <em>run</em> on snow regions and produce a corrected NetCDF, but the underlying assumption (that the bias is correctable with a stationary distributional model) is on weaker ground.</p>
+<p>If snow is your target, the literature on snowfall bias correction has different methods (e.g.&nbsp;SWE-based approaches) that are more appropriate.</p>
+</section>
+<section id="why-cnn-and-not-u-net-transformer-diffusion-model" class="level3">
+<h3 class="anchored" data-anchor-id="why-cnn-and-not-u-net-transformer-diffusion-model">Why CNN and not U-Net / transformer / diffusion model?</h3>
+<p>The CNN was the simplest architecture that demonstrably moved the score on validation. We tested a U-Net during development and got similar skill at higher computational cost; the bottleneck for further improvement is not the network architecture but the <strong>training-data quality</strong> (how well CPC represents the truth in gauge-sparse areas).</p>
+<p>A U-Net or attention-based model would help if we had per-station temporal data densely enough to learn spatial patterns from scratch. We don’t. The current CNN is intentionally conservative; replacing it with a heavier architecture is in the <a href="./changelog.html#backlog">Changelog backlog</a> for when training data improves.</p>
+</section>
+<section id="why-per-dekad-and-not-a-single-cnn-with-seasonal-embedding" class="level3">
+<h3 class="anchored" data-anchor-id="why-per-dekad-and-not-a-single-cnn-with-seasonal-embedding">Why per-dekad and not a single CNN with seasonal embedding?</h3>
+<p>Same reason as why parameter fitting is per-dekad: the sample size per cell per dekad is modest, and the dekad windowing is small enough that within-dekad variability is the dominant signal. A single CNN trained across all 36 dekads with a seasonality embedding is on the backlog; it would reduce the model count from 36 to 1 and might enable richer architectures, but the per-dekad approach is what was validated in the paper.</p>
+</section>
+<section id="is-the-framework-appropriate-as-input-to-hydrological-models" class="level3">
+<h3 class="anchored" data-anchor-id="is-the-framework-appropriate-as-input-to-hydrological-models">Is the framework appropriate as input to hydrological models?</h3>
+<p>Depends on the model:</p>
+<ul>
+<li><strong>Lumped or daily semi-distributed</strong> (e.g.&nbsp;SWAT in daily mode, GR4J) - yes. Corrected daily precipitation at 0.1 deg is exactly what these models want.</li>
+<li><strong>Event-based or sub-daily distributed</strong> (e.g.&nbsp;HEC-HMS for flood forecasting) - the framework outputs daily totals, not sub-daily intensity. You would need to disaggregate with a separate model.</li>
+<li><strong>Snow-driven catchments</strong> - see the snow question above; use with extra caution.</li>
+</ul>
+<p>Always run a sensitivity test of your hydrological model against both raw IMERG and LSEQM+DL before adopting the corrected product operationally.</p>
+</section>
+<section id="how-do-i-know-if-my-aoi-has-enough-stations-for-the-confidence-mask-to-be-meaningful" class="level3">
+<h3 class="anchored" data-anchor-id="how-do-i-know-if-my-aoi-has-enough-stations-for-the-confidence-mask-to-be-meaningful">How do I know if my AOI has enough stations for the confidence mask to be meaningful?</h3>
+<p>Open <code>output/station_density/confidence_mask_station_density.nc4</code> and inspect the spatial distribution of confidence values. Rules of thumb:</p>
+<ul>
+<li>If less than 10% of your AOI has <code>confidence &gt; 0.5</code>, the DL stage is barely active anywhere. Consider lowering <code>saturation_count</code> from 3 to 2, or accept that LSEQM+DL ≈ LSEQM for your region.</li>
+<li>If essentially the whole AOI has <code>confidence == 1.0</code>, your network is dense enough that <code>saturation_count</code> may be too low - the DL is acting uniformly when you might want spatial weighting. Consider raising it.</li>
+<li>The Bali example sits at confidence around 0.4-0.8 in southern Bali (4 stations clustered there) and near zero in the north. This is the regime where the confidence mask is most visible in the output.</li>
+</ul>
+</section>
+<section id="why-dont-you-perform-a-formal-sensitivity-analysis-on-blend_alpha-gpd_threshold_percentile-and-saturation_count" class="level3">
+<h3 class="anchored" data-anchor-id="why-dont-you-perform-a-formal-sensitivity-analysis-on-blend_alpha-gpd_threshold_percentile-and-saturation_count">Why don’t you perform a formal sensitivity analysis on <code>blend_alpha</code>, <code>gpd_threshold_percentile</code>, and <code>saturation_count</code>?</h3>
+<p>These three parameters were chosen by inspection rather than formal optimisation. We acknowledge this as a limitation in the paper and in this documentation. A formal sensitivity sweep is on the <a href="./changelog.html#backlog">Changelog backlog</a> for the next release.</p>
+<p>The honest answer is: the sensitivity surface is not flat - small changes in these parameters move CQI by a few percentage points in different ways across different regions. A region-by-region optimisation would be more rigorous than a single global setting, but adds complexity to the framework and shifts the “ground truth” problem onto the user’s choice of regional weighting.</p>
+</section>
+<section id="what-happens-in-a-region-with-monsoon-onset-variability-that-breaks-the-fixed-dekad-calendar" class="level3">
+<h3 class="anchored" data-anchor-id="what-happens-in-a-region-with-monsoon-onset-variability-that-breaks-the-fixed-dekad-calendar">What happens in a region with monsoon onset variability that breaks the fixed dekad calendar?</h3>
+<p>The dekad windowing is fixed to calendar days (1-10, 11-20, 21-end of month). If your region’s wet-season onset shifts by ~2 weeks year-to-year, individual dekadal fits will be noisier because the dekad will sometimes catch onset days and sometimes not.</p>
+<p>Mitigations:</p>
+<ul>
+<li>Use the temporal QA component to identify which dekads have the most year-to-year variability - those are the ones to interpret most cautiously.</li>
+<li>Aggregate the corrected output to monthly or seasonal totals downstream; the dekadal fitting still uses the correct daily structure, but the headline product is more robust.</li>
+<li>For truly bimodal monsoon regimes, a custom dekad calendar aligned to climatological onset would help. This is not currently in the framework; it would be a custom config + a per-dekad timestamp remapping in <code>aggregate_data_across_years</code>.</li>
+</ul>
+</section>
+<section id="what-does-correlation-low-tell-me-when-the-distribution-components-score-high" class="level3">
+<h3 class="anchored" data-anchor-id="what-does-correlation-low-tell-me-when-the-distribution-components-score-high">What does “correlation low” tell me when the distribution components score high?</h3>
+<p>It tells you the <em>timing</em> of individual rain events is not well captured, even though the <em>climatological distribution</em> at each pixel is correct. This is the normal expected pattern for satellite bias correction:</p>
+<ul>
+<li>Distribution component score 0.8-0.9: the framework is producing the right kind of rain in the right amounts.</li>
+<li>Pearson r against gauge observations 0.3-0.5: the framework is not producing rain on the same individual days the gauge saw rain.</li>
+</ul>
+<p>For applications that care about climatology (irrigation planning, drought monitoring, seasonal forecast verification) the distribution component is what matters. For applications that care about specific dates (event-based flood forecasting), the temporal correlation is the limiting factor and bias correction alone cannot fix it - you need a better satellite product or a deterministic model.</p>
+
+
+<!-- -->
+
+</section>
+</section>
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/bennyistanto\.github\.io\/hybrid-bias-correction");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          if (link.getAttribute("rel") === null) {
+            link.setAttribute("rel", "noopener");
+          }
+          // default icon
+          link.classList.add("external");
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb2" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "FAQ"</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> "Basic questions and the harder ones a reviewer would ask."</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>A mix of practical "how do I" questions and the methodological questions that come up most often when someone first looks at the results. Honest answers, including the limitations.</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>:::{style="text-align: center;"}</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="al">![](images/lseqmdl-banner.png)</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>:::</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="fu">## Basics</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="fu">### What is a dekad and why use it?</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>A dekad is a 10-day window. Each calendar month has three: days 1-10, 11-20, and 21-end (28 to 31). That gives 36 dekads per year.</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>Bias correction parameters are fit independently per dekad to capture the wet-dry seasonal cycle. A single set of annual parameters washes out the monsoon and produces noticeably worse skill in tropical regions. Daily fitting would be over-parameterised given the available sample size; monthly fitting would smear the rapid onset and retreat of monsoon rains. Dekads are the WMO standard for agricultural-meteorological products and a reasonable middle ground.</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why CPC-UNI and not just gauge data directly?</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>CPC-UNI is a gauge-based gridded product that fills in the spaces between stations using a deterministic interpolation. The framework needs a *gridded* reference at every cell, every day - using raw gauge data would require interpolating ourselves, which is exactly what CPC has already done at the global scale.</span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>Raw BMKG gauge data is used independently in <span class="co">[</span><span class="ot">station validation</span><span class="co">](tutorials/station-validation.qmd)</span> as a *held-out* check on the correction. That validation is what makes the framework's evaluation honest.</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="fu">### What is the difference between LS, LSEQM, and LSEQM+DL?</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>| | What it corrects | How |</span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>|---|---|---|</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>| **LS** | The mean | Multiplies IMERG by <span class="in">`CPC_mean / IMERG_mean`</span> per dekad per pixel |</span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>| **LSEQM** | The full distribution shape | LS + Empirical Quantile Mapping (Gamma body) + Generalized Pareto tail |</span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>| **LSEQM+DL** | The spatial pattern of extremes | LSEQM + a CNN refinement, blended back via station-density confidence |</span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>LS is the cheapest and most transparent. LSEQM is what does most of the distributional work. LSEQM+DL adds a spatial polish on top in gauge-dense areas.</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a><span class="fu">### Should I run this on Colab or locally?</span></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>**Colab, almost always.** TensorFlow is notoriously fragile to install locally - on Windows it needs specific Visual C++ runtimes, on WSL it can hit <span class="in">`cannot enable executable stack`</span>, on Apple Silicon you have to navigate <span class="in">`tensorflow-metal`</span>, on Linux GPU you have to match an exact CUDA toolkit to the TF version. On Colab none of that is your problem: TensorFlow is pre-installed, the GPU is provisioned, and the framework's CNN step works out of the box.</span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>Reach for a local install only if you have a working TensorFlow environment already, or if your data is too sensitive to upload to Drive. If you do install locally, verify TF first with <span class="in">`python -c "import tensorflow as tf; print(tf.__version__); print(tf.config.list_physical_devices())"`</span> - a broken TF will let LS and LSEQM run but quietly fail the LSEQM+DL step. See <span class="co">[</span><span class="ot">Installation</span><span class="co">](get-started/installation.qmd)</span> and <span class="co">[</span><span class="ot">Troubleshooting</span><span class="co">](user-guide/troubleshooting.qmd)</span> for the failure modes.</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a><span class="fu">### Do I need a GPU?</span></span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>No for the Bali example (CPU finishes in ~15 minutes). For the full Indonesia run, training 36 dekadal CNN models on CPU takes several hours; a GPU brings it down to about 30-60 minutes. The CNN is small (two Conv2D layers + a Flatten -&gt; Dense bottleneck). Colab's free GPU runtime is enough for the Bali example and most regional runs.</span>
+<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a><span class="fu">### What's the input data?</span></span>
+<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**IMERG Late Run V07** (NASA GPM) - the satellite product being corrected.</span>
+<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**IMERG Final Run V07** - a gauge-adjusted satellite product, used only as a comparison baseline in Taylor diagrams.</span>
+<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**CPC-UNI** (NOAA PSL) - the gauge-based reference. Both at 0.5 deg native and downscaled to 0.1 deg.</span>
+<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**BMKG station observations** - 180 stations across Indonesia (4 in the Bali bundle), used only for independent validation.</span>
+<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>See <span class="co">[</span><span class="ot">Data Model</span><span class="co">](get-started/data-model.qmd)</span> for the full table.</span>
+<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a><span class="fu">### How do I switch from Indonesia to a different region?</span></span>
+<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>Edit the <span class="in">`CONFIG_FILE`</span> toggle at the top of each notebook (nb02-nb06) to point at your config, swap the <span class="in">`input_files`</span> paths in that config, and adjust <span class="in">`aoi`</span>, <span class="in">`region_mapping`</span>, and <span class="in">`station_density`</span> to your network. Detailed recipe in <span class="co">[</span><span class="ot">AOI Setup</span><span class="co">](user-guide/aoi-setup.qmd)</span>.</span>
+<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>---</span>
+<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a><span class="fu">## Methodology and honesty</span></span>
+<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-63"><a href="#cb2-63" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why is correlation often below 0.5 even after correction? Is this acceptable?</span></span>
+<span id="cb2-64"><a href="#cb2-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-65"><a href="#cb2-65" aria-hidden="true" tabindex="-1"></a>Yes, and it's the most important caveat to understand.</span>
+<span id="cb2-66"><a href="#cb2-66" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-67"><a href="#cb2-67" aria-hidden="true" tabindex="-1"></a>Daily precipitation is a notoriously low-correlation field. The processes that produce rain on a given day at a given pixel are partly stochastic - even a perfect model would not reproduce the exact daily values, because the "ground truth" daily field itself has measurement uncertainty (CPC interpolates from sparse stations) and the satellite retrievals have their own retrieval error envelope.</span>
+<span id="cb2-68"><a href="#cb2-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-69"><a href="#cb2-69" aria-hidden="true" tabindex="-1"></a>What bias correction *can* fix is the **systematic** part: the long-term mean, the distribution shape, the categorical wet-dry behaviour. It cannot fix the daily timing of individual rain events that satellite missed entirely.</span>
+<span id="cb2-70"><a href="#cb2-70" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-71"><a href="#cb2-71" aria-hidden="true" tabindex="-1"></a>So a Pearson r of 0.3-0.5 against daily gauge observations is normal for corrected satellite precipitation at daily resolution. The framework reports it honestly; we do not aggregate to monthly to inflate the headline number. Look at the **distribution** and **temporal** components of the CQI to see what the correction is actually moving.</span>
+<span id="cb2-72"><a href="#cb2-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-73"><a href="#cb2-73" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why does LSEQM+DL look almost identical to LSEQM in my AOI?</span></span>
+<span id="cb2-74"><a href="#cb2-74" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-75"><a href="#cb2-75" aria-hidden="true" tabindex="-1"></a>Most likely the **station-density confidence mask** is returning your pixels to LSEQM. The DL contribution is gated:</span>
+<span id="cb2-76"><a href="#cb2-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-77"><a href="#cb2-77" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-78"><a href="#cb2-78" aria-hidden="true" tabindex="-1"></a><span class="in">effective_alpha = 1.0 - confidence × (1.0 - blend_alpha)</span></span>
+<span id="cb2-79"><a href="#cb2-79" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb2-80"><a href="#cb2-80" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-81"><a href="#cb2-81" aria-hidden="true" tabindex="-1"></a>When <span class="in">`confidence == 0`</span> (no nearby stations), <span class="in">`effective_alpha == 1.0`</span>, output equals LSEQM exactly. Open <span class="in">`output/station_density/confidence_mask_station_density.nc4`</span> and look at the confidence values across your AOI - if most of it is near zero, the DL is intentionally silent.</span>
+<span id="cb2-82"><a href="#cb2-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-83"><a href="#cb2-83" aria-hidden="true" tabindex="-1"></a>This is a design feature: where there is no ground truth to validate against, the framework does not invent improvements.</span>
+<span id="cb2-84"><a href="#cb2-84" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-85"><a href="#cb2-85" aria-hidden="true" tabindex="-1"></a><span class="fu">### Does this work for sub-daily timescales (hourly, 30-minute)?</span></span>
+<span id="cb2-86"><a href="#cb2-86" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-87"><a href="#cb2-87" aria-hidden="true" tabindex="-1"></a>No. The framework is daily-only. Three reasons:</span>
+<span id="cb2-88"><a href="#cb2-88" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-89"><a href="#cb2-89" aria-hidden="true" tabindex="-1"></a><span class="ss">1. </span>The dekad parameter-fitting strategy assumes enough samples per cell per dekad (~220 daily samples for 22 years; sub-daily would push this up but the *parameter* would be unchanged because the dekad windowing is a property of the meteorology, not the sampling).</span>
+<span id="cb2-90"><a href="#cb2-90" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>CPC-UNI is a daily product. Any sub-daily reference would require a different gridded product (e.g. ERA5 hourly), which has its own biases.</span>
+<span id="cb2-91"><a href="#cb2-91" aria-hidden="true" tabindex="-1"></a><span class="ss">3. </span>The diurnal cycle of precipitation is highly local; a single per-dekad correction parameter cannot capture it.</span>
+<span id="cb2-92"><a href="#cb2-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-93"><a href="#cb2-93" aria-hidden="true" tabindex="-1"></a>For sub-daily applications, look at the GPM Late Run's native 30-minute product and consider a different correction approach (e.g. quantile mapping per hour-of-day per dekad - large parameter explosion).</span>
+<span id="cb2-94"><a href="#cb2-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-95"><a href="#cb2-95" aria-hidden="true" tabindex="-1"></a><span class="fu">### Can I use this for snow?</span></span>
+<span id="cb2-96"><a href="#cb2-96" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-97"><a href="#cb2-97" aria-hidden="true" tabindex="-1"></a>The framework is designed for liquid precipitation. IMERG itself has a known low bias over snow surfaces (the microwave retrievals struggle there), and CPC-UNI gauge data in snow regions has under-catch issues. The framework will *run* on snow regions and produce a corrected NetCDF, but the underlying assumption (that the bias is correctable with a stationary distributional model) is on weaker ground.</span>
+<span id="cb2-98"><a href="#cb2-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-99"><a href="#cb2-99" aria-hidden="true" tabindex="-1"></a>If snow is your target, the literature on snowfall bias correction has different methods (e.g. SWE-based approaches) that are more appropriate.</span>
+<span id="cb2-100"><a href="#cb2-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-101"><a href="#cb2-101" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why CNN and not U-Net / transformer / diffusion model?</span></span>
+<span id="cb2-102"><a href="#cb2-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-103"><a href="#cb2-103" aria-hidden="true" tabindex="-1"></a>The CNN was the simplest architecture that demonstrably moved the score on validation. We tested a U-Net during development and got similar skill at higher computational cost; the bottleneck for further improvement is not the network architecture but the **training-data quality** (how well CPC represents the truth in gauge-sparse areas).</span>
+<span id="cb2-104"><a href="#cb2-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-105"><a href="#cb2-105" aria-hidden="true" tabindex="-1"></a>A U-Net or attention-based model would help if we had per-station temporal data densely enough to learn spatial patterns from scratch. We don't. The current CNN is intentionally conservative; replacing it with a heavier architecture is in the <span class="co">[</span><span class="ot">Changelog backlog</span><span class="co">](changelog.qmd#backlog)</span> for when training data improves.</span>
+<span id="cb2-106"><a href="#cb2-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-107"><a href="#cb2-107" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why per-dekad and not a single CNN with seasonal embedding?</span></span>
+<span id="cb2-108"><a href="#cb2-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-109"><a href="#cb2-109" aria-hidden="true" tabindex="-1"></a>Same reason as why parameter fitting is per-dekad: the sample size per cell per dekad is modest, and the dekad windowing is small enough that within-dekad variability is the dominant signal. A single CNN trained across all 36 dekads with a seasonality embedding is on the backlog; it would reduce the model count from 36 to 1 and might enable richer architectures, but the per-dekad approach is what was validated in the paper.</span>
+<span id="cb2-110"><a href="#cb2-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-111"><a href="#cb2-111" aria-hidden="true" tabindex="-1"></a><span class="fu">### Is the framework appropriate as input to hydrological models?</span></span>
+<span id="cb2-112"><a href="#cb2-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-113"><a href="#cb2-113" aria-hidden="true" tabindex="-1"></a>Depends on the model:</span>
+<span id="cb2-114"><a href="#cb2-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-115"><a href="#cb2-115" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Lumped or daily semi-distributed** (e.g. SWAT in daily mode, GR4J) - yes. Corrected daily precipitation at 0.1 deg is exactly what these models want.</span>
+<span id="cb2-116"><a href="#cb2-116" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Event-based or sub-daily distributed** (e.g. HEC-HMS for flood forecasting) - the framework outputs daily totals, not sub-daily intensity. You would need to disaggregate with a separate model.</span>
+<span id="cb2-117"><a href="#cb2-117" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>**Snow-driven catchments** - see the snow question above; use with extra caution.</span>
+<span id="cb2-118"><a href="#cb2-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-119"><a href="#cb2-119" aria-hidden="true" tabindex="-1"></a>Always run a sensitivity test of your hydrological model against both raw IMERG and LSEQM+DL before adopting the corrected product operationally.</span>
+<span id="cb2-120"><a href="#cb2-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-121"><a href="#cb2-121" aria-hidden="true" tabindex="-1"></a><span class="fu">### How do I know if my AOI has enough stations for the confidence mask to be meaningful?</span></span>
+<span id="cb2-122"><a href="#cb2-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-123"><a href="#cb2-123" aria-hidden="true" tabindex="-1"></a>Open <span class="in">`output/station_density/confidence_mask_station_density.nc4`</span> and inspect the spatial distribution of confidence values. Rules of thumb:</span>
+<span id="cb2-124"><a href="#cb2-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-125"><a href="#cb2-125" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>If less than 10% of your AOI has <span class="in">`confidence &gt; 0.5`</span>, the DL stage is barely active anywhere. Consider lowering <span class="in">`saturation_count`</span> from 3 to 2, or accept that LSEQM+DL ≈ LSEQM for your region.</span>
+<span id="cb2-126"><a href="#cb2-126" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>If essentially the whole AOI has <span class="in">`confidence == 1.0`</span>, your network is dense enough that <span class="in">`saturation_count`</span> may be too low - the DL is acting uniformly when you might want spatial weighting. Consider raising it.</span>
+<span id="cb2-127"><a href="#cb2-127" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>The Bali example sits at confidence around 0.4-0.8 in southern Bali (4 stations clustered there) and near zero in the north. This is the regime where the confidence mask is most visible in the output.</span>
+<span id="cb2-128"><a href="#cb2-128" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-129"><a href="#cb2-129" aria-hidden="true" tabindex="-1"></a><span class="fu">### Why don't you perform a formal sensitivity analysis on `blend_alpha`, `gpd_threshold_percentile`, and `saturation_count`?</span></span>
+<span id="cb2-130"><a href="#cb2-130" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-131"><a href="#cb2-131" aria-hidden="true" tabindex="-1"></a>These three parameters were chosen by inspection rather than formal optimisation. We acknowledge this as a limitation in the paper and in this documentation. A formal sensitivity sweep is on the <span class="co">[</span><span class="ot">Changelog backlog</span><span class="co">](changelog.qmd#backlog)</span> for the next release.</span>
+<span id="cb2-132"><a href="#cb2-132" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-133"><a href="#cb2-133" aria-hidden="true" tabindex="-1"></a>The honest answer is: the sensitivity surface is not flat - small changes in these parameters move CQI by a few percentage points in different ways across different regions. A region-by-region optimisation would be more rigorous than a single global setting, but adds complexity to the framework and shifts the "ground truth" problem onto the user's choice of regional weighting.</span>
+<span id="cb2-134"><a href="#cb2-134" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-135"><a href="#cb2-135" aria-hidden="true" tabindex="-1"></a><span class="fu">### What happens in a region with monsoon onset variability that breaks the fixed dekad calendar?</span></span>
+<span id="cb2-136"><a href="#cb2-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-137"><a href="#cb2-137" aria-hidden="true" tabindex="-1"></a>The dekad windowing is fixed to calendar days (1-10, 11-20, 21-end of month). If your region's wet-season onset shifts by ~2 weeks year-to-year, individual dekadal fits will be noisier because the dekad will sometimes catch onset days and sometimes not.</span>
+<span id="cb2-138"><a href="#cb2-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-139"><a href="#cb2-139" aria-hidden="true" tabindex="-1"></a>Mitigations:</span>
+<span id="cb2-140"><a href="#cb2-140" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-141"><a href="#cb2-141" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Use the temporal QA component to identify which dekads have the most year-to-year variability - those are the ones to interpret most cautiously.</span>
+<span id="cb2-142"><a href="#cb2-142" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Aggregate the corrected output to monthly or seasonal totals downstream; the dekadal fitting still uses the correct daily structure, but the headline product is more robust.</span>
+<span id="cb2-143"><a href="#cb2-143" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>For truly bimodal monsoon regimes, a custom dekad calendar aligned to climatological onset would help. This is not currently in the framework; it would be a custom config + a per-dekad timestamp remapping in <span class="in">`aggregate_data_across_years`</span>.</span>
+<span id="cb2-144"><a href="#cb2-144" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-145"><a href="#cb2-145" aria-hidden="true" tabindex="-1"></a><span class="fu">### What does "correlation low" tell me when the distribution components score high?</span></span>
+<span id="cb2-146"><a href="#cb2-146" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-147"><a href="#cb2-147" aria-hidden="true" tabindex="-1"></a>It tells you the *timing* of individual rain events is not well captured, even though the *climatological distribution* at each pixel is correct. This is the normal expected pattern for satellite bias correction:</span>
+<span id="cb2-148"><a href="#cb2-148" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-149"><a href="#cb2-149" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Distribution component score 0.8-0.9: the framework is producing the right kind of rain in the right amounts.</span>
+<span id="cb2-150"><a href="#cb2-150" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Pearson r against gauge observations 0.3-0.5: the framework is not producing rain on the same individual days the gauge saw rain.</span>
+<span id="cb2-151"><a href="#cb2-151" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-152"><a href="#cb2-152" aria-hidden="true" tabindex="-1"></a>For applications that care about climatology (irrigation planning, drought monitoring, seasonal forecast verification) the distribution component is what matters. For applications that care about specific dates (event-based flood forecasting), the temporal correlation is the limiting factor and bias correction alone cannot fix it - you need a better satellite product or a deterministic model.</span></code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Benny Istanto. Licensed under <a href="https://www.mozilla.org/en-US/MPL/2.0/">Mozilla Public License 2.0</a>.</p>
+</div>   
+    <div class="nav-footer-center">
+<p>Built with <a href="https://quarto.org/">Quarto</a></p>
+<div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/bennyistanto/hybrid-bias-correction/blob/main/faq.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/bennyistanto/hybrid-bias-correction/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/bennyistanto/hybrid-bias-correction">
+      <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+    </a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

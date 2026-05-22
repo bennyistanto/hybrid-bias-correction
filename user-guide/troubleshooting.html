@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Common errors and their fixes.">
+
+<title>Troubleshooting – Hybrid Bias Correction</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../user-guide/output-structure.html" rel="prev">
+<link href="../images/favicon.png" rel="icon" type="image/png">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a href="../index.html" class="navbar-brand navbar-brand-logo">
+    <img src="../images/lseqmdl-logo-dark-background.png" alt="" class="navbar-logo">
+    </a>
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Hybrid Bias Correction</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-get-started" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Get Started</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-get-started">    
+        <li>
+    <a class="dropdown-item" href="../get-started/installation.html">
+ <span class="dropdown-text">Installation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../get-started/quick-start.html">
+ <span class="dropdown-text">Quickstart</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../get-started/configuration.html">
+ <span class="dropdown-text">Configuration</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../get-started/data-model.html">
+ <span class="dropdown-text">Data Model</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tutorials" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tutorials</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tutorials">    
+        <li>
+    <a class="dropdown-item" href="../tutorials/data-preparation.html">
+ <span class="dropdown-text">Data Preparation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../tutorials/full-pipeline.html">
+ <span class="dropdown-text">Full Pipeline</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../tutorials/qa-framework.html">
+ <span class="dropdown-text">QA Framework</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../tutorials/station-validation.html">
+ <span class="dropdown-text">Station Validation</span></a>
+  </li>  
+        <li><hr class="dropdown-divider"></li>
+        <li>
+    <a class="dropdown-item" href="../example-bali/index.html">
+ <span class="dropdown-text">Executed Notebooks</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-documentation" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Documentation</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-documentation">    
+        <li>
+    <a class="dropdown-item" href="../methodology/index.html">
+ <span class="dropdown-text">Methodology</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../implementation/index.html">
+ <span class="dropdown-text">Implementation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../user-guide/index.html">
+ <span class="dropdown-text">User Guide</span></a>
+  </li>  
+        <li><hr class="dropdown-divider"></li>
+        <li>
+    <a class="dropdown-item" href="../technical/architecture.html">
+ <span class="dropdown-text">Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../technical/api-reference/index.html">
+ <span class="dropdown-text">API Reference</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../technical/validation.html">
+ <span class="dropdown-text">Validation</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../technical/cf-compliance.html">
+ <span class="dropdown-text">CF Compliance</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../faq.html"> 
+<span class="menu-text">FAQ</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../changelog.html"> 
+<span class="menu-text">Changelog</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/bennyistanto/hybrid-bias-correction"> <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../user-guide/troubleshooting.html">Troubleshooting</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../user-guide/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">User Guide</span></a>
+  </div>
+</li>
+        <li class="px-0"><hr class="sidebar-divider hi "></li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../user-guide/aoi-setup.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">AOI Setup</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../user-guide/config-recipes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Configuration Recipes</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../user-guide/output-structure.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Output Structure</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../user-guide/troubleshooting.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Troubleshooting</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#latitudes-are-descending-align_grids-did-not-flip" id="toc-latitudes-are-descending-align_grids-did-not-flip" class="nav-link active" data-scroll-target="#latitudes-are-descending-align_grids-did-not-flip">“Latitudes are descending; align_grids did not flip”</a></li>
+  <li><a href="#ocean-cells-dominate-the-mean" id="toc-ocean-cells-dominate-the-mean" class="nav-link" data-scroll-target="#ocean-cells-dominate-the-mean">Ocean cells dominate the mean</a></li>
+  <li><a href="#gpd-k-fold-raises-too-few-exceedances" id="toc-gpd-k-fold-raises-too-few-exceedances" class="nav-link" data-scroll-target="#gpd-k-fold-raises-too-few-exceedances">GPD K-fold raises “too few exceedances”</a></li>
+  <li><a href="#cnn-training-stops-at-epoch-5-with-val_loss-noisy" id="toc-cnn-training-stops-at-epoch-5-with-val_loss-noisy" class="nav-link" data-scroll-target="#cnn-training-stops-at-epoch-5-with-val_loss-noisy">CNN training stops at epoch 5 with val_loss noisy</a></li>
+  <li><a href="#module-sklearn-not-found-when-importing-src" id="toc-module-sklearn-not-found-when-importing-src" class="nav-link" data-scroll-target="#module-sklearn-not-found-when-importing-src">“Module ‘sklearn’ not found” when importing <code>src</code></a></li>
+  <li><a href="#tensorflow-is-broken-cnn-step-fails" id="toc-tensorflow-is-broken-cnn-step-fails" class="nav-link" data-scroll-target="#tensorflow-is-broken-cnn-step-fails">TensorFlow is broken / CNN step fails</a></li>
+  <li><a href="#dll-load-errors-on-windows-under-git-bash" id="toc-dll-load-errors-on-windows-under-git-bash" class="nav-link" data-scroll-target="#dll-load-errors-on-windows-under-git-bash">DLL load errors on Windows under Git Bash</a></li>
+  <li><a href="#colab-session-disconnects-mid-training" id="toc-colab-session-disconnects-mid-training" class="nav-link" data-scroll-target="#colab-session-disconnects-mid-training">Colab session disconnects mid-training</a></li>
+  <li><a href="#colab-kernel-dies-oom-during-nb06-batch" id="toc-colab-kernel-dies-oom-during-nb06-batch" class="nav-link" data-scroll-target="#colab-kernel-dies-oom-during-nb06-batch">Colab kernel dies (OOM) during nb06 batch</a></li>
+  <li><a href="#map-data-missing-along-southern-or-western-aoi-edge" id="toc-map-data-missing-along-southern-or-western-aoi-edge" class="nav-link" data-scroll-target="#map-data-missing-along-southern-or-western-aoi-edge">Map data missing along southern or western AOI edge</a></li>
+  <li><a href="#map-data-missing-in-the-middle-of-the-aoi-on-small-regions" id="toc-map-data-missing-in-the-middle-of-the-aoi-on-small-regions" class="nav-link" data-scroll-target="#map-data-missing-in-the-middle-of-the-aoi-on-small-regions">Map data missing in the middle of the AOI on small regions</a></li>
+  <li><a href="#name-station_df-is-not-defined-in-every-nb05-dekad" id="toc-name-station_df-is-not-defined-in-every-nb05-dekad" class="nav-link" data-scroll-target="#name-station_df-is-not-defined-in-every-nb05-dekad"><code>name 'station_df' is not defined</code> in every nb05 dekad</a></li>
+  <li><a href="#admin-boundaries-dont-show-on-bali-maps" id="toc-admin-boundaries-dont-show-on-bali-maps" class="nav-link" data-scroll-target="#admin-boundaries-dont-show-on-bali-maps">Admin boundaries don’t show on Bali maps</a></li>
+  <li><a href="#nb06-unified-batch-tuple-unpacking-error" id="toc-nb06-unified-batch-tuple-unpacking-error" class="nav-link" data-scroll-target="#nb06-unified-batch-tuple-unpacking-error">nb06 unified batch tuple-unpacking error</a></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/bennyistanto/hybrid-bias-correction/blob/main/user-guide/troubleshooting.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/bennyistanto/hybrid-bias-correction/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<div class="quarto-title-block"><div><h1 class="title">Troubleshooting</h1><button type="button" class="btn code-tools-button" id="quarto-code-tools-source"><i class="bi"></i></button></div></div>
+</div>
+
+<div>
+  <div class="description">
+    Common errors and their fixes.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="latitudes-are-descending-align_grids-did-not-flip" class="level2">
+<h2 class="anchored" data-anchor-id="latitudes-are-descending-align_grids-did-not-flip">“Latitudes are descending; align_grids did not flip”</h2>
+<p>CPC files use descending latitude; IMERG ascending. The loader checks and flips, but only if you go through <code>src/io.py</code>. If you opened a NetCDF directly with <code>xr.open_dataset</code> and bypassed the loader, you can end up with mis-aligned grids. Always use the loader functions.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> src.io <span class="im">import</span> load_imerg, load_cpc, align_grids</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>imerg <span class="op">=</span> load_imerg(config.imergl_file)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>cpc   <span class="op">=</span> load_cpc(config.cpc_file)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>imerg, cpc <span class="op">=</span> align_grids(imerg, cpc, mask_file<span class="op">=</span>config.mask_file)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="ocean-cells-dominate-the-mean" class="level2">
+<h2 class="anchored" data-anchor-id="ocean-cells-dominate-the-mean">Ocean cells dominate the mean</h2>
+<p>If your corrected mean is suspiciously close to zero, the land/sea mask is probably not applied. The loader applies it at <code>align_grids</code>; if you wrote a custom pipeline, call:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> src.utility <span class="im">import</span> apply_land_sea_mask</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> apply_land_sea_mask(data, config.mask_file)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Ocean cells become NaN, not zero - this is intentional so that <code>nanmean</code> works without bias.</p>
+</section>
+<section id="gpd-k-fold-raises-too-few-exceedances" class="level2">
+<h2 class="anchored" data-anchor-id="gpd-k-fold-raises-too-few-exceedances">GPD K-fold raises “too few exceedances”</h2>
+<p>The 80th percentile of CPC has fewer than <code>n_splits_gpd_crossvalidate * minimum_per_fold</code> exceedances. Fixes:</p>
+<ul>
+<li>Raise <code>wet_day_threshold</code> so dry days are excluded before fitting.</li>
+<li>Lower <code>gpd_threshold_percentile</code> to 75 to bring in more exceedances.</li>
+<li>Lower <code>n_splits_gpd_crossvalidate</code> to 3.</li>
+</ul>
+<p>This is most likely to bite very dry dekads (peak dry season in a strongly seasonal region).</p>
+</section>
+<section id="cnn-training-stops-at-epoch-5-with-val_loss-noisy" class="level2">
+<h2 class="anchored" data-anchor-id="cnn-training-stops-at-epoch-5-with-val_loss-noisy">CNN training stops at epoch 5 with val_loss noisy</h2>
+<p>Early stopping is firing because <code>validation_split</code> is too small for the dataset. With 22 years x 10 days = 220 samples and a 20% split, you have 44 validation samples - low. Options:</p>
+<ul>
+<li>Raise <code>validation_split</code> to 0.3 (smoother val_loss curve at the cost of less training data).</li>
+<li>Raise <code>early_stopping_patience</code> to 10 (tolerate more noise).</li>
+<li>Lower the network capacity (<code>dense_layer_size: 64</code>) to reduce overfitting.</li>
+</ul>
+</section>
+<section id="module-sklearn-not-found-when-importing-src" class="level2">
+<h2 class="anchored" data-anchor-id="module-sklearn-not-found-when-importing-src">“Module ‘sklearn’ not found” when importing <code>src</code></h2>
+<p><code>src/__init__.py</code> triggers <code>from .bias_correction import lseqm</code>, which requires <code>scikit-learn</code>. The conda env in <code>environment.yml</code> includes it; pip-only installs may miss it. Fix:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install scikit-learn</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Or run inside the project conda env.</p>
+</section>
+<section id="tensorflow-is-broken-cnn-step-fails" class="level2">
+<h2 class="anchored" data-anchor-id="tensorflow-is-broken-cnn-step-fails">TensorFlow is broken / CNN step fails</h2>
+<p>This is the single most common local-install failure. Symptom: LS and LSEQM run fine, but nb02 Step 7 or 8 (the CNN training / apply) crashes with <code>ImportError</code>, <code>DLL load failed</code>, <code>cannot enable executable stack</code>, or simply a CUDA mismatch.</p>
+<p>The framework’s recommended path here is to <strong>switch to Colab</strong>. TensorFlow is pre-installed there and works out of the box - see <a href="../get-started/installation.html">Installation</a>. If you would rather fix the local install, the symptom-to-fix table:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Symptom</th>
+<th>Likely cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>ImportError: DLL load failed while importing _pywrap_tensorflow_internal</code></td>
+<td>Missing Visual C++ runtime on Windows</td>
+<td>Install the Visual C++ Redistributable from Microsoft.</td>
+</tr>
+<tr class="even">
+<td><code>cannot enable executable stack as shared object requires</code></td>
+<td>WSL / Linux without execstack permissions</td>
+<td><code>pip install patchelf</code> then <code>patchelf --clear-execstack $(python -c "import tensorflow; print(tensorflow.__path__[0])")/libtensorflow_cc.so.2</code>.</td>
+</tr>
+<tr class="odd">
+<td>TF runs on CPU even though you have a GPU</td>
+<td>CUDA / cuDNN version mismatch with the TF version</td>
+<td>Either <code>mamba install tensorflow</code> and let conda handle the CUDA pin, or follow the official TF compatibility table at <a href="https://tensorflow.org/install">tensorflow.org/install</a> and reinstall the exact matching CUDA toolkit.</td>
+</tr>
+<tr class="even">
+<td><code>ResourceExhaustedError: OOM when allocating tensor</code> on GPU</td>
+<td>CNN model is fine but other CUDA processes hold memory</td>
+<td>Restart the Python kernel; set <code>os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'</code> before importing TF.</td>
+</tr>
+<tr class="odd">
+<td>Silent freeze, no error, but the script hangs</td>
+<td>Mismatched <code>keras</code> / <code>tf-keras</code> packages</td>
+<td><code>pip uninstall tf-keras keras</code> then <code>mamba install tensorflow</code> (conda-forge build pulls a compatible keras).</td>
+</tr>
+</tbody>
+</table>
+<p>To skip the CNN entirely and still produce LS + LSEQM outputs, set <code>blend_alpha: 1.0</code> in your config. The pipeline will train no CNN and write a <code>corrected_lseqmdl</code> field identical to <code>corrected_lseqm</code>. Not a real fix, but a usable workaround if you only care about the distributional correction.</p>
+</section>
+<section id="dll-load-errors-on-windows-under-git-bash" class="level2">
+<h2 class="anchored" data-anchor-id="dll-load-errors-on-windows-under-git-bash">DLL load errors on Windows under Git Bash</h2>
+<p>The <code>climate</code> conda env’s DLLs need to be on <code>PATH</code> before you run Python. From Git Bash:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">PATH</span><span class="op">=</span><span class="st">"/c/Users/benny/miniforge3/envs/climate:</span><span class="dt">\</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="st">/c/Users/benny/miniforge3/envs/climate/Scripts:</span><span class="dt">\</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="st">/c/Users/benny/miniforge3/envs/climate/Library/bin:</span><span class="va">$PATH</span><span class="st">"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>After that, plain <code>python script.py</code> works.</p>
+</section>
+<section id="colab-session-disconnects-mid-training" class="level2">
+<h2 class="anchored" data-anchor-id="colab-session-disconnects-mid-training">Colab session disconnects mid-training</h2>
+<p>The full pipeline takes ~30-40 minutes on Colab CPU. The free tier sometimes disconnects on idle. Mitigations:</p>
+<ul>
+<li>Run the notebook from top to bottom in one go - do not pause.</li>
+<li>Save intermediate outputs to Google Drive (mount Drive at the start, point <code>output_dir</code> at a Drive path).</li>
+<li>For a quick sanity check, run only a few dekads using the dekad-list cell at the top of the batch loop.</li>
+</ul>
+</section>
+<section id="colab-kernel-dies-oom-during-nb06-batch" class="level2">
+<h2 class="anchored" data-anchor-id="colab-kernel-dies-oom-during-nb06-batch">Colab kernel dies (OOM) during nb06 batch</h2>
+<p>The unified batch cell in nb06 generates ~1700 figures across QA, Taylor, and station-validation pipelines. Three patterns to know:</p>
+<ul>
+<li>Every <code>run_*_batch_viz</code> in <code>src/visualisation.py</code> already does <code>plt.close('all')</code> + <code>gc.collect()</code> at the end of each period.</li>
+<li><code>compute_all_taylor_stats</code> and <code>generate_per_dekad_taylor_diagrams</code> in <code>src/taylor_diagram.py</code> do the same per dekad.</li>
+<li>Boundary shapefiles are loaded once per session, clipped to the AOI, and cached as numpy line segments (~3-4 MB total).</li>
+</ul>
+<p>If you still OOM, the most likely sources are:</p>
+<ul>
+<li>Custom batch loops you wrote in nb06 outside <code>src/visualisation.py</code> that don’t follow the same pattern. Add <code>plt.close('all')</code> and <code>gc.collect()</code> at iteration end.</li>
+<li>TensorFlow holding the CNN model in RAM across nb06 cells (nb06 doesn’t load the model, but if you kept the Keras kernel state from nb02 in the same session, it stays). Restart the Colab kernel between nb02 and nb06.</li>
+</ul>
+</section>
+<section id="map-data-missing-along-southern-or-western-aoi-edge" class="level2">
+<h2 class="anchored" data-anchor-id="map-data-missing-along-southern-or-western-aoi-edge">Map data missing along southern or western AOI edge</h2>
+<p>Cause: float32 vs float64 precision mismatch in <code>apply_land_sea_mask</code>. The mask coordinate is float64, the data coordinate is float32, and the float32 boundary value sits a tiny bit outside the float64 range, so <code>interp(method='nearest')</code> returns NaN there.</p>
+<p>This is fixed in the current code (<code>apply_land_sea_mask</code> uses <code>reindex(method='nearest')</code> instead). If you see this symptom, you are running an older version - pull the latest <code>src/utility.py</code>.</p>
+</section>
+<section id="map-data-missing-in-the-middle-of-the-aoi-on-small-regions" class="level2">
+<h2 class="anchored" data-anchor-id="map-data-missing-in-the-middle-of-the-aoi-on-small-regions">Map data missing in the middle of the AOI on small regions</h2>
+<p>Cause: the CPC native 0.5 deg cells do not extend beyond the AOI bbox, so bilinear interpolation of the CPC distribution parameters returns NaN at the AOI edge.</p>
+<p>Fix: when clipping the CPC native file for a regional AOI, include one extra cell of buffer beyond your bbox so the AOI sits inside the convex hull of CPC cell centres. nb01 does this automatically for newly defined regions. The code also has a <code>reindex(method='nearest')</code> fallback in <code>interpolate_cpc_params_to_imerg_grid</code> to catch this, but the data-level fix is cleaner.</p>
+</section>
+<section id="name-station_df-is-not-defined-in-every-nb05-dekad" class="level2">
+<h2 class="anchored" data-anchor-id="name-station_df-is-not-defined-in-every-nb05-dekad"><code>name 'station_df' is not defined</code> in every nb05 dekad</h2>
+<p>You ran the batch cell without running Step 2 first. The batch cell in current <code>05_station_validation.ipynb</code> auto-loads <code>station_df</code> and <code>obs_df</code> if they aren’t in scope. If you see this error, you are on an older notebook - sync the latest <code>notebooks/05_station_validation.ipynb</code> to Drive.</p>
+</section>
+<section id="admin-boundaries-dont-show-on-bali-maps" class="level2">
+<h2 class="anchored" data-anchor-id="admin-boundaries-dont-show-on-bali-maps">Admin boundaries don’t show on Bali maps</h2>
+<p>Two likely causes:</p>
+<ul>
+<li><code>config.BOUNDARIES</code> is empty or the configured files don’t exist. The framework falls back to cartopy Natural Earth in that case, which on first call downloads from the internet - this needs network access. Either set <code>BOUNDARIES</code> to local shapefiles or ensure Colab has internet.</li>
+<li>You changed <code>MAP_EXTENT_PAD</code> and didn’t re-run the cell. The boundary cache is keyed by the AOI clip bbox; if the bbox changes mid-session, the old cache stays. Restart the kernel or clear <code>src.visualisation._boundary_segments_cache</code>.</li>
+</ul>
+</section>
+<section id="nb06-unified-batch-tuple-unpacking-error" class="level2">
+<h2 class="anchored" data-anchor-id="nb06-unified-batch-tuple-unpacking-error">nb06 unified batch tuple-unpacking error</h2>
+<p>If you wrote <code>td_acc, td_locs = generate_all_taylor_diagrams(...)</code>, you’ll get “too many values to unpack (expected 2)”. The function returns three values:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>td_acc, td_locs, td_by_dekad <span class="op">=</span> generate_all_taylor_diagrams(...)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+
+
+<!-- -->
+
+</section>
+
+<a onclick="window.scrollTo(0, 0); return false;" role="button" id="quarto-back-to-top"><i class="bi bi-arrow-up"></i> Back to top</a></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+  const viewSource = window.document.getElementById('quarto-view-source') ||
+                     window.document.getElementById('quarto-code-tools-source');
+  if (viewSource) {
+    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
+    viewSource.addEventListener("click", function(e) {
+      if (sourceUrl) {
+        // rstudio viewer pane
+        if (/\bcapabilities=\b/.test(window.location)) {
+          window.open(sourceUrl);
+        } else {
+          window.location.href = sourceUrl;
+        }
+      } else {
+        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
+        modal.show();
+      }
+      return false;
+    });
+  }
+  function toggleCodeHandler(show) {
+    return function(e) {
+      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
+      for (let i=0; i<detailsSrc.length; i++) {
+        const details = detailsSrc[i].parentElement;
+        if (show) {
+          details.open = true;
+        } else {
+          details.removeAttribute("open");
+        }
+      }
+      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
+      const fromCls = show ? "hidden" : "unhidden";
+      const toCls = show ? "unhidden" : "hidden";
+      for (let i=0; i<cellCodeDivs.length; i++) {
+        const codeDiv = cellCodeDivs[i];
+        if (codeDiv.classList.contains(fromCls)) {
+          codeDiv.classList.remove(fromCls);
+          codeDiv.classList.add(toCls);
+        } 
+      }
+      return false;
+    }
+  }
+  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
+  if (hideAllCode) {
+    hideAllCode.addEventListener("click", toggleCodeHandler(false));
+  }
+  const showAllCode = window.document.getElementById("quarto-show-all-code");
+  if (showAllCode) {
+    showAllCode.addEventListener("click", toggleCodeHandler(true));
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp("https:\/\/bennyistanto\.github\.io\/hybrid-bias-correction");
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+          // target, if specified
+          link.setAttribute("target", "_blank");
+          if (link.getAttribute("rel") === null) {
+            link.setAttribute("rel", "noopener");
+          }
+          // default icon
+          link.classList.add("external");
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../user-guide/output-structure.html" class="pagination-link" aria-label="Output Structure">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Output Structure</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
+<div class="sourceCode" id="cb6" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Troubleshooting"</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="an">description:</span><span class="co"> "Common errors and their fixes."</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="fu">## "Latitudes are descending; align_grids did not flip"</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>CPC files use descending latitude; IMERG ascending. The loader checks and flips, but only if you go through <span class="in">`src/io.py`</span>. If you opened a NetCDF directly with <span class="in">`xr.open_dataset`</span> and bypassed the loader, you can end up with mis-aligned grids. Always use the loader functions.</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> src.io <span class="im">import</span> load_imerg, load_cpc, align_grids</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>imerg <span class="op">=</span> load_imerg(config.imergl_file)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>cpc   <span class="op">=</span> load_cpc(config.cpc_file)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>imerg, cpc <span class="op">=</span> align_grids(imerg, cpc, mask_file<span class="op">=</span>config.mask_file)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="fu">## Ocean cells dominate the mean</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>If your corrected mean is suspiciously close to zero, the land/sea mask is probably not applied. The loader applies it at <span class="in">`align_grids`</span>; if you wrote a custom pipeline, call:</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> src.utility <span class="im">import</span> apply_land_sea_mask</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> apply_land_sea_mask(data, config.mask_file)</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>Ocean cells become NaN, not zero - this is intentional so that <span class="in">`nanmean`</span> works without bias.</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a><span class="fu">## GPD K-fold raises "too few exceedances"</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>The 80th percentile of CPC has fewer than <span class="in">`n_splits_gpd_crossvalidate * minimum_per_fold`</span> exceedances. Fixes:</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Raise <span class="in">`wet_day_threshold`</span> so dry days are excluded before fitting.</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Lower <span class="in">`gpd_threshold_percentile`</span> to 75 to bring in more exceedances.</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Lower <span class="in">`n_splits_gpd_crossvalidate`</span> to 3.</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>This is most likely to bite very dry dekads (peak dry season in a strongly seasonal region).</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a><span class="fu">## CNN training stops at epoch 5 with val_loss noisy</span></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>Early stopping is firing because <span class="in">`validation_split`</span> is too small for the dataset. With 22 years x 10 days = 220 samples and a 20% split, you have 44 validation samples - low. Options:</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Raise <span class="in">`validation_split`</span> to 0.3 (smoother val_loss curve at the cost of less training data).</span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Raise <span class="in">`early_stopping_patience`</span> to 10 (tolerate more noise).</span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Lower the network capacity (<span class="in">`dense_layer_size: 64`</span>) to reduce overfitting.</span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a><span class="fu">## "Module 'sklearn' not found" when importing `src`</span></span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a><span class="in">`src/__init__.py`</span> triggers <span class="in">`from .bias_correction import lseqm`</span>, which requires <span class="in">`scikit-learn`</span>. The conda env in <span class="in">`environment.yml`</span> includes it; pip-only installs may miss it. Fix:</span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a><span class="in">```bash</span></span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a><span class="ex">pip</span> install scikit-learn</span>
+<span id="cb6-52"><a href="#cb6-52" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb6-53"><a href="#cb6-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-54"><a href="#cb6-54" aria-hidden="true" tabindex="-1"></a>Or run inside the project conda env.</span>
+<span id="cb6-55"><a href="#cb6-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-56"><a href="#cb6-56" aria-hidden="true" tabindex="-1"></a><span class="fu">## TensorFlow is broken / CNN step fails</span></span>
+<span id="cb6-57"><a href="#cb6-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-58"><a href="#cb6-58" aria-hidden="true" tabindex="-1"></a>This is the single most common local-install failure. Symptom: LS and LSEQM run fine, but nb02 Step 7 or 8 (the CNN training / apply) crashes with <span class="in">`ImportError`</span>, <span class="in">`DLL load failed`</span>, <span class="in">`cannot enable executable stack`</span>, or simply a CUDA mismatch.</span>
+<span id="cb6-59"><a href="#cb6-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-60"><a href="#cb6-60" aria-hidden="true" tabindex="-1"></a>The framework's recommended path here is to **switch to Colab**. TensorFlow is pre-installed there and works out of the box - see <span class="co">[</span><span class="ot">Installation</span><span class="co">](../get-started/installation.qmd)</span>. If you would rather fix the local install, the symptom-to-fix table:</span>
+<span id="cb6-61"><a href="#cb6-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-62"><a href="#cb6-62" aria-hidden="true" tabindex="-1"></a>| Symptom | Likely cause | Fix |</span>
+<span id="cb6-63"><a href="#cb6-63" aria-hidden="true" tabindex="-1"></a>|---------|--------------|-----|</span>
+<span id="cb6-64"><a href="#cb6-64" aria-hidden="true" tabindex="-1"></a>| <span class="in">`ImportError: DLL load failed while importing _pywrap_tensorflow_internal`</span> | Missing Visual C++ runtime on Windows | Install the Visual C++ Redistributable from Microsoft. |</span>
+<span id="cb6-65"><a href="#cb6-65" aria-hidden="true" tabindex="-1"></a>| <span class="in">`cannot enable executable stack as shared object requires`</span> | WSL / Linux without execstack permissions | <span class="in">`pip install patchelf`</span> then <span class="in">`patchelf --clear-execstack $(python -c "import tensorflow; print(tensorflow.__path__[0])")/libtensorflow_cc.so.2`</span>. |</span>
+<span id="cb6-66"><a href="#cb6-66" aria-hidden="true" tabindex="-1"></a>| TF runs on CPU even though you have a GPU | CUDA / cuDNN version mismatch with the TF version | Either <span class="in">`mamba install tensorflow`</span> and let conda handle the CUDA pin, or follow the official TF compatibility table at <span class="co">[</span><span class="ot">tensorflow.org/install</span><span class="co">](https://tensorflow.org/install)</span> and reinstall the exact matching CUDA toolkit. |</span>
+<span id="cb6-67"><a href="#cb6-67" aria-hidden="true" tabindex="-1"></a>| <span class="in">`ResourceExhaustedError: OOM when allocating tensor`</span> on GPU | CNN model is fine but other CUDA processes hold memory | Restart the Python kernel; set <span class="in">`os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'`</span> before importing TF. |</span>
+<span id="cb6-68"><a href="#cb6-68" aria-hidden="true" tabindex="-1"></a>| Silent freeze, no error, but the script hangs | Mismatched <span class="in">`keras`</span> / <span class="in">`tf-keras`</span> packages | <span class="in">`pip uninstall tf-keras keras`</span> then <span class="in">`mamba install tensorflow`</span> (conda-forge build pulls a compatible keras). |</span>
+<span id="cb6-69"><a href="#cb6-69" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-70"><a href="#cb6-70" aria-hidden="true" tabindex="-1"></a>To skip the CNN entirely and still produce LS + LSEQM outputs, set <span class="in">`blend_alpha: 1.0`</span> in your config. The pipeline will train no CNN and write a <span class="in">`corrected_lseqmdl`</span> field identical to <span class="in">`corrected_lseqm`</span>. Not a real fix, but a usable workaround if you only care about the distributional correction.</span>
+<span id="cb6-71"><a href="#cb6-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-72"><a href="#cb6-72" aria-hidden="true" tabindex="-1"></a><span class="fu">## DLL load errors on Windows under Git Bash</span></span>
+<span id="cb6-73"><a href="#cb6-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-74"><a href="#cb6-74" aria-hidden="true" tabindex="-1"></a>The <span class="in">`climate`</span> conda env's DLLs need to be on <span class="in">`PATH`</span> before you run Python. From Git Bash:</span>
+<span id="cb6-75"><a href="#cb6-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-76"><a href="#cb6-76" aria-hidden="true" tabindex="-1"></a><span class="in">```bash</span></span>
+<span id="cb6-77"><a href="#cb6-77" aria-hidden="true" tabindex="-1"></a><span class="bu">export</span> <span class="va">PATH</span><span class="op">=</span><span class="st">"/c/Users/benny/miniforge3/envs/climate:</span><span class="dt">\</span></span>
+<span id="cb6-78"><a href="#cb6-78" aria-hidden="true" tabindex="-1"></a><span class="st">/c/Users/benny/miniforge3/envs/climate/Scripts:</span><span class="dt">\</span></span>
+<span id="cb6-79"><a href="#cb6-79" aria-hidden="true" tabindex="-1"></a><span class="st">/c/Users/benny/miniforge3/envs/climate/Library/bin:</span><span class="va">$PATH</span><span class="st">"</span></span>
+<span id="cb6-80"><a href="#cb6-80" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb6-81"><a href="#cb6-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-82"><a href="#cb6-82" aria-hidden="true" tabindex="-1"></a>After that, plain <span class="in">`python script.py`</span> works.</span>
+<span id="cb6-83"><a href="#cb6-83" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-84"><a href="#cb6-84" aria-hidden="true" tabindex="-1"></a><span class="fu">## Colab session disconnects mid-training</span></span>
+<span id="cb6-85"><a href="#cb6-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-86"><a href="#cb6-86" aria-hidden="true" tabindex="-1"></a>The full pipeline takes ~30-40 minutes on Colab CPU. The free tier sometimes disconnects on idle. Mitigations:</span>
+<span id="cb6-87"><a href="#cb6-87" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-88"><a href="#cb6-88" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Run the notebook from top to bottom in one go - do not pause.</span>
+<span id="cb6-89"><a href="#cb6-89" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Save intermediate outputs to Google Drive (mount Drive at the start, point <span class="in">`output_dir`</span> at a Drive path).</span>
+<span id="cb6-90"><a href="#cb6-90" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>For a quick sanity check, run only a few dekads using the dekad-list cell at the top of the batch loop.</span>
+<span id="cb6-91"><a href="#cb6-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-92"><a href="#cb6-92" aria-hidden="true" tabindex="-1"></a><span class="fu">## Colab kernel dies (OOM) during nb06 batch</span></span>
+<span id="cb6-93"><a href="#cb6-93" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-94"><a href="#cb6-94" aria-hidden="true" tabindex="-1"></a>The unified batch cell in nb06 generates ~1700 figures across QA, Taylor, and station-validation pipelines. Three patterns to know:</span>
+<span id="cb6-95"><a href="#cb6-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-96"><a href="#cb6-96" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Every <span class="in">`run_*_batch_viz`</span> in <span class="in">`src/visualisation.py`</span> already does <span class="in">`plt.close('all')`</span> + <span class="in">`gc.collect()`</span> at the end of each period.</span>
+<span id="cb6-97"><a href="#cb6-97" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="in">`compute_all_taylor_stats`</span> and <span class="in">`generate_per_dekad_taylor_diagrams`</span> in <span class="in">`src/taylor_diagram.py`</span> do the same per dekad.</span>
+<span id="cb6-98"><a href="#cb6-98" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Boundary shapefiles are loaded once per session, clipped to the AOI, and cached as numpy line segments (~3-4 MB total).</span>
+<span id="cb6-99"><a href="#cb6-99" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-100"><a href="#cb6-100" aria-hidden="true" tabindex="-1"></a>If you still OOM, the most likely sources are:</span>
+<span id="cb6-101"><a href="#cb6-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-102"><a href="#cb6-102" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>Custom batch loops you wrote in nb06 outside <span class="in">`src/visualisation.py`</span> that don't follow the same pattern. Add <span class="in">`plt.close('all')`</span> and <span class="in">`gc.collect()`</span> at iteration end.</span>
+<span id="cb6-103"><a href="#cb6-103" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>TensorFlow holding the CNN model in RAM across nb06 cells (nb06 doesn't load the model, but if you kept the Keras kernel state from nb02 in the same session, it stays). Restart the Colab kernel between nb02 and nb06.</span>
+<span id="cb6-104"><a href="#cb6-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-105"><a href="#cb6-105" aria-hidden="true" tabindex="-1"></a><span class="fu">## Map data missing along southern or western AOI edge</span></span>
+<span id="cb6-106"><a href="#cb6-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-107"><a href="#cb6-107" aria-hidden="true" tabindex="-1"></a>Cause: float32 vs float64 precision mismatch in <span class="in">`apply_land_sea_mask`</span>. The mask coordinate is float64, the data coordinate is float32, and the float32 boundary value sits a tiny bit outside the float64 range, so <span class="in">`interp(method='nearest')`</span> returns NaN there.</span>
+<span id="cb6-108"><a href="#cb6-108" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-109"><a href="#cb6-109" aria-hidden="true" tabindex="-1"></a>This is fixed in the current code (<span class="in">`apply_land_sea_mask`</span> uses <span class="in">`reindex(method='nearest')`</span> instead). If you see this symptom, you are running an older version - pull the latest <span class="in">`src/utility.py`</span>.</span>
+<span id="cb6-110"><a href="#cb6-110" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-111"><a href="#cb6-111" aria-hidden="true" tabindex="-1"></a><span class="fu">## Map data missing in the middle of the AOI on small regions</span></span>
+<span id="cb6-112"><a href="#cb6-112" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-113"><a href="#cb6-113" aria-hidden="true" tabindex="-1"></a>Cause: the CPC native 0.5 deg cells do not extend beyond the AOI bbox, so bilinear interpolation of the CPC distribution parameters returns NaN at the AOI edge.</span>
+<span id="cb6-114"><a href="#cb6-114" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-115"><a href="#cb6-115" aria-hidden="true" tabindex="-1"></a>Fix: when clipping the CPC native file for a regional AOI, include one extra cell of buffer beyond your bbox so the AOI sits inside the convex hull of CPC cell centres. nb01 does this automatically for newly defined regions. The code also has a <span class="in">`reindex(method='nearest')`</span> fallback in <span class="in">`interpolate_cpc_params_to_imerg_grid`</span> to catch this, but the data-level fix is cleaner.</span>
+<span id="cb6-116"><a href="#cb6-116" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-117"><a href="#cb6-117" aria-hidden="true" tabindex="-1"></a><span class="fu">## `name 'station_df' is not defined` in every nb05 dekad</span></span>
+<span id="cb6-118"><a href="#cb6-118" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-119"><a href="#cb6-119" aria-hidden="true" tabindex="-1"></a>You ran the batch cell without running Step 2 first. The batch cell in current <span class="in">`05_station_validation.ipynb`</span> auto-loads <span class="in">`station_df`</span> and <span class="in">`obs_df`</span> if they aren't in scope. If you see this error, you are on an older notebook - sync the latest <span class="in">`notebooks/05_station_validation.ipynb`</span> to Drive.</span>
+<span id="cb6-120"><a href="#cb6-120" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-121"><a href="#cb6-121" aria-hidden="true" tabindex="-1"></a><span class="fu">## Admin boundaries don't show on Bali maps</span></span>
+<span id="cb6-122"><a href="#cb6-122" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-123"><a href="#cb6-123" aria-hidden="true" tabindex="-1"></a>Two likely causes:</span>
+<span id="cb6-124"><a href="#cb6-124" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-125"><a href="#cb6-125" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span><span class="in">`config.BOUNDARIES`</span> is empty or the configured files don't exist. The framework falls back to cartopy Natural Earth in that case, which on first call downloads from the internet - this needs network access. Either set <span class="in">`BOUNDARIES`</span> to local shapefiles or ensure Colab has internet.</span>
+<span id="cb6-126"><a href="#cb6-126" aria-hidden="true" tabindex="-1"></a><span class="ss">- </span>You changed <span class="in">`MAP_EXTENT_PAD`</span> and didn't re-run the cell. The boundary cache is keyed by the AOI clip bbox; if the bbox changes mid-session, the old cache stays. Restart the kernel or clear <span class="in">`src.visualisation._boundary_segments_cache`</span>.</span>
+<span id="cb6-127"><a href="#cb6-127" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-128"><a href="#cb6-128" aria-hidden="true" tabindex="-1"></a><span class="fu">## nb06 unified batch tuple-unpacking error</span></span>
+<span id="cb6-129"><a href="#cb6-129" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-130"><a href="#cb6-130" aria-hidden="true" tabindex="-1"></a>If you wrote <span class="in">`td_acc, td_locs = generate_all_taylor_diagrams(...)`</span>, you'll get "too many values to unpack (expected 2)". The function returns three values:</span>
+<span id="cb6-131"><a href="#cb6-131" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-132"><a href="#cb6-132" aria-hidden="true" tabindex="-1"></a><span class="in">```python</span></span>
+<span id="cb6-133"><a href="#cb6-133" aria-hidden="true" tabindex="-1"></a>td_acc, td_locs, td_by_dekad <span class="op">=</span> generate_all_taylor_diagrams(...)</span>
+<span id="cb6-134"><a href="#cb6-134" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span></code><button title="Copy to Clipboard" class="code-copy-button" data-in-quarto-modal=""><i class="bi"></i></button></pre></div>
+</div></div></div></div></div>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+<p>© 2026 Benny Istanto. Licensed under <a href="https://www.mozilla.org/en-US/MPL/2.0/">Mozilla Public License 2.0</a>.</p>
+</div>   
+    <div class="nav-footer-center">
+<p>Built with <a href="https://quarto.org/">Quarto</a></p>
+<div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/bennyistanto/hybrid-bias-correction/blob/main/user-guide/troubleshooting.qmd" class="toc-action"><i class="bi bi-github"></i>View source</a></li><li><a href="https://github.com/bennyistanto/hybrid-bias-correction/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div>
+    <div class="nav-footer-right">
+      <ul class="footer-items list-unstyled">
+    <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/bennyistanto/hybrid-bias-correction">
+      <i class="bi bi-github" role="img" aria-label="GitHub">
+</i> 
+    </a>
+  </li>  
+</ul>
+    </div>
+  </div>
+</footer>
+
+
+
+
+<script src="../site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>
