@@ -1,29 +1,32 @@
 name: Publish Quarto site
 
-# Triggers on every push to main. The cache-wipe step below makes every run
+# Triggers on every push to main. The cache-wipe step makes every run
 # a fresh rebuild - no stale quartodoc API pages, no leftover freeze artefacts.
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
+# Modern Pages deployment requires id-token: write + pages: write.
+# contents: read is enough because we don't push back to the repo.
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
 
-# Cancel any in-flight build when a newer commit arrives. Saves runner minutes
-# on rapid-fire pushes and avoids race conditions on the gh-pages branch.
+# Cancel any in-flight build when a newer commit arrives.
 concurrency:
-  group: pages-${{ github.ref }}
+  group: "pages"
   cancel-in-progress: true
 
 jobs:
-  build-deploy:
+  build:
+    name: Build site
     runs-on: ubuntu-latest
 
     env:
       # Force UTF-8 default - quartodoc writes module pages with non-ASCII
-      # characters (sigma, em-dash etc.) and Windows-style default encodings
-      # would crash. Linux runners default to UTF-8 already but explicit is safer.
+      # characters (sigma, em-dash etc.); explicit beats implicit.
       PYTHONUTF8: "1"
       # PYTHONPATH so `quartodoc build` can import `src` from the repo root
       # while its working directory is `docs/`.
@@ -68,15 +71,21 @@ jobs:
         with:
           path: docs
 
-      - name: Deploy to gh-pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: _site
-          publish_branch: gh-pages
-          # force_orphan replaces the gh-pages branch contents on every deploy.
-          # No accumulated history on the published branch, smaller clone size.
-          force_orphan: true
-          user_name: "github-actions[bot]"
-          user_email: "github-actions[bot]@users.noreply.github.com"
-          commit_message: "docs: publish ${{ github.sha }}"
+          path: _site
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
