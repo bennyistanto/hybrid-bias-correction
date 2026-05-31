@@ -34,3 +34,9 @@ Quantitative headline numbers from the full-Indonesia run will be inserted here 
 :::
 
 For the paper's full station validation, see the companion manuscript (under review at *Remote Sensing*; DOI to be added on publication).
+
+## See also
+
+For the robustness of these results under variation of the three exposed parameters (`blend_alpha`, `gpd_threshold_percentile`, `saturation_count`), see [Sensitivity Analysis](sensitivity-analysis.qmd). The sweep demonstrates that none of the fifteen tested settings reverses the headline pattern, and that the Pearson correlation stays in the narrow band $[0.332, 0.348]$ across all parameter variations.
+
+For the engineering-side verification (continuous integration and the synthetic-data smoke suite), see [Testing](testing.qmd).

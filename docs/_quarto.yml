@@ -61,6 +61,10 @@ website:
             href: technical/api-reference/index.qmd
           - text: "Validation"
             href: technical/validation.qmd
+          - text: "Sensitivity Analysis"
+            href: technical/sensitivity-analysis.qmd
+          - text: "Testing"
+            href: technical/testing.qmd
           - text: "CF Compliance"
             href: technical/cf-compliance.qmd
       - text: "FAQ"
@@ -161,6 +165,8 @@ website:
         - technical/architecture.qmd
         - technical/api-reference/index.qmd
         - technical/validation.qmd
+        - technical/sensitivity-analysis.qmd
+        - technical/testing.qmd
         - technical/cf-compliance.qmd
 
   page-footer:

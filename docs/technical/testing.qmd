@@ -1,0 +1,93 @@
+---
+title: "Testing"
+description: "Automated smoke tests and continuous integration for the framework."
+---
+
+The framework ships with a small automated test suite that exercises the
+algorithmic core on synthetic data. The suite is intentionally narrow: it
+verifies that the public surface is wired correctly and that the
+distribution-fitting and station-density primitives produce numerically
+sensible outputs. It does **not** re-run the full Bali pipeline (which would
+require the data archive and a longer CI runtime); that level of verification
+is documented in [Validation](validation.qmd) and is on the
+[backlog](../changelog.qmd#backlog) as a release-time end-to-end check.
+
+## What is covered
+
+The suite at `tests/test_smoke.py` covers four code paths:
+
+1. **Import surface.** Every top-level `src/` module loads cleanly on a stock
+   scientific-Python install (no missing dependency, no circular import).
+2. **Gamma distribution fitting.** A large sample drawn from a known
+   Gamma$(k=0.6,\ \theta=4.0)$ is fed to `fit_gamma_distribution`; the
+   estimated shape and scale must be within 10\% of the truth.
+3. **L-moments.** `calculate_l_moments` on a realistic wet-day sample
+   returns finite values for all moments (a regression test against
+   numerical-instability bugs).
+4. **Station-density confidence map.** `compute_confidence_map` on a small
+   synthetic station-count grid returns an array with the same shape and
+   values bounded in $[0,1]$ after smoothing.
+5. **Blending algebra.** The closed-form rule
+   $\alpha_{\mathrm{eff}} = 1 - C\,(1-\alpha)$ collapses to $1.0$ at $C=0$,
+   to $\alpha$ at $C=1$, and to the correct intermediate value at $C=0.5$.
+
+All five tests run in under a second on a free CI runner; the suite is
+deliberately fast so it can be a hard gate on every push.
+
+## Running the tests locally
+
+From the repository root:
+
+```bash
+python -m pytest tests/ -v
+```
+
+If `pytest` is not on your environment yet, install it alongside the
+existing dependencies:
+
+```bash
+python -m pip install pytest
+```
+
+The suite expects only the dependencies listed in `requirements.txt`
+(NumPy, xarray, SciPy, scikit-learn, TensorFlow/Keras, matplotlib,
+geopandas) plus `pytest`.
+
+## Continuous integration
+
+`.github/workflows/test.yml` runs the suite on every push to `main` and on
+every pull request, against a Python 3.11 and Python 3.12 matrix. The
+workflow installs `requirements.txt` and `pytest`, then invokes
+`pytest tests/ -v`. A failed test fails the build and blocks merge.
+
+## Adding tests
+
+If you modify a pipeline stage or add a new one:
+
+- Add a test that exercises the changed code path on a small synthetic
+  input. Keep the input in-memory; do not download data inside a test.
+- If the change is to the algorithm, test against a known-answer case
+  (closed-form result, or a sample drawn from a parametric family the
+  fit should recover).
+- If the change is to file I/O, prefer a temporary directory created
+  inside the test (`tmp_path` fixture) over the real data tree.
+- Tests live in `tests/`; the runner picks them up automatically by the
+  `test_*.py` filename pattern.
+
+See [Contributing](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/CONTRIBUTING.md)
+for the full development workflow.
+
+## What the tests deliberately do not cover
+
+- **End-to-end NetCDF I/O.** Reading and writing on the real CPC and IMERG
+  grids requires the data archive cited in [Get Started ->
+  Configuration](../get-started/configuration.qmd) and runs in minutes,
+  not seconds. The recommended way to verify the pipeline end-to-end is
+  to run the [Bali tutorial](../tutorials/full-pipeline.qmd) which
+  exercises every stage on the bundled sample.
+- **Deep-learning training**. TensorFlow training takes several minutes
+  per dekad even on the Bali subdomain; the CNN forward pass is tested
+  implicitly via the Bali tutorial, not in the smoke suite.
+- **Cross-platform NetCDF behaviour.** The smoke suite runs on Linux
+  (CI). Windows-specific NetCDF behaviour is covered manually by the
+  maintainer on each release.

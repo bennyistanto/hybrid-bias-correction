@@ -1,6 +1,6 @@
 ---
 title: "Technical Documentation"
-description: "Architecture, API, validation, and CF compliance."
+description: "Architecture, API, validation, sensitivity, testing, and CF compliance."
 ---
 
 This section is for people implementing against the framework, reviewing it, or extending it.
@@ -15,6 +15,14 @@ This section is for people implementing against the framework, reviewing it, or 
 
 ::: {.feature-card}
 **[Validation](validation.qmd)** - How the framework was validated against held-out BMKG stations on the full-Indonesia run. Cross-references to the companion paper.
+:::
+
+::: {.feature-card}
+**[Sensitivity Analysis](sensitivity-analysis.qmd)** - Behaviour of the pipeline under variation of the three exposed parameters (`blend_alpha`, `gpd_threshold_percentile`, `saturation_count`), measured on the Bali subdomain across fifteen settings.
+:::
+
+::: {.feature-card}
+**[Testing](testing.qmd)** - The synthetic-data smoke suite and the continuous-integration workflow that gates every push.
 :::
 
 ::: {.feature-card}

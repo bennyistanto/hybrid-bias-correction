@@ -1,0 +1,48 @@
+# Run the smoke test suite on every push to main and every pull request.
+# The smoke test deliberately uses only in-memory synthetic data so it can
+# run on a free CI runner without the data archive cited in the README.
+
+name: tests
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "requirements.txt"
+      - "environment.yml"
+      - "pyproject.toml"
+      - ".github/workflows/test.yml"
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install pytest
+
+      - name: Run smoke tests
+        run: |
+          python -m pytest tests/ -v --tb=short
