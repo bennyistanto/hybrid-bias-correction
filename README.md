@@ -72,11 +72,36 @@ If the TensorFlow check fails, the LS and LSEQM stages will still run but the LS
 - Familiarity with Jupyter notebooks and `xarray` / NetCDF.
 - Basic understanding of precipitation statistics (quantile mapping, extreme value theory) helps but is not required.
 
+## Validation and testing
+
+The framework's quality is verified along three independent dimensions:
+
+- **Held-out gauge validation** (scientific): the corrected output is
+  scored against 171 BMKG stations that are not used in the correction.
+  Across the four verification pillars (value adjustment, distribution
+  alignment, extreme preservation, event detection), the LSEQM+DL output
+  moves three pillars cleanly toward the gauge target and produces a
+  designed trade-off in the fourth. See
+  [docs/technical/validation.qmd](docs/technical/validation.qmd) and
+  Chapter 4 of the thesis for the full station-level results.
+- **Sensitivity to exposed parameters** (scientific): across fifteen
+  combinations of `blend_alpha`, `gpd_threshold_percentile`, and
+  `saturation_count` on the Bali subdomain, the Pearson correlation
+  stays in the narrow band [0.332, 0.348] and none of the settings
+  reverses the headline pattern. See
+  [docs/technical/sensitivity-analysis.qmd](docs/technical/sensitivity-analysis.qmd).
+- **Code regression** (engineering): a synthetic-data smoke suite in
+  `tests/` exercises the import surface, the distribution-fitting
+  primitives, the station-density confidence machinery, and the
+  blending algebra. The suite runs in under a second on a free CI
+  runner and gates every push via
+  `.github/workflows/test.yml`. Local run:
+  `python -m pytest tests/ -v`. See
+  [docs/technical/testing.qmd](docs/technical/testing.qmd).
+
 ## Publication
 
 Companion manuscript: under review at *Remote Sensing* (MDPI). DOI and citation will be added on acceptance.
-
-JOSS paper covering the code and reproducible-research workflow: in preparation.
 
 ## Contributing
 
