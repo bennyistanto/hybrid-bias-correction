@@ -96,4 +96,4 @@ Mozilla Public License 2.0. See [LICENSE](LICENSE) or [https://www.mozilla.org/e
   [Bogor Agricultural University](https://www.ipb.ac.id/), Indonesia</br>
   bennyistanto@apps.ipb.ac.id
 
-With supervision from [Prof. Rizaldi Boer](https://scholar.google.com/citations?user=jTPXEp8AAAAJ&hl=en) and [Dr. I Putu Santikayasa](https://scholar.google.com/citations?user=DcQ58z8AAAAJ&hl=en) as part of the MSc thesis.
+With supervision from [Prof. Rizaldi Boer](https://scholar.google.com/citations?user=jTPXEp8AAAAJ&hl=en) and [Dr. I Putu Santikayasa](https://scholar.google.com/citations?user=DcQ58z8AAAAJ&hl=en) as part of the [MSc thesis](https://github.com/bennyistanto/msc-thesis).
