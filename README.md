@@ -8,6 +8,10 @@ A reproducible Python framework for daily satellite precipitation bias correctio
 
 ![LSEQM+DL](docs/images/lseqmdl-banner.png "LSEQM+DL")
 
+[![DOI (code)](https://zenodo.org/badge/DOI/10.5281/zenodo.20473508.svg)](https://doi.org/10.5281/zenodo.20473508)
+[![DOI (data)](https://img.shields.io/badge/data-10.5281%2Fzenodo.20287847-blue.svg)](https://doi.org/10.5281/zenodo.20287847)
+[![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-FF7139.svg)](https://www.mozilla.org/en-US/MPL/2.0/)
+
 ## Documentation
 
 Full documentation site: [https://bennyistanto.github.io/hybrid-bias-correction](https://bennyistanto.github.io/hybrid-bias-correction)
@@ -30,13 +34,15 @@ Full documentation site: [https://bennyistanto.github.io/hybrid-bias-correction]
 - `docs/` - Quarto site source.
 - `config.yml` (Indonesia) and `config_bali.yml` (Bali example) - the two driver configs.
 
-## Full Indonesia data on Zenodo
+## Full-Indonesia data archive (Zenodo)
 
-Indonesia operational input (IMERG + CPC + BMKG, 2001-2025, ~1.7 GB) and outputs (corrected NetCDFs, metrics, QA, station validation, figures, ~40 GB) are not stored in the repo. They are deposited on Zenodo with a citable DOI:
+The repository ships the small Bali example bundle so the pipeline is runnable out of the box. The full-Indonesia operational input (IMERG + CPC + BMKG, 2001-2025, ~1.7 GB) and outputs (corrected NetCDFs, metrics, QA, station validation, figures, ~40 GB) are too large for the repository and are deposited separately on Zenodo with a citable DOI:
 
 [https://doi.org/10.5281/zenodo.20287847](https://doi.org/10.5281/zenodo.20287847)
 
 To reproduce the Indonesia results: clone this repo, download the Zenodo bundle, point `config.yml` at the extracted directories, and run the notebooks.
+
+The framework source code itself (this repository, at the published release tag) is archived on Zenodo separately at [https://doi.org/10.5281/zenodo.20473508](https://doi.org/10.5281/zenodo.20473508). See "How to cite" below.
 
 ## Quickstart
 
@@ -103,6 +109,18 @@ The framework's quality is verified along three independent dimensions:
 
 Companion manuscript: under review at *Remote Sensing* (MDPI). DOI and citation will be added on acceptance.
 
+## How to cite
+
+If you use this framework, please cite the archived software release. The recommended citation is:
+
+> Istanto, B. (2026). *Hybrid Bias Correction: Values, Distributions, Extremes - with Neural Refinement* (v2026.05) [Software]. Zenodo. [https://doi.org/10.5281/zenodo.20473508](https://doi.org/10.5281/zenodo.20473508)
+
+If you use the bundled full-Indonesia data archive, please cite it separately:
+
+> Istanto, B., Boer, R., & Santikayasa, I. P. (2026). *Hybrid Bias Correction of IMERG Late Run V07 over Indonesia (2001-2025): Input Data, Land-Sea Masks, and Corrected Products* [Data set]. Zenodo. [https://doi.org/10.5281/zenodo.20287847](https://doi.org/10.5281/zenodo.20287847)
+
+Machine-readable metadata is in [`CITATION.cff`](CITATION.cff); GitHub renders this as a "Cite this repository" button on the repo landing page.
+
 ## Contributing
 
 Contributions and suggestions are welcome. Please open an issue or pull request. 
@@ -110,8 +128,6 @@ Contributions and suggestions are welcome. Please open an issue or pull request.
 ## License
 
 Mozilla Public License 2.0. See [LICENSE](LICENSE) or [https://www.mozilla.org/en-US/MPL/2.0/](https://www.mozilla.org/en-US/MPL/2.0/).
-
-[![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-FF7139.svg?style=for-the-badge)](https://www.mozilla.org/en-US/MPL/2.0/)
 
 ## Authors
 
