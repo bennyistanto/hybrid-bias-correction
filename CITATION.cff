@@ -12,7 +12,16 @@ authors:
   - family-names: Istanto
     given-names: Benny
     email: bennyistanto@apps.ipb.ac.id
-    affiliation: "Applied Climatology Study Program, Department of Geophysics and Meteorology, Bogor Agricultural University"
+    orcid: "https://orcid.org/0000-0001-6436-8574"
+    affiliation: "Department of Geophysics and Meteorology, Bogor Agricultural University, Bogor 16680, Indonesia"
+  - family-names: Boer
+    given-names: Rizaldi
+    orcid: "https://orcid.org/0000-0001-5366-946X"
+    affiliation: "Department of Geophysics and Meteorology and International Research Institute for Environment and Climate Change, Bogor Agricultural University, Bogor 16680, Indonesia"
+  - family-names: Santikayasa
+    given-names: I Putu
+    orcid: "https://orcid.org/0000-0001-8223-0034"
+    affiliation: "Department of Geophysics and Meteorology and Center for Climate Risk and Opportunity Management in South East Asia and Pacific, Bogor Agricultural University, Bogor 16680, Indonesia"
 keywords:
   - precipitation
   - bias correction
@@ -32,13 +41,22 @@ version: "v2026.05"
 date-released: "2026-05-21"
 identifiers:
   - type: doi
-    value: 10.5281/zenodo.20287847
-    description: "Full Indonesia input and output bundle on Zenodo (2001-2025)"
+    value: 10.5281/zenodo.20473508
+    description: "Software release archived on Zenodo (v2026.05)"
 references:
   - type: data
-    title: "Hybrid Bias Correction: Indonesia input and output bundle (2001-2025)"
+    title: "Hybrid Bias Correction of IMERG Late Run V07 over Indonesia (2001-2025): Input Data, Land-Sea Masks, and Corrected Products"
     authors:
       - family-names: Istanto
         given-names: Benny
+        orcid: "https://orcid.org/0000-0001-6436-8574"
+      - family-names: Boer
+        given-names: Rizaldi
+        orcid: "https://orcid.org/0000-0001-5366-946X"
+      - family-names: Santikayasa
+        given-names: I Putu
+        orcid: "https://orcid.org/0000-0001-8223-0034"
     doi: 10.5281/zenodo.20287847
     url: "https://zenodo.org/records/20287847"
+    version: "1"
+    year: 2026

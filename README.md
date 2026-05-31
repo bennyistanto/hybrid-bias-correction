@@ -113,11 +113,11 @@ Companion manuscript: under review at *Remote Sensing* (MDPI). DOI and citation 
 
 If you use this framework, please cite the archived software release. The recommended citation is:
 
-> Istanto, B. (2026). *Hybrid Bias Correction: Values, Distributions, Extremes - with Neural Refinement* (v2026.05) [Software]. Zenodo. [https://doi.org/10.5281/zenodo.20473508](https://doi.org/10.5281/zenodo.20473508)
+> Istanto, B., Boer, R., & Santikayasa, I. P. (2026). *Hybrid Bias Correction: Values, Distributions, Extremes - with Neural Refinement* (v2026.05). Zenodo. [https://doi.org/10.5281/zenodo.20473508](https://doi.org/10.5281/zenodo.20473508)
 
 If you use the bundled full-Indonesia data archive, please cite it separately:
 
-> Istanto, B., Boer, R., & Santikayasa, I. P. (2026). *Hybrid Bias Correction of IMERG Late Run V07 over Indonesia (2001-2025): Input Data, Land-Sea Masks, and Corrected Products* [Data set]. Zenodo. [https://doi.org/10.5281/zenodo.20287847](https://doi.org/10.5281/zenodo.20287847)
+> Istanto, B., Boer, R., & Santikayasa, I. P. (2026). *Hybrid Bias Correction of IMERG Late Run V07 over Indonesia (2001-2025): Input Data, Land-Sea Masks, and Corrected Products* (Version 1) [Data set]. Zenodo. [https://doi.org/10.5281/zenodo.20287847](https://doi.org/10.5281/zenodo.20287847)
 
 Machine-readable metadata is in [`CITATION.cff`](CITATION.cff); GitHub renders this as a "Cite this repository" button on the repo landing page.
 
