@@ -28,7 +28,7 @@ Full documentation site: [https://bennyistanto.github.io/hybrid-bias-correction]
 ## What ships in this repo
 
 - `src/` - The framework as a Python package.
-- `notebooks/` - Five-step end-to-end pipeline (`02_lseqmdl_bias_correction` through `06_visualisation_hub`) plus the optional data-acquisition and paper-results notebooks.
+- `notebooks/` - Seven-notebook end-to-end pipeline (`00_define_aoi` through `06_visualisation_hub`): AOI definition, data acquisition, LSEQM+DL bias correction, metrics, QA framework, station validation, and visualisation.
 - `data/example_bali/` - 11 MB Bali example bundle (IMERG-L, IMERG-F, CPC-UNI at 0.1 deg and native 0.5 deg, BMKG stations, land/sea mask). Runs end to end in ~15 minutes on a free Colab CPU.
 - `data/mask/aoi/bali_subset.nc` - The Bali AOI definition.
 - `docs/` - Quarto site source.

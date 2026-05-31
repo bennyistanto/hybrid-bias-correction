@@ -70,7 +70,7 @@ hybrid-bias-correction/
   config.yml              # Indonesia operational config
   config_bali.yml         # Bali example config (used by tutorials)
   src/                    # Library code (importable as `src`)
-  notebooks/              # Jupyter notebooks (nb00-nb07)
+  notebooks/              # Jupyter notebooks (nb00-nb06)
   data/example_bali/      # 11 MB Bali bundle (ships with the repo)
   data/mask/aoi/          # AOI mask definitions
   docs/                   # This documentation site (Quarto source)

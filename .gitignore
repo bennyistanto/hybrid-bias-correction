@@ -23,6 +23,12 @@ temp/
 HANDOFF.md
 docs/_legacy/
 
+# Internal development notebook: aggregates paper figures + tables.
+# Kept private because its outputs are the thesis/MDPI figures, which
+# live in their own deposit (see paper/ tree). Figure scripts that
+# users actually need are standalone in paper/thesis/scripts/.
+notebooks/07_paper_results.ipynb
+
 # ---------------------------------------------------------------------------
 # Build artefacts (auto-generated, never committed)
 # ---------------------------------------------------------------------------

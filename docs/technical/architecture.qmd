@@ -75,7 +75,6 @@ The `run_correction_pipeline(imerg, cpc, month, dekad)` wrapper in `src/bias_cor
 | `04_qa_framework.ipynb` | `src.qa_framework.run_qa_pipeline` |
 | `05_station_validation.ipynb` | `src.station_validation.*` |
 | `06_visualisation_hub.ipynb` | self-contained plotting |
-| `07_paper_results.ipynb` | aggregates outputs for the paper figures |
 
 ## Colab mirror
 
