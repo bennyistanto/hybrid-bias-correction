@@ -13,8 +13,10 @@ website:
   site-url: https://bennyistanto.github.io/hybrid-bias-correction
   repo-url: https://github.com/bennyistanto/hybrid-bias-correction
   repo-actions: [source, issue]
+  bread-crumbs: true
   back-to-top-navigation: true
   page-navigation: true
+  google-analytics: "G-DY86PR709K"
 
   navbar:
     background: primary
@@ -172,7 +174,9 @@ website:
   page-footer:
     background: light
     left: |
-      © 2026 Benny Istanto. Licensed under [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/).
+      © 2026 Benny Istanto.
+      
+      Licensed under [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/).
     center: |
       Built with [Quarto](https://quarto.org/)
     right:
