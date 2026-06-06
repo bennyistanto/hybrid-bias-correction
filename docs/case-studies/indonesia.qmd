@@ -114,7 +114,7 @@ The chart below is interactive. Pick a station and a year to see the daily serie
 
 ::: {.callout-note collapse="true"}
 ## About this data
-This explorer uses a representative **49-station subset** of the validated network (the full validation uses 171 stations). The daily series and the metrics shown here are computed over a **2016-2021 window** to keep the page light, so the per-station numbers here are not identical to the full-record headline figures above. The data file (`station_daily.csv`, ~2.7 MB) loads once when the page opens.
+This explorer covers **173 stations** - every BMKG station with at least one full year of valid gauge data in the 2016-2021 window (close to the 171 validated in the full 2001-2025 pipeline; the small difference is the shorter window and a simpler completeness filter). Completeness varies by station and is shown in the dropdown and on the map - sparse stations will have visible gaps in the daily series. The daily series and the metrics shown here are computed over the **2016-2021 window**, so the per-station numbers are not identical to the full-record headline figures above. The data file (`station_daily.csv`, ~7.9 MB) loads once when the page opens.
 :::
 
 ```{ojs}
@@ -129,7 +129,7 @@ stationOptions = new Map(
   meta
     .slice()
     .sort((a, b) => d3.ascending(a.region, b.region) || d3.ascending(a.name, b.name))
-    .map(d => [`${d.region} - ${d.name} (${d.wmo})`, String(d.wmo)])
+    .map(d => [`${d.region} - ${d.name} (${d.wmo}) - ${d.completeness}% complete`, String(d.wmo)])
 )
 viewof wmo = Inputs.select(stationOptions, {label: "Station", value: "96073"})
 ```
@@ -236,7 +236,8 @@ metricOptions = new Map([
   ["LSEQM+DL - Pearson r", {key: "lseqmdl_r", scheme: "viridis", domain: [0, 0.6], label: "Pearson r"}],
   ["IMERG-L (raw) - Pearson r", {key: "imergl_r", scheme: "viridis", domain: [0, 0.6], label: "Pearson r"}],
   ["LSEQM+DL - relative bias", {key: "lseqmdl_bias", scheme: "RdBu", domain: [-0.3, 0.3], label: "relative bias"}],
-  ["LSEQM+DL - RMSE (mm/day)", {key: "lseqmdl_rmse", scheme: "YlOrRd", domain: [5, 25], label: "RMSE"}]
+  ["LSEQM+DL - RMSE (mm/day)", {key: "lseqmdl_rmse", scheme: "YlOrRd", domain: [5, 25], label: "RMSE"}],
+  ["Record completeness (%)", {key: "completeness", scheme: "BuGn", domain: [0, 100], label: "% complete"}]
 ])
 viewof metricChoice = Inputs.select(metricOptions, {label: "Colour by", value: metricOptions.get("LSEQM+DL - Pearson r")})
 ```
