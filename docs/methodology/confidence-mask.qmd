@@ -7,6 +7,10 @@ CPC-UNI is built from a global gauge network. In Indonesia, that network is conc
 
 The confidence mask is a per-pixel weight in $[0, 1]$ that scales the CNN's influence by local gauge density. Where gauges are dense, the CNN gets full weight. Where gauges are absent, the CNN gets zero weight and the output reverts to pure LSEQM.
 
+The input is the gauge network (left); the output is a smooth confidence field that is high over Java and the denser clusters and near-zero over the sparsely gauged east:
+
+![Left: the BMKG / CPC gauge network (Java-heavy, sparse east). Right: the resulting station-density confidence field. Demonstration on the Indonesia run.](../images/methodology/density_maps.png){#fig-density-maps fig-align="center"}
+
 ## Construction
 
 1. **Count:** Stations are assigned to CPC 0.5 deg cells. Each cell gets a raw count.
@@ -26,6 +30,10 @@ The confidence mask is a per-pixel weight in $[0, 1]$ that scales the CNN's infl
 
 The Indonesia operational config currently sets this to 3 and the paper acknowledges this as a sensitivity parameter that was not formally optimized.
 :::
+
+The choice directly controls how far the CNN reaches. The curve below shows the effective blend weight as a function of smoothed station count for three saturation values: lowering it from 3 to 2 lets the CNN activate beyond Java without forcing full weight on single-station cells.
+
+![Effective blend weight vs smoothed station count for three saturation settings. Lowering 3 to 2 lets the CNN activate beyond Java. Demonstration on the Indonesia run.](../images/methodology/density_alpha.png){#fig-density-alpha fig-align="center"}
 
 ## How it interacts with the blend
 

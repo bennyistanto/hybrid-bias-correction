@@ -1,0 +1,320 @@
+---
+title: "Indonesia"
+description: "The full operational evaluation: 171 validated BMKG stations, 2001-2025, across seven regions."
+---
+
+This is the case the framework was built for: daily satellite precipitation over a sparse-gauge tropical archipelago. The figures below are from the full Indonesia run (IMERG-L corrected against CPC-UNI, validated against independent BMKG stations, 2001-2025). The inputs and outputs are deposited on Zenodo (<https://doi.org/10.5281/zenodo.20287847>); they are too large to ship in the repo, so this study is presented as curated figures and analysis rather than a runnable notebook.
+
+::: {.callout-note}
+The full LSEQM+DL run over Indonesia takes about four days of compute. This page documents that run; it is not regenerated when the docs build. To reproduce it, download the Zenodo bundle, point `config.yml` at it, and run nb02-nb06. For a runnable end-to-end example, use the [Bali case](../example-bali/index.qmd) instead.
+:::
+
+If you have not already, skim [Reading the Results](reading-the-results.qmd) first - it explains every metric used below.
+
+## Study design
+
+The reference is CPC-UNI (gauge-interpolated). The independent check is the BMKG station network, which is **not** part of the CPC pipeline, so it is a genuinely held-out validation set.
+
+![BMKG station network across Indonesia, coloured by region. 180 stations archived; the network is Java-heavy and sparse in the east.](../images/indonesia/station_network.png){#fig-station-network fig-align="center"}
+
+Not every archived station enters the validation. Two filters are applied before any metric is computed: a station must fall on the 0.1 deg land mask, and it must have at least 30 paired days per dekadal window. This takes the set from 180 archived stations to **171 validated** across all seven regions.
+
+![Validation funnel: 180 archived stations to 171 validated, after the land-mask and minimum-paired-days filters.](../images/indonesia/validation_funnel.png){#fig-validation-funnel fig-align="center"}
+
+## Overview: what improves
+
+The headline result, evaluated at the 171 independent stations, is a clear win on the **mean, variability, and extremes**:
+
+![Stage-wise skill at 171 independent BMKG stations: relative bias, standard-deviation ratio, Q99 ratio, and CSI.](../images/indonesia/headline_bars.png){#fig-headline fig-align="center"}
+
+- **Relative bias** moves from -0.114 (LS undercorrects the mean) to +0.009 (LSEQM) and -0.006 (LSEQM+DL): near-zero after distribution correction.
+- **Standard-deviation ratio** moves from 0.71 (raw/LS is too smooth) to 1.03 (LSEQM) and 1.00 (LSEQM+DL): variability restored.
+- **Q99 ratio** moves from 0.71 to 1.05 (LSEQM) and 1.01 (LSEQM+DL): the extreme tail is recovered.
+- **CSI** stays around 0.49-0.53 across stages: categorical detection is set early and the later stages do not change it much.
+
+Detection skill, broken out by intensity threshold, shows the same story: LS already does most of the categorical work at light thresholds, and skill degrades with intensity as expected for daily satellite precipitation.
+
+![Multi-threshold verification (WMO/TD-1485): POD, FAR, CSI, ETS from 1 to 100 mm/day.](../images/indonesia/multi_threshold.png){#fig-multi-threshold fig-align="center"}
+
+The Taylor diagram summarises correlation, variability, and centred RMSE in one view, split by season. The bias-corrected products pull the variability ratio toward the reference, while correlation stays in the same band - the pattern explained in [the correlation ceiling](#the-correlation-ceiling) below.
+
+![Station-level Taylor diagram by season (wet Oct-Mar, dry Apr-Sep).](../images/indonesia/taylor_by_station.png){#fig-taylor fig-align="center"}
+
+## Spatial skill
+
+Mapped across the archipelago, the Continuous Quality Index (CQI) is high and spatially coherent for all three methods. The honest finding is that the **median CQI does not rise** from LS (0.541) to LSEQM (0.505) to LSEQM+DL (0.508):
+
+![CQI spatial distribution by method (climatology over 36 dekads). Median CQI: LS 0.541, LSEQM 0.505, LSEQM+DL 0.508.](../images/indonesia/cqi_spatial.png){#fig-cqi-spatial fig-align="center"}
+
+This is not a defect, and it is worth stating plainly. The CQI weights the basic-statistics component (which includes correlation and NSE) at 0.4. Because those timing-sensitive metrics do not improve under marginal bias correction - and RMSE slightly worsens when EQM restores variance against a mistimed series - the composite index does not reward the distribution and extreme gains that LSEQM delivers. The improvement map makes the trade explicit: relative to LS, LSEQM+DL lowers CQI at most pixels.
+
+![CQI improvement (LSEQM+DL minus LS) and the LSEQM+DL quality-category map. Mean change is about -0.03; most pixels move slightly down on the composite index even though distribution and extreme metrics improve.](../images/indonesia/cqi_improvement.png){#fig-cqi-improvement fig-align="center"}
+
+The takeaway: **choose the product by what you need.** If you need the right distribution and extremes (most hydrological and risk applications), LSEQM / LSEQM+DL is the right choice despite the flat composite index. If you only need the basic mean field and nothing else, LS is competitive.
+
+Skill is stable across the seasonal cycle and does not collapse in any region:
+
+![Daily correlation by region (LSEQM+DL): it does not track gauge density.](../images/indonesia/region_corr.png){fig-align="center"}
+
+![Skill across the seasonal cycle.](../images/indonesia/seasonal_skill.png){fig-align="center"}
+
+A notable point from the regional breakdown: daily correlation (0.17-0.33 across regions) does **not** track gauge density. Maluku and Papua, with far fewer stations than Java, are not systematically worse. This tells us the ceiling on daily correlation is set by something other than how many gauges are nearby - again, see below.
+
+## Extreme values
+
+The GPD tail graft is designed to recover heavy-rain behaviour. Across stations, the corrected-to-gauge ratio at heavy thresholds (20, 50, 100 mm/day) moves toward 1.0 where LS alone leaves a deficit:
+
+![Corrected / gauge heavy-day ratio at every station, by region and threshold (2001-2021).](../images/indonesia/extremes_ratio.png){#fig-extremes-ratio fig-align="center"}
+
+The same correction read as detection and intensity metrics for heavy days:
+
+![Heavy-day metrics across stations.](../images/indonesia/extremes_metrics.png){#fig-extremes-metrics fig-align="center"}
+
+And as a calendar view of where and when the heaviest events land after LSEQM+DL correction:
+
+![Calendar of corrected extreme events (LSEQM+DL).](../images/indonesia/extremes_calendar.png){#fig-extremes-calendar fig-align="center"}
+
+## The correlation ceiling
+
+This is the central diagnostic of the study, and the most important thing the framework reveals about daily satellite precipitation.
+
+Under marginal bias correction, **Pearson correlation barely moves**: 0.343 (LS) to 0.345 (LSEQM) to 0.348 (LSEQM+DL), a shift of +0.005. RMSE and NSE do not improve either. Only the distribution-shape metrics (SDR, Q99) move to target.
+
+![What does and does not improve under marginal bias correction. Pearson r is flat; RMSE and NSE do not improve; only SDR moves to target.](../images/indonesia/paradox.png){#fig-paradox fig-align="center"}
+
+The reason is structural, not a failure of the method. Quantile mapping is a monotone, rank-preserving transform applied per pixel: it changes the *values* but not the day-to-day *ordering* inherited from the satellite. Correlation depends only on the ordering. So once LS has set the rank structure, no amount of distribution correction can move correlation - it is bounded by the satellite's day-to-day timing.
+
+![Theoretical bound under marginal correction: rank preservation means correlation is fixed while the variance ratio is free to move.](../images/indonesia/bound_schematic.png){#fig-bound fig-align="center"}
+
+### Where the ceiling comes from
+
+A natural question is whether the ceiling is intrinsic to the satellite retrieval, or an artefact of how the data are aligned in time. IMERG accumulates on a UTC day; a BMKG gauge "day" is a local-morning-to-morning window. Indonesia spans three time zones, so the satellite day and the gauge day are offset by hours.
+
+![The satellite UTC day and the BMKG gauge day are not the same window.](../images/indonesia/subdaily_timing.png){#fig-subdaily-timing fig-align="center"}
+
+Shifting the satellite accumulation window and recomputing correlation reveals a clear peak well away from zero offset: correlation rises from about 0.19 at the UTC-day alignment that the archive uses to about 0.62 at roughly a 22-hour backward shift.
+
+![Pearson r as a function of hour-offset between the satellite window and the gauge day. The curve peaks near -22 h, not at 0.](../images/indonesia/subdaily_lag.png){#fig-subdaily-lag fig-align="center"}
+
+The optimal offset is spatially organised by time zone, confirming it is a real timing-window effect and not noise:
+
+![Per-station optimal offset, organised by time zone across Indonesia.](../images/indonesia/subdaily_map.png){#fig-subdaily-map fig-align="center"}
+
+The decomposition: of the headline daily correlation of about 0.34, roughly two-thirds of the achievable gain is a **calendar-window artefact** (fixable by aligning the accumulation window to the local day) and only the remainder is irreducible retrieval error. This is a methodological caveat that applies to any daily verification of UTC-accumulated satellite precipitation against locally-defined gauge days, not just this framework.
+
+::: {.callout-important}
+The practical implication: do not judge daily satellite precipitation - corrected or raw - on Pearson r alone. A low daily r is partly a timing-window artefact. Judge the correction on the distribution and extreme metrics, which is what the bias correction can actually move, and re-aggregate or re-window before computing correlation if timing fidelity matters for your application.
+:::
+
+## All-station summary
+
+### Explore any station
+
+The chart below is interactive. Pick a station and a year to see the daily series for the gauge, raw IMERG-L, and the corrected LSEQM+DL product, with skill metrics for the selected station updating alongside.
+
+::: {.callout-note collapse="true"}
+## About this data
+This explorer uses a representative **49-station subset** of the validated network (the full validation uses 171 stations). The daily series and the metrics shown here are computed over a **2016-2021 window** to keep the page light, so the per-station numbers here are not identical to the full-record headline figures above. The data file (`station_daily.csv`, ~2.7 MB) loads once when the page opens.
+:::
+
+```{ojs}
+//| echo: false
+meta = FileAttachment("../data/case-studies/station_meta.csv").csv({typed: true})
+daily = FileAttachment("../data/case-studies/station_daily.csv").csv({typed: true})
+```
+
+```{ojs}
+//| echo: false
+stationOptions = new Map(
+  meta
+    .slice()
+    .sort((a, b) => d3.ascending(a.region, b.region) || d3.ascending(a.name, b.name))
+    .map(d => [`${d.region} - ${d.name} (${d.wmo})`, String(d.wmo)])
+)
+viewof wmo = Inputs.select(stationOptions, {label: "Station", value: "96073"})
+```
+
+```{ojs}
+//| echo: false
+stationRows = daily.filter(d => String(d.wmo) === String(wmo))
+```
+
+```{ojs}
+//| echo: false
+yearsAvailable = Array.from(new Set(stationRows.map(d => d.date.getUTCFullYear()))).sort((a, b) => a - b)
+viewof year = Inputs.select(yearsAvailable, {label: "Year", value: yearsAvailable[yearsAvailable.length - 1]})
+```
+
+```{ojs}
+//| echo: false
+plotRows = stationRows.filter(d => d.date.getUTCFullYear() === year)
+```
+
+```{ojs}
+//| echo: false
+series = ["gauge", "imergl", "lseqmdl"].flatMap(k =>
+  plotRows.map(d => ({date: d.date, value: d[k], product: ({gauge: "Gauge (BMKG)", imergl: "IMERG-L (raw)", lseqmdl: "LSEQM+DL"})[k]}))
+).filter(d => d.value != null && Number.isFinite(d.value))
+
+Plot.plot({
+  width: 920,
+  height: 380,
+  marginLeft: 55,
+  x: {label: "Date", type: "utc"},
+  y: {label: "Daily precipitation (mm/day)", grid: true, zero: true},
+  color: {
+    legend: true,
+    domain: ["Gauge (BMKG)", "IMERG-L (raw)", "LSEQM+DL"],
+    range: ["#222222", "#9aa0a6", "#27ae60"]
+  },
+  marks: [
+    Plot.ruleY([0]),
+    Plot.line(series, {x: "date", y: "value", stroke: "product", strokeWidth: 1.3, curve: "linear"}),
+    Plot.tip(series, Plot.pointer({x: "date", y: "value", stroke: "product",
+      title: d => `${d.product}\n${d.date.toISOString().slice(0,10)}\n${d.value.toFixed(1)} mm/day`}))
+  ]
+})
+```
+
+```{ojs}
+//| echo: false
+selMeta = meta.find(d => String(d.wmo) === String(wmo))
+fmt = (x, d=2) => (x == null || Number.isNaN(x)) ? "n/a" : x.toFixed(d)
+html`<table class="table table-sm" style="max-width:640px">
+  <thead><tr><th>Metric (2016-2021)</th><th>IMERG-L (raw)</th><th>LSEQM+DL</th><th>Target</th></tr></thead>
+  <tbody>
+    <tr><td>Pearson r</td><td>${fmt(selMeta.imergl_r)}</td><td>${fmt(selMeta.lseqmdl_r)}</td><td>1.0</td></tr>
+    <tr><td>RMSE (mm/day)</td><td>${fmt(selMeta.imergl_rmse,1)}</td><td>${fmt(selMeta.lseqmdl_rmse,1)}</td><td>0</td></tr>
+    <tr><td>NSE</td><td>${fmt(selMeta.imergl_nse)}</td><td>${fmt(selMeta.lseqmdl_nse)}</td><td>1.0</td></tr>
+    <tr><td>Relative bias</td><td>${fmt(selMeta.imergl_bias)}</td><td>${fmt(selMeta.lseqmdl_bias)}</td><td>0</td></tr>
+    <tr><td>Paired days</td><td colspan="2">${selMeta.lseqmdl_n}</td><td></td></tr>
+  </tbody>
+</table>`
+```
+
+The same station as a scatter against the gauge (all paired days in the 2016-2021 window), raw IMERG-L on the left and corrected LSEQM+DL on the right. Points on the dashed 1:1 line are perfect agreement. Hover any point for its date and values. The corrected cloud sits closer to the diagonal and recovers the heavy-rain points that raw IMERG-L compresses toward the axis:
+
+```{ojs}
+//| echo: false
+scatterData = stationRows.flatMap(d => [
+  {gauge: d.gauge, value: d.imergl, product: "IMERG-L (raw)", date: d.date},
+  {gauge: d.gauge, value: d.lseqmdl, product: "LSEQM+DL", date: d.date}
+]).filter(d => Number.isFinite(d.gauge) && Number.isFinite(d.value))
+
+scatterMax = Math.max(10, d3.max(scatterData, d => Math.max(d.gauge, d.value)) ?? 10)
+
+Plot.plot({
+  width: 920,
+  height: 440,
+  marginLeft: 55,
+  grid: true,
+  aspectRatio: 1,
+  facet: {data: scatterData, x: "product"},
+  x: {label: "Gauge (mm/day)", domain: [0, scatterMax]},
+  y: {label: "Product (mm/day)", domain: [0, scatterMax]},
+  color: {domain: ["IMERG-L (raw)", "LSEQM+DL"], range: ["#9aa0a6", "#27ae60"]},
+  marks: [
+    Plot.line([[0, 0], [scatterMax, scatterMax]], {stroke: "#888", strokeDasharray: "4 3"}),
+    Plot.dot(scatterData, {x: "gauge", y: "value", r: 1.6, fill: "product", fillOpacity: 0.25}),
+    Plot.dot(scatterData, Plot.pointer({x: "gauge", y: "value", r: 4, fill: "product", stroke: "#111"})),
+    Plot.tip(scatterData, Plot.pointer({x: "gauge", y: "value",
+      title: d => `${d.date.toISOString().slice(0,10)}\ngauge ${d.gauge.toFixed(1)} mm\n${d.product} ${d.value.toFixed(1)} mm`})),
+    Plot.frame()
+  ]
+})
+```
+
+The pattern to look for: LSEQM+DL pulls the **intensity and bias** toward the gauge (relative bias toward zero; in the time series the green line tracks the black gauge peaks better than grey raw IMERG; in the scatter the green cloud hugs the 1:1 line), while **Pearson r barely changes** between raw and corrected - the [correlation ceiling](#the-correlation-ceiling) at the single-station level, visible as the vertical scatter that neither product removes.
+
+### Network skill map
+
+Where does each metric sit geographically? Pick a metric to recolour the 49-station subset on the map below. Hover a marker for the station name, region, and value; the station selected in the dropdown above is ringed.
+
+```{ojs}
+//| echo: false
+metricOptions = new Map([
+  ["LSEQM+DL - Pearson r", {key: "lseqmdl_r", scheme: "viridis", domain: [0, 0.6], label: "Pearson r"}],
+  ["IMERG-L (raw) - Pearson r", {key: "imergl_r", scheme: "viridis", domain: [0, 0.6], label: "Pearson r"}],
+  ["LSEQM+DL - relative bias", {key: "lseqmdl_bias", scheme: "RdBu", domain: [-0.3, 0.3], label: "relative bias"}],
+  ["LSEQM+DL - RMSE (mm/day)", {key: "lseqmdl_rmse", scheme: "YlOrRd", domain: [5, 25], label: "RMSE"}]
+])
+viewof metricChoice = Inputs.select(metricOptions, {label: "Colour by", value: metricOptions.get("LSEQM+DL - Pearson r")})
+```
+
+```{ojs}
+//| echo: false
+{
+  const m = metricChoice;
+  const pts = meta.filter(d => Number.isFinite(d[m.key]));
+  const sel = meta.find(d => String(d.wmo) === String(wmo));
+  const diverging = m.scheme === "RdBu";
+  return Plot.plot({
+    width: 920,
+    height: 360,
+    marginLeft: 50,
+    x: {label: "Longitude", domain: [94, 142]},
+    y: {label: "Latitude", domain: [-11, 7]},
+    aspectRatio: 1,
+    grid: true,
+    color: {
+      legend: true,
+      label: m.label,
+      scheme: m.scheme,
+      domain: m.domain,
+      ...(diverging ? {pivot: 0} : {})
+    },
+    marks: [
+      Plot.frame(),
+      sel ? Plot.dot([sel], {x: "lon", y: "lat", r: 9, stroke: "#111", strokeWidth: 2, fill: "none"}) : null,
+      Plot.dot(pts, {x: "lon", y: "lat", fill: d => d[m.key], r: 5, stroke: "#333", strokeWidth: 0.4,
+        channels: {Station: "name", Region: "region", value: d => d[m.key]},
+        tip: {format: {Station: true, Region: true, value: d => d3.format(".3f")(d), x: false, y: false, fill: false}}})
+    ].filter(Boolean)
+  });
+}
+```
+
+A useful comparison: switch between **IMERG-L Pearson r** and **LSEQM+DL Pearson r** and note how little the colours change - correlation is set before correction. Then switch to **relative bias**: the same stations move clearly toward neutral (white) after correction. This is the spatial echo of the [correlation ceiling](#the-correlation-ceiling): bias correction moves what it can (the colour on the bias map), not the day-to-day timing (the colour on the r map).
+
+### Spatial pattern across all stations
+
+Pooling all 171 stations, the spatial pattern of heavy-day preservation is consistent across thresholds - the correction does not just work on average, it works at most individual stations:
+
+![All-station spatial pattern of heavy-day preservation (corrected / gauge ratio) at 20, 50, 100 mm/day.](../images/indonesia/allstation_spatial.png){#fig-allstation-spatial fig-align="center"}
+
+Heavy-event detection and the underlying mechanism, across the full station set:
+
+![Heavy-day detection across all stations.](../images/indonesia/allstation_heavy_detection.png){fig-align="center"}
+
+![Correction mechanism: per-station scatter.](../images/indonesia/allstation_mechanism.png){fig-align="center"}
+
+## Per-product comparison
+
+A close look at what each stage does, day by day, at a single pixel. All products track the gauge's wet-dry rhythm; the corrected products differ mainly in how they handle intensity and the tail:
+
+![What each stage does, day by day, at one station (Met. Mozes Kilangin, Papua, July 2020).](../images/indonesia/corrected_hero_zoom.png){#fig-hero-zoom fig-align="center"}
+
+A full year at one pixel, all six products overlaid:
+
+![Daily precipitation through 2020 at one pixel: all products.](../images/indonesia/corrected_year_daily.png){#fig-year-daily fig-align="center"}
+
+Aggregated to monthly totals by region, and as a single-day spatial field, the corrected product is spatially coherent and seasonally consistent:
+
+![Monthly totals by region.](../images/indonesia/corrected_regions_monthly.png){fig-align="center"}
+
+![Single-day spatial field, all products.](../images/indonesia/corrected_spatial_day.png){fig-align="center"}
+
+## Summary
+
+| Question | Answer from the Indonesia run |
+|----------|-------------------------------|
+| Does the mean improve? | Yes - relative bias near zero after LSEQM. |
+| Does the distribution improve? | Yes - SDR 0.71 to 1.00, KS gap shrinks. |
+| Do extremes improve? | Yes - Q99 ratio 0.71 to 1.01; heavy-day ratios move to 1.0. |
+| Does daily correlation improve? | No - it is bounded near 0.34 by timing, mostly a calendar-window artefact. |
+| Does the composite CQI rise? | No - it is dominated by timing-sensitive components that cannot move. |
+| Does the CNN help? | Marginally and only where gauges are dense; it is a refinement, gated by station density. |
+
+The framework's contribution is therefore twofold: a working, transferable correction that fixes what marginal bias correction *can* fix (values, distributions, extremes), and an honest diagnostic of the ceiling on what it *cannot* (daily timing), with evidence that most of that ceiling is a fixable windowing artefact rather than irreducible error.
+
+For the data and code behind these figures, see the [Zenodo deposit](https://doi.org/10.5281/zenodo.20287847) and the [GitHub repository](https://github.com/bennyistanto/hybrid-bias-correction).

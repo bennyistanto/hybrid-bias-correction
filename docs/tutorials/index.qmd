@@ -26,5 +26,5 @@ All tutorials run against the Bali example data and `config_bali.yml`. None of t
 :::
 
 ::: {.feature-card}
-**[Executed Notebooks](../example-bali/index.qmd)** - All 7 pipeline notebooks rendered as docs pages with outputs intact: nb00/nb01 (data preparation, run once per AOI) and nb02-nb06 (the Bali pipeline). Use these to inspect the exact `src/` calls and printed diagnostics that produced every figure in the tutorials above.
+**[Case Studies](../case-studies/index.qmd)** - See the framework applied to real data: the executed Bali notebooks (all outputs intact) and the full Indonesia evaluation. Start with [Reading the Results](../case-studies/reading-the-results.qmd) to learn the metrics, then explore the [Bali](../example-bali/index.qmd) and [Indonesia](../case-studies/indonesia.qmd) cases.
 :::

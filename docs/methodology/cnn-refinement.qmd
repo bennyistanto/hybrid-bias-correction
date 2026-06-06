@@ -34,6 +34,14 @@ In practice the CNN learns three things:
 
 The amount of correction is modest by design - see [Blending](blending.qmd).
 
+## How much the CNN moves, per station
+
+The per-station change from LSEQM to LSEQM+DL is small and centred near zero: across the validated BMKG stations the median change in daily correlation is about +0.002 and the median change in standard-deviation ratio about -0.024. The CNN tightens the variance slightly and does not degrade correlation; it is a refinement, not a second correction stage.
+
+![Per-station change from LSEQM to LSEQM+DL: change in Pearson r (left) and standard-deviation ratio (right). Demonstration on the Indonesia run.](../images/methodology/cnn_effect.png){#fig-cnn-effect fig-align="center"}
+
+This modest footprint is the intended behaviour. The deep-learning stage is gated by station density (see [Confidence Mask](confidence-mask.qmd)), so it only acts where gauge support justifies it, and the statistical core (LSEQM) remains the physical floor everywhere else.
+
 ## Implementation
 
 `src/deep_learning.py` - `build_cnn()`, `train_cnn_for_dekad()`, `apply_cnn()`. Trained models land in `output/trained_models/`.

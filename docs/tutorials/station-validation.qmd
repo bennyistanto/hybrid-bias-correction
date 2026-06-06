@@ -45,15 +45,13 @@ Comparing the four lets you see how the framework behaves under different exposu
 
 Step 8 plots BMKG observed vs each corrected product on the same axes, with 1:1 reference and per-product `r` / RMSE / NSE annotations. It surfaces the dry-bias floor in IMERG-L and the progressive tightening of the cloud as LS → LSEQM → LSEQM+DL are applied.
 
-::: {layout-ncol=2}
-![WMO 97230 - I Gusti Ngurah Rai (airport)](../images/bali/station_scatter_97230.png)
+![WMO 97230 - I Gusti Ngurah Rai (airport)](../images/bali/station_scatter_97230.png){fig-align="center"}
 
-![WMO 97232 - Geofisika Denpasar](../images/bali/station_scatter_97232.png)
+![WMO 97232 - Geofisika Denpasar](../images/bali/station_scatter_97232.png){fig-align="center"}
 
-![WMO 97234 - Kahang-Kahang (inland)](../images/bali/station_scatter_97234.png)
+![WMO 97234 - Kahang-Kahang (inland)](../images/bali/station_scatter_97234.png){fig-align="center"}
 
-![WMO 97236 - Klimatologi Jembrana](../images/bali/station_scatter_97236.png)
-:::
+![WMO 97236 - Klimatologi Jembrana](../images/bali/station_scatter_97236.png){fig-align="center"}
 
 *Source: [nb05 Step 8 - Per-Station Scatter Plot](../example-bali/05_station_validation_bali.html#step-8-per-station-scatter-plot-on-demand)*
 
@@ -61,15 +59,13 @@ Step 8 plots BMKG observed vs each corrected product on the same axes, with 1:1 
 
 Step 9 plots the daily series as dots (not lines, so missing days do not get interpolated visually). Black = BMKG observed across the full 2001-2025 record; the colored cluster is the January dekad 1 corrected series, set against IMERG and CPC as full-period baselines. WMO intensity thresholds (5, 10, 20, 50, 100 mm/day) are overlaid as horizontal references.
 
-::: {layout-ncol=2}
-![WMO 97230 - I Gusti Ngurah Rai (airport)](../images/bali/station_timeseries_97230.png)
+![WMO 97230 - I Gusti Ngurah Rai (airport)](../images/bali/station_timeseries_97230.png){fig-align="center"}
 
-![WMO 97232 - Geofisika Denpasar](../images/bali/station_timeseries_97232.png)
+![WMO 97232 - Geofisika Denpasar](../images/bali/station_timeseries_97232.png){fig-align="center"}
 
-![WMO 97234 - Kahang-Kahang (inland)](../images/bali/station_timeseries_97234.png)
+![WMO 97234 - Kahang-Kahang (inland)](../images/bali/station_timeseries_97234.png){fig-align="center"}
 
-![WMO 97236 - Klimatologi Jembrana](../images/bali/station_timeseries_97236.png)
-:::
+![WMO 97236 - Klimatologi Jembrana](../images/bali/station_timeseries_97236.png){fig-align="center"}
 
 *Source: [nb05 Step 9 - Per-Station Daily Precipitation Time Series](../example-bali/05_station_validation_bali.html#step-9-per-station-daily-precipitation-time-series-on-demand)*
 

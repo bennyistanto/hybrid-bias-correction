@@ -1,0 +1,44 @@
+---
+title: "Case Studies"
+description: "The framework applied to real data: how to read the results, a runnable Bali example, and the full Indonesia evaluation."
+---
+
+The framework is **modular and transferable** - it is not tied to any one region. These case studies show what it produces when applied to real data, at two very different scales:
+
+::: {.grid-container}
+::: {.feature-card}
+### Reading the Results
+
+Start here. A short visual glossary of every metric the framework reports - what each one measures, which direction is better, and where the target sits.
+
+[Open the glossary](reading-the-results.qmd){.btn .btn-outline-primary role="button"}
+:::
+
+::: {.feature-card}
+### Bali Example
+
+The small, **runnable** case. 4 BMKG stations, ships with the repo, runs end-to-end in ~15 minutes on a free Colab CPU. The executed notebooks show every cell and figure.
+
+[Open the Bali example](../example-bali/index.qmd){.btn .btn-outline-primary role="button"}
+:::
+
+::: {.feature-card}
+### Indonesia
+
+The full operational case. 171 validated BMKG stations across 7 regions, 2001-2025. Inputs and outputs are on Zenodo (too large for the repo), so this case is presented as curated figures and analysis.
+
+[Open the Indonesia study](indonesia.qmd){.btn .btn-outline-primary role="button"}
+:::
+:::
+
+## Why two cases
+
+The Bali bundle exists so anyone can run the whole pipeline and reproduce a result in minutes, without downloading anything. It is the proof that the toolchain works end to end.
+
+The Indonesia study is what the framework was built for: a sparse-gauge tropical archipelago where a single global correction parameter would wash out real regional variability. It is also where the framework's honest limits show up most clearly (see [the correlation ceiling](indonesia.qmd#the-correlation-ceiling)).
+
+Both cases use the same `src/` code and the same `config` structure. Swapping region is a matter of pointing the config at different inputs - see [Data Preparation](../tutorials/data-preparation.qmd) and [Configuration](../get-started/configuration.qmd).
+
+::: {.callout-note}
+The two cases are not directly comparable on headline numbers. Bali has 4 stations clustered in the south; Indonesia has 171 spread across the archipelago. The Bali figures are useful for checking the toolchain, not for drawing statistically robust conclusions on their own.
+:::

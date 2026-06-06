@@ -15,6 +15,12 @@ $$
 
 with shape $\xi$ and scale $\sigma$. The shape parameter governs the heaviness of the tail: $\xi > 0$ means a heavier-than-exponential tail (typical for tropical convection), $\xi = 0$ is exponential, $\xi < 0$ is bounded.
 
+## What the tail graft fixes
+
+Raw IMERG and LS decay too fast in the tail: heavy days that the gauge records once every few years are systematically under-represented. The survival curve below (how often a wet day exceeds a given threshold, log scale) shows the raw and LS curves dropping away from the gauge, while the GPD graft lifts LSEQM / LSEQM+DL back toward the BMKG reference at the high-intensity end.
+
+![Heavy-tail survival at one station. The raw and LS tails decay too fast; the GPD graft lifts LSEQM / LSEQM+DL toward the gauge. Demonstration on the Indonesia run.](../images/methodology/gpd_tail_survival.png){#fig-gpd-survival fig-align="center"}
+
 ## Fitting protocol
 
 - **Threshold:** 80th percentile of the CPC field for the dekad (configurable via `gpd_threshold_percentile`).

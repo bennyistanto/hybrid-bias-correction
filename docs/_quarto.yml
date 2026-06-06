@@ -45,8 +45,16 @@ website:
             href: tutorials/qa-framework.qmd
           - text: "Station Validation"
             href: tutorials/station-validation.qmd
+      - text: "Case Studies"
+        menu:
+          - text: "Overview"
+            href: case-studies/index.qmd
+          - text: "Reading the Results"
+            href: case-studies/reading-the-results.qmd
           - text: "---"
-          - text: "Executed Notebooks"
+          - text: "Indonesia"
+            href: case-studies/indonesia.qmd
+          - text: "Bali Example (executed notebooks)"
             href: example-bali/index.qmd
       - text: "Documentation"
         menu:
@@ -69,10 +77,12 @@ website:
             href: technical/testing.qmd
           - text: "CF Compliance"
             href: technical/cf-compliance.qmd
-      - text: "FAQ"
-        href: faq.qmd
-      - text: "Changelog"
-        href: changelog.qmd
+      - text: "About"
+        menu:
+          - text: "FAQ"
+            href: faq.qmd
+          - text: "Changelog"
+            href: changelog.qmd
 
     right:
       - icon: github
@@ -133,8 +143,16 @@ website:
         - tutorials/full-pipeline.qmd
         - tutorials/qa-framework.qmd
         - tutorials/station-validation.qmd
+
+    - title: "Case Studies"
+      style: "floating"
+      background: light
+      contents:
+        - case-studies/index.qmd
+        - case-studies/reading-the-results.qmd
+        - case-studies/indonesia.qmd
         - text: "---"
-        - section: "Executed Notebooks"
+        - section: "Bali Example (executed notebooks)"
           contents:
             - example-bali/index.qmd
             - text: "Data Preparation"

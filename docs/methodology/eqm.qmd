@@ -15,6 +15,10 @@ $$
 
 where $F^{LS, d}$ is the empirical CDF of the LS-corrected IMERG field for dekad $d$, and $F^{-1}_{CPC, d}$ is the inverse empirical CDF of CPC for the same dekad.
 
+The effect is visible in the wet-day CDF below: Linear Scaling shifts the mean but keeps the *shape* of the raw IMERG distribution (the blue curve still bends like the grey one). EQM remaps the whole distribution onto the gauge, so the LSEQM and LSEQM+DL curves sit almost on top of the BMKG reference.
+
+![Empirical CDF of wet-day rainfall at one station. LS keeps the raw shape; EQM remaps the full distribution onto the gauge. Demonstration on the Indonesia run.](../images/methodology/eqm_distribution_stages.png){#fig-eqm-cdf fig-align="center"}
+
 ## Why a Gamma body, GPD tail
 
 The empirical CDF is well behaved in the body of the distribution (frequent values, well sampled). It becomes unreliable above ~80th percentile, where you may only have a handful of exceedances per dekad. Two failure modes are common:
