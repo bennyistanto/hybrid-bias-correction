@@ -1,6 +1,8 @@
 ---
 title: "Indonesia"
 description: "The full operational evaluation: 171 validated BMKG stations, 2001-2025, across seven regions."
+resources:
+  - station-data/*.csv
 ---
 
 This is the case the framework was built for: daily satellite precipitation over a sparse-gauge tropical archipelago. The figures below are from the full Indonesia run (IMERG-L corrected against CPC-UNI, validated against independent BMKG stations, 2001-2025). The inputs and outputs are deposited on Zenodo (<https://doi.org/10.5281/zenodo.20287847>); they are too large to ship in the repo, so this study is presented as curated figures and analysis rather than a runnable notebook.
@@ -27,6 +29,33 @@ The headline result, evaluated at the 171 independent stations, is a clear win o
 
 ![Stage-wise skill at 171 independent BMKG stations: relative bias, standard-deviation ratio, Q99 ratio, and CSI.](../images/indonesia/headline_bars.png){#fig-headline fig-align="center"}
 
+Interactive version (same numbers; hover for values, dashed line marks the target):
+
+```{ojs}
+//| echo: false
+headline = [
+  {metric: "Relative bias", target: 0, LS: -0.114, LSEQM: 0.009, "LSEQM+DL": -0.006},
+  {metric: "Std-dev ratio", target: 1, LS: 0.71, LSEQM: 1.03, "LSEQM+DL": 1.00},
+  {metric: "Q99 ratio", target: 1, LS: 0.71, LSEQM: 1.05, "LSEQM+DL": 1.01},
+  {metric: "CSI", target: 1, LS: 0.53, LSEQM: 0.49, "LSEQM+DL": 0.49}
+].flatMap(r => ["LS", "LSEQM", "LSEQM+DL"].map(m => ({metric: r.metric, target: r.target, method: m, value: r[m]})))
+
+Plot.plot({
+  width: 880, height: 360, marginLeft: 50,
+  facet: {data: headline, x: "metric"},
+  x: {label: null, tickRotate: 0},
+  y: {grid: true, label: "value"},
+  color: {legend: true, domain: ["LS", "LSEQM", "LSEQM+DL"], range: ["#3b78b0", "#f39c12", "#27ae60"]},
+  marks: [
+    Plot.barY(headline, {x: "method", y: "value", fill: "method", fx: "metric"}),
+    Plot.ruleY(headline, {fy: null, y: "target", fx: "metric", stroke: "#444", strokeDasharray: "4 3"}),
+    Plot.ruleY([0]),
+    Plot.tip(headline, Plot.pointer({x: "method", y: "value", fx: "metric",
+      title: d => `${d.method}\n${d.metric} = ${d.value}`}))
+  ]
+})
+```
+
 - **Relative bias** moves from -0.114 (LS undercorrects the mean) to +0.009 (LSEQM) and -0.006 (LSEQM+DL): near-zero after distribution correction.
 - **Standard-deviation ratio** moves from 0.71 (raw/LS is too smooth) to 1.03 (LSEQM) and 1.00 (LSEQM+DL): variability restored.
 - **Q99 ratio** moves from 0.71 to 1.05 (LSEQM) and 1.01 (LSEQM+DL): the extreme tail is recovered.
@@ -35,6 +64,69 @@ The headline result, evaluated at the 171 independent stations, is a clear win o
 Detection skill, broken out by intensity threshold, shows the same story: LS already does most of the categorical work at light thresholds, and skill degrades with intensity as expected for daily satellite precipitation.
 
 ![Multi-threshold verification (WMO/TD-1485): POD, FAR, CSI, ETS from 1 to 100 mm/day.](../images/indonesia/multi_threshold.png){#fig-multi-threshold fig-align="center"}
+
+The static figure above pools the climatology. The version below is interactive: pick a dekad and a score to see how the three methods compare across intensity thresholds for that specific 10-day window. Shaded bands are the inter-quartile range across stations; points drop out at high thresholds where too few stations record enough events to pass the WMO/TD-1485 minimum (see the [FAQ](../faq.qmd#why-does-the-bali-multi-threshold-curve-only-show-up-to-50-mm-where-are-the-100-and-150-mm-points)).
+
+```{ojs}
+//| echo: false
+mt = FileAttachment("../data/case-studies/multithreshold.csv").csv({typed: true})
+```
+
+```{ojs}
+//| echo: false
+mtPeriods = new Map(
+  Array.from(new Set(mt.map(d => d.month * 10 + d.dekad)))
+    .sort((a, b) => a - b)
+    .map(k => {
+      const mo = Math.floor(k / 10), dk = k % 10;
+      const name = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][mo - 1];
+      const span = dk === 1 ? "d1 (1-10)" : dk === 2 ? "d2 (11-20)" : "d3 (21-end)";
+      return [`${name} ${span}`, {month: mo, dekad: dk}];
+    })
+)
+viewof mtPeriod = Inputs.select(mtPeriods, {label: "Dekad", value: mtPeriods.get("Jan d2 (11-20)")})
+```
+
+```{ojs}
+//| echo: false
+mtMetrics = new Map([
+  ["POD - probability of detection (higher better)", {key: "pod", dir: "higher"}],
+  ["CSI - critical success index (higher better)", {key: "csi", dir: "higher"}],
+  ["ETS - equitable threat score (higher better)", {key: "ets", dir: "higher"}],
+  ["FAR - false-alarm ratio (lower better)", {key: "far", dir: "lower"}],
+  ["HSS - Heidke skill score (higher better)", {key: "hss", dir: "higher"}],
+  ["HK - Hanssen-Kuipers (higher better)", {key: "hk", dir: "higher"}]
+])
+viewof mtMetric = Inputs.select(mtMetrics, {label: "Score", value: mtMetrics.get("CSI - critical success index (higher better)")})
+```
+
+```{ojs}
+//| echo: false
+{
+  const k = mtMetric.key;
+  const sub = mt.filter(d => d.month === mtPeriod.month && d.dekad === mtPeriod.dekad && d[k] != null);
+  if (!sub.length) return html`<em>No verified stations for this dekad/score.</em>`;
+  return Plot.plot({
+    width: 880,
+    height: 420,
+    marginLeft: 55,
+    x: {type: "log", label: "Threshold (mm/day)", domain: [1, 160],
+        ticks: [1, 5, 10, 20, 50, 100, 150], tickFormat: d => d},
+    y: {label: mtMetric.key.toUpperCase() + " (median across stations)", grid: true, domain: [0, 1]},
+    color: {legend: true, domain: ["LS", "LSEQM", "LSEQM+DL"], range: ["#3b78b0", "#f39c12", "#27ae60"]},
+    marks: [
+      Plot.areaY(sub.filter(d => d[k + "_lo"] != null), {x: "threshold", y1: k + "_lo", y2: k + "_hi",
+        fill: "method", fillOpacity: 0.12, curve: "catmull-rom"}),
+      Plot.line(sub, {x: "threshold", y: k, stroke: "method", strokeWidth: 2, curve: "catmull-rom"}),
+      Plot.dot(sub, {x: "threshold", y: k, fill: "method", r: 3.2}),
+      Plot.tip(sub, Plot.pointer({x: "threshold", y: k, stroke: "method",
+        title: d => `${d.method}\n${d.threshold} mm (${d.label})\n${mtMetric.key.toUpperCase()} = ${d[k].toFixed(3)}`}))
+    ]
+  });
+}
+```
+
+Reading it: at light thresholds (1-10 mm) all three methods sit close together - LS already captures most wet-day detection. The methods separate little even at heavier thresholds, because categorical detection depends on *when* it rains (timing the satellite sets), not on the distribution reshaping that LSEQM applies. This is the categorical face of the same [correlation ceiling](#the-correlation-ceiling).
 
 The Taylor diagram summarises correlation, variability, and centred RMSE in one view, split by season. The bias-corrected products pull the variability ratio toward the reference, while correlation stays in the same band - the pattern explained in [the correlation ceiling](#the-correlation-ceiling) below.
 
@@ -58,6 +150,50 @@ Skill is stable across the seasonal cycle and does not collapse in any region:
 
 ![Skill across the seasonal cycle.](../images/indonesia/seasonal_skill.png){fig-align="center"}
 
+The interactive version below is computed live from the 175-station metadata (2001-2021). Pick a metric and product; bars are the regional median, whiskers the inter-quartile range across stations in each region:
+
+```{ojs}
+//| echo: false
+regOptions = new Map([
+  ["Pearson r", {imergl: "imergl_r", lseqmdl: "lseqmdl_r"}],
+  ["Relative bias", {imergl: "imergl_bias", lseqmdl: "lseqmdl_bias"}],
+  ["RMSE (mm/day)", {imergl: "imergl_rmse", lseqmdl: "lseqmdl_rmse"}],
+  ["NSE", {imergl: "imergl_nse", lseqmdl: "lseqmdl_nse"}]
+])
+viewof regMetricName = Inputs.select([...regOptions.keys()], {label: "Metric", value: "Pearson r"})
+```
+
+```{ojs}
+//| echo: false
+viewof regProduct = Inputs.radio(new Map([["IMERG-L (raw)", "imergl"], ["LSEQM+DL", "lseqmdl"]]), {label: "Product", value: "lseqmdl"})
+```
+
+```{ojs}
+//| echo: false
+{
+  const col = regOptions.get(regMetricName)[regProduct];
+  const order = ["Sumatra", "Jawa", "Kalimantan", "Sulawesi", "Bali Nusa Tenggara", "Maluku", "Papua"];
+  const byReg = d3.groups(meta.filter(d => d[col] != null && Number.isFinite(d[col])), d => d.region)
+    .map(([region, rows]) => {
+      const vals = rows.map(r => r[col]).sort(d3.ascending);
+      return {region, n: rows.length, med: d3.median(vals), lo: d3.quantile(vals, 0.25), hi: d3.quantile(vals, 0.75)};
+    })
+    .sort((a, b) => order.indexOf(a.region) - order.indexOf(b.region));
+  return Plot.plot({
+    width: 880, height: 360, marginBottom: 80,
+    x: {label: null, tickRotate: -25, domain: order},
+    y: {grid: true, label: regMetricName},
+    marks: [
+      Plot.ruleY([0]),
+      Plot.barY(byReg, {x: "region", y: "med", fill: "#27ae60", fillOpacity: 0.85}),
+      Plot.ruleX(byReg, {x: "region", y1: "lo", y2: "hi", stroke: "#145a32", strokeWidth: 2}),
+      Plot.text(byReg, {x: "region", y: "med", text: d => d.med?.toFixed(2), dy: -8, fontSize: 10}),
+      Plot.text(byReg, {x: "region", y: 0, text: d => `n=${d.n}`, dy: 14, fontSize: 9, fill: "#666"})
+    ]
+  });
+}
+```
+
 A notable point from the regional breakdown: daily correlation (0.17-0.33 across regions) does **not** track gauge density. Maluku and Papua, with far fewer stations than Java, are not systematically worse. This tells us the ceiling on daily correlation is set by something other than how many gauges are nearby - again, see below.
 
 ## Extreme values
@@ -65,6 +201,50 @@ A notable point from the regional breakdown: daily correlation (0.17-0.33 across
 The GPD tail graft is designed to recover heavy-rain behaviour. Across stations, the corrected-to-gauge ratio at heavy thresholds (20, 50, 100 mm/day) moves toward 1.0 where LS alone leaves a deficit:
 
 ![Corrected / gauge heavy-day ratio at every station, by region and threshold (2001-2021).](../images/indonesia/extremes_ratio.png){#fig-extremes-ratio fig-align="center"}
+
+Interactive version below: pick a product and region. Each cell is the ratio of product to gauge heavy-day counts (counted on gauge-valid days only); **white is a perfect match (1.0)**, blue is under-detection, red is over-detection. Cells are blank where fewer than 5 gauge events make the ratio unreliable. Toggle IMERG-L vs LSEQM+DL to watch the heavy-rain deficit (blue) close toward white after correction.
+
+```{ojs}
+//| echo: false
+extremes = FileAttachment("../data/case-studies/extremes_ratio.csv").csv({typed: true})
+```
+
+```{ojs}
+//| echo: false
+viewof exProduct = Inputs.radio(["IMERG-L", "LSEQM+DL"], {label: "Product", value: "LSEQM+DL"})
+```
+
+```{ojs}
+//| echo: false
+viewof exRegion = Inputs.select(
+  ["All regions", "Sumatra", "Jawa", "Kalimantan", "Sulawesi", "Bali Nusa Tenggara", "Maluku", "Papua"],
+  {label: "Region", value: "Jawa"}
+)
+```
+
+```{ojs}
+//| echo: false
+{
+  let sub = extremes.filter(d => d.product === exProduct);
+  if (exRegion !== "All regions") sub = sub.filter(d => d.region === exRegion);
+  sub = sub.map(d => ({...d, label: `${d.name} (${d.wmo})`}));
+  const order = [...new Set(
+    sub.slice().sort((a, b) => d3.ascending(a.region, b.region) || d3.descending(a.lat, b.lat)).map(d => d.label)
+  )];
+  const h = 70 + order.length * 13;
+  return Plot.plot({
+    width: 720, height: h, marginLeft: 175, marginBottom: 45,
+    x: {type: "band", domain: [1, 5, 10, 20, 50, 100], label: "Threshold (mm/day)", tickFormat: d => d + " mm"},
+    y: {domain: order, label: null},
+    color: {type: "diverging", scheme: "RdBu", pivot: 1, reverse: true, domain: [0.5, 1.5],
+            clamp: true, legend: true, label: `${exProduct} / gauge heavy-day ratio`},
+    marks: [
+      Plot.cell(sub, {x: "threshold", y: "label", fill: "ratio", inset: 0.5,
+        tip: true, channels: {Region: "region", "n events": "n_gauge", ratio: "ratio"}})
+    ]
+  });
+}
+```
 
 The same correction read as detection and intensity metrics for heavy days:
 
@@ -81,6 +261,32 @@ This is the central diagnostic of the study, and the most important thing the fr
 Under marginal bias correction, **Pearson correlation barely moves**: 0.343 (LS) to 0.345 (LSEQM) to 0.348 (LSEQM+DL), a shift of +0.005. RMSE and NSE do not improve either. Only the distribution-shape metrics (SDR, Q99) move to target.
 
 ![What does and does not improve under marginal bias correction. Pearson r is flat; RMSE and NSE do not improve; only SDR moves to target.](../images/indonesia/paradox.png){#fig-paradox fig-align="center"}
+
+Interactive version - each panel has its own y-axis so the *shape* of the trajectory is what matters. Watch Pearson r stay almost flat while the std-dev ratio climbs to its target:
+
+```{ojs}
+//| echo: false
+paradox = [
+  {metric: "Pearson r", LS: 0.343, LSEQM: 0.345, "LSEQM+DL": 0.348},
+  {metric: "RMSE (mm/day)", LS: 13.10, LSEQM: 14.18, "LSEQM+DL": 14.07},
+  {metric: "NSE", LS: -0.27, LSEQM: -0.55, "LSEQM+DL": -0.52},
+  {metric: "Std-dev ratio", LS: 0.71, LSEQM: 1.03, "LSEQM+DL": 1.00}
+].flatMap(r => ["LS", "LSEQM", "LSEQM+DL"].map(m => ({metric: r.metric, method: m, value: r[m]})))
+
+Plot.plot({
+  width: 880, height: 320, marginLeft: 55,
+  facet: {data: paradox, x: "metric"},
+  fx: {label: null},
+  x: {domain: ["LS", "LSEQM", "LSEQM+DL"], label: null},
+  y: {grid: true, label: "value"},
+  marks: [
+    Plot.line(paradox, {fx: "metric", x: "method", y: "value", stroke: "#c0392b", strokeWidth: 2}),
+    Plot.dot(paradox, {fx: "metric", x: "method", y: "value", fill: "#c0392b", r: 4}),
+    Plot.tip(paradox, Plot.pointer({fx: "metric", x: "method", y: "value",
+      title: d => `${d.metric}\n${d.method} = ${d.value}`}))
+  ]
+})
+```
 
 The reason is structural, not a failure of the method. Quantile mapping is a monotone, rank-preserving transform applied per pixel: it changes the *values* but not the day-to-day *ordering* inherited from the satellite. Correlation depends only on the ordering. So once LS has set the rank structure, no amount of distribution correction can move correlation - it is bounded by the satellite's day-to-day timing.
 
@@ -114,13 +320,12 @@ The chart below is interactive. Pick a station and a year to see the daily serie
 
 ::: {.callout-note collapse="true"}
 ## About this data
-This explorer covers **173 stations** - every BMKG station with at least one full year of valid gauge data in the 2016-2021 window (close to the 171 validated in the full 2001-2025 pipeline; the small difference is the shorter window and a simpler completeness filter). Completeness varies by station and is shown in the dropdown and on the map - sparse stations will have visible gaps in the daily series. The daily series and the metrics shown here are computed over the **2016-2021 window**, so the per-station numbers are not identical to the full-record headline figures above. The data file (`station_daily.csv`, ~7.9 MB) loads once when the page opens.
+This explorer covers **175 stations** over the **full 2001-2021 record** - every BMKG station with at least one full year of valid gauge data (close to the 171 validated in the headline pipeline; the small difference is a simpler completeness filter). Completeness varies by station and is shown in the dropdown and on the map - sparse stations have visible gaps in the daily series. Each station's daily record (~120 KB) is fetched only when you select it, so the page stays light. Per-station metrics are computed over 2001-2021, so they are close to but not identical to the headline figures above (which use the full pipeline's pairing rules).
 :::
 
 ```{ojs}
 //| echo: false
 meta = FileAttachment("../data/case-studies/station_meta.csv").csv({typed: true})
-daily = FileAttachment("../data/case-studies/station_daily.csv").csv({typed: true})
 ```
 
 ```{ojs}
@@ -136,7 +341,8 @@ viewof wmo = Inputs.select(stationOptions, {label: "Station", value: "96073"})
 
 ```{ojs}
 //| echo: false
-stationRows = daily.filter(d => String(d.wmo) === String(wmo))
+// Each station's full 2001-2021 daily record is fetched on demand (~150 KB).
+stationRows = d3.csv(`station-data/${wmo}.csv`, d3.autoType)
 ```
 
 ```{ojs}
@@ -181,7 +387,7 @@ Plot.plot({
 selMeta = meta.find(d => String(d.wmo) === String(wmo))
 fmt = (x, d=2) => (x == null || Number.isNaN(x)) ? "n/a" : x.toFixed(d)
 html`<table class="table table-sm" style="max-width:640px">
-  <thead><tr><th>Metric (2016-2021)</th><th>IMERG-L (raw)</th><th>LSEQM+DL</th><th>Target</th></tr></thead>
+  <thead><tr><th>Metric (2001-2021)</th><th>IMERG-L (raw)</th><th>LSEQM+DL</th><th>Target</th></tr></thead>
   <tbody>
     <tr><td>Pearson r</td><td>${fmt(selMeta.imergl_r)}</td><td>${fmt(selMeta.lseqmdl_r)}</td><td>1.0</td></tr>
     <tr><td>RMSE (mm/day)</td><td>${fmt(selMeta.imergl_rmse,1)}</td><td>${fmt(selMeta.lseqmdl_rmse,1)}</td><td>0</td></tr>
@@ -192,7 +398,7 @@ html`<table class="table table-sm" style="max-width:640px">
 </table>`
 ```
 
-The same station as a scatter against the gauge (all paired days in the 2016-2021 window), raw IMERG-L on the left and corrected LSEQM+DL on the right. Points on the dashed 1:1 line are perfect agreement. Hover any point for its date and values. The corrected cloud sits closer to the diagonal and recovers the heavy-rain points that raw IMERG-L compresses toward the axis:
+The same station as a scatter against the gauge (all paired days, 2001-2021), raw IMERG-L on the left and corrected LSEQM+DL on the right. Points on the dashed 1:1 line are perfect agreement. Hover any point for its date and values. The corrected cloud sits closer to the diagonal and recovers the heavy-rain points that raw IMERG-L compresses toward the axis:
 
 ```{ojs}
 //| echo: false

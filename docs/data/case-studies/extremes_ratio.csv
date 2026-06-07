@@ -1,0 +1,2101 @@
+wmo,name,region,lat,product,threshold,ratio,n_gauge
+96001,Maimun Saleh,Sumatra,5.877,IMERG-L,1,1.326,1609
+96001,Maimun Saleh,Sumatra,5.877,IMERG-L,5,0.958,1012
+96001,Maimun Saleh,Sumatra,5.877,IMERG-L,10,0.882,680
+96001,Maimun Saleh,Sumatra,5.877,IMERG-L,20,0.763,384
+96001,Maimun Saleh,Sumatra,5.877,IMERG-L,50,0.603,78
+96001,Maimun Saleh,Sumatra,5.877,IMERG-L,100,0.667,12
+96001,Maimun Saleh,Sumatra,5.877,LSEQM+DL,1,0.961,1609
+96001,Maimun Saleh,Sumatra,5.877,LSEQM+DL,5,0.875,1012
+96001,Maimun Saleh,Sumatra,5.877,LSEQM+DL,10,0.954,680
+96001,Maimun Saleh,Sumatra,5.877,LSEQM+DL,20,1.112,384
+96001,Maimun Saleh,Sumatra,5.877,LSEQM+DL,50,1.885,78
+96001,Maimun Saleh,Sumatra,5.877,LSEQM+DL,100,1.167,12
+96009,Malikussaleh,Sumatra,5.229,IMERG-L,1,1.495,2220
+96009,Malikussaleh,Sumatra,5.229,IMERG-L,5,1.476,1260
+96009,Malikussaleh,Sumatra,5.229,IMERG-L,10,1.362,846
+96009,Malikussaleh,Sumatra,5.229,IMERG-L,20,1.244,451
+96009,Malikussaleh,Sumatra,5.229,IMERG-L,50,1.0,112
+96009,Malikussaleh,Sumatra,5.229,IMERG-L,100,1.615,13
+96009,Malikussaleh,Sumatra,5.229,LSEQM+DL,1,1.282,2220
+96009,Malikussaleh,Sumatra,5.229,LSEQM+DL,5,1.122,1260
+96009,Malikussaleh,Sumatra,5.229,LSEQM+DL,10,0.95,846
+96009,Malikussaleh,Sumatra,5.229,LSEQM+DL,20,0.867,451
+96009,Malikussaleh,Sumatra,5.229,LSEQM+DL,50,0.866,112
+96009,Malikussaleh,Sumatra,5.229,LSEQM+DL,100,1.231,13
+96011,Sultan Iskandar Muda,Sumatra,5.522,IMERG-L,1,1.301,2459
+96011,Sultan Iskandar Muda,Sumatra,5.522,IMERG-L,5,1.065,1499
+96011,Sultan Iskandar Muda,Sumatra,5.522,IMERG-L,10,0.929,1009
+96011,Sultan Iskandar Muda,Sumatra,5.522,IMERG-L,20,0.685,574
+96011,Sultan Iskandar Muda,Sumatra,5.522,IMERG-L,50,0.349,169
+96011,Sultan Iskandar Muda,Sumatra,5.522,IMERG-L,100,0.107,28
+96011,Sultan Iskandar Muda,Sumatra,5.522,LSEQM+DL,1,1.136,2459
+96011,Sultan Iskandar Muda,Sumatra,5.522,LSEQM+DL,5,1.049,1499
+96011,Sultan Iskandar Muda,Sumatra,5.522,LSEQM+DL,10,1.01,1009
+96011,Sultan Iskandar Muda,Sumatra,5.522,LSEQM+DL,20,0.902,574
+96011,Sultan Iskandar Muda,Sumatra,5.522,LSEQM+DL,50,0.633,169
+96011,Sultan Iskandar Muda,Sumatra,5.522,LSEQM+DL,100,0.464,28
+96013,Geofisika Aceh Besar,Sumatra,5.496,IMERG-L,1,1.216,593
+96013,Geofisika Aceh Besar,Sumatra,5.496,IMERG-L,5,1.111,378
+96013,Geofisika Aceh Besar,Sumatra,5.496,IMERG-L,10,0.958,264
+96013,Geofisika Aceh Besar,Sumatra,5.496,IMERG-L,20,0.838,142
+96013,Geofisika Aceh Besar,Sumatra,5.496,IMERG-L,50,0.657,35
+96013,Geofisika Aceh Besar,Sumatra,5.496,IMERG-L,100,0.2,5
+96013,Geofisika Aceh Besar,Sumatra,5.496,LSEQM+DL,1,1.051,593
+96013,Geofisika Aceh Besar,Sumatra,5.496,LSEQM+DL,5,0.989,378
+96013,Geofisika Aceh Besar,Sumatra,5.496,LSEQM+DL,10,0.951,264
+96013,Geofisika Aceh Besar,Sumatra,5.496,LSEQM+DL,20,1.007,142
+96013,Geofisika Aceh Besar,Sumatra,5.496,LSEQM+DL,50,1.229,35
+96013,Geofisika Aceh Besar,Sumatra,5.496,LSEQM+DL,100,1.8,5
+96015,Cut Nyak Dhien Nagan Raya,Sumatra,4.049,IMERG-L,1,1.169,2177
+96015,Cut Nyak Dhien Nagan Raya,Sumatra,4.049,IMERG-L,5,1.109,1509
+96015,Cut Nyak Dhien Nagan Raya,Sumatra,4.049,IMERG-L,10,1.037,1117
+96015,Cut Nyak Dhien Nagan Raya,Sumatra,4.049,IMERG-L,20,0.83,731
+96015,Cut Nyak Dhien Nagan Raya,Sumatra,4.049,IMERG-L,50,0.483,269
+96015,Cut Nyak Dhien Nagan Raya,Sumatra,4.049,IMERG-L,100,0.237,59
+96015,Cut Nyak Dhien Nagan Raya,Sumatra,4.049,LSEQM+DL,1,0.756,2177
+96015,Cut Nyak Dhien Nagan Raya,Sumatra,4.049,LSEQM+DL,5,0.826,1509
+96015,Cut Nyak Dhien Nagan Raya,Sumatra,4.049,LSEQM+DL,10,0.896,1117
+96015,Cut Nyak Dhien Nagan Raya,Sumatra,4.049,LSEQM+DL,20,0.938,731
+96015,Cut Nyak Dhien Nagan Raya,Sumatra,4.049,LSEQM+DL,50,1.297,269
+96015,Cut Nyak Dhien Nagan Raya,Sumatra,4.049,LSEQM+DL,100,1.746,59
+96017,Aceh Besar,Sumatra,5.404,IMERG-L,1,0.916,2802
+96017,Aceh Besar,Sumatra,5.404,IMERG-L,5,0.837,1698
+96017,Aceh Besar,Sumatra,5.404,IMERG-L,10,0.772,1099
+96017,Aceh Besar,Sumatra,5.404,IMERG-L,20,0.668,564
+96017,Aceh Besar,Sumatra,5.404,IMERG-L,50,0.379,116
+96017,Aceh Besar,Sumatra,5.404,IMERG-L,100,0.1,10
+96017,Aceh Besar,Sumatra,5.404,LSEQM+DL,1,0.838,2802
+96017,Aceh Besar,Sumatra,5.404,LSEQM+DL,5,0.824,1698
+96017,Aceh Besar,Sumatra,5.404,LSEQM+DL,10,0.813,1099
+96017,Aceh Besar,Sumatra,5.404,LSEQM+DL,20,0.817,564
+96017,Aceh Besar,Sumatra,5.404,LSEQM+DL,50,0.845,116
+96017,Aceh Besar,Sumatra,5.404,LSEQM+DL,100,1.3,10
+96031,Deli Serdang,Sumatra,3.621,IMERG-L,1,1.652,2945
+96031,Deli Serdang,Sumatra,3.621,IMERG-L,5,1.647,1774
+96031,Deli Serdang,Sumatra,3.621,IMERG-L,10,1.526,1261
+96031,Deli Serdang,Sumatra,3.621,IMERG-L,20,1.236,758
+96031,Deli Serdang,Sumatra,3.621,IMERG-L,50,0.894,188
+96031,Deli Serdang,Sumatra,3.621,IMERG-L,100,0.739,23
+96031,Deli Serdang,Sumatra,3.621,LSEQM+DL,1,0.842,2945
+96031,Deli Serdang,Sumatra,3.621,LSEQM+DL,5,0.954,1774
+96031,Deli Serdang,Sumatra,3.621,LSEQM+DL,10,0.964,1261
+96031,Deli Serdang,Sumatra,3.621,LSEQM+DL,20,1.087,758
+96031,Deli Serdang,Sumatra,3.621,LSEQM+DL,50,1.229,188
+96031,Deli Serdang,Sumatra,3.621,LSEQM+DL,100,0.174,23
+96033,Belawan,Sumatra,3.788,IMERG-L,1,1.654,1473
+96033,Belawan,Sumatra,3.788,IMERG-L,5,1.644,936
+96033,Belawan,Sumatra,3.788,IMERG-L,10,1.568,665
+96033,Belawan,Sumatra,3.788,IMERG-L,20,1.391,394
+96033,Belawan,Sumatra,3.788,IMERG-L,50,0.833,108
+96033,Belawan,Sumatra,3.788,IMERG-L,100,0.333,12
+96033,Belawan,Sumatra,3.788,LSEQM+DL,1,0.948,1473
+96033,Belawan,Sumatra,3.788,LSEQM+DL,5,0.991,936
+96033,Belawan,Sumatra,3.788,LSEQM+DL,10,0.973,665
+96033,Belawan,Sumatra,3.788,LSEQM+DL,20,1.051,394
+96033,Belawan,Sumatra,3.788,LSEQM+DL,50,0.954,108
+96033,Belawan,Sumatra,3.788,LSEQM+DL,100,0.083,12
+96037,Geofisika Deli Serdang,Sumatra,3.501,IMERG-L,1,1.255,3522
+96037,Geofisika Deli Serdang,Sumatra,3.501,IMERG-L,5,1.181,2392
+96037,Geofisika Deli Serdang,Sumatra,3.501,IMERG-L,10,1.066,1758
+96037,Geofisika Deli Serdang,Sumatra,3.501,IMERG-L,20,0.807,1101
+96037,Geofisika Deli Serdang,Sumatra,3.501,IMERG-L,50,0.465,286
+96037,Geofisika Deli Serdang,Sumatra,3.501,IMERG-L,100,0.27,37
+96037,Geofisika Deli Serdang,Sumatra,3.501,LSEQM+DL,1,0.723,3522
+96037,Geofisika Deli Serdang,Sumatra,3.501,LSEQM+DL,5,0.713,2392
+96037,Geofisika Deli Serdang,Sumatra,3.501,LSEQM+DL,10,0.695,1758
+96037,Geofisika Deli Serdang,Sumatra,3.501,LSEQM+DL,20,0.727,1101
+96037,Geofisika Deli Serdang,Sumatra,3.501,LSEQM+DL,50,0.713,286
+96037,Geofisika Deli Serdang,Sumatra,3.501,LSEQM+DL,100,0.162,37
+96039,Geofisika Aceh Selatan,Sumatra,3.173,IMERG-L,1,1.436,2546
+96039,Geofisika Aceh Selatan,Sumatra,3.173,IMERG-L,5,1.362,1643
+96039,Geofisika Aceh Selatan,Sumatra,3.173,IMERG-L,10,1.304,1113
+96039,Geofisika Aceh Selatan,Sumatra,3.173,IMERG-L,20,1.181,586
+96039,Geofisika Aceh Selatan,Sumatra,3.173,IMERG-L,50,1.04,125
+96039,Geofisika Aceh Selatan,Sumatra,3.173,IMERG-L,100,2.5,8
+96039,Geofisika Aceh Selatan,Sumatra,3.173,LSEQM+DL,1,1.333,2546
+96039,Geofisika Aceh Selatan,Sumatra,3.173,LSEQM+DL,5,1.249,1643
+96039,Geofisika Aceh Selatan,Sumatra,3.173,LSEQM+DL,10,1.155,1113
+96039,Geofisika Aceh Selatan,Sumatra,3.173,LSEQM+DL,20,1.097,586
+96039,Geofisika Aceh Selatan,Sumatra,3.173,LSEQM+DL,50,0.904,125
+96039,Geofisika Aceh Selatan,Sumatra,3.173,LSEQM+DL,100,0.75,8
+96041,Balai Besar dan Geofisika Wi,Sumatra,3.54,IMERG-L,1,1.449,2410
+96041,Balai Besar dan Geofisika Wi,Sumatra,3.54,IMERG-L,5,1.399,1588
+96041,Balai Besar dan Geofisika Wi,Sumatra,3.54,IMERG-L,10,1.196,1152
+96041,Balai Besar dan Geofisika Wi,Sumatra,3.54,IMERG-L,20,0.911,699
+96041,Balai Besar dan Geofisika Wi,Sumatra,3.54,IMERG-L,50,0.369,203
+96041,Balai Besar dan Geofisika Wi,Sumatra,3.54,IMERG-L,100,0.571,14
+96041,Balai Besar dan Geofisika Wi,Sumatra,3.54,LSEQM+DL,1,0.703,2410
+96041,Balai Besar dan Geofisika Wi,Sumatra,3.54,LSEQM+DL,5,0.741,1588
+96041,Balai Besar dan Geofisika Wi,Sumatra,3.54,LSEQM+DL,10,0.76,1152
+96041,Balai Besar dan Geofisika Wi,Sumatra,3.54,LSEQM+DL,20,0.888,699
+96041,Balai Besar dan Geofisika Wi,Sumatra,3.54,LSEQM+DL,50,0.803,203
+96041,Balai Besar dan Geofisika Wi,Sumatra,3.54,LSEQM+DL,100,0.286,14
+96043,Silangit,Sumatra,2.261,IMERG-L,1,1.221,317
+96043,Silangit,Sumatra,2.261,IMERG-L,5,1.314,175
+96043,Silangit,Sumatra,2.261,IMERG-L,10,1.237,118
+96043,Silangit,Sumatra,2.261,IMERG-L,20,0.914,58
+96043,Silangit,Sumatra,2.261,IMERG-L,50,0.286,7
+96043,Silangit,Sumatra,2.261,IMERG-L,100,,0
+96043,Silangit,Sumatra,2.261,LSEQM+DL,1,1.028,317
+96043,Silangit,Sumatra,2.261,LSEQM+DL,5,1.286,175
+96043,Silangit,Sumatra,2.261,LSEQM+DL,10,1.5,118
+96043,Silangit,Sumatra,2.261,LSEQM+DL,20,1.776,58
+96043,Silangit,Sumatra,2.261,LSEQM+DL,50,5.0,7
+96043,Silangit,Sumatra,2.261,LSEQM+DL,100,,0
+96071,Aek Godang,Sumatra,1.55,IMERG-L,1,1.285,1848
+96071,Aek Godang,Sumatra,1.55,IMERG-L,5,1.335,1059
+96071,Aek Godang,Sumatra,1.55,IMERG-L,10,1.214,742
+96071,Aek Godang,Sumatra,1.55,IMERG-L,20,1.012,401
+96071,Aek Godang,Sumatra,1.55,IMERG-L,50,0.486,109
+96071,Aek Godang,Sumatra,1.55,IMERG-L,100,0.7,10
+96071,Aek Godang,Sumatra,1.55,LSEQM+DL,1,1.194,1848
+96071,Aek Godang,Sumatra,1.55,LSEQM+DL,5,1.448,1059
+96071,Aek Godang,Sumatra,1.55,LSEQM+DL,10,1.594,742
+96071,Aek Godang,Sumatra,1.55,LSEQM+DL,20,1.955,401
+96071,Aek Godang,Sumatra,1.55,LSEQM+DL,50,2.899,109
+96071,Aek Godang,Sumatra,1.55,LSEQM+DL,100,8.6,10
+96073,FL Tobing,Sumatra,1.55,IMERG-L,1,1.206,4425
+96073,FL Tobing,Sumatra,1.55,IMERG-L,5,1.133,3111
+96073,FL Tobing,Sumatra,1.55,IMERG-L,10,1.02,2340
+96073,FL Tobing,Sumatra,1.55,IMERG-L,20,0.755,1549
+96073,FL Tobing,Sumatra,1.55,IMERG-L,50,0.405,560
+96073,FL Tobing,Sumatra,1.55,IMERG-L,100,0.213,122
+96073,FL Tobing,Sumatra,1.55,LSEQM+DL,1,0.945,4425
+96073,FL Tobing,Sumatra,1.55,LSEQM+DL,5,0.944,3111
+96073,FL Tobing,Sumatra,1.55,LSEQM+DL,10,0.963,2340
+96073,FL Tobing,Sumatra,1.55,LSEQM+DL,20,0.908,1549
+96073,FL Tobing,Sumatra,1.55,LSEQM+DL,50,1.116,560
+96073,FL Tobing,Sumatra,1.55,LSEQM+DL,100,1.385,122
+96075,Binaka,Sumatra,1.165,IMERG-L,1,1.237,4538
+96075,Binaka,Sumatra,1.165,IMERG-L,5,1.35,2951
+96075,Binaka,Sumatra,1.165,IMERG-L,10,1.441,1983
+96075,Binaka,Sumatra,1.165,IMERG-L,20,1.484,1029
+96075,Binaka,Sumatra,1.165,IMERG-L,50,1.24,192
+96075,Binaka,Sumatra,1.165,IMERG-L,100,1.5,10
+96075,Binaka,Sumatra,1.165,LSEQM+DL,1,0.924,4538
+96075,Binaka,Sumatra,1.165,LSEQM+DL,5,1.013,2951
+96075,Binaka,Sumatra,1.165,LSEQM+DL,10,1.076,1983
+96075,Binaka,Sumatra,1.165,LSEQM+DL,20,1.127,1029
+96075,Binaka,Sumatra,1.165,LSEQM+DL,50,1.359,192
+96075,Binaka,Sumatra,1.165,LSEQM+DL,100,1.5,10
+96077,Geofisika Gunungsitoli,Sumatra,1.3,IMERG-L,1,1.074,1520
+96077,Geofisika Gunungsitoli,Sumatra,1.3,IMERG-L,5,1.198,1045
+96077,Geofisika Gunungsitoli,Sumatra,1.3,IMERG-L,10,1.258,751
+96077,Geofisika Gunungsitoli,Sumatra,1.3,IMERG-L,20,1.194,423
+96077,Geofisika Gunungsitoli,Sumatra,1.3,IMERG-L,50,0.734,94
+96077,Geofisika Gunungsitoli,Sumatra,1.3,IMERG-L,100,0.5,8
+96077,Geofisika Gunungsitoli,Sumatra,1.3,LSEQM+DL,1,0.81,1520
+96077,Geofisika Gunungsitoli,Sumatra,1.3,LSEQM+DL,5,0.873,1045
+96077,Geofisika Gunungsitoli,Sumatra,1.3,LSEQM+DL,10,0.905,751
+96077,Geofisika Gunungsitoli,Sumatra,1.3,LSEQM+DL,20,0.936,423
+96077,Geofisika Gunungsitoli,Sumatra,1.3,LSEQM+DL,50,0.926,94
+96077,Geofisika Gunungsitoli,Sumatra,1.3,LSEQM+DL,100,0.375,8
+96087,Hang Nadim,Sumatra,1.117,IMERG-L,1,1.298,2669
+96087,Hang Nadim,Sumatra,1.117,IMERG-L,5,1.299,1690
+96087,Hang Nadim,Sumatra,1.117,IMERG-L,10,1.259,1160
+96087,Hang Nadim,Sumatra,1.117,IMERG-L,20,1.072,669
+96087,Hang Nadim,Sumatra,1.117,IMERG-L,50,0.882,170
+96087,Hang Nadim,Sumatra,1.117,IMERG-L,100,0.971,34
+96087,Hang Nadim,Sumatra,1.117,LSEQM+DL,1,1.287,2669
+96087,Hang Nadim,Sumatra,1.117,LSEQM+DL,5,1.369,1690
+96087,Hang Nadim,Sumatra,1.117,LSEQM+DL,10,1.32,1160
+96087,Hang Nadim,Sumatra,1.117,LSEQM+DL,20,1.172,669
+96087,Hang Nadim,Sumatra,1.117,LSEQM+DL,50,1.194,170
+96087,Hang Nadim,Sumatra,1.117,LSEQM+DL,100,1.559,34
+96089,Raja Haji Abdullah,Sumatra,1.03,IMERG-L,1,1.25,1746
+96089,Raja Haji Abdullah,Sumatra,1.03,IMERG-L,5,1.152,1082
+96089,Raja Haji Abdullah,Sumatra,1.03,IMERG-L,10,1.024,739
+96089,Raja Haji Abdullah,Sumatra,1.03,IMERG-L,20,0.799,428
+96089,Raja Haji Abdullah,Sumatra,1.03,IMERG-L,50,0.412,119
+96089,Raja Haji Abdullah,Sumatra,1.03,IMERG-L,100,0.25,16
+96089,Raja Haji Abdullah,Sumatra,1.03,LSEQM+DL,1,1.096,1746
+96089,Raja Haji Abdullah,Sumatra,1.03,LSEQM+DL,5,1.069,1082
+96089,Raja Haji Abdullah,Sumatra,1.03,LSEQM+DL,10,1.03,739
+96089,Raja Haji Abdullah,Sumatra,1.03,LSEQM+DL,20,0.958,428
+96089,Raja Haji Abdullah,Sumatra,1.03,LSEQM+DL,50,0.899,119
+96089,Raja Haji Abdullah,Sumatra,1.03,LSEQM+DL,100,2.0,16
+96091,Raja Haji Fisabilillah,Sumatra,0.923,IMERG-L,1,1.601,3247
+96091,Raja Haji Fisabilillah,Sumatra,0.923,IMERG-L,5,1.279,2239
+96091,Raja Haji Fisabilillah,Sumatra,0.923,IMERG-L,10,1.071,1667
+96091,Raja Haji Fisabilillah,Sumatra,0.923,IMERG-L,20,0.867,1049
+96091,Raja Haji Fisabilillah,Sumatra,0.923,IMERG-L,50,0.572,334
+96091,Raja Haji Fisabilillah,Sumatra,0.923,IMERG-L,100,0.72,50
+96091,Raja Haji Fisabilillah,Sumatra,0.923,LSEQM+DL,1,1.061,3247
+96091,Raja Haji Fisabilillah,Sumatra,0.923,LSEQM+DL,5,0.955,2239
+96091,Raja Haji Fisabilillah,Sumatra,0.923,LSEQM+DL,10,0.916,1667
+96091,Raja Haji Fisabilillah,Sumatra,0.923,LSEQM+DL,20,0.994,1049
+96091,Raja Haji Fisabilillah,Sumatra,0.923,LSEQM+DL,50,1.063,334
+96091,Raja Haji Fisabilillah,Sumatra,0.923,LSEQM+DL,100,2.06,50
+96107,Kampar,Sumatra,0.407,IMERG-L,1,1.203,582
+96107,Kampar,Sumatra,0.407,IMERG-L,5,1.051,392
+96107,Kampar,Sumatra,0.407,IMERG-L,10,0.945,290
+96107,Kampar,Sumatra,0.407,IMERG-L,20,0.772,180
+96107,Kampar,Sumatra,0.407,IMERG-L,50,0.347,49
+96107,Kampar,Sumatra,0.407,IMERG-L,100,0.0,5
+96107,Kampar,Sumatra,0.407,LSEQM+DL,1,0.842,582
+96107,Kampar,Sumatra,0.407,LSEQM+DL,5,0.773,392
+96107,Kampar,Sumatra,0.407,LSEQM+DL,10,0.755,290
+96107,Kampar,Sumatra,0.407,LSEQM+DL,20,0.789,180
+96107,Kampar,Sumatra,0.407,LSEQM+DL,50,0.918,49
+96107,Kampar,Sumatra,0.407,LSEQM+DL,100,0.8,5
+96109,Sultan Syarif Kasim II,Sumatra,0.459,IMERG-L,1,1.607,1854
+96109,Sultan Syarif Kasim II,Sumatra,0.459,IMERG-L,5,1.418,1198
+96109,Sultan Syarif Kasim II,Sumatra,0.459,IMERG-L,10,1.241,872
+96109,Sultan Syarif Kasim II,Sumatra,0.459,IMERG-L,20,1.029,513
+96109,Sultan Syarif Kasim II,Sumatra,0.459,IMERG-L,50,0.503,157
+96109,Sultan Syarif Kasim II,Sumatra,0.459,IMERG-L,100,0.941,17
+96109,Sultan Syarif Kasim II,Sumatra,0.459,LSEQM+DL,1,0.971,1854
+96109,Sultan Syarif Kasim II,Sumatra,0.459,LSEQM+DL,5,0.988,1198
+96109,Sultan Syarif Kasim II,Sumatra,0.459,LSEQM+DL,10,1.019,872
+96109,Sultan Syarif Kasim II,Sumatra,0.459,LSEQM+DL,20,1.09,513
+96109,Sultan Syarif Kasim II,Sumatra,0.459,LSEQM+DL,50,1.369,157
+96109,Sultan Syarif Kasim II,Sumatra,0.459,LSEQM+DL,100,1.294,17
+96145,Tarempa,Sumatra,3.2,IMERG-L,1,1.56,2902
+96145,Tarempa,Sumatra,3.2,IMERG-L,5,0.995,1887
+96145,Tarempa,Sumatra,3.2,IMERG-L,10,0.829,1339
+96145,Tarempa,Sumatra,3.2,IMERG-L,20,0.702,783
+96145,Tarempa,Sumatra,3.2,IMERG-L,50,0.485,206
+96145,Tarempa,Sumatra,3.2,IMERG-L,100,0.333,36
+96145,Tarempa,Sumatra,3.2,LSEQM+DL,1,0.716,2902
+96145,Tarempa,Sumatra,3.2,LSEQM+DL,5,0.765,1887
+96145,Tarempa,Sumatra,3.2,LSEQM+DL,10,0.861,1339
+96145,Tarempa,Sumatra,3.2,LSEQM+DL,20,1.185,783
+96145,Tarempa,Sumatra,3.2,LSEQM+DL,50,2.087,206
+96145,Tarempa,Sumatra,3.2,LSEQM+DL,100,2.417,36
+96147,Ranai,Sumatra,3.912,IMERG-L,1,1.528,1732
+96147,Ranai,Sumatra,3.912,IMERG-L,5,1.411,1088
+96147,Ranai,Sumatra,3.912,IMERG-L,10,1.197,768
+96147,Ranai,Sumatra,3.912,IMERG-L,20,1.098,430
+96147,Ranai,Sumatra,3.912,IMERG-L,50,0.822,101
+96147,Ranai,Sumatra,3.912,IMERG-L,100,0.526,19
+96147,Ranai,Sumatra,3.912,LSEQM+DL,1,0.646,1732
+96147,Ranai,Sumatra,3.912,LSEQM+DL,5,0.674,1088
+96147,Ranai,Sumatra,3.912,LSEQM+DL,10,0.693,768
+96147,Ranai,Sumatra,3.912,LSEQM+DL,20,0.914,430
+96147,Ranai,Sumatra,3.912,LSEQM+DL,50,0.743,101
+96147,Ranai,Sumatra,3.912,LSEQM+DL,100,0.211,19
+96161,Teluk Bayur,Sumatra,-0.996,IMERG-L,1,1.306,3617
+96161,Teluk Bayur,Sumatra,-0.996,IMERG-L,5,1.165,2538
+96161,Teluk Bayur,Sumatra,-0.996,IMERG-L,10,1.031,1974
+96161,Teluk Bayur,Sumatra,-0.996,IMERG-L,20,0.762,1329
+96161,Teluk Bayur,Sumatra,-0.996,IMERG-L,50,0.343,530
+96161,Teluk Bayur,Sumatra,-0.996,IMERG-L,100,0.124,161
+96161,Teluk Bayur,Sumatra,-0.996,LSEQM+DL,1,0.833,3617
+96161,Teluk Bayur,Sumatra,-0.996,LSEQM+DL,5,0.888,2538
+96161,Teluk Bayur,Sumatra,-0.996,LSEQM+DL,10,0.944,1974
+96161,Teluk Bayur,Sumatra,-0.996,LSEQM+DL,20,0.984,1329
+96161,Teluk Bayur,Sumatra,-0.996,LSEQM+DL,50,1.274,530
+96161,Teluk Bayur,Sumatra,-0.996,LSEQM+DL,100,1.23,161
+96163,Minangkabau,Sumatra,-0.794,IMERG-L,1,1.258,3600
+96163,Minangkabau,Sumatra,-0.794,IMERG-L,5,1.146,2575
+96163,Minangkabau,Sumatra,-0.794,IMERG-L,10,1.018,1982
+96163,Minangkabau,Sumatra,-0.794,IMERG-L,20,0.794,1326
+96163,Minangkabau,Sumatra,-0.794,IMERG-L,50,0.414,478
+96163,Minangkabau,Sumatra,-0.794,IMERG-L,100,0.211,123
+96163,Minangkabau,Sumatra,-0.794,LSEQM+DL,1,0.791,3600
+96163,Minangkabau,Sumatra,-0.794,LSEQM+DL,5,0.839,2575
+96163,Minangkabau,Sumatra,-0.794,LSEQM+DL,10,0.88,1982
+96163,Minangkabau,Sumatra,-0.794,LSEQM+DL,20,0.942,1326
+96163,Minangkabau,Sumatra,-0.794,LSEQM+DL,50,1.423,478
+96163,Minangkabau,Sumatra,-0.794,LSEQM+DL,100,1.724,123
+96165,Geofisika Padang Panjang,Sumatra,-0.466,IMERG-L,1,0.986,4095
+96165,Geofisika Padang Panjang,Sumatra,-0.466,IMERG-L,5,0.91,2821
+96165,Geofisika Padang Panjang,Sumatra,-0.466,IMERG-L,10,0.815,2024
+96165,Geofisika Padang Panjang,Sumatra,-0.466,IMERG-L,20,0.62,1212
+96165,Geofisika Padang Panjang,Sumatra,-0.466,IMERG-L,50,0.313,310
+96165,Geofisika Padang Panjang,Sumatra,-0.466,IMERG-L,100,0.116,43
+96165,Geofisika Padang Panjang,Sumatra,-0.466,LSEQM+DL,1,0.703,4095
+96165,Geofisika Padang Panjang,Sumatra,-0.466,LSEQM+DL,5,0.75,2821
+96165,Geofisika Padang Panjang,Sumatra,-0.466,LSEQM+DL,10,0.818,2024
+96165,Geofisika Padang Panjang,Sumatra,-0.466,LSEQM+DL,20,0.923,1212
+96165,Geofisika Padang Panjang,Sumatra,-0.466,LSEQM+DL,50,1.597,310
+96165,Geofisika Padang Panjang,Sumatra,-0.466,LSEQM+DL,100,3.163,43
+96167,Padang Pariaman,Sumatra,-0.545,IMERG-L,1,1.139,3622
+96167,Padang Pariaman,Sumatra,-0.545,IMERG-L,5,0.991,2680
+96167,Padang Pariaman,Sumatra,-0.545,IMERG-L,10,0.835,2132
+96167,Padang Pariaman,Sumatra,-0.545,IMERG-L,20,0.614,1437
+96167,Padang Pariaman,Sumatra,-0.545,IMERG-L,50,0.284,497
+96167,Padang Pariaman,Sumatra,-0.545,IMERG-L,100,0.188,80
+96167,Padang Pariaman,Sumatra,-0.545,LSEQM+DL,1,0.777,3622
+96167,Padang Pariaman,Sumatra,-0.545,LSEQM+DL,5,0.785,2680
+96167,Padang Pariaman,Sumatra,-0.545,LSEQM+DL,10,0.769,2132
+96167,Padang Pariaman,Sumatra,-0.545,LSEQM+DL,20,0.772,1437
+96167,Padang Pariaman,Sumatra,-0.545,LSEQM+DL,50,1.119,497
+96167,Padang Pariaman,Sumatra,-0.545,LSEQM+DL,100,2.025,80
+96171,Japura,Sumatra,-0.33,IMERG-L,1,1.397,2819
+96171,Japura,Sumatra,-0.33,IMERG-L,5,1.246,1861
+96171,Japura,Sumatra,-0.33,IMERG-L,10,1.143,1319
+96171,Japura,Sumatra,-0.33,IMERG-L,20,0.943,774
+96171,Japura,Sumatra,-0.33,IMERG-L,50,0.699,193
+96171,Japura,Sumatra,-0.33,IMERG-L,100,1.5,14
+96171,Japura,Sumatra,-0.33,LSEQM+DL,1,1.087,2819
+96171,Japura,Sumatra,-0.33,LSEQM+DL,5,1.002,1861
+96171,Japura,Sumatra,-0.33,LSEQM+DL,10,0.976,1319
+96171,Japura,Sumatra,-0.33,LSEQM+DL,20,1.019,774
+96171,Japura,Sumatra,-0.33,LSEQM+DL,50,1.446,193
+96171,Japura,Sumatra,-0.33,LSEQM+DL,100,1.429,14
+96179,Dabo,Sumatra,-0.48,IMERG-L,1,1.609,3165
+96179,Dabo,Sumatra,-0.48,IMERG-L,5,1.357,2019
+96179,Dabo,Sumatra,-0.48,IMERG-L,10,1.198,1412
+96179,Dabo,Sumatra,-0.48,IMERG-L,20,0.995,788
+96179,Dabo,Sumatra,-0.48,IMERG-L,50,0.587,201
+96179,Dabo,Sumatra,-0.48,IMERG-L,100,1.059,17
+96179,Dabo,Sumatra,-0.48,LSEQM+DL,1,1.043,3165
+96179,Dabo,Sumatra,-0.48,LSEQM+DL,5,0.996,2019
+96179,Dabo,Sumatra,-0.48,LSEQM+DL,10,1.005,1412
+96179,Dabo,Sumatra,-0.48,LSEQM+DL,20,1.176,788
+96179,Dabo,Sumatra,-0.48,LSEQM+DL,50,1.423,201
+96179,Dabo,Sumatra,-0.48,LSEQM+DL,100,1.353,17
+96191,Muaro Jambi,Sumatra,-1.602,IMERG-L,1,1.39,3024
+96191,Muaro Jambi,Sumatra,-1.602,IMERG-L,5,1.188,2044
+96191,Muaro Jambi,Sumatra,-1.602,IMERG-L,10,1.023,1491
+96191,Muaro Jambi,Sumatra,-1.602,IMERG-L,20,0.773,873
+96191,Muaro Jambi,Sumatra,-1.602,IMERG-L,50,0.468,218
+96191,Muaro Jambi,Sumatra,-1.602,IMERG-L,100,0.882,17
+96191,Muaro Jambi,Sumatra,-1.602,LSEQM+DL,1,0.928,3024
+96191,Muaro Jambi,Sumatra,-1.602,LSEQM+DL,5,0.847,2044
+96191,Muaro Jambi,Sumatra,-1.602,LSEQM+DL,10,0.815,1491
+96191,Muaro Jambi,Sumatra,-1.602,LSEQM+DL,20,0.9,873
+96191,Muaro Jambi,Sumatra,-1.602,LSEQM+DL,50,1.124,218
+96191,Muaro Jambi,Sumatra,-1.602,LSEQM+DL,100,0.706,17
+96195,Sultan Thaha,Sumatra,-1.634,IMERG-L,1,1.47,2979
+96195,Sultan Thaha,Sumatra,-1.634,IMERG-L,5,1.368,1891
+96195,Sultan Thaha,Sumatra,-1.634,IMERG-L,10,1.128,1385
+96195,Sultan Thaha,Sumatra,-1.634,IMERG-L,20,0.851,812
+96195,Sultan Thaha,Sumatra,-1.634,IMERG-L,50,0.594,170
+96195,Sultan Thaha,Sumatra,-1.634,IMERG-L,100,0.846,13
+96195,Sultan Thaha,Sumatra,-1.634,LSEQM+DL,1,0.946,2979
+96195,Sultan Thaha,Sumatra,-1.634,LSEQM+DL,5,0.944,1891
+96195,Sultan Thaha,Sumatra,-1.634,LSEQM+DL,10,0.909,1385
+96195,Sultan Thaha,Sumatra,-1.634,LSEQM+DL,20,1.036,812
+96195,Sultan Thaha,Sumatra,-1.634,LSEQM+DL,50,1.653,170
+96195,Sultan Thaha,Sumatra,-1.634,LSEQM+DL,100,1.308,13
+96207,Depati Parbo,Sumatra,-2.083,IMERG-L,1,1.559,2789
+96207,Depati Parbo,Sumatra,-2.083,IMERG-L,5,1.505,1633
+96207,Depati Parbo,Sumatra,-2.083,IMERG-L,10,1.527,946
+96207,Depati Parbo,Sumatra,-2.083,IMERG-L,20,1.385,447
+96207,Depati Parbo,Sumatra,-2.083,IMERG-L,50,1.153,59
+96207,Depati Parbo,Sumatra,-2.083,IMERG-L,100,,2
+96207,Depati Parbo,Sumatra,-2.083,LSEQM+DL,1,1.042,2789
+96207,Depati Parbo,Sumatra,-2.083,LSEQM+DL,5,1.062,1633
+96207,Depati Parbo,Sumatra,-2.083,LSEQM+DL,10,1.221,946
+96207,Depati Parbo,Sumatra,-2.083,LSEQM+DL,20,1.559,447
+96207,Depati Parbo,Sumatra,-2.083,LSEQM+DL,50,2.661,59
+96207,Depati Parbo,Sumatra,-2.083,LSEQM+DL,100,,2
+96221,Sultan Mahmud Badaruddin II,Sumatra,-2.895,IMERG-L,1,1.181,3101
+96221,Sultan Mahmud Badaruddin II,Sumatra,-2.895,IMERG-L,5,1.119,2101
+96221,Sultan Mahmud Badaruddin II,Sumatra,-2.895,IMERG-L,10,1.025,1519
+96221,Sultan Mahmud Badaruddin II,Sumatra,-2.895,IMERG-L,20,0.882,891
+96221,Sultan Mahmud Badaruddin II,Sumatra,-2.895,IMERG-L,50,0.641,223
+96221,Sultan Mahmud Badaruddin II,Sumatra,-2.895,IMERG-L,100,0.486,35
+96221,Sultan Mahmud Badaruddin II,Sumatra,-2.895,LSEQM+DL,1,0.872,3101
+96221,Sultan Mahmud Badaruddin II,Sumatra,-2.895,LSEQM+DL,5,0.85,2101
+96221,Sultan Mahmud Badaruddin II,Sumatra,-2.895,LSEQM+DL,10,0.879,1519
+96221,Sultan Mahmud Badaruddin II,Sumatra,-2.895,LSEQM+DL,20,0.928,891
+96221,Sultan Mahmud Badaruddin II,Sumatra,-2.895,LSEQM+DL,50,1.372,223
+96221,Sultan Mahmud Badaruddin II,Sumatra,-2.895,LSEQM+DL,100,1.086,35
+96223,Palembang,Sumatra,-2.927,IMERG-L,1,1.203,3116
+96223,Palembang,Sumatra,-2.927,IMERG-L,5,1.124,2073
+96223,Palembang,Sumatra,-2.927,IMERG-L,10,1.003,1517
+96223,Palembang,Sumatra,-2.927,IMERG-L,20,0.835,925
+96223,Palembang,Sumatra,-2.927,IMERG-L,50,0.487,265
+96223,Palembang,Sumatra,-2.927,IMERG-L,100,0.458,24
+96223,Palembang,Sumatra,-2.927,LSEQM+DL,1,0.813,3116
+96223,Palembang,Sumatra,-2.927,LSEQM+DL,5,0.825,2073
+96223,Palembang,Sumatra,-2.927,LSEQM+DL,10,0.825,1517
+96223,Palembang,Sumatra,-2.927,LSEQM+DL,20,0.862,925
+96223,Palembang,Sumatra,-2.927,LSEQM+DL,50,1.223,265
+96223,Palembang,Sumatra,-2.927,LSEQM+DL,100,1.208,24
+96237,Depati Amir,Sumatra,-2.17,IMERG-L,1,1.322,3194
+96237,Depati Amir,Sumatra,-2.17,IMERG-L,5,1.211,2079
+96237,Depati Amir,Sumatra,-2.17,IMERG-L,10,1.121,1438
+96237,Depati Amir,Sumatra,-2.17,IMERG-L,20,0.914,833
+96237,Depati Amir,Sumatra,-2.17,IMERG-L,50,0.774,159
+96237,Depati Amir,Sumatra,-2.17,IMERG-L,100,0.538,13
+96237,Depati Amir,Sumatra,-2.17,LSEQM+DL,1,1.02,3194
+96237,Depati Amir,Sumatra,-2.17,LSEQM+DL,5,0.959,2079
+96237,Depati Amir,Sumatra,-2.17,LSEQM+DL,10,0.955,1438
+96237,Depati Amir,Sumatra,-2.17,LSEQM+DL,20,0.977,833
+96237,Depati Amir,Sumatra,-2.17,LSEQM+DL,50,1.547,159
+96237,Depati Amir,Sumatra,-2.17,LSEQM+DL,100,1.692,13
+96239,Bangka Tengah,Sumatra,-2.518,IMERG-L,1,1.07,702
+96239,Bangka Tengah,Sumatra,-2.518,IMERG-L,5,0.998,474
+96239,Bangka Tengah,Sumatra,-2.518,IMERG-L,10,0.927,330
+96239,Bangka Tengah,Sumatra,-2.518,IMERG-L,20,0.781,183
+96239,Bangka Tengah,Sumatra,-2.518,IMERG-L,50,0.605,38
+96239,Bangka Tengah,Sumatra,-2.518,IMERG-L,100,0.111,9
+96239,Bangka Tengah,Sumatra,-2.518,LSEQM+DL,1,0.987,702
+96239,Bangka Tengah,Sumatra,-2.518,LSEQM+DL,5,0.892,474
+96239,Bangka Tengah,Sumatra,-2.518,LSEQM+DL,10,0.861,330
+96239,Bangka Tengah,Sumatra,-2.518,LSEQM+DL,20,0.792,183
+96239,Bangka Tengah,Sumatra,-2.518,LSEQM+DL,50,0.816,38
+96239,Bangka Tengah,Sumatra,-2.518,LSEQM+DL,100,0.111,9
+96247,Geofisika Tanjung Pandan,Sumatra,-2.758,IMERG-L,1,1.165,2647
+96247,Geofisika Tanjung Pandan,Sumatra,-2.758,IMERG-L,5,1.186,1820
+96247,Geofisika Tanjung Pandan,Sumatra,-2.758,IMERG-L,10,1.157,1326
+96247,Geofisika Tanjung Pandan,Sumatra,-2.758,IMERG-L,20,0.995,779
+96247,Geofisika Tanjung Pandan,Sumatra,-2.758,IMERG-L,50,0.821,173
+96247,Geofisika Tanjung Pandan,Sumatra,-2.758,IMERG-L,100,0.75,20
+96247,Geofisika Tanjung Pandan,Sumatra,-2.758,LSEQM+DL,1,0.887,2647
+96247,Geofisika Tanjung Pandan,Sumatra,-2.758,LSEQM+DL,5,0.971,1820
+96247,Geofisika Tanjung Pandan,Sumatra,-2.758,LSEQM+DL,10,1.008,1326
+96247,Geofisika Tanjung Pandan,Sumatra,-2.758,LSEQM+DL,20,1.037,779
+96247,Geofisika Tanjung Pandan,Sumatra,-2.758,LSEQM+DL,50,1.595,173
+96247,Geofisika Tanjung Pandan,Sumatra,-2.758,LSEQM+DL,100,1.55,20
+96249,H. AS. Hananjoeddin,Sumatra,-2.75,IMERG-L,1,1.204,2065
+96249,H. AS. Hananjoeddin,Sumatra,-2.75,IMERG-L,5,1.182,1441
+96249,H. AS. Hananjoeddin,Sumatra,-2.75,IMERG-L,10,1.141,1051
+96249,H. AS. Hananjoeddin,Sumatra,-2.75,IMERG-L,20,0.946,644
+96249,H. AS. Hananjoeddin,Sumatra,-2.75,IMERG-L,50,0.629,151
+96249,H. AS. Hananjoeddin,Sumatra,-2.75,IMERG-L,100,0.611,18
+96249,H. AS. Hananjoeddin,Sumatra,-2.75,LSEQM+DL,1,0.871,2065
+96249,H. AS. Hananjoeddin,Sumatra,-2.75,LSEQM+DL,5,0.92,1441
+96249,H. AS. Hananjoeddin,Sumatra,-2.75,LSEQM+DL,10,0.984,1051
+96249,H. AS. Hananjoeddin,Sumatra,-2.75,LSEQM+DL,20,0.974,644
+96249,H. AS. Hananjoeddin,Sumatra,-2.75,LSEQM+DL,50,1.464,151
+96249,H. AS. Hananjoeddin,Sumatra,-2.75,LSEQM+DL,100,1.944,18
+96253,Fatmawati Soekarno,Sumatra,-3.858,IMERG-L,1,1.238,3353
+96253,Fatmawati Soekarno,Sumatra,-3.858,IMERG-L,5,1.179,2287
+96253,Fatmawati Soekarno,Sumatra,-3.858,IMERG-L,10,1.044,1706
+96253,Fatmawati Soekarno,Sumatra,-3.858,IMERG-L,20,0.833,1052
+96253,Fatmawati Soekarno,Sumatra,-3.858,IMERG-L,50,0.447,358
+96253,Fatmawati Soekarno,Sumatra,-3.858,IMERG-L,100,0.308,65
+96253,Fatmawati Soekarno,Sumatra,-3.858,LSEQM+DL,1,0.761,3353
+96253,Fatmawati Soekarno,Sumatra,-3.858,LSEQM+DL,5,0.797,2287
+96253,Fatmawati Soekarno,Sumatra,-3.858,LSEQM+DL,10,0.822,1706
+96253,Fatmawati Soekarno,Sumatra,-3.858,LSEQM+DL,20,0.89,1052
+96253,Fatmawati Soekarno,Sumatra,-3.858,LSEQM+DL,50,1.293,358
+96253,Fatmawati Soekarno,Sumatra,-3.858,LSEQM+DL,100,1.754,65
+96255,Bengkulu,Sumatra,-3.865,IMERG-L,1,1.215,3551
+96255,Bengkulu,Sumatra,-3.865,IMERG-L,5,1.167,2397
+96255,Bengkulu,Sumatra,-3.865,IMERG-L,10,1.032,1766
+96255,Bengkulu,Sumatra,-3.865,IMERG-L,20,0.836,1095
+96255,Bengkulu,Sumatra,-3.865,IMERG-L,50,0.442,389
+96255,Bengkulu,Sumatra,-3.865,IMERG-L,100,0.288,73
+96255,Bengkulu,Sumatra,-3.865,LSEQM+DL,1,0.746,3551
+96255,Bengkulu,Sumatra,-3.865,LSEQM+DL,5,0.782,2397
+96255,Bengkulu,Sumatra,-3.865,LSEQM+DL,10,0.818,1766
+96255,Bengkulu,Sumatra,-3.865,LSEQM+DL,20,0.887,1095
+96255,Bengkulu,Sumatra,-3.865,LSEQM+DL,50,1.252,389
+96255,Bengkulu,Sumatra,-3.865,LSEQM+DL,100,1.603,73
+96257,Geofisika Kepahiang,Sumatra,-3.55,IMERG-L,1,1.058,2310
+96257,Geofisika Kepahiang,Sumatra,-3.55,IMERG-L,5,1.02,1545
+96257,Geofisika Kepahiang,Sumatra,-3.55,IMERG-L,10,0.909,1119
+96257,Geofisika Kepahiang,Sumatra,-3.55,IMERG-L,20,0.689,621
+96257,Geofisika Kepahiang,Sumatra,-3.55,IMERG-L,50,0.275,149
+96257,Geofisika Kepahiang,Sumatra,-3.55,IMERG-L,100,0.429,7
+96257,Geofisika Kepahiang,Sumatra,-3.55,LSEQM+DL,1,0.7,2310
+96257,Geofisika Kepahiang,Sumatra,-3.55,LSEQM+DL,5,0.757,1545
+96257,Geofisika Kepahiang,Sumatra,-3.55,LSEQM+DL,10,0.772,1119
+96257,Geofisika Kepahiang,Sumatra,-3.55,LSEQM+DL,20,0.902,621
+96257,Geofisika Kepahiang,Sumatra,-3.55,LSEQM+DL,50,1.483,149
+96257,Geofisika Kepahiang,Sumatra,-3.55,LSEQM+DL,100,5.0,7
+96291,Pesawaran,Sumatra,-5.172,IMERG-L,1,1.12,2724
+96291,Pesawaran,Sumatra,-5.172,IMERG-L,5,1.127,1652
+96291,Pesawaran,Sumatra,-5.172,IMERG-L,10,1.017,1157
+96291,Pesawaran,Sumatra,-5.172,IMERG-L,20,0.867,669
+96291,Pesawaran,Sumatra,-5.172,IMERG-L,50,0.615,156
+96291,Pesawaran,Sumatra,-5.172,IMERG-L,100,1.0,15
+96291,Pesawaran,Sumatra,-5.172,LSEQM+DL,1,0.782,2724
+96291,Pesawaran,Sumatra,-5.172,LSEQM+DL,5,0.804,1652
+96291,Pesawaran,Sumatra,-5.172,LSEQM+DL,10,0.814,1157
+96291,Pesawaran,Sumatra,-5.172,LSEQM+DL,20,0.889,669
+96291,Pesawaran,Sumatra,-5.172,LSEQM+DL,50,1.186,156
+96291,Pesawaran,Sumatra,-5.172,LSEQM+DL,100,0.4,15
+96293,Panjang,Sumatra,-5.472,IMERG-L,1,1.314,2596
+96293,Panjang,Sumatra,-5.472,IMERG-L,5,1.235,1614
+96293,Panjang,Sumatra,-5.472,IMERG-L,10,1.115,1087
+96293,Panjang,Sumatra,-5.472,IMERG-L,20,0.988,589
+96293,Panjang,Sumatra,-5.472,IMERG-L,50,0.639,155
+96293,Panjang,Sumatra,-5.472,IMERG-L,100,0.5,18
+96293,Panjang,Sumatra,-5.472,LSEQM+DL,1,1.045,2596
+96293,Panjang,Sumatra,-5.472,LSEQM+DL,5,1.005,1614
+96293,Panjang,Sumatra,-5.472,LSEQM+DL,10,0.963,1087
+96293,Panjang,Sumatra,-5.472,LSEQM+DL,20,1.049,589
+96293,Panjang,Sumatra,-5.472,LSEQM+DL,50,0.994,155
+96293,Panjang,Sumatra,-5.472,LSEQM+DL,100,0.167,18
+96295,Radin Inten II,Sumatra,-5.16,IMERG-L,1,1.191,2769
+96295,Radin Inten II,Sumatra,-5.16,IMERG-L,5,1.171,1724
+96295,Radin Inten II,Sumatra,-5.16,IMERG-L,10,1.085,1183
+96295,Radin Inten II,Sumatra,-5.16,IMERG-L,20,0.908,686
+96295,Radin Inten II,Sumatra,-5.16,IMERG-L,50,0.654,162
+96295,Radin Inten II,Sumatra,-5.16,IMERG-L,100,1.417,12
+96295,Radin Inten II,Sumatra,-5.16,LSEQM+DL,1,0.834,2769
+96295,Radin Inten II,Sumatra,-5.16,LSEQM+DL,5,0.839,1724
+96295,Radin Inten II,Sumatra,-5.16,LSEQM+DL,10,0.864,1183
+96295,Radin Inten II,Sumatra,-5.16,LSEQM+DL,20,0.937,686
+96295,Radin Inten II,Sumatra,-5.16,LSEQM+DL,50,1.216,162
+96295,Radin Inten II,Sumatra,-5.16,LSEQM+DL,100,0.417,12
+96297,Geofisika Lampung Utara,Sumatra,-4.836,IMERG-L,1,0.979,1879
+96297,Geofisika Lampung Utara,Sumatra,-4.836,IMERG-L,5,0.997,1207
+96297,Geofisika Lampung Utara,Sumatra,-4.836,IMERG-L,10,0.931,870
+96297,Geofisika Lampung Utara,Sumatra,-4.836,IMERG-L,20,0.764,518
+96297,Geofisika Lampung Utara,Sumatra,-4.836,IMERG-L,50,0.383,133
+96297,Geofisika Lampung Utara,Sumatra,-4.836,IMERG-L,100,0.533,15
+96297,Geofisika Lampung Utara,Sumatra,-4.836,LSEQM+DL,1,0.685,1879
+96297,Geofisika Lampung Utara,Sumatra,-4.836,LSEQM+DL,5,0.688,1207
+96297,Geofisika Lampung Utara,Sumatra,-4.836,LSEQM+DL,10,0.656,870
+96297,Geofisika Lampung Utara,Sumatra,-4.836,LSEQM+DL,20,0.701,518
+96297,Geofisika Lampung Utara,Sumatra,-4.836,LSEQM+DL,50,0.722,133
+96297,Geofisika Lampung Utara,Sumatra,-4.836,LSEQM+DL,100,0.267,15
+96503,Nunukan,Kalimantan,4.13,IMERG-L,1,1.434,1851
+96503,Nunukan,Kalimantan,4.13,IMERG-L,5,1.339,1166
+96503,Nunukan,Kalimantan,4.13,IMERG-L,10,1.238,826
+96503,Nunukan,Kalimantan,4.13,IMERG-L,20,0.962,505
+96503,Nunukan,Kalimantan,4.13,IMERG-L,50,0.57,121
+96503,Nunukan,Kalimantan,4.13,IMERG-L,100,1.083,12
+96503,Nunukan,Kalimantan,4.13,LSEQM+DL,1,1.274,1851
+96503,Nunukan,Kalimantan,4.13,LSEQM+DL,5,1.188,1166
+96503,Nunukan,Kalimantan,4.13,LSEQM+DL,10,1.09,826
+96503,Nunukan,Kalimantan,4.13,LSEQM+DL,20,0.913,505
+96503,Nunukan,Kalimantan,4.13,LSEQM+DL,50,0.752,121
+96503,Nunukan,Kalimantan,4.13,LSEQM+DL,100,0.167,12
+96505,Yuvai Semaring,Kalimantan,3.86,IMERG-L,1,1.076,2757
+96505,Yuvai Semaring,Kalimantan,3.86,IMERG-L,5,1.212,1586
+96505,Yuvai Semaring,Kalimantan,3.86,IMERG-L,10,1.175,1061
+96505,Yuvai Semaring,Kalimantan,3.86,IMERG-L,20,1.097,544
+96505,Yuvai Semaring,Kalimantan,3.86,IMERG-L,50,0.922,90
+96505,Yuvai Semaring,Kalimantan,3.86,IMERG-L,100,,4
+96505,Yuvai Semaring,Kalimantan,3.86,LSEQM+DL,1,0.982,2757
+96505,Yuvai Semaring,Kalimantan,3.86,LSEQM+DL,5,1.044,1586
+96505,Yuvai Semaring,Kalimantan,3.86,LSEQM+DL,10,1.046,1061
+96505,Yuvai Semaring,Kalimantan,3.86,LSEQM+DL,20,1.026,544
+96505,Yuvai Semaring,Kalimantan,3.86,LSEQM+DL,50,1.456,90
+96505,Yuvai Semaring,Kalimantan,3.86,LSEQM+DL,100,,4
+96509,Juwata,Kalimantan,3.33,IMERG-L,1,1.195,4383
+96509,Juwata,Kalimantan,3.33,IMERG-L,5,1.128,3007
+96509,Juwata,Kalimantan,3.33,IMERG-L,10,1.076,2198
+96509,Juwata,Kalimantan,3.33,IMERG-L,20,0.885,1364
+96509,Juwata,Kalimantan,3.33,IMERG-L,50,0.629,375
+96509,Juwata,Kalimantan,3.33,IMERG-L,100,0.396,48
+96509,Juwata,Kalimantan,3.33,LSEQM+DL,1,1.074,4383
+96509,Juwata,Kalimantan,3.33,LSEQM+DL,5,1.001,3007
+96509,Juwata,Kalimantan,3.33,LSEQM+DL,10,0.913,2198
+96509,Juwata,Kalimantan,3.33,LSEQM+DL,20,0.754,1364
+96509,Juwata,Kalimantan,3.33,LSEQM+DL,50,0.568,375
+96509,Juwata,Kalimantan,3.33,LSEQM+DL,100,0.083,48
+96525,Tanjung Harapan,Kalimantan,2.5,IMERG-L,1,1.195,3369
+96525,Tanjung Harapan,Kalimantan,2.5,IMERG-L,5,1.114,2218
+96525,Tanjung Harapan,Kalimantan,2.5,IMERG-L,10,0.941,1583
+96525,Tanjung Harapan,Kalimantan,2.5,IMERG-L,20,0.742,898
+96525,Tanjung Harapan,Kalimantan,2.5,IMERG-L,50,0.625,216
+96525,Tanjung Harapan,Kalimantan,2.5,IMERG-L,100,0.9,20
+96525,Tanjung Harapan,Kalimantan,2.5,LSEQM+DL,1,1.112,3369
+96525,Tanjung Harapan,Kalimantan,2.5,LSEQM+DL,5,0.969,2218
+96525,Tanjung Harapan,Kalimantan,2.5,LSEQM+DL,10,0.834,1583
+96525,Tanjung Harapan,Kalimantan,2.5,LSEQM+DL,20,0.761,898
+96525,Tanjung Harapan,Kalimantan,2.5,LSEQM+DL,50,0.727,216
+96525,Tanjung Harapan,Kalimantan,2.5,LSEQM+DL,100,0.4,20
+96529,Kalimarau,Kalimantan,2.146,IMERG-L,1,1.09,2046
+96529,Kalimarau,Kalimantan,2.146,IMERG-L,5,1.112,1260
+96529,Kalimarau,Kalimantan,2.146,IMERG-L,10,1.046,855
+96529,Kalimarau,Kalimantan,2.146,IMERG-L,20,0.862,465
+96529,Kalimarau,Kalimantan,2.146,IMERG-L,50,0.791,67
+96529,Kalimarau,Kalimantan,2.146,IMERG-L,100,1.2,5
+96529,Kalimarau,Kalimantan,2.146,LSEQM+DL,1,1.024,2046
+96529,Kalimarau,Kalimantan,2.146,LSEQM+DL,5,0.993,1260
+96529,Kalimarau,Kalimantan,2.146,LSEQM+DL,10,0.932,855
+96529,Kalimarau,Kalimantan,2.146,LSEQM+DL,20,0.86,465
+96529,Kalimarau,Kalimantan,2.146,LSEQM+DL,50,1.164,67
+96529,Kalimarau,Kalimantan,2.146,LSEQM+DL,100,1.0,5
+96535,Paloh,Kalimantan,1.74,IMERG-L,1,1.484,3317
+96535,Paloh,Kalimantan,1.74,IMERG-L,5,1.474,2137
+96535,Paloh,Kalimantan,1.74,IMERG-L,10,1.398,1528
+96535,Paloh,Kalimantan,1.74,IMERG-L,20,1.242,909
+96535,Paloh,Kalimantan,1.74,IMERG-L,50,0.72,289
+96535,Paloh,Kalimantan,1.74,IMERG-L,100,0.623,69
+96535,Paloh,Kalimantan,1.74,LSEQM+DL,1,1.105,3317
+96535,Paloh,Kalimantan,1.74,LSEQM+DL,5,1.093,2137
+96535,Paloh,Kalimantan,1.74,LSEQM+DL,10,1.126,1528
+96535,Paloh,Kalimantan,1.74,LSEQM+DL,20,1.168,909
+96535,Paloh,Kalimantan,1.74,LSEQM+DL,50,1.176,289
+96535,Paloh,Kalimantan,1.74,LSEQM+DL,100,1.145,69
+96557,Nangapinoh,Kalimantan,-0.42,IMERG-L,1,1.123,3881
+96557,Nangapinoh,Kalimantan,-0.42,IMERG-L,5,1.071,2725
+96557,Nangapinoh,Kalimantan,-0.42,IMERG-L,10,0.985,2015
+96557,Nangapinoh,Kalimantan,-0.42,IMERG-L,20,0.863,1265
+96557,Nangapinoh,Kalimantan,-0.42,IMERG-L,50,0.613,395
+96557,Nangapinoh,Kalimantan,-0.42,IMERG-L,100,0.8,45
+96557,Nangapinoh,Kalimantan,-0.42,LSEQM+DL,1,1.007,3881
+96557,Nangapinoh,Kalimantan,-0.42,LSEQM+DL,5,0.899,2725
+96557,Nangapinoh,Kalimantan,-0.42,LSEQM+DL,10,0.842,2015
+96557,Nangapinoh,Kalimantan,-0.42,LSEQM+DL,20,0.755,1265
+96557,Nangapinoh,Kalimantan,-0.42,LSEQM+DL,50,0.729,395
+96557,Nangapinoh,Kalimantan,-0.42,LSEQM+DL,100,0.289,45
+96559,Susilo,Kalimantan,0.06,IMERG-L,1,1.37,3652
+96559,Susilo,Kalimantan,0.06,IMERG-L,5,1.31,2576
+96559,Susilo,Kalimantan,0.06,IMERG-L,10,1.296,1868
+96559,Susilo,Kalimantan,0.06,IMERG-L,20,1.216,1096
+96559,Susilo,Kalimantan,0.06,IMERG-L,50,0.735,306
+96559,Susilo,Kalimantan,0.06,IMERG-L,100,0.933,30
+96559,Susilo,Kalimantan,0.06,LSEQM+DL,1,1.259,3652
+96559,Susilo,Kalimantan,0.06,LSEQM+DL,5,1.136,2576
+96559,Susilo,Kalimantan,0.06,LSEQM+DL,10,1.112,1868
+96559,Susilo,Kalimantan,0.06,LSEQM+DL,20,1.05,1096
+96559,Susilo,Kalimantan,0.06,LSEQM+DL,50,0.889,306
+96559,Susilo,Kalimantan,0.06,LSEQM+DL,100,0.467,30
+96565,Pangsuma,Kalimantan,0.84,IMERG-L,1,1.089,4372
+96565,Pangsuma,Kalimantan,0.84,IMERG-L,5,1.089,3148
+96565,Pangsuma,Kalimantan,0.84,IMERG-L,10,1.04,2392
+96565,Pangsuma,Kalimantan,0.84,IMERG-L,20,0.888,1484
+96565,Pangsuma,Kalimantan,0.84,IMERG-L,50,0.527,414
+96565,Pangsuma,Kalimantan,0.84,IMERG-L,100,0.325,40
+96565,Pangsuma,Kalimantan,0.84,LSEQM+DL,1,0.826,4372
+96565,Pangsuma,Kalimantan,0.84,LSEQM+DL,5,0.833,3148
+96565,Pangsuma,Kalimantan,0.84,LSEQM+DL,10,0.832,2392
+96565,Pangsuma,Kalimantan,0.84,LSEQM+DL,20,0.81,1484
+96565,Pangsuma,Kalimantan,0.84,LSEQM+DL,50,1.072,414
+96565,Pangsuma,Kalimantan,0.84,LSEQM+DL,100,1.225,40
+96581,Supadio,Kalimantan,-0.142,IMERG-L,1,1.237,3638
+96581,Supadio,Kalimantan,-0.142,IMERG-L,5,1.208,2493
+96581,Supadio,Kalimantan,-0.142,IMERG-L,10,1.138,1844
+96581,Supadio,Kalimantan,-0.142,IMERG-L,20,0.92,1144
+96581,Supadio,Kalimantan,-0.142,IMERG-L,50,0.557,291
+96581,Supadio,Kalimantan,-0.142,IMERG-L,100,0.52,25
+96581,Supadio,Kalimantan,-0.142,LSEQM+DL,1,0.965,3638
+96581,Supadio,Kalimantan,-0.142,LSEQM+DL,5,0.982,2493
+96581,Supadio,Kalimantan,-0.142,LSEQM+DL,10,0.989,1844
+96581,Supadio,Kalimantan,-0.142,LSEQM+DL,20,0.945,1144
+96581,Supadio,Kalimantan,-0.142,LSEQM+DL,50,1.213,291
+96581,Supadio,Kalimantan,-0.142,LSEQM+DL,100,1.28,25
+96583,Mempawah,Kalimantan,0.075,IMERG-L,1,1.409,3180
+96583,Mempawah,Kalimantan,0.075,IMERG-L,5,1.386,2106
+96583,Mempawah,Kalimantan,0.075,IMERG-L,10,1.322,1530
+96583,Mempawah,Kalimantan,0.075,IMERG-L,20,1.085,964
+96583,Mempawah,Kalimantan,0.075,IMERG-L,50,0.676,290
+96583,Mempawah,Kalimantan,0.075,IMERG-L,100,0.585,41
+96583,Mempawah,Kalimantan,0.075,LSEQM+DL,1,1.12,3180
+96583,Mempawah,Kalimantan,0.075,LSEQM+DL,5,1.114,2106
+96583,Mempawah,Kalimantan,0.075,LSEQM+DL,10,1.144,1530
+96583,Mempawah,Kalimantan,0.075,LSEQM+DL,20,1.045,964
+96583,Mempawah,Kalimantan,0.075,LSEQM+DL,50,1.241,290
+96583,Mempawah,Kalimantan,0.075,LSEQM+DL,100,1.171,41
+96585,Pontianak,Kalimantan,-0.03,IMERG-L,1,1.35,2470
+96585,Pontianak,Kalimantan,-0.03,IMERG-L,5,1.224,1728
+96585,Pontianak,Kalimantan,-0.03,IMERG-L,10,1.131,1258
+96585,Pontianak,Kalimantan,-0.03,IMERG-L,20,0.933,788
+96585,Pontianak,Kalimantan,-0.03,IMERG-L,50,0.614,210
+96585,Pontianak,Kalimantan,-0.03,IMERG-L,100,0.5,22
+96585,Pontianak,Kalimantan,-0.03,LSEQM+DL,1,0.894,2470
+96585,Pontianak,Kalimantan,-0.03,LSEQM+DL,5,0.908,1728
+96585,Pontianak,Kalimantan,-0.03,LSEQM+DL,10,0.947,1258
+96585,Pontianak,Kalimantan,-0.03,LSEQM+DL,20,0.982,788
+96585,Pontianak,Kalimantan,-0.03,LSEQM+DL,50,1.457,210
+96585,Pontianak,Kalimantan,-0.03,LSEQM+DL,100,1.545,22
+96595,Beringin,Kalimantan,-0.56,IMERG-L,1,1.076,3370
+96595,Beringin,Kalimantan,-0.56,IMERG-L,5,1.037,2310
+96595,Beringin,Kalimantan,-0.56,IMERG-L,10,0.99,1729
+96595,Beringin,Kalimantan,-0.56,IMERG-L,20,0.939,1048
+96595,Beringin,Kalimantan,-0.56,IMERG-L,50,0.863,299
+96595,Beringin,Kalimantan,-0.56,IMERG-L,100,0.822,45
+96595,Beringin,Kalimantan,-0.56,LSEQM+DL,1,0.937,3370
+96595,Beringin,Kalimantan,-0.56,LSEQM+DL,5,0.874,2310
+96595,Beringin,Kalimantan,-0.56,LSEQM+DL,10,0.809,1729
+96595,Beringin,Kalimantan,-0.56,LSEQM+DL,20,0.747,1048
+96595,Beringin,Kalimantan,-0.56,LSEQM+DL,50,0.806,299
+96595,Beringin,Kalimantan,-0.56,LSEQM+DL,100,0.422,45
+96607,Temindung,Kalimantan,-0.48,IMERG-L,1,1.249,3190
+96607,Temindung,Kalimantan,-0.48,IMERG-L,5,1.303,1971
+96607,Temindung,Kalimantan,-0.48,IMERG-L,10,1.244,1341
+96607,Temindung,Kalimantan,-0.48,IMERG-L,20,0.979,748
+96607,Temindung,Kalimantan,-0.48,IMERG-L,50,0.507,150
+96607,Temindung,Kalimantan,-0.48,IMERG-L,100,0.583,12
+96607,Temindung,Kalimantan,-0.48,LSEQM+DL,1,1.0,3190
+96607,Temindung,Kalimantan,-0.48,LSEQM+DL,5,1.055,1971
+96607,Temindung,Kalimantan,-0.48,LSEQM+DL,10,1.077,1341
+96607,Temindung,Kalimantan,-0.48,LSEQM+DL,20,1.028,748
+96607,Temindung,Kalimantan,-0.48,LSEQM+DL,50,1.24,150
+96607,Temindung,Kalimantan,-0.48,LSEQM+DL,100,1.083,12
+96615,Rahadi Oesman,Kalimantan,-1.8,IMERG-L,1,1.452,3209
+96615,Rahadi Oesman,Kalimantan,-1.8,IMERG-L,5,1.292,2295
+96615,Rahadi Oesman,Kalimantan,-1.8,IMERG-L,10,1.213,1696
+96615,Rahadi Oesman,Kalimantan,-1.8,IMERG-L,20,1.007,1063
+96615,Rahadi Oesman,Kalimantan,-1.8,IMERG-L,50,0.604,346
+96615,Rahadi Oesman,Kalimantan,-1.8,IMERG-L,100,0.293,58
+96615,Rahadi Oesman,Kalimantan,-1.8,LSEQM+DL,1,0.897,3209
+96615,Rahadi Oesman,Kalimantan,-1.8,LSEQM+DL,5,0.878,2295
+96615,Rahadi Oesman,Kalimantan,-1.8,LSEQM+DL,10,0.895,1696
+96615,Rahadi Oesman,Kalimantan,-1.8,LSEQM+DL,20,0.908,1063
+96615,Rahadi Oesman,Kalimantan,-1.8,LSEQM+DL,50,1.306,346
+96615,Rahadi Oesman,Kalimantan,-1.8,LSEQM+DL,100,1.552,58
+96633,Sultan Aji Muhammad Sulaiman,Kalimantan,-1.26,IMERG-L,1,1.365,3591
+96633,Sultan Aji Muhammad Sulaiman,Kalimantan,-1.26,IMERG-L,5,1.371,2341
+96633,Sultan Aji Muhammad Sulaiman,Kalimantan,-1.26,IMERG-L,10,1.334,1661
+96633,Sultan Aji Muhammad Sulaiman,Kalimantan,-1.26,IMERG-L,20,1.149,969
+96633,Sultan Aji Muhammad Sulaiman,Kalimantan,-1.26,IMERG-L,50,0.703,246
+96633,Sultan Aji Muhammad Sulaiman,Kalimantan,-1.26,IMERG-L,100,0.647,34
+96633,Sultan Aji Muhammad Sulaiman,Kalimantan,-1.26,LSEQM+DL,1,1.064,3591
+96633,Sultan Aji Muhammad Sulaiman,Kalimantan,-1.26,LSEQM+DL,5,1.034,2341
+96633,Sultan Aji Muhammad Sulaiman,Kalimantan,-1.26,LSEQM+DL,10,1.021,1661
+96633,Sultan Aji Muhammad Sulaiman,Kalimantan,-1.26,LSEQM+DL,20,0.971,969
+96633,Sultan Aji Muhammad Sulaiman,Kalimantan,-1.26,LSEQM+DL,50,0.915,246
+96633,Sultan Aji Muhammad Sulaiman,Kalimantan,-1.26,LSEQM+DL,100,0.441,34
+96645,Iskandar,Kalimantan,-2.73,IMERG-L,1,1.157,3642
+96645,Iskandar,Kalimantan,-2.73,IMERG-L,5,1.121,2410
+96645,Iskandar,Kalimantan,-2.73,IMERG-L,10,1.088,1646
+96645,Iskandar,Kalimantan,-2.73,IMERG-L,20,0.901,919
+96645,Iskandar,Kalimantan,-2.73,IMERG-L,50,0.481,216
+96645,Iskandar,Kalimantan,-2.73,IMERG-L,100,0.32,25
+96645,Iskandar,Kalimantan,-2.73,LSEQM+DL,1,0.873,3642
+96645,Iskandar,Kalimantan,-2.73,LSEQM+DL,5,0.916,2410
+96645,Iskandar,Kalimantan,-2.73,LSEQM+DL,10,0.971,1646
+96645,Iskandar,Kalimantan,-2.73,LSEQM+DL,20,0.992,919
+96645,Iskandar,Kalimantan,-2.73,LSEQM+DL,50,1.523,216
+96645,Iskandar,Kalimantan,-2.73,LSEQM+DL,100,0.72,25
+96651,H. Asan,Kalimantan,-2.55,IMERG-L,1,1.075,3413
+96651,H. Asan,Kalimantan,-2.55,IMERG-L,5,1.09,2272
+96651,H. Asan,Kalimantan,-2.55,IMERG-L,10,1.019,1648
+96651,H. Asan,Kalimantan,-2.55,IMERG-L,20,0.802,1031
+96651,H. Asan,Kalimantan,-2.55,IMERG-L,50,0.509,291
+96651,H. Asan,Kalimantan,-2.55,IMERG-L,100,0.441,34
+96651,H. Asan,Kalimantan,-2.55,LSEQM+DL,1,1.044,3413
+96651,H. Asan,Kalimantan,-2.55,LSEQM+DL,5,1.058,2272
+96651,H. Asan,Kalimantan,-2.55,LSEQM+DL,10,0.966,1648
+96651,H. Asan,Kalimantan,-2.55,LSEQM+DL,20,0.746,1031
+96651,H. Asan,Kalimantan,-2.55,LSEQM+DL,50,0.574,291
+96651,H. Asan,Kalimantan,-2.55,LSEQM+DL,100,0.0,34
+96653,Sanggu,Kalimantan,-1.67,IMERG-L,1,1.266,3225
+96653,Sanggu,Kalimantan,-1.67,IMERG-L,5,1.176,2171
+96653,Sanggu,Kalimantan,-1.67,IMERG-L,10,1.121,1517
+96653,Sanggu,Kalimantan,-1.67,IMERG-L,20,0.956,841
+96653,Sanggu,Kalimantan,-1.67,IMERG-L,50,0.588,216
+96653,Sanggu,Kalimantan,-1.67,IMERG-L,100,0.483,29
+96653,Sanggu,Kalimantan,-1.67,LSEQM+DL,1,1.22,3225
+96653,Sanggu,Kalimantan,-1.67,LSEQM+DL,5,1.144,2171
+96653,Sanggu,Kalimantan,-1.67,LSEQM+DL,10,1.102,1517
+96653,Sanggu,Kalimantan,-1.67,LSEQM+DL,20,1.046,841
+96653,Sanggu,Kalimantan,-1.67,LSEQM+DL,50,0.977,216
+96653,Sanggu,Kalimantan,-1.67,LSEQM+DL,100,0.241,29
+96655,Tjilik Riwut,Kalimantan,-2.22,IMERG-L,1,1.23,3486
+96655,Tjilik Riwut,Kalimantan,-2.22,IMERG-L,5,1.19,2343
+96655,Tjilik Riwut,Kalimantan,-2.22,IMERG-L,10,1.155,1660
+96655,Tjilik Riwut,Kalimantan,-2.22,IMERG-L,20,0.973,1018
+96655,Tjilik Riwut,Kalimantan,-2.22,IMERG-L,50,0.696,270
+96655,Tjilik Riwut,Kalimantan,-2.22,IMERG-L,100,0.421,57
+96655,Tjilik Riwut,Kalimantan,-2.22,LSEQM+DL,1,1.185,3486
+96655,Tjilik Riwut,Kalimantan,-2.22,LSEQM+DL,5,1.218,2343
+96655,Tjilik Riwut,Kalimantan,-2.22,LSEQM+DL,10,1.061,1660
+96655,Tjilik Riwut,Kalimantan,-2.22,LSEQM+DL,20,0.774,1018
+96655,Tjilik Riwut,Kalimantan,-2.22,LSEQM+DL,50,0.463,270
+96655,Tjilik Riwut,Kalimantan,-2.22,LSEQM+DL,100,0.123,57
+96685,Syamsudin Noor,Kalimantan,-3.442,IMERG-L,1,1.193,2994
+96685,Syamsudin Noor,Kalimantan,-3.442,IMERG-L,5,1.204,1950
+96685,Syamsudin Noor,Kalimantan,-3.442,IMERG-L,10,1.083,1428
+96685,Syamsudin Noor,Kalimantan,-3.442,IMERG-L,20,0.878,802
+96685,Syamsudin Noor,Kalimantan,-3.442,IMERG-L,50,0.396,202
+96685,Syamsudin Noor,Kalimantan,-3.442,IMERG-L,100,0.273,22
+96685,Syamsudin Noor,Kalimantan,-3.442,LSEQM+DL,1,0.893,2994
+96685,Syamsudin Noor,Kalimantan,-3.442,LSEQM+DL,5,0.97,1950
+96685,Syamsudin Noor,Kalimantan,-3.442,LSEQM+DL,10,0.98,1428
+96685,Syamsudin Noor,Kalimantan,-3.442,LSEQM+DL,20,1.071,802
+96685,Syamsudin Noor,Kalimantan,-3.442,LSEQM+DL,50,1.332,202
+96685,Syamsudin Noor,Kalimantan,-3.442,LSEQM+DL,100,1.591,22
+96687,Banjarbaru,Kalimantan,-3.462,IMERG-L,1,1.052,1893
+96687,Banjarbaru,Kalimantan,-3.462,IMERG-L,5,1.013,1290
+96687,Banjarbaru,Kalimantan,-3.462,IMERG-L,10,0.921,941
+96687,Banjarbaru,Kalimantan,-3.462,IMERG-L,20,0.72,539
+96687,Banjarbaru,Kalimantan,-3.462,IMERG-L,50,0.353,136
+96687,Banjarbaru,Kalimantan,-3.462,IMERG-L,100,0.455,11
+96687,Banjarbaru,Kalimantan,-3.462,LSEQM+DL,1,0.847,1893
+96687,Banjarbaru,Kalimantan,-3.462,LSEQM+DL,5,0.854,1290
+96687,Banjarbaru,Kalimantan,-3.462,LSEQM+DL,10,0.863,941
+96687,Banjarbaru,Kalimantan,-3.462,LSEQM+DL,20,0.894,539
+96687,Banjarbaru,Kalimantan,-3.462,LSEQM+DL,50,1.096,136
+96687,Banjarbaru,Kalimantan,-3.462,LSEQM+DL,100,1.182,11
+96695,Gusti Syamsir Alam,Kalimantan,-3.3,IMERG-L,1,1.33,3190
+96695,Gusti Syamsir Alam,Kalimantan,-3.3,IMERG-L,5,1.315,2072
+96695,Gusti Syamsir Alam,Kalimantan,-3.3,IMERG-L,10,1.307,1388
+96695,Gusti Syamsir Alam,Kalimantan,-3.3,IMERG-L,20,1.188,741
+96695,Gusti Syamsir Alam,Kalimantan,-3.3,IMERG-L,50,0.821,168
+96695,Gusti Syamsir Alam,Kalimantan,-3.3,IMERG-L,100,0.632,19
+96695,Gusti Syamsir Alam,Kalimantan,-3.3,LSEQM+DL,1,0.971,3190
+96695,Gusti Syamsir Alam,Kalimantan,-3.3,LSEQM+DL,5,0.97,2072
+96695,Gusti Syamsir Alam,Kalimantan,-3.3,LSEQM+DL,10,1.024,1388
+96695,Gusti Syamsir Alam,Kalimantan,-3.3,LSEQM+DL,20,1.107,741
+96695,Gusti Syamsir Alam,Kalimantan,-3.3,LSEQM+DL,50,1.399,168
+96695,Gusti Syamsir Alam,Kalimantan,-3.3,LSEQM+DL,100,1.421,19
+96733,Tangerang Selatan,Jawa,-6.262,IMERG-L,1,1.33,2772
+96733,Tangerang Selatan,Jawa,-6.262,IMERG-L,5,1.276,1862
+96733,Tangerang Selatan,Jawa,-6.262,IMERG-L,10,1.191,1321
+96733,Tangerang Selatan,Jawa,-6.262,IMERG-L,20,0.981,788
+96733,Tangerang Selatan,Jawa,-6.262,IMERG-L,50,0.617,193
+96733,Tangerang Selatan,Jawa,-6.262,IMERG-L,100,0.667,21
+96733,Tangerang Selatan,Jawa,-6.262,LSEQM+DL,1,1.199,2772
+96733,Tangerang Selatan,Jawa,-6.262,LSEQM+DL,5,1.028,1862
+96733,Tangerang Selatan,Jawa,-6.262,LSEQM+DL,10,0.892,1321
+96733,Tangerang Selatan,Jawa,-6.262,LSEQM+DL,20,0.673,788
+96733,Tangerang Selatan,Jawa,-6.262,LSEQM+DL,50,0.477,193
+96733,Tangerang Selatan,Jawa,-6.262,LSEQM+DL,100,0.429,21
+96735,Geofisika Tangerang,Jawa,-6.1,IMERG-L,1,1.437,1356
+96735,Geofisika Tangerang,Jawa,-6.1,IMERG-L,5,1.363,898
+96735,Geofisika Tangerang,Jawa,-6.1,IMERG-L,10,1.237,624
+96735,Geofisika Tangerang,Jawa,-6.1,IMERG-L,20,1.176,340
+96735,Geofisika Tangerang,Jawa,-6.1,IMERG-L,50,0.961,77
+96735,Geofisika Tangerang,Jawa,-6.1,IMERG-L,100,1.3,10
+96735,Geofisika Tangerang,Jawa,-6.1,LSEQM+DL,1,1.323,1356
+96735,Geofisika Tangerang,Jawa,-6.1,LSEQM+DL,5,1.176,898
+96735,Geofisika Tangerang,Jawa,-6.1,LSEQM+DL,10,0.958,624
+96735,Geofisika Tangerang,Jawa,-6.1,LSEQM+DL,20,0.791,340
+96735,Geofisika Tangerang,Jawa,-6.1,LSEQM+DL,50,0.403,77
+96735,Geofisika Tangerang,Jawa,-6.1,LSEQM+DL,100,0.1,10
+96737,Serang,Jawa,-6.112,IMERG-L,1,1.3,1510
+96737,Serang,Jawa,-6.112,IMERG-L,5,1.404,913
+96737,Serang,Jawa,-6.112,IMERG-L,10,1.378,598
+96737,Serang,Jawa,-6.112,IMERG-L,20,1.334,311
+96737,Serang,Jawa,-6.112,IMERG-L,50,1.14,50
+96737,Serang,Jawa,-6.112,IMERG-L,100,,3
+96737,Serang,Jawa,-6.112,LSEQM+DL,1,1.195,1510
+96737,Serang,Jawa,-6.112,LSEQM+DL,5,1.078,913
+96737,Serang,Jawa,-6.112,LSEQM+DL,10,0.923,598
+96737,Serang,Jawa,-6.112,LSEQM+DL,20,0.839,311
+96737,Serang,Jawa,-6.112,LSEQM+DL,50,0.46,50
+96737,Serang,Jawa,-6.112,LSEQM+DL,100,,3
+96739,Budiarto,Jawa,-6.287,IMERG-L,1,1.267,2687
+96739,Budiarto,Jawa,-6.287,IMERG-L,5,1.238,1793
+96739,Budiarto,Jawa,-6.287,IMERG-L,10,1.172,1313
+96739,Budiarto,Jawa,-6.287,IMERG-L,20,1.014,759
+96739,Budiarto,Jawa,-6.287,IMERG-L,50,0.661,180
+96739,Budiarto,Jawa,-6.287,IMERG-L,100,1.222,9
+96739,Budiarto,Jawa,-6.287,LSEQM+DL,1,1.115,2687
+96739,Budiarto,Jawa,-6.287,LSEQM+DL,5,0.973,1793
+96739,Budiarto,Jawa,-6.287,LSEQM+DL,10,0.845,1313
+96739,Budiarto,Jawa,-6.287,LSEQM+DL,20,0.672,759
+96739,Budiarto,Jawa,-6.287,LSEQM+DL,50,0.428,180
+96739,Budiarto,Jawa,-6.287,LSEQM+DL,100,0.556,9
+96741,Tanjung Priok,Jawa,-6.108,IMERG-L,1,1.651,2209
+96741,Tanjung Priok,Jawa,-6.108,IMERG-L,5,1.555,1419
+96741,Tanjung Priok,Jawa,-6.108,IMERG-L,10,1.518,996
+96741,Tanjung Priok,Jawa,-6.108,IMERG-L,20,1.177,633
+96741,Tanjung Priok,Jawa,-6.108,IMERG-L,50,0.723,188
+96741,Tanjung Priok,Jawa,-6.108,IMERG-L,100,0.541,37
+96741,Tanjung Priok,Jawa,-6.108,LSEQM+DL,1,1.532,2209
+96741,Tanjung Priok,Jawa,-6.108,LSEQM+DL,5,1.426,1419
+96741,Tanjung Priok,Jawa,-6.108,LSEQM+DL,10,1.251,996
+96741,Tanjung Priok,Jawa,-6.108,LSEQM+DL,20,0.856,633
+96741,Tanjung Priok,Jawa,-6.108,LSEQM+DL,50,0.473,188
+96741,Tanjung Priok,Jawa,-6.108,LSEQM+DL,100,0.351,37
+96745,Kemayoran,Jawa,-6.156,IMERG-L,1,1.599,2411
+96745,Kemayoran,Jawa,-6.156,IMERG-L,5,1.454,1608
+96745,Kemayoran,Jawa,-6.156,IMERG-L,10,1.377,1160
+96745,Kemayoran,Jawa,-6.156,IMERG-L,20,1.213,663
+96745,Kemayoran,Jawa,-6.156,IMERG-L,50,0.717,198
+96745,Kemayoran,Jawa,-6.156,IMERG-L,100,0.647,34
+96745,Kemayoran,Jawa,-6.156,LSEQM+DL,1,1.479,2411
+96745,Kemayoran,Jawa,-6.156,LSEQM+DL,5,1.33,1608
+96745,Kemayoran,Jawa,-6.156,LSEQM+DL,10,1.137,1160
+96745,Kemayoran,Jawa,-6.156,LSEQM+DL,20,0.864,663
+96745,Kemayoran,Jawa,-6.156,LSEQM+DL,50,0.47,198
+96745,Kemayoran,Jawa,-6.156,LSEQM+DL,100,0.412,34
+96747,Halim Perdana Kusuma Jakarta,Jawa,-6.27,IMERG-L,1,1.299,1386
+96747,Halim Perdana Kusuma Jakarta,Jawa,-6.27,IMERG-L,5,1.308,962
+96747,Halim Perdana Kusuma Jakarta,Jawa,-6.27,IMERG-L,10,1.171,712
+96747,Halim Perdana Kusuma Jakarta,Jawa,-6.27,IMERG-L,20,1.01,412
+96747,Halim Perdana Kusuma Jakarta,Jawa,-6.27,IMERG-L,50,0.695,105
+96747,Halim Perdana Kusuma Jakarta,Jawa,-6.27,IMERG-L,100,0.556,18
+96747,Halim Perdana Kusuma Jakarta,Jawa,-6.27,LSEQM+DL,1,1.209,1386
+96747,Halim Perdana Kusuma Jakarta,Jawa,-6.27,LSEQM+DL,5,1.121,962
+96747,Halim Perdana Kusuma Jakarta,Jawa,-6.27,LSEQM+DL,10,0.931,712
+96747,Halim Perdana Kusuma Jakarta,Jawa,-6.27,LSEQM+DL,20,0.677,412
+96747,Halim Perdana Kusuma Jakarta,Jawa,-6.27,LSEQM+DL,50,0.457,105
+96747,Halim Perdana Kusuma Jakarta,Jawa,-6.27,LSEQM+DL,100,0.611,18
+96749,Soekarno Hatta,Jawa,-6.12,IMERG-L,1,1.791,2219
+96749,Soekarno Hatta,Jawa,-6.12,IMERG-L,5,1.756,1420
+96749,Soekarno Hatta,Jawa,-6.12,IMERG-L,10,1.701,968
+96749,Soekarno Hatta,Jawa,-6.12,IMERG-L,20,1.468,541
+96749,Soekarno Hatta,Jawa,-6.12,IMERG-L,50,0.953,150
+96749,Soekarno Hatta,Jawa,-6.12,IMERG-L,100,1.0,23
+96749,Soekarno Hatta,Jawa,-6.12,LSEQM+DL,1,1.627,2219
+96749,Soekarno Hatta,Jawa,-6.12,LSEQM+DL,5,1.503,1420
+96749,Soekarno Hatta,Jawa,-6.12,LSEQM+DL,10,1.316,968
+96749,Soekarno Hatta,Jawa,-6.12,LSEQM+DL,20,0.959,541
+96749,Soekarno Hatta,Jawa,-6.12,LSEQM+DL,50,0.573,150
+96749,Soekarno Hatta,Jawa,-6.12,LSEQM+DL,100,0.174,23
+96751,Citeko,Jawa,-6.7,IMERG-L,1,1.099,4103
+96751,Citeko,Jawa,-6.7,IMERG-L,5,1.089,2797
+96751,Citeko,Jawa,-6.7,IMERG-L,10,1.004,2019
+96751,Citeko,Jawa,-6.7,IMERG-L,20,0.814,1190
+96751,Citeko,Jawa,-6.7,IMERG-L,50,0.559,254
+96751,Citeko,Jawa,-6.7,IMERG-L,100,0.821,28
+96751,Citeko,Jawa,-6.7,LSEQM+DL,1,1.036,4103
+96751,Citeko,Jawa,-6.7,LSEQM+DL,5,0.952,2797
+96751,Citeko,Jawa,-6.7,LSEQM+DL,10,0.852,2019
+96751,Citeko,Jawa,-6.7,LSEQM+DL,20,0.653,1190
+96751,Citeko,Jawa,-6.7,LSEQM+DL,50,0.354,254
+96751,Citeko,Jawa,-6.7,LSEQM+DL,100,0.179,28
+96753,Bogor,Jawa,-6.5,IMERG-L,1,1.073,3901
+96753,Bogor,Jawa,-6.5,IMERG-L,5,1.032,2736
+96753,Bogor,Jawa,-6.5,IMERG-L,10,0.931,2076
+96753,Bogor,Jawa,-6.5,IMERG-L,20,0.715,1351
+96753,Bogor,Jawa,-6.5,IMERG-L,50,0.316,386
+96753,Bogor,Jawa,-6.5,IMERG-L,100,0.273,55
+96753,Bogor,Jawa,-6.5,LSEQM+DL,1,0.955,3901
+96753,Bogor,Jawa,-6.5,LSEQM+DL,5,0.854,2736
+96753,Bogor,Jawa,-6.5,LSEQM+DL,10,0.719,2076
+96753,Bogor,Jawa,-6.5,LSEQM+DL,20,0.537,1351
+96753,Bogor,Jawa,-6.5,LSEQM+DL,50,0.246,386
+96753,Bogor,Jawa,-6.5,LSEQM+DL,100,0.218,55
+96783,Geofisika Bandung,Jawa,-6.884,IMERG-L,1,1.23,3355
+96783,Geofisika Bandung,Jawa,-6.884,IMERG-L,5,1.225,2142
+96783,Geofisika Bandung,Jawa,-6.884,IMERG-L,10,1.161,1500
+96783,Geofisika Bandung,Jawa,-6.884,IMERG-L,20,1.117,792
+96783,Geofisika Bandung,Jawa,-6.884,IMERG-L,50,0.905,148
+96783,Geofisika Bandung,Jawa,-6.884,IMERG-L,100,,4
+96783,Geofisika Bandung,Jawa,-6.884,LSEQM+DL,1,1.172,3355
+96783,Geofisika Bandung,Jawa,-6.884,LSEQM+DL,5,1.161,2142
+96783,Geofisika Bandung,Jawa,-6.884,LSEQM+DL,10,1.011,1500
+96783,Geofisika Bandung,Jawa,-6.884,LSEQM+DL,20,0.919,792
+96783,Geofisika Bandung,Jawa,-6.884,LSEQM+DL,50,0.534,148
+96783,Geofisika Bandung,Jawa,-6.884,LSEQM+DL,100,,4
+96791,Kertajati,Jawa,-6.734,IMERG-L,1,1.381,2640
+96791,Kertajati,Jawa,-6.734,IMERG-L,5,1.309,1844
+96791,Kertajati,Jawa,-6.734,IMERG-L,10,1.221,1393
+96791,Kertajati,Jawa,-6.734,IMERG-L,20,0.971,904
+96791,Kertajati,Jawa,-6.734,IMERG-L,50,0.593,280
+96791,Kertajati,Jawa,-6.734,IMERG-L,100,0.742,31
+96791,Kertajati,Jawa,-6.734,LSEQM+DL,1,1.291,2640
+96791,Kertajati,Jawa,-6.734,LSEQM+DL,5,1.148,1844
+96791,Kertajati,Jawa,-6.734,LSEQM+DL,10,1.021,1393
+96791,Kertajati,Jawa,-6.734,LSEQM+DL,20,0.823,904
+96791,Kertajati,Jawa,-6.734,LSEQM+DL,50,0.829,280
+96791,Kertajati,Jawa,-6.734,LSEQM+DL,100,0.839,31
+96793,Pos Penggung,Jawa,-6.755,IMERG-L,1,1.256,671
+96793,Pos Penggung,Jawa,-6.755,IMERG-L,5,1.318,450
+96793,Pos Penggung,Jawa,-6.755,IMERG-L,10,1.216,347
+96793,Pos Penggung,Jawa,-6.755,IMERG-L,20,1.053,228
+96793,Pos Penggung,Jawa,-6.755,IMERG-L,50,0.61,59
+96793,Pos Penggung,Jawa,-6.755,IMERG-L,100,0.091,11
+96793,Pos Penggung,Jawa,-6.755,LSEQM+DL,1,1.162,671
+96793,Pos Penggung,Jawa,-6.755,LSEQM+DL,5,1.151,450
+96793,Pos Penggung,Jawa,-6.755,LSEQM+DL,10,1.035,347
+96793,Pos Penggung,Jawa,-6.755,LSEQM+DL,20,0.846,228
+96793,Pos Penggung,Jawa,-6.755,LSEQM+DL,50,0.559,59
+96793,Pos Penggung,Jawa,-6.755,LSEQM+DL,100,0.0,11
+96797,Tegal,Jawa,-6.868,IMERG-L,1,1.522,2286
+96797,Tegal,Jawa,-6.868,IMERG-L,5,1.571,1438
+96797,Tegal,Jawa,-6.868,IMERG-L,10,1.588,1010
+96797,Tegal,Jawa,-6.868,IMERG-L,20,1.484,595
+96797,Tegal,Jawa,-6.868,IMERG-L,50,1.048,166
+96797,Tegal,Jawa,-6.868,IMERG-L,100,1.562,16
+96797,Tegal,Jawa,-6.868,LSEQM+DL,1,1.424,2286
+96797,Tegal,Jawa,-6.868,LSEQM+DL,5,1.315,1438
+96797,Tegal,Jawa,-6.868,LSEQM+DL,10,1.234,1010
+96797,Tegal,Jawa,-6.868,LSEQM+DL,20,1.015,595
+96797,Tegal,Jawa,-6.868,LSEQM+DL,50,0.813,166
+96797,Tegal,Jawa,-6.868,LSEQM+DL,100,0.5,16
+96805,Tunggul Wulung,Jawa,-7.719,IMERG-L,1,0.991,3290
+96805,Tunggul Wulung,Jawa,-7.719,IMERG-L,5,0.958,2216
+96805,Tunggul Wulung,Jawa,-7.719,IMERG-L,10,0.947,1646
+96805,Tunggul Wulung,Jawa,-7.719,IMERG-L,20,0.924,1071
+96805,Tunggul Wulung,Jawa,-7.719,IMERG-L,50,0.725,371
+96805,Tunggul Wulung,Jawa,-7.719,IMERG-L,100,0.89,73
+96805,Tunggul Wulung,Jawa,-7.719,LSEQM+DL,1,0.984,3290
+96805,Tunggul Wulung,Jawa,-7.719,LSEQM+DL,5,0.987,2216
+96805,Tunggul Wulung,Jawa,-7.719,LSEQM+DL,10,0.897,1646
+96805,Tunggul Wulung,Jawa,-7.719,LSEQM+DL,20,0.81,1071
+96805,Tunggul Wulung,Jawa,-7.719,LSEQM+DL,50,0.679,371
+96805,Tunggul Wulung,Jawa,-7.719,LSEQM+DL,100,0.699,73
+96807,Geofisika Banjarnegara,Jawa,-7.333,IMERG-L,1,1.037,486
+96807,Geofisika Banjarnegara,Jawa,-7.333,IMERG-L,5,1.05,363
+96807,Geofisika Banjarnegara,Jawa,-7.333,IMERG-L,10,1.011,284
+96807,Geofisika Banjarnegara,Jawa,-7.333,IMERG-L,20,0.776,183
+96807,Geofisika Banjarnegara,Jawa,-7.333,IMERG-L,50,0.182,55
+96807,Geofisika Banjarnegara,Jawa,-7.333,IMERG-L,100,0.0,6
+96807,Geofisika Banjarnegara,Jawa,-7.333,LSEQM+DL,1,0.973,486
+96807,Geofisika Banjarnegara,Jawa,-7.333,LSEQM+DL,5,0.95,363
+96807,Geofisika Banjarnegara,Jawa,-7.333,LSEQM+DL,10,0.782,284
+96807,Geofisika Banjarnegara,Jawa,-7.333,LSEQM+DL,20,0.454,183
+96807,Geofisika Banjarnegara,Jawa,-7.333,LSEQM+DL,50,0.109,55
+96807,Geofisika Banjarnegara,Jawa,-7.333,LSEQM+DL,100,0.0,6
+96835,Semarang,Jawa,-6.985,IMERG-L,1,1.18,1618
+96835,Semarang,Jawa,-6.985,IMERG-L,5,1.294,1051
+96835,Semarang,Jawa,-6.985,IMERG-L,10,1.289,764
+96835,Semarang,Jawa,-6.985,IMERG-L,20,1.153,452
+96835,Semarang,Jawa,-6.985,IMERG-L,50,0.917,96
+96835,Semarang,Jawa,-6.985,IMERG-L,100,0.625,16
+96835,Semarang,Jawa,-6.985,LSEQM+DL,1,0.97,1618
+96835,Semarang,Jawa,-6.985,LSEQM+DL,5,0.971,1051
+96835,Semarang,Jawa,-6.985,LSEQM+DL,10,0.915,764
+96835,Semarang,Jawa,-6.985,LSEQM+DL,20,0.865,452
+96835,Semarang,Jawa,-6.985,LSEQM+DL,50,1.115,96
+96835,Semarang,Jawa,-6.985,LSEQM+DL,100,0.5,16
+96837,Tanjung Emas,Jawa,-6.949,IMERG-L,1,1.442,2692
+96837,Tanjung Emas,Jawa,-6.949,IMERG-L,5,1.518,1737
+96837,Tanjung Emas,Jawa,-6.949,IMERG-L,10,1.494,1242
+96837,Tanjung Emas,Jawa,-6.949,IMERG-L,20,1.249,747
+96837,Tanjung Emas,Jawa,-6.949,IMERG-L,50,0.941,185
+96837,Tanjung Emas,Jawa,-6.949,IMERG-L,100,1.118,17
+96837,Tanjung Emas,Jawa,-6.949,LSEQM+DL,1,1.113,2692
+96837,Tanjung Emas,Jawa,-6.949,LSEQM+DL,5,1.06,1737
+96837,Tanjung Emas,Jawa,-6.949,LSEQM+DL,10,1.005,1242
+96837,Tanjung Emas,Jawa,-6.949,LSEQM+DL,20,0.977,747
+96837,Tanjung Emas,Jawa,-6.949,LSEQM+DL,50,1.189,185
+96837,Tanjung Emas,Jawa,-6.949,LSEQM+DL,100,0.941,17
+96839,Ahmad Yani,Jawa,-6.977,IMERG-L,1,1.246,1612
+96839,Ahmad Yani,Jawa,-6.977,IMERG-L,5,1.321,1076
+96839,Ahmad Yani,Jawa,-6.977,IMERG-L,10,1.343,757
+96839,Ahmad Yani,Jawa,-6.977,IMERG-L,20,1.228,435
+96839,Ahmad Yani,Jawa,-6.977,IMERG-L,50,0.871,101
+96839,Ahmad Yani,Jawa,-6.977,IMERG-L,100,0.769,13
+96839,Ahmad Yani,Jawa,-6.977,LSEQM+DL,1,1.025,1612
+96839,Ahmad Yani,Jawa,-6.977,LSEQM+DL,5,0.996,1076
+96839,Ahmad Yani,Jawa,-6.977,LSEQM+DL,10,0.951,757
+96839,Ahmad Yani,Jawa,-6.977,LSEQM+DL,20,0.908,435
+96839,Ahmad Yani,Jawa,-6.977,LSEQM+DL,50,1.05,101
+96839,Ahmad Yani,Jawa,-6.977,LSEQM+DL,100,0.615,13
+96851,Sleman,Jawa,-7.731,IMERG-L,1,0.969,618
+96851,Sleman,Jawa,-7.731,IMERG-L,5,0.97,427
+96851,Sleman,Jawa,-7.731,IMERG-L,10,0.877,318
+96851,Sleman,Jawa,-7.731,IMERG-L,20,0.761,188
+96851,Sleman,Jawa,-7.731,IMERG-L,50,0.34,50
+96851,Sleman,Jawa,-7.731,IMERG-L,100,0.333,6
+96851,Sleman,Jawa,-7.731,LSEQM+DL,1,0.96,618
+96851,Sleman,Jawa,-7.731,LSEQM+DL,5,1.056,427
+96851,Sleman,Jawa,-7.731,LSEQM+DL,10,0.843,318
+96851,Sleman,Jawa,-7.731,LSEQM+DL,20,0.58,188
+96851,Sleman,Jawa,-7.731,LSEQM+DL,50,0.24,50
+96851,Sleman,Jawa,-7.731,LSEQM+DL,100,0.167,6
+96855,Geofisika Sleman,Jawa,-7.82,IMERG-L,1,1.172,2075
+96855,Geofisika Sleman,Jawa,-7.82,IMERG-L,5,1.157,1383
+96855,Geofisika Sleman,Jawa,-7.82,IMERG-L,10,1.107,1006
+96855,Geofisika Sleman,Jawa,-7.82,IMERG-L,20,1.014,590
+96855,Geofisika Sleman,Jawa,-7.82,IMERG-L,50,0.867,143
+96855,Geofisika Sleman,Jawa,-7.82,IMERG-L,100,0.81,21
+96855,Geofisika Sleman,Jawa,-7.82,LSEQM+DL,1,1.16,2075
+96855,Geofisika Sleman,Jawa,-7.82,LSEQM+DL,5,1.336,1383
+96855,Geofisika Sleman,Jawa,-7.82,LSEQM+DL,10,1.128,1006
+96855,Geofisika Sleman,Jawa,-7.82,LSEQM+DL,20,0.861,590
+96855,Geofisika Sleman,Jawa,-7.82,LSEQM+DL,50,0.65,143
+96855,Geofisika Sleman,Jawa,-7.82,LSEQM+DL,100,0.429,21
+96925,Sangkapura,Jawa,-5.851,IMERG-L,1,1.829,2566
+96925,Sangkapura,Jawa,-5.851,IMERG-L,5,1.46,1750
+96925,Sangkapura,Jawa,-5.851,IMERG-L,10,1.232,1248
+96925,Sangkapura,Jawa,-5.851,IMERG-L,20,1.065,775
+96925,Sangkapura,Jawa,-5.851,IMERG-L,50,0.726,215
+96925,Sangkapura,Jawa,-5.851,IMERG-L,100,0.548,31
+96925,Sangkapura,Jawa,-5.851,LSEQM+DL,1,0.871,2566
+96925,Sangkapura,Jawa,-5.851,LSEQM+DL,5,0.907,1750
+96925,Sangkapura,Jawa,-5.851,LSEQM+DL,10,0.986,1248
+96925,Sangkapura,Jawa,-5.851,LSEQM+DL,20,1.16,775
+96925,Sangkapura,Jawa,-5.851,LSEQM+DL,50,1.642,215
+96925,Sangkapura,Jawa,-5.851,LSEQM+DL,100,1.226,31
+96933,Perak I,Jawa,-7.224,IMERG-L,1,1.454,1402
+96933,Perak I,Jawa,-7.224,IMERG-L,5,1.441,919
+96933,Perak I,Jawa,-7.224,IMERG-L,10,1.324,645
+96933,Perak I,Jawa,-7.224,IMERG-L,20,1.044,388
+96933,Perak I,Jawa,-7.224,IMERG-L,50,0.495,93
+96933,Perak I,Jawa,-7.224,IMERG-L,100,0.077,13
+96933,Perak I,Jawa,-7.224,LSEQM+DL,1,1.031,1402
+96933,Perak I,Jawa,-7.224,LSEQM+DL,5,1.089,919
+96933,Perak I,Jawa,-7.224,LSEQM+DL,10,1.095,645
+96933,Perak I,Jawa,-7.224,LSEQM+DL,20,1.07,388
+96933,Perak I,Jawa,-7.224,LSEQM+DL,50,0.957,93
+96933,Perak I,Jawa,-7.224,LSEQM+DL,100,0.154,13
+96935,Juanda,Jawa,-7.385,IMERG-L,1,1.497,2270
+96935,Juanda,Jawa,-7.385,IMERG-L,5,1.316,1579
+96935,Juanda,Jawa,-7.385,IMERG-L,10,1.186,1182
+96935,Juanda,Jawa,-7.385,IMERG-L,20,0.876,760
+96935,Juanda,Jawa,-7.385,IMERG-L,50,0.4,220
+96935,Juanda,Jawa,-7.385,IMERG-L,100,0.6,15
+96935,Juanda,Jawa,-7.385,LSEQM+DL,1,1.067,2270
+96935,Juanda,Jawa,-7.385,LSEQM+DL,5,1.024,1579
+96935,Juanda,Jawa,-7.385,LSEQM+DL,10,0.964,1182
+96935,Juanda,Jawa,-7.385,LSEQM+DL,20,0.849,760
+96935,Juanda,Jawa,-7.385,LSEQM+DL,50,0.636,220
+96935,Juanda,Jawa,-7.385,LSEQM+DL,100,0.133,15
+96937,Tanjung Perak,Jawa,-7.205,IMERG-L,1,1.635,2207
+96937,Tanjung Perak,Jawa,-7.205,IMERG-L,5,1.574,1384
+96937,Tanjung Perak,Jawa,-7.205,IMERG-L,10,1.42,978
+96937,Tanjung Perak,Jawa,-7.205,IMERG-L,20,1.151,569
+96937,Tanjung Perak,Jawa,-7.205,IMERG-L,50,0.854,123
+96937,Tanjung Perak,Jawa,-7.205,IMERG-L,100,0.467,15
+96937,Tanjung Perak,Jawa,-7.205,LSEQM+DL,1,1.106,2207
+96937,Tanjung Perak,Jawa,-7.205,LSEQM+DL,5,1.171,1384
+96937,Tanjung Perak,Jawa,-7.205,LSEQM+DL,10,1.16,978
+96937,Tanjung Perak,Jawa,-7.205,LSEQM+DL,20,1.181,569
+96937,Tanjung Perak,Jawa,-7.205,LSEQM+DL,50,1.325,123
+96937,Tanjung Perak,Jawa,-7.205,LSEQM+DL,100,0.267,15
+96939,Tuban,Jawa,-6.823,IMERG-L,1,1.157,426
+96939,Tuban,Jawa,-6.823,IMERG-L,5,1.309,256
+96939,Tuban,Jawa,-6.823,IMERG-L,10,1.303,175
+96939,Tuban,Jawa,-6.823,IMERG-L,20,0.939,99
+96939,Tuban,Jawa,-6.823,IMERG-L,50,0.842,19
+96939,Tuban,Jawa,-6.823,IMERG-L,100,,2
+96939,Tuban,Jawa,-6.823,LSEQM+DL,1,1.124,426
+96939,Tuban,Jawa,-6.823,LSEQM+DL,5,1.441,256
+96939,Tuban,Jawa,-6.823,LSEQM+DL,10,1.314,175
+96939,Tuban,Jawa,-6.823,LSEQM+DL,20,0.859,99
+96939,Tuban,Jawa,-6.823,LSEQM+DL,50,0.474,19
+96939,Tuban,Jawa,-6.823,LSEQM+DL,100,,2
+96943,Malang,Jawa,-7.901,IMERG-L,1,1.22,2744
+96943,Malang,Jawa,-7.901,IMERG-L,5,1.271,1744
+96943,Malang,Jawa,-7.901,IMERG-L,10,1.219,1227
+96943,Malang,Jawa,-7.901,IMERG-L,20,1.068,692
+96943,Malang,Jawa,-7.901,IMERG-L,50,0.712,139
+96943,Malang,Jawa,-7.901,IMERG-L,100,1.8,5
+96943,Malang,Jawa,-7.901,LSEQM+DL,1,1.056,2744
+96943,Malang,Jawa,-7.901,LSEQM+DL,5,1.092,1744
+96943,Malang,Jawa,-7.901,LSEQM+DL,10,1.051,1227
+96943,Malang,Jawa,-7.901,LSEQM+DL,20,0.996,692
+96943,Malang,Jawa,-7.901,LSEQM+DL,50,0.734,139
+96943,Malang,Jawa,-7.901,LSEQM+DL,100,0.0,5
+96945,Geofisika Pasuruan,Jawa,-7.705,IMERG-L,1,0.941,3019
+96945,Geofisika Pasuruan,Jawa,-7.705,IMERG-L,5,0.822,2287
+96945,Geofisika Pasuruan,Jawa,-7.705,IMERG-L,10,0.714,1816
+96945,Geofisika Pasuruan,Jawa,-7.705,IMERG-L,20,0.492,1239
+96945,Geofisika Pasuruan,Jawa,-7.705,IMERG-L,50,0.2,406
+96945,Geofisika Pasuruan,Jawa,-7.705,IMERG-L,100,0.049,61
+96945,Geofisika Pasuruan,Jawa,-7.705,LSEQM+DL,1,0.783,3019
+96945,Geofisika Pasuruan,Jawa,-7.705,LSEQM+DL,5,0.696,2287
+96945,Geofisika Pasuruan,Jawa,-7.705,LSEQM+DL,10,0.608,1816
+96945,Geofisika Pasuruan,Jawa,-7.705,LSEQM+DL,20,0.45,1239
+96945,Geofisika Pasuruan,Jawa,-7.705,LSEQM+DL,50,0.244,406
+96945,Geofisika Pasuruan,Jawa,-7.705,LSEQM+DL,100,0.0,61
+96949,Geofisika Malang,Jawa,-8.15,IMERG-L,1,0.987,1509
+96949,Geofisika Malang,Jawa,-8.15,IMERG-L,5,1.035,1007
+96949,Geofisika Malang,Jawa,-8.15,IMERG-L,10,1.018,730
+96949,Geofisika Malang,Jawa,-8.15,IMERG-L,20,0.892,453
+96949,Geofisika Malang,Jawa,-8.15,IMERG-L,50,0.564,94
+96949,Geofisika Malang,Jawa,-8.15,IMERG-L,100,,2
+96949,Geofisika Malang,Jawa,-8.15,LSEQM+DL,1,0.919,1509
+96949,Geofisika Malang,Jawa,-8.15,LSEQM+DL,5,0.957,1007
+96949,Geofisika Malang,Jawa,-8.15,LSEQM+DL,10,0.897,730
+96949,Geofisika Malang,Jawa,-8.15,LSEQM+DL,20,0.757,453
+96949,Geofisika Malang,Jawa,-8.15,LSEQM+DL,50,0.521,94
+96949,Geofisika Malang,Jawa,-8.15,LSEQM+DL,100,,2
+96973,Kalianget,Jawa,-7.04,IMERG-L,1,1.872,2045
+96973,Kalianget,Jawa,-7.04,IMERG-L,5,1.559,1280
+96973,Kalianget,Jawa,-7.04,IMERG-L,10,1.299,882
+96973,Kalianget,Jawa,-7.04,IMERG-L,20,1.075,466
+96973,Kalianget,Jawa,-7.04,IMERG-L,50,0.795,78
+96973,Kalianget,Jawa,-7.04,IMERG-L,100,0.444,9
+96973,Kalianget,Jawa,-7.04,LSEQM+DL,1,1.353,2045
+96973,Kalianget,Jawa,-7.04,LSEQM+DL,5,1.184,1280
+96973,Kalianget,Jawa,-7.04,LSEQM+DL,10,1.099,882
+96973,Kalianget,Jawa,-7.04,LSEQM+DL,20,1.208,466
+96973,Kalianget,Jawa,-7.04,LSEQM+DL,50,1.308,78
+96973,Kalianget,Jawa,-7.04,LSEQM+DL,100,0.0,9
+96975,Geofisika Nganjuk,Jawa,-7.735,IMERG-L,1,1.076,2757
+96975,Geofisika Nganjuk,Jawa,-7.735,IMERG-L,5,0.974,1956
+96975,Geofisika Nganjuk,Jawa,-7.735,IMERG-L,10,0.857,1526
+96975,Geofisika Nganjuk,Jawa,-7.735,IMERG-L,20,0.619,1023
+96975,Geofisika Nganjuk,Jawa,-7.735,IMERG-L,50,0.275,338
+96975,Geofisika Nganjuk,Jawa,-7.735,IMERG-L,100,0.139,72
+96975,Geofisika Nganjuk,Jawa,-7.735,LSEQM+DL,1,0.998,2757
+96975,Geofisika Nganjuk,Jawa,-7.735,LSEQM+DL,5,0.895,1956
+96975,Geofisika Nganjuk,Jawa,-7.735,LSEQM+DL,10,0.744,1526
+96975,Geofisika Nganjuk,Jawa,-7.735,LSEQM+DL,20,0.501,1023
+96975,Geofisika Nganjuk,Jawa,-7.735,LSEQM+DL,50,0.189,338
+96975,Geofisika Nganjuk,Jawa,-7.735,LSEQM+DL,100,0.028,72
+96987,Banyuwangi,Jawa,-8.215,IMERG-L,1,1.078,2261
+96987,Banyuwangi,Jawa,-8.215,IMERG-L,5,1.113,1288
+96987,Banyuwangi,Jawa,-8.215,IMERG-L,10,1.091,867
+96987,Banyuwangi,Jawa,-8.215,IMERG-L,20,0.961,462
+96987,Banyuwangi,Jawa,-8.215,IMERG-L,50,0.726,95
+96987,Banyuwangi,Jawa,-8.215,IMERG-L,100,0.389,18
+96987,Banyuwangi,Jawa,-8.215,LSEQM+DL,1,1.031,2261
+96987,Banyuwangi,Jawa,-8.215,LSEQM+DL,5,1.025,1288
+96987,Banyuwangi,Jawa,-8.215,LSEQM+DL,10,0.935,867
+96987,Banyuwangi,Jawa,-8.215,LSEQM+DL,20,0.907,462
+96987,Banyuwangi,Jawa,-8.215,LSEQM+DL,50,1.126,95
+96987,Banyuwangi,Jawa,-8.215,LSEQM+DL,100,0.278,18
+97008,Naha,Sulawesi,3.686,IMERG-L,1,1.555,3970
+97008,Naha,Sulawesi,3.686,IMERG-L,5,1.297,2650
+97008,Naha,Sulawesi,3.686,IMERG-L,10,1.007,1925
+97008,Naha,Sulawesi,3.686,IMERG-L,20,0.808,1086
+97008,Naha,Sulawesi,3.686,IMERG-L,50,0.59,278
+97008,Naha,Sulawesi,3.686,IMERG-L,100,0.278,72
+97008,Naha,Sulawesi,3.686,LSEQM+DL,1,0.774,3970
+97008,Naha,Sulawesi,3.686,LSEQM+DL,5,0.78,2650
+97008,Naha,Sulawesi,3.686,LSEQM+DL,10,0.793,1925
+97008,Naha,Sulawesi,3.686,LSEQM+DL,20,1.065,1086
+97008,Naha,Sulawesi,3.686,LSEQM+DL,50,1.809,278
+97008,Naha,Sulawesi,3.686,LSEQM+DL,100,1.722,72
+97010,Geofisika Manado,Sulawesi,1.443,IMERG-L,1,1.041,3259
+97010,Geofisika Manado,Sulawesi,1.443,IMERG-L,5,0.978,1959
+97010,Geofisika Manado,Sulawesi,1.443,IMERG-L,10,0.891,1279
+97010,Geofisika Manado,Sulawesi,1.443,IMERG-L,20,0.801,649
+97010,Geofisika Manado,Sulawesi,1.443,IMERG-L,50,0.54,126
+97010,Geofisika Manado,Sulawesi,1.443,IMERG-L,100,0.5,10
+97010,Geofisika Manado,Sulawesi,1.443,LSEQM+DL,1,0.959,3259
+97010,Geofisika Manado,Sulawesi,1.443,LSEQM+DL,5,0.989,1959
+97010,Geofisika Manado,Sulawesi,1.443,LSEQM+DL,10,1.006,1279
+97010,Geofisika Manado,Sulawesi,1.443,LSEQM+DL,20,1.037,649
+97010,Geofisika Manado,Sulawesi,1.443,LSEQM+DL,50,1.183,126
+97010,Geofisika Manado,Sulawesi,1.443,LSEQM+DL,100,2.4,10
+97012,Minahasa Utara,Sulawesi,1.546,IMERG-L,1,1.093,3767
+97012,Minahasa Utara,Sulawesi,1.546,IMERG-L,5,0.906,2557
+97012,Minahasa Utara,Sulawesi,1.546,IMERG-L,10,0.749,1871
+97012,Minahasa Utara,Sulawesi,1.546,IMERG-L,20,0.555,1109
+97012,Minahasa Utara,Sulawesi,1.546,IMERG-L,50,0.326,261
+97012,Minahasa Utara,Sulawesi,1.546,IMERG-L,100,0.179,39
+97012,Minahasa Utara,Sulawesi,1.546,LSEQM+DL,1,0.859,3767
+97012,Minahasa Utara,Sulawesi,1.546,LSEQM+DL,5,0.797,2557
+97012,Minahasa Utara,Sulawesi,1.546,LSEQM+DL,10,0.734,1871
+97012,Minahasa Utara,Sulawesi,1.546,LSEQM+DL,20,0.705,1109
+97012,Minahasa Utara,Sulawesi,1.546,LSEQM+DL,50,0.751,261
+97012,Minahasa Utara,Sulawesi,1.546,LSEQM+DL,100,0.769,39
+97014,Sam Ratulangi,Sulawesi,1.546,IMERG-L,1,1.16,3721
+97014,Sam Ratulangi,Sulawesi,1.546,IMERG-L,5,0.945,2555
+97014,Sam Ratulangi,Sulawesi,1.546,IMERG-L,10,0.765,1893
+97014,Sam Ratulangi,Sulawesi,1.546,IMERG-L,20,0.572,1138
+97014,Sam Ratulangi,Sulawesi,1.546,IMERG-L,50,0.33,288
+97014,Sam Ratulangi,Sulawesi,1.546,IMERG-L,100,0.267,30
+97014,Sam Ratulangi,Sulawesi,1.546,LSEQM+DL,1,0.907,3721
+97014,Sam Ratulangi,Sulawesi,1.546,LSEQM+DL,5,0.831,2555
+97014,Sam Ratulangi,Sulawesi,1.546,LSEQM+DL,10,0.755,1893
+97014,Sam Ratulangi,Sulawesi,1.546,LSEQM+DL,20,0.724,1138
+97014,Sam Ratulangi,Sulawesi,1.546,LSEQM+DL,50,0.747,288
+97014,Sam Ratulangi,Sulawesi,1.546,LSEQM+DL,100,1.067,30
+97016,Bitung,Sulawesi,1.443,IMERG-L,1,1.746,2961
+97016,Bitung,Sulawesi,1.443,IMERG-L,5,1.369,1758
+97016,Bitung,Sulawesi,1.443,IMERG-L,10,1.237,1127
+97016,Bitung,Sulawesi,1.443,IMERG-L,20,1.12,548
+97016,Bitung,Sulawesi,1.443,IMERG-L,50,0.67,112
+97016,Bitung,Sulawesi,1.443,IMERG-L,100,0.647,17
+97016,Bitung,Sulawesi,1.443,LSEQM+DL,1,1.049,2961
+97016,Bitung,Sulawesi,1.443,LSEQM+DL,5,1.089,1758
+97016,Bitung,Sulawesi,1.443,LSEQM+DL,10,1.182,1127
+97016,Bitung,Sulawesi,1.443,LSEQM+DL,20,1.535,548
+97016,Bitung,Sulawesi,1.443,LSEQM+DL,50,2.098,112
+97016,Bitung,Sulawesi,1.443,LSEQM+DL,100,2.471,17
+97028,Sultan Bantilan,Sulawesi,1.121,IMERG-L,1,0.82,1303
+97028,Sultan Bantilan,Sulawesi,1.121,IMERG-L,5,0.856,779
+97028,Sultan Bantilan,Sulawesi,1.121,IMERG-L,10,0.873,503
+97028,Sultan Bantilan,Sulawesi,1.121,IMERG-L,20,0.694,291
+97028,Sultan Bantilan,Sulawesi,1.121,IMERG-L,50,0.342,79
+97028,Sultan Bantilan,Sulawesi,1.121,IMERG-L,100,0.167,12
+97028,Sultan Bantilan,Sulawesi,1.121,LSEQM+DL,1,0.6,1303
+97028,Sultan Bantilan,Sulawesi,1.121,LSEQM+DL,5,0.727,779
+97028,Sultan Bantilan,Sulawesi,1.121,LSEQM+DL,10,0.869,503
+97028,Sultan Bantilan,Sulawesi,1.121,LSEQM+DL,20,0.942,291
+97028,Sultan Bantilan,Sulawesi,1.121,LSEQM+DL,50,1.519,79
+97028,Sultan Bantilan,Sulawesi,1.121,LSEQM+DL,100,2.0,12
+97048,Djalaluddin,Sulawesi,0.638,IMERG-L,1,1.217,2446
+97048,Djalaluddin,Sulawesi,0.638,IMERG-L,5,1.158,1388
+97048,Djalaluddin,Sulawesi,0.638,IMERG-L,10,0.998,929
+97048,Djalaluddin,Sulawesi,0.638,IMERG-L,20,0.728,475
+97048,Djalaluddin,Sulawesi,0.638,IMERG-L,50,0.34,94
+97048,Djalaluddin,Sulawesi,0.638,IMERG-L,100,0.8,5
+97048,Djalaluddin,Sulawesi,0.638,LSEQM+DL,1,0.86,2446
+97048,Djalaluddin,Sulawesi,0.638,LSEQM+DL,5,0.903,1388
+97048,Djalaluddin,Sulawesi,0.638,LSEQM+DL,10,0.932,929
+97048,Djalaluddin,Sulawesi,0.638,LSEQM+DL,20,1.131,475
+97048,Djalaluddin,Sulawesi,0.638,LSEQM+DL,50,1.479,94
+97048,Djalaluddin,Sulawesi,0.638,LSEQM+DL,100,1.8,5
+97052,Bone Bolango,Sulawesi,0.556,IMERG-L,1,1.142,604
+97052,Bone Bolango,Sulawesi,0.556,IMERG-L,5,1.075,362
+97052,Bone Bolango,Sulawesi,0.556,IMERG-L,10,0.928,235
+97052,Bone Bolango,Sulawesi,0.556,IMERG-L,20,0.661,121
+97052,Bone Bolango,Sulawesi,0.556,IMERG-L,50,0.261,23
+97052,Bone Bolango,Sulawesi,0.556,IMERG-L,100,,0
+97052,Bone Bolango,Sulawesi,0.556,LSEQM+DL,1,0.692,604
+97052,Bone Bolango,Sulawesi,0.556,LSEQM+DL,5,0.704,362
+97052,Bone Bolango,Sulawesi,0.556,LSEQM+DL,10,0.711,235
+97052,Bone Bolango,Sulawesi,0.556,LSEQM+DL,20,0.967,121
+97052,Bone Bolango,Sulawesi,0.556,LSEQM+DL,50,1.348,23
+97052,Bone Bolango,Sulawesi,0.556,LSEQM+DL,100,,0
+97072,Mutiara Sis-Al Jufri,Sulawesi,-0.916,IMERG-L,1,1.185,2112
+97072,Mutiara Sis-Al Jufri,Sulawesi,-0.916,IMERG-L,5,1.845,863
+97072,Mutiara Sis-Al Jufri,Sulawesi,-0.916,IMERG-L,10,2.376,426
+97072,Mutiara Sis-Al Jufri,Sulawesi,-0.916,IMERG-L,20,2.8,145
+97072,Mutiara Sis-Al Jufri,Sulawesi,-0.916,IMERG-L,50,1.636,22
+97072,Mutiara Sis-Al Jufri,Sulawesi,-0.916,IMERG-L,100,,1
+97072,Mutiara Sis-Al Jufri,Sulawesi,-0.916,LSEQM+DL,1,0.954,2112
+97072,Mutiara Sis-Al Jufri,Sulawesi,-0.916,LSEQM+DL,5,1.273,863
+97072,Mutiara Sis-Al Jufri,Sulawesi,-0.916,LSEQM+DL,10,1.462,426
+97072,Mutiara Sis-Al Jufri,Sulawesi,-0.916,LSEQM+DL,20,1.931,145
+97072,Mutiara Sis-Al Jufri,Sulawesi,-0.916,LSEQM+DL,50,1.045,22
+97072,Mutiara Sis-Al Jufri,Sulawesi,-0.916,LSEQM+DL,100,,1
+97074,Geofisika Palu,Sulawesi,-0.905,IMERG-L,1,1.917,276
+97074,Geofisika Palu,Sulawesi,-0.905,IMERG-L,5,2.224,134
+97074,Geofisika Palu,Sulawesi,-0.905,IMERG-L,10,2.458,72
+97074,Geofisika Palu,Sulawesi,-0.905,IMERG-L,20,2.143,35
+97074,Geofisika Palu,Sulawesi,-0.905,IMERG-L,50,0.25,8
+97074,Geofisika Palu,Sulawesi,-0.905,IMERG-L,100,,1
+97074,Geofisika Palu,Sulawesi,-0.905,LSEQM+DL,1,1.341,276
+97074,Geofisika Palu,Sulawesi,-0.905,LSEQM+DL,5,1.351,134
+97074,Geofisika Palu,Sulawesi,-0.905,LSEQM+DL,10,1.472,72
+97074,Geofisika Palu,Sulawesi,-0.905,LSEQM+DL,20,1.086,35
+97074,Geofisika Palu,Sulawesi,-0.905,LSEQM+DL,50,0.5,8
+97074,Geofisika Palu,Sulawesi,-0.905,LSEQM+DL,100,,1
+97086,Syukuran Aminudin Amir,Sulawesi,-1.041,IMERG-L,1,0.975,2503
+97086,Syukuran Aminudin Amir,Sulawesi,-1.041,IMERG-L,5,1.028,1221
+97086,Syukuran Aminudin Amir,Sulawesi,-1.041,IMERG-L,10,0.898,761
+97086,Syukuran Aminudin Amir,Sulawesi,-1.041,IMERG-L,20,0.726,383
+97086,Syukuran Aminudin Amir,Sulawesi,-1.041,IMERG-L,50,0.506,79
+97086,Syukuran Aminudin Amir,Sulawesi,-1.041,IMERG-L,100,0.375,8
+97086,Syukuran Aminudin Amir,Sulawesi,-1.041,LSEQM+DL,1,0.714,2503
+97086,Syukuran Aminudin Amir,Sulawesi,-1.041,LSEQM+DL,5,0.817,1221
+97086,Syukuran Aminudin Amir,Sulawesi,-1.041,LSEQM+DL,10,0.848,761
+97086,Syukuran Aminudin Amir,Sulawesi,-1.041,LSEQM+DL,20,0.995,383
+97086,Syukuran Aminudin Amir,Sulawesi,-1.041,LSEQM+DL,50,1.557,79
+97086,Syukuran Aminudin Amir,Sulawesi,-1.041,LSEQM+DL,100,1.375,8
+97096,Kasiguncu,Sulawesi,-1.42,IMERG-L,1,1.241,2861
+97096,Kasiguncu,Sulawesi,-1.42,IMERG-L,5,1.153,1800
+97096,Kasiguncu,Sulawesi,-1.42,IMERG-L,10,1.007,1216
+97096,Kasiguncu,Sulawesi,-1.42,IMERG-L,20,0.645,785
+97096,Kasiguncu,Sulawesi,-1.42,IMERG-L,50,0.295,227
+97096,Kasiguncu,Sulawesi,-1.42,IMERG-L,100,0.304,23
+97096,Kasiguncu,Sulawesi,-1.42,LSEQM+DL,1,1.065,2861
+97096,Kasiguncu,Sulawesi,-1.42,LSEQM+DL,5,1.056,1800
+97096,Kasiguncu,Sulawesi,-1.42,LSEQM+DL,10,1.041,1216
+97096,Kasiguncu,Sulawesi,-1.42,LSEQM+DL,20,0.925,785
+97096,Kasiguncu,Sulawesi,-1.42,LSEQM+DL,50,0.952,227
+97096,Kasiguncu,Sulawesi,-1.42,LSEQM+DL,100,0.652,23
+97120,Majene,Sulawesi,-3.551,IMERG-L,1,1.532,2072
+97120,Majene,Sulawesi,-3.551,IMERG-L,5,1.258,1211
+97120,Majene,Sulawesi,-3.551,IMERG-L,10,1.097,821
+97120,Majene,Sulawesi,-3.551,IMERG-L,20,0.884,423
+97120,Majene,Sulawesi,-3.551,IMERG-L,50,0.548,104
+97120,Majene,Sulawesi,-3.551,IMERG-L,100,0.727,22
+97120,Majene,Sulawesi,-3.551,LSEQM+DL,1,1.422,2072
+97120,Majene,Sulawesi,-3.551,LSEQM+DL,5,1.273,1211
+97120,Majene,Sulawesi,-3.551,LSEQM+DL,10,1.125,821
+97120,Majene,Sulawesi,-3.551,LSEQM+DL,20,1.099,423
+97120,Majene,Sulawesi,-3.551,LSEQM+DL,50,1.038,104
+97120,Majene,Sulawesi,-3.551,LSEQM+DL,100,0.591,22
+97124,Pongtiku,Sulawesi,-3.045,IMERG-L,1,1.017,3587
+97124,Pongtiku,Sulawesi,-3.045,IMERG-L,5,0.995,2345
+97124,Pongtiku,Sulawesi,-3.045,IMERG-L,10,0.952,1635
+97124,Pongtiku,Sulawesi,-3.045,IMERG-L,20,0.783,906
+97124,Pongtiku,Sulawesi,-3.045,IMERG-L,50,0.387,168
+97124,Pongtiku,Sulawesi,-3.045,IMERG-L,100,0.444,9
+97124,Pongtiku,Sulawesi,-3.045,LSEQM+DL,1,0.994,3587
+97124,Pongtiku,Sulawesi,-3.045,LSEQM+DL,5,1.032,2345
+97124,Pongtiku,Sulawesi,-3.045,LSEQM+DL,10,0.994,1635
+97124,Pongtiku,Sulawesi,-3.045,LSEQM+DL,20,0.872,906
+97124,Pongtiku,Sulawesi,-3.045,LSEQM+DL,50,0.702,168
+97124,Pongtiku,Sulawesi,-3.045,LSEQM+DL,100,0.444,9
+97126,Andi Jemma,Sulawesi,-2.555,IMERG-L,1,0.944,3911
+97126,Andi Jemma,Sulawesi,-2.555,IMERG-L,5,0.9,2706
+97126,Andi Jemma,Sulawesi,-2.555,IMERG-L,10,0.821,2013
+97126,Andi Jemma,Sulawesi,-2.555,IMERG-L,20,0.679,1261
+97126,Andi Jemma,Sulawesi,-2.555,IMERG-L,50,0.37,378
+97126,Andi Jemma,Sulawesi,-2.555,IMERG-L,100,0.216,51
+97126,Andi Jemma,Sulawesi,-2.555,LSEQM+DL,1,0.857,3911
+97126,Andi Jemma,Sulawesi,-2.555,LSEQM+DL,5,0.866,2706
+97126,Andi Jemma,Sulawesi,-2.555,LSEQM+DL,10,0.835,2013
+97126,Andi Jemma,Sulawesi,-2.555,LSEQM+DL,20,0.795,1261
+97126,Andi Jemma,Sulawesi,-2.555,LSEQM+DL,50,0.852,378
+97126,Andi Jemma,Sulawesi,-2.555,LSEQM+DL,100,0.647,51
+97142,Sangia Ni Bandera,Sulawesi,-4.181,IMERG-L,1,1.108,3116
+97142,Sangia Ni Bandera,Sulawesi,-4.181,IMERG-L,5,1.059,1888
+97142,Sangia Ni Bandera,Sulawesi,-4.181,IMERG-L,10,0.916,1292
+97142,Sangia Ni Bandera,Sulawesi,-4.181,IMERG-L,20,0.697,689
+97142,Sangia Ni Bandera,Sulawesi,-4.181,IMERG-L,50,0.292,144
+97142,Sangia Ni Bandera,Sulawesi,-4.181,IMERG-L,100,0.267,15
+97142,Sangia Ni Bandera,Sulawesi,-4.181,LSEQM+DL,1,1.026,3116
+97142,Sangia Ni Bandera,Sulawesi,-4.181,LSEQM+DL,5,1.039,1888
+97142,Sangia Ni Bandera,Sulawesi,-4.181,LSEQM+DL,10,0.947,1292
+97142,Sangia Ni Bandera,Sulawesi,-4.181,LSEQM+DL,20,0.843,689
+97142,Sangia Ni Bandera,Sulawesi,-4.181,LSEQM+DL,50,0.778,144
+97142,Sangia Ni Bandera,Sulawesi,-4.181,LSEQM+DL,100,0.2,15
+97144,Kendari,Sulawesi,-3.97,IMERG-L,1,1.209,2853
+97144,Kendari,Sulawesi,-3.97,IMERG-L,5,1.23,1772
+97144,Kendari,Sulawesi,-3.97,IMERG-L,10,1.126,1263
+97144,Kendari,Sulawesi,-3.97,IMERG-L,20,1.015,710
+97144,Kendari,Sulawesi,-3.97,IMERG-L,50,1.055,145
+97144,Kendari,Sulawesi,-3.97,IMERG-L,100,1.7,10
+97144,Kendari,Sulawesi,-3.97,LSEQM+DL,1,1.012,2853
+97144,Kendari,Sulawesi,-3.97,LSEQM+DL,5,1.093,1772
+97144,Kendari,Sulawesi,-3.97,LSEQM+DL,10,1.025,1263
+97144,Kendari,Sulawesi,-3.97,LSEQM+DL,20,1.03,710
+97144,Kendari,Sulawesi,-3.97,LSEQM+DL,50,1.29,145
+97144,Kendari,Sulawesi,-3.97,LSEQM+DL,100,1.6,10
+97146,Geofisika Kendari,Sulawesi,-3.96,IMERG-L,1,1.198,273
+97146,Geofisika Kendari,Sulawesi,-3.96,IMERG-L,5,1.126,174
+97146,Geofisika Kendari,Sulawesi,-3.96,IMERG-L,10,0.948,116
+97146,Geofisika Kendari,Sulawesi,-3.96,IMERG-L,20,0.864,66
+97146,Geofisika Kendari,Sulawesi,-3.96,IMERG-L,50,1.182,11
+97146,Geofisika Kendari,Sulawesi,-3.96,IMERG-L,100,,1
+97146,Geofisika Kendari,Sulawesi,-3.96,LSEQM+DL,1,0.963,273
+97146,Geofisika Kendari,Sulawesi,-3.96,LSEQM+DL,5,0.885,174
+97146,Geofisika Kendari,Sulawesi,-3.96,LSEQM+DL,10,0.828,116
+97146,Geofisika Kendari,Sulawesi,-3.96,LSEQM+DL,20,0.788,66
+97146,Geofisika Kendari,Sulawesi,-3.96,LSEQM+DL,50,1.091,11
+97146,Geofisika Kendari,Sulawesi,-3.96,LSEQM+DL,100,,1
+97150,Konawe Selatan,Sulawesi,-4.056,IMERG-L,1,1.139,706
+97150,Konawe Selatan,Sulawesi,-4.056,IMERG-L,5,1.141,469
+97150,Konawe Selatan,Sulawesi,-4.056,IMERG-L,10,1.048,333
+97150,Konawe Selatan,Sulawesi,-4.056,IMERG-L,20,0.949,178
+97150,Konawe Selatan,Sulawesi,-4.056,IMERG-L,50,0.641,39
+97150,Konawe Selatan,Sulawesi,-4.056,IMERG-L,100,,2
+97150,Konawe Selatan,Sulawesi,-4.056,LSEQM+DL,1,1.031,706
+97150,Konawe Selatan,Sulawesi,-4.056,LSEQM+DL,5,1.136,469
+97150,Konawe Selatan,Sulawesi,-4.056,LSEQM+DL,10,1.057,333
+97150,Konawe Selatan,Sulawesi,-4.056,LSEQM+DL,20,1.112,178
+97150,Konawe Selatan,Sulawesi,-4.056,LSEQM+DL,50,1.179,39
+97150,Konawe Selatan,Sulawesi,-4.056,LSEQM+DL,100,,2
+97180,Sultan Hasanuddin,Sulawesi,-5.07,IMERG-L,1,1.146,2919
+97180,Sultan Hasanuddin,Sulawesi,-5.07,IMERG-L,5,1.087,2102
+97180,Sultan Hasanuddin,Sulawesi,-5.07,IMERG-L,10,1.035,1586
+97180,Sultan Hasanuddin,Sulawesi,-5.07,IMERG-L,20,0.85,1033
+97180,Sultan Hasanuddin,Sulawesi,-5.07,IMERG-L,50,0.499,341
+97180,Sultan Hasanuddin,Sulawesi,-5.07,IMERG-L,100,0.101,69
+97180,Sultan Hasanuddin,Sulawesi,-5.07,LSEQM+DL,1,0.772,2919
+97180,Sultan Hasanuddin,Sulawesi,-5.07,LSEQM+DL,5,0.774,2102
+97180,Sultan Hasanuddin,Sulawesi,-5.07,LSEQM+DL,10,0.768,1586
+97180,Sultan Hasanuddin,Sulawesi,-5.07,LSEQM+DL,20,0.759,1033
+97180,Sultan Hasanuddin,Sulawesi,-5.07,LSEQM+DL,50,0.792,341
+97180,Sultan Hasanuddin,Sulawesi,-5.07,LSEQM+DL,100,0.333,69
+97182,Paotere,Sulawesi,-5.114,IMERG-L,1,1.149,1588
+97182,Paotere,Sulawesi,-5.114,IMERG-L,5,1.14,1124
+97182,Paotere,Sulawesi,-5.114,IMERG-L,10,1.041,873
+97182,Paotere,Sulawesi,-5.114,IMERG-L,20,0.916,583
+97182,Paotere,Sulawesi,-5.114,IMERG-L,50,0.577,201
+97182,Paotere,Sulawesi,-5.114,IMERG-L,100,0.2,45
+97182,Paotere,Sulawesi,-5.114,LSEQM+DL,1,0.78,1588
+97182,Paotere,Sulawesi,-5.114,LSEQM+DL,5,0.817,1124
+97182,Paotere,Sulawesi,-5.114,LSEQM+DL,10,0.822,873
+97182,Paotere,Sulawesi,-5.114,LSEQM+DL,20,0.798,583
+97182,Paotere,Sulawesi,-5.114,LSEQM+DL,50,0.741,201
+97182,Paotere,Sulawesi,-5.114,LSEQM+DL,100,0.4,45
+97184,Maros,Sulawesi,-4.931,IMERG-L,1,1.074,3024
+97184,Maros,Sulawesi,-4.931,IMERG-L,5,1.026,2129
+97184,Maros,Sulawesi,-4.931,IMERG-L,10,0.931,1655
+97184,Maros,Sulawesi,-4.931,IMERG-L,20,0.795,1077
+97184,Maros,Sulawesi,-4.931,IMERG-L,50,0.474,388
+97184,Maros,Sulawesi,-4.931,IMERG-L,100,0.197,76
+97184,Maros,Sulawesi,-4.931,LSEQM+DL,1,0.737,3024
+97184,Maros,Sulawesi,-4.931,LSEQM+DL,5,0.75,2129
+97184,Maros,Sulawesi,-4.931,LSEQM+DL,10,0.718,1655
+97184,Maros,Sulawesi,-4.931,LSEQM+DL,20,0.715,1077
+97184,Maros,Sulawesi,-4.931,LSEQM+DL,50,0.655,388
+97184,Maros,Sulawesi,-4.931,LSEQM+DL,100,0.395,76
+97186,Geofisika Gowa,Sulawesi,-5.218,IMERG-L,1,1.23,535
+97186,Geofisika Gowa,Sulawesi,-5.218,IMERG-L,5,1.155,380
+97186,Geofisika Gowa,Sulawesi,-5.218,IMERG-L,10,1.052,291
+97186,Geofisika Gowa,Sulawesi,-5.218,IMERG-L,20,0.902,193
+97186,Geofisika Gowa,Sulawesi,-5.218,IMERG-L,50,0.508,63
+97186,Geofisika Gowa,Sulawesi,-5.218,IMERG-L,100,0.273,11
+97186,Geofisika Gowa,Sulawesi,-5.218,LSEQM+DL,1,0.794,535
+97186,Geofisika Gowa,Sulawesi,-5.218,LSEQM+DL,5,0.803,380
+97186,Geofisika Gowa,Sulawesi,-5.218,LSEQM+DL,10,0.808,291
+97186,Geofisika Gowa,Sulawesi,-5.218,LSEQM+DL,20,0.808,193
+97186,Geofisika Gowa,Sulawesi,-5.218,LSEQM+DL,50,0.762,63
+97186,Geofisika Gowa,Sulawesi,-5.218,LSEQM+DL,100,0.364,11
+97192,Beto Ambari,Sulawesi,-5.47,IMERG-L,1,1.087,2702
+97192,Beto Ambari,Sulawesi,-5.47,IMERG-L,5,1.037,1681
+97192,Beto Ambari,Sulawesi,-5.47,IMERG-L,10,0.968,1137
+97192,Beto Ambari,Sulawesi,-5.47,IMERG-L,20,0.814,603
+97192,Beto Ambari,Sulawesi,-5.47,IMERG-L,50,0.654,136
+97192,Beto Ambari,Sulawesi,-5.47,IMERG-L,100,0.632,19
+97192,Beto Ambari,Sulawesi,-5.47,LSEQM+DL,1,0.942,2702
+97192,Beto Ambari,Sulawesi,-5.47,LSEQM+DL,5,0.958,1681
+97192,Beto Ambari,Sulawesi,-5.47,LSEQM+DL,10,0.925,1137
+97192,Beto Ambari,Sulawesi,-5.47,LSEQM+DL,20,0.914,603
+97192,Beto Ambari,Sulawesi,-5.47,LSEQM+DL,50,1.051,136
+97192,Beto Ambari,Sulawesi,-5.47,LSEQM+DL,100,1.0,19
+97230,I Gusti Ngurah Rai,Bali Nusa Tenggara,-8.75,IMERG-L,1,1.313,2323
+97230,I Gusti Ngurah Rai,Bali Nusa Tenggara,-8.75,IMERG-L,5,1.003,1445
+97230,I Gusti Ngurah Rai,Bali Nusa Tenggara,-8.75,IMERG-L,10,0.897,1035
+97230,I Gusti Ngurah Rai,Bali Nusa Tenggara,-8.75,IMERG-L,20,0.778,613
+97230,I Gusti Ngurah Rai,Bali Nusa Tenggara,-8.75,IMERG-L,50,0.545,165
+97230,I Gusti Ngurah Rai,Bali Nusa Tenggara,-8.75,IMERG-L,100,0.577,26
+97230,I Gusti Ngurah Rai,Bali Nusa Tenggara,-8.75,LSEQM+DL,1,1.084,2323
+97230,I Gusti Ngurah Rai,Bali Nusa Tenggara,-8.75,LSEQM+DL,5,1.026,1445
+97230,I Gusti Ngurah Rai,Bali Nusa Tenggara,-8.75,LSEQM+DL,10,1.006,1035
+97230,I Gusti Ngurah Rai,Bali Nusa Tenggara,-8.75,LSEQM+DL,20,0.979,613
+97230,I Gusti Ngurah Rai,Bali Nusa Tenggara,-8.75,LSEQM+DL,50,0.994,165
+97230,I Gusti Ngurah Rai,Bali Nusa Tenggara,-8.75,LSEQM+DL,100,0.538,26
+97232,Geofisika Denpasar,Bali Nusa Tenggara,-8.677,IMERG-L,1,1.024,1278
+97232,Geofisika Denpasar,Bali Nusa Tenggara,-8.677,IMERG-L,5,0.987,852
+97232,Geofisika Denpasar,Bali Nusa Tenggara,-8.677,IMERG-L,10,0.924,630
+97232,Geofisika Denpasar,Bali Nusa Tenggara,-8.677,IMERG-L,20,0.893,365
+97232,Geofisika Denpasar,Bali Nusa Tenggara,-8.677,IMERG-L,50,0.667,102
+97232,Geofisika Denpasar,Bali Nusa Tenggara,-8.677,IMERG-L,100,0.75,12
+97232,Geofisika Denpasar,Bali Nusa Tenggara,-8.677,LSEQM+DL,1,1.0,1278
+97232,Geofisika Denpasar,Bali Nusa Tenggara,-8.677,LSEQM+DL,5,0.98,852
+97232,Geofisika Denpasar,Bali Nusa Tenggara,-8.677,LSEQM+DL,10,0.916,630
+97232,Geofisika Denpasar,Bali Nusa Tenggara,-8.677,LSEQM+DL,20,0.885,365
+97232,Geofisika Denpasar,Bali Nusa Tenggara,-8.677,LSEQM+DL,50,0.912,102
+97232,Geofisika Denpasar,Bali Nusa Tenggara,-8.677,LSEQM+DL,100,0.25,12
+97234,Pos Pengamatan Kahang-Kahang,Bali Nusa Tenggara,-8.365,IMERG-L,1,1.145,1780
+97234,Pos Pengamatan Kahang-Kahang,Bali Nusa Tenggara,-8.365,IMERG-L,5,0.973,1093
+97234,Pos Pengamatan Kahang-Kahang,Bali Nusa Tenggara,-8.365,IMERG-L,10,0.867,782
+97234,Pos Pengamatan Kahang-Kahang,Bali Nusa Tenggara,-8.365,IMERG-L,20,0.639,477
+97234,Pos Pengamatan Kahang-Kahang,Bali Nusa Tenggara,-8.365,IMERG-L,50,0.341,126
+97234,Pos Pengamatan Kahang-Kahang,Bali Nusa Tenggara,-8.365,IMERG-L,100,0.308,13
+97234,Pos Pengamatan Kahang-Kahang,Bali Nusa Tenggara,-8.365,LSEQM+DL,1,1.116,1780
+97234,Pos Pengamatan Kahang-Kahang,Bali Nusa Tenggara,-8.365,LSEQM+DL,5,1.05,1093
+97234,Pos Pengamatan Kahang-Kahang,Bali Nusa Tenggara,-8.365,LSEQM+DL,10,0.953,782
+97234,Pos Pengamatan Kahang-Kahang,Bali Nusa Tenggara,-8.365,LSEQM+DL,20,0.759,477
+97234,Pos Pengamatan Kahang-Kahang,Bali Nusa Tenggara,-8.365,LSEQM+DL,50,0.659,126
+97234,Pos Pengamatan Kahang-Kahang,Bali Nusa Tenggara,-8.365,LSEQM+DL,100,0.308,13
+97236,Jembrana,Bali Nusa Tenggara,-8.341,IMERG-L,1,0.898,2713
+97236,Jembrana,Bali Nusa Tenggara,-8.341,IMERG-L,5,0.912,1685
+97236,Jembrana,Bali Nusa Tenggara,-8.341,IMERG-L,10,0.912,1153
+97236,Jembrana,Bali Nusa Tenggara,-8.341,IMERG-L,20,0.768,663
+97236,Jembrana,Bali Nusa Tenggara,-8.341,IMERG-L,50,0.428,166
+97236,Jembrana,Bali Nusa Tenggara,-8.341,IMERG-L,100,0.129,31
+97236,Jembrana,Bali Nusa Tenggara,-8.341,LSEQM+DL,1,0.835,2713
+97236,Jembrana,Bali Nusa Tenggara,-8.341,LSEQM+DL,5,0.846,1685
+97236,Jembrana,Bali Nusa Tenggara,-8.341,LSEQM+DL,10,0.751,1153
+97236,Jembrana,Bali Nusa Tenggara,-8.341,LSEQM+DL,20,0.629,663
+97236,Jembrana,Bali Nusa Tenggara,-8.341,LSEQM+DL,50,0.446,166
+97236,Jembrana,Bali Nusa Tenggara,-8.341,LSEQM+DL,100,0.065,31
+97240,Zainuddin Abdul Madjid,Bali Nusa Tenggara,-8.753,IMERG-L,1,1.017,2307
+97240,Zainuddin Abdul Madjid,Bali Nusa Tenggara,-8.753,IMERG-L,5,1.057,1366
+97240,Zainuddin Abdul Madjid,Bali Nusa Tenggara,-8.753,IMERG-L,10,1.017,956
+97240,Zainuddin Abdul Madjid,Bali Nusa Tenggara,-8.753,IMERG-L,20,0.8,559
+97240,Zainuddin Abdul Madjid,Bali Nusa Tenggara,-8.753,IMERG-L,50,0.496,137
+97240,Zainuddin Abdul Madjid,Bali Nusa Tenggara,-8.753,IMERG-L,100,0.625,8
+97240,Zainuddin Abdul Madjid,Bali Nusa Tenggara,-8.753,LSEQM+DL,1,0.983,2307
+97240,Zainuddin Abdul Madjid,Bali Nusa Tenggara,-8.753,LSEQM+DL,5,1.034,1366
+97240,Zainuddin Abdul Madjid,Bali Nusa Tenggara,-8.753,LSEQM+DL,10,0.984,956
+97240,Zainuddin Abdul Madjid,Bali Nusa Tenggara,-8.753,LSEQM+DL,20,0.852,559
+97240,Zainuddin Abdul Madjid,Bali Nusa Tenggara,-8.753,LSEQM+DL,50,0.985,137
+97240,Zainuddin Abdul Madjid,Bali Nusa Tenggara,-8.753,LSEQM+DL,100,0.625,8
+97242,Lombok Barat,Bali Nusa Tenggara,-8.636,IMERG-L,1,0.979,2487
+97242,Lombok Barat,Bali Nusa Tenggara,-8.636,IMERG-L,5,0.993,1617
+97242,Lombok Barat,Bali Nusa Tenggara,-8.636,IMERG-L,10,0.917,1181
+97242,Lombok Barat,Bali Nusa Tenggara,-8.636,IMERG-L,20,0.755,681
+97242,Lombok Barat,Bali Nusa Tenggara,-8.636,IMERG-L,50,0.387,168
+97242,Lombok Barat,Bali Nusa Tenggara,-8.636,IMERG-L,100,0.222,9
+97242,Lombok Barat,Bali Nusa Tenggara,-8.636,LSEQM+DL,1,0.92,2487
+97242,Lombok Barat,Bali Nusa Tenggara,-8.636,LSEQM+DL,5,0.915,1617
+97242,Lombok Barat,Bali Nusa Tenggara,-8.636,LSEQM+DL,10,0.826,1181
+97242,Lombok Barat,Bali Nusa Tenggara,-8.636,LSEQM+DL,20,0.725,681
+97242,Lombok Barat,Bali Nusa Tenggara,-8.636,LSEQM+DL,50,0.72,168
+97242,Lombok Barat,Bali Nusa Tenggara,-8.636,LSEQM+DL,100,0.333,9
+97260,Sultan Muhammad Kaharuddin,Bali Nusa Tenggara,-8.488,IMERG-L,1,1.245,1915
+97260,Sultan Muhammad Kaharuddin,Bali Nusa Tenggara,-8.488,IMERG-L,5,1.227,1194
+97260,Sultan Muhammad Kaharuddin,Bali Nusa Tenggara,-8.488,IMERG-L,10,1.079,849
+97260,Sultan Muhammad Kaharuddin,Bali Nusa Tenggara,-8.488,IMERG-L,20,0.876,477
+97260,Sultan Muhammad Kaharuddin,Bali Nusa Tenggara,-8.488,IMERG-L,50,0.602,103
+97260,Sultan Muhammad Kaharuddin,Bali Nusa Tenggara,-8.488,IMERG-L,100,0.286,14
+97260,Sultan Muhammad Kaharuddin,Bali Nusa Tenggara,-8.488,LSEQM+DL,1,1.109,1915
+97260,Sultan Muhammad Kaharuddin,Bali Nusa Tenggara,-8.488,LSEQM+DL,5,1.065,1194
+97260,Sultan Muhammad Kaharuddin,Bali Nusa Tenggara,-8.488,LSEQM+DL,10,0.963,849
+97260,Sultan Muhammad Kaharuddin,Bali Nusa Tenggara,-8.488,LSEQM+DL,20,0.857,477
+97260,Sultan Muhammad Kaharuddin,Bali Nusa Tenggara,-8.488,LSEQM+DL,50,1.058,103
+97260,Sultan Muhammad Kaharuddin,Bali Nusa Tenggara,-8.488,LSEQM+DL,100,0.643,14
+97270,Sultan Muhammad Salahuddin,Bali Nusa Tenggara,-8.543,IMERG-L,1,1.023,2089
+97270,Sultan Muhammad Salahuddin,Bali Nusa Tenggara,-8.543,IMERG-L,5,1.124,1190
+97270,Sultan Muhammad Salahuddin,Bali Nusa Tenggara,-8.543,IMERG-L,10,1.132,745
+97270,Sultan Muhammad Salahuddin,Bali Nusa Tenggara,-8.543,IMERG-L,20,1.079,328
+97270,Sultan Muhammad Salahuddin,Bali Nusa Tenggara,-8.543,IMERG-L,50,0.739,46
+97270,Sultan Muhammad Salahuddin,Bali Nusa Tenggara,-8.543,IMERG-L,100,,0
+97270,Sultan Muhammad Salahuddin,Bali Nusa Tenggara,-8.543,LSEQM+DL,1,0.938,2089
+97270,Sultan Muhammad Salahuddin,Bali Nusa Tenggara,-8.543,LSEQM+DL,5,0.982,1190
+97270,Sultan Muhammad Salahuddin,Bali Nusa Tenggara,-8.543,LSEQM+DL,10,0.949,745
+97270,Sultan Muhammad Salahuddin,Bali Nusa Tenggara,-8.543,LSEQM+DL,20,0.966,328
+97270,Sultan Muhammad Salahuddin,Bali Nusa Tenggara,-8.543,LSEQM+DL,50,1.0,46
+97270,Sultan Muhammad Salahuddin,Bali Nusa Tenggara,-8.543,LSEQM+DL,100,,0
+97282,Komodo,Bali Nusa Tenggara,-8.487,IMERG-L,1,1.343,1123
+97282,Komodo,Bali Nusa Tenggara,-8.487,IMERG-L,5,1.265,702
+97282,Komodo,Bali Nusa Tenggara,-8.487,IMERG-L,10,1.272,471
+97282,Komodo,Bali Nusa Tenggara,-8.487,IMERG-L,20,1.333,228
+97282,Komodo,Bali Nusa Tenggara,-8.487,IMERG-L,50,1.311,45
+97282,Komodo,Bali Nusa Tenggara,-8.487,IMERG-L,100,,1
+97282,Komodo,Bali Nusa Tenggara,-8.487,LSEQM+DL,1,1.432,1123
+97282,Komodo,Bali Nusa Tenggara,-8.487,LSEQM+DL,5,1.99,702
+97282,Komodo,Bali Nusa Tenggara,-8.487,LSEQM+DL,10,1.915,471
+97282,Komodo,Bali Nusa Tenggara,-8.487,LSEQM+DL,20,1.952,228
+97282,Komodo,Bali Nusa Tenggara,-8.487,LSEQM+DL,50,1.489,45
+97282,Komodo,Bali Nusa Tenggara,-8.487,LSEQM+DL,100,,1
+97284,Frans Sales Lega,Bali Nusa Tenggara,-8.63,IMERG-L,1,0.901,3786
+97284,Frans Sales Lega,Bali Nusa Tenggara,-8.63,IMERG-L,5,0.794,2801
+97284,Frans Sales Lega,Bali Nusa Tenggara,-8.63,IMERG-L,10,0.702,2184
+97284,Frans Sales Lega,Bali Nusa Tenggara,-8.63,IMERG-L,20,0.538,1397
+97284,Frans Sales Lega,Bali Nusa Tenggara,-8.63,IMERG-L,50,0.231,350
+97284,Frans Sales Lega,Bali Nusa Tenggara,-8.63,IMERG-L,100,0.24,25
+97284,Frans Sales Lega,Bali Nusa Tenggara,-8.63,LSEQM+DL,1,0.786,3786
+97284,Frans Sales Lega,Bali Nusa Tenggara,-8.63,LSEQM+DL,5,0.781,2801
+97284,Frans Sales Lega,Bali Nusa Tenggara,-8.63,LSEQM+DL,10,0.768,2184
+97284,Frans Sales Lega,Bali Nusa Tenggara,-8.63,LSEQM+DL,20,0.723,1397
+97284,Frans Sales Lega,Bali Nusa Tenggara,-8.63,LSEQM+DL,50,0.737,350
+97284,Frans Sales Lega,Bali Nusa Tenggara,-8.63,LSEQM+DL,100,0.44,25
+97300,Fransiskus Xaverius Seda,Bali Nusa Tenggara,-8.636,IMERG-L,1,1.64,1348
+97300,Fransiskus Xaverius Seda,Bali Nusa Tenggara,-8.636,IMERG-L,5,1.548,792
+97300,Fransiskus Xaverius Seda,Bali Nusa Tenggara,-8.636,IMERG-L,10,1.489,523
+97300,Fransiskus Xaverius Seda,Bali Nusa Tenggara,-8.636,IMERG-L,20,1.484,250
+97300,Fransiskus Xaverius Seda,Bali Nusa Tenggara,-8.636,IMERG-L,50,1.298,47
+97300,Fransiskus Xaverius Seda,Bali Nusa Tenggara,-8.636,IMERG-L,100,1.6,5
+97300,Fransiskus Xaverius Seda,Bali Nusa Tenggara,-8.636,LSEQM+DL,1,0.892,1348
+97300,Fransiskus Xaverius Seda,Bali Nusa Tenggara,-8.636,LSEQM+DL,5,0.933,792
+97300,Fransiskus Xaverius Seda,Bali Nusa Tenggara,-8.636,LSEQM+DL,10,0.967,523
+97300,Fransiskus Xaverius Seda,Bali Nusa Tenggara,-8.636,LSEQM+DL,20,1.272,250
+97300,Fransiskus Xaverius Seda,Bali Nusa Tenggara,-8.636,LSEQM+DL,50,2.064,47
+97300,Fransiskus Xaverius Seda,Bali Nusa Tenggara,-8.636,LSEQM+DL,100,1.8,5
+97310,Gewayantana,Bali Nusa Tenggara,-8.275,IMERG-L,1,2.296,1429
+97310,Gewayantana,Bali Nusa Tenggara,-8.275,IMERG-L,5,1.741,911
+97310,Gewayantana,Bali Nusa Tenggara,-8.275,IMERG-L,10,1.363,652
+97310,Gewayantana,Bali Nusa Tenggara,-8.275,IMERG-L,20,1.019,378
+97310,Gewayantana,Bali Nusa Tenggara,-8.275,IMERG-L,50,0.576,99
+97310,Gewayantana,Bali Nusa Tenggara,-8.275,IMERG-L,100,0.125,16
+97310,Gewayantana,Bali Nusa Tenggara,-8.275,LSEQM+DL,1,1.066,1429
+97310,Gewayantana,Bali Nusa Tenggara,-8.275,LSEQM+DL,5,1.058,911
+97310,Gewayantana,Bali Nusa Tenggara,-8.275,LSEQM+DL,10,1.097,652
+97310,Gewayantana,Bali Nusa Tenggara,-8.275,LSEQM+DL,20,1.344,378
+97310,Gewayantana,Bali Nusa Tenggara,-8.275,LSEQM+DL,50,1.626,99
+97310,Gewayantana,Bali Nusa Tenggara,-8.275,LSEQM+DL,100,1.188,16
+97320,Mali,Bali Nusa Tenggara,-8.135,IMERG-L,1,1.794,811
+97320,Mali,Bali Nusa Tenggara,-8.135,IMERG-L,5,1.456,500
+97320,Mali,Bali Nusa Tenggara,-8.135,IMERG-L,10,1.262,347
+97320,Mali,Bali Nusa Tenggara,-8.135,IMERG-L,20,1.192,182
+97320,Mali,Bali Nusa Tenggara,-8.135,IMERG-L,50,0.578,45
+97320,Mali,Bali Nusa Tenggara,-8.135,IMERG-L,100,,3
+97320,Mali,Bali Nusa Tenggara,-8.135,LSEQM+DL,1,0.688,811
+97320,Mali,Bali Nusa Tenggara,-8.135,LSEQM+DL,5,0.836,500
+97320,Mali,Bali Nusa Tenggara,-8.135,LSEQM+DL,10,0.942,347
+97320,Mali,Bali Nusa Tenggara,-8.135,LSEQM+DL,20,1.357,182
+97320,Mali,Bali Nusa Tenggara,-8.135,LSEQM+DL,50,1.511,45
+97320,Mali,Bali Nusa Tenggara,-8.135,LSEQM+DL,100,,3
+97340,Umbu Mehang Kunda,Bali Nusa Tenggara,-9.669,IMERG-L,1,1.409,1395
+97340,Umbu Mehang Kunda,Bali Nusa Tenggara,-9.669,IMERG-L,5,1.448,812
+97340,Umbu Mehang Kunda,Bali Nusa Tenggara,-9.669,IMERG-L,10,1.368,535
+97340,Umbu Mehang Kunda,Bali Nusa Tenggara,-9.669,IMERG-L,20,1.037,296
+97340,Umbu Mehang Kunda,Bali Nusa Tenggara,-9.669,IMERG-L,50,1.0,42
+97340,Umbu Mehang Kunda,Bali Nusa Tenggara,-9.669,IMERG-L,100,,2
+97340,Umbu Mehang Kunda,Bali Nusa Tenggara,-9.669,LSEQM+DL,1,1.281,1395
+97340,Umbu Mehang Kunda,Bali Nusa Tenggara,-9.669,LSEQM+DL,5,1.265,812
+97340,Umbu Mehang Kunda,Bali Nusa Tenggara,-9.669,LSEQM+DL,10,1.135,535
+97340,Umbu Mehang Kunda,Bali Nusa Tenggara,-9.669,LSEQM+DL,20,1.003,296
+97340,Umbu Mehang Kunda,Bali Nusa Tenggara,-9.669,LSEQM+DL,50,1.595,42
+97340,Umbu Mehang Kunda,Bali Nusa Tenggara,-9.669,LSEQM+DL,100,,2
+97372,Eltari,Bali Nusa Tenggara,-10.168,IMERG-L,1,0.985,1812
+97372,Eltari,Bali Nusa Tenggara,-10.168,IMERG-L,5,0.899,1280
+97372,Eltari,Bali Nusa Tenggara,-10.168,IMERG-L,10,0.885,901
+97372,Eltari,Bali Nusa Tenggara,-10.168,IMERG-L,20,0.788,528
+97372,Eltari,Bali Nusa Tenggara,-10.168,IMERG-L,50,0.815,124
+97372,Eltari,Bali Nusa Tenggara,-10.168,IMERG-L,100,0.824,17
+97372,Eltari,Bali Nusa Tenggara,-10.168,LSEQM+DL,1,0.914,1812
+97372,Eltari,Bali Nusa Tenggara,-10.168,LSEQM+DL,5,0.862,1280
+97372,Eltari,Bali Nusa Tenggara,-10.168,LSEQM+DL,10,0.861,901
+97372,Eltari,Bali Nusa Tenggara,-10.168,LSEQM+DL,20,0.845,528
+97372,Eltari,Bali Nusa Tenggara,-10.168,LSEQM+DL,50,1.21,124
+97372,Eltari,Bali Nusa Tenggara,-10.168,LSEQM+DL,100,1.824,17
+97374,Kupang,Bali Nusa Tenggara,-10.139,IMERG-L,1,0.915,819
+97374,Kupang,Bali Nusa Tenggara,-10.139,IMERG-L,5,0.983,516
+97374,Kupang,Bali Nusa Tenggara,-10.139,IMERG-L,10,0.926,377
+97374,Kupang,Bali Nusa Tenggara,-10.139,IMERG-L,20,0.938,211
+97374,Kupang,Bali Nusa Tenggara,-10.139,IMERG-L,50,1.091,44
+97374,Kupang,Bali Nusa Tenggara,-10.139,IMERG-L,100,0.286,7
+97374,Kupang,Bali Nusa Tenggara,-10.139,LSEQM+DL,1,0.855,819
+97374,Kupang,Bali Nusa Tenggara,-10.139,LSEQM+DL,5,0.94,516
+97374,Kupang,Bali Nusa Tenggara,-10.139,LSEQM+DL,10,0.902,377
+97374,Kupang,Bali Nusa Tenggara,-10.139,LSEQM+DL,20,0.967,211
+97374,Kupang,Bali Nusa Tenggara,-10.139,LSEQM+DL,50,1.75,44
+97374,Kupang,Bali Nusa Tenggara,-10.139,LSEQM+DL,100,2.0,7
+97378,David Constatijn Saudale,Bali Nusa Tenggara,-10.767,IMERG-L,1,1.322,1328
+97378,David Constatijn Saudale,Bali Nusa Tenggara,-10.767,IMERG-L,5,1.041,913
+97378,David Constatijn Saudale,Bali Nusa Tenggara,-10.767,IMERG-L,10,0.882,678
+97378,David Constatijn Saudale,Bali Nusa Tenggara,-10.767,IMERG-L,20,0.762,399
+97378,David Constatijn Saudale,Bali Nusa Tenggara,-10.767,IMERG-L,50,0.577,104
+97378,David Constatijn Saudale,Bali Nusa Tenggara,-10.767,IMERG-L,100,0.818,11
+97378,David Constatijn Saudale,Bali Nusa Tenggara,-10.767,LSEQM+DL,1,0.855,1328
+97378,David Constatijn Saudale,Bali Nusa Tenggara,-10.767,LSEQM+DL,5,0.835,913
+97378,David Constatijn Saudale,Bali Nusa Tenggara,-10.767,LSEQM+DL,10,0.786,678
+97378,David Constatijn Saudale,Bali Nusa Tenggara,-10.767,LSEQM+DL,20,0.845,399
+97378,David Constatijn Saudale,Bali Nusa Tenggara,-10.767,LSEQM+DL,50,0.904,104
+97378,David Constatijn Saudale,Bali Nusa Tenggara,-10.767,LSEQM+DL,100,0.909,11
+97380,Tardamu,Bali Nusa Tenggara,-10.5,IMERG-L,1,2.769,1439
+97380,Tardamu,Bali Nusa Tenggara,-10.5,IMERG-L,5,2.134,918
+97380,Tardamu,Bali Nusa Tenggara,-10.5,IMERG-L,10,1.633,638
+97380,Tardamu,Bali Nusa Tenggara,-10.5,IMERG-L,20,1.139,346
+97380,Tardamu,Bali Nusa Tenggara,-10.5,IMERG-L,50,0.634,82
+97380,Tardamu,Bali Nusa Tenggara,-10.5,IMERG-L,100,0.5,12
+97380,Tardamu,Bali Nusa Tenggara,-10.5,LSEQM+DL,1,1.094,1439
+97380,Tardamu,Bali Nusa Tenggara,-10.5,LSEQM+DL,5,1.074,918
+97380,Tardamu,Bali Nusa Tenggara,-10.5,LSEQM+DL,10,1.049,638
+97380,Tardamu,Bali Nusa Tenggara,-10.5,LSEQM+DL,20,1.223,346
+97380,Tardamu,Bali Nusa Tenggara,-10.5,LSEQM+DL,50,1.366,82
+97380,Tardamu,Bali Nusa Tenggara,-10.5,LSEQM+DL,100,1.25,12
+97406,Gamar Malamo,Maluku,1.841,IMERG-L,1,1.123,2457
+97406,Gamar Malamo,Maluku,1.841,IMERG-L,5,1.053,1482
+97406,Gamar Malamo,Maluku,1.841,IMERG-L,10,0.899,1012
+97406,Gamar Malamo,Maluku,1.841,IMERG-L,20,0.705,545
+97406,Gamar Malamo,Maluku,1.841,IMERG-L,50,0.435,108
+97406,Gamar Malamo,Maluku,1.841,IMERG-L,100,0.2,15
+97406,Gamar Malamo,Maluku,1.841,LSEQM+DL,1,0.926,2457
+97406,Gamar Malamo,Maluku,1.841,LSEQM+DL,5,0.947,1482
+97406,Gamar Malamo,Maluku,1.841,LSEQM+DL,10,0.957,1012
+97406,Gamar Malamo,Maluku,1.841,LSEQM+DL,20,1.024,545
+97406,Gamar Malamo,Maluku,1.841,LSEQM+DL,50,1.657,108
+97406,Gamar Malamo,Maluku,1.841,LSEQM+DL,100,1.467,15
+97430,Sultan Babullah,Maluku,0.833,IMERG-L,1,1.239,2827
+97430,Sultan Babullah,Maluku,0.833,IMERG-L,5,0.958,1735
+97430,Sultan Babullah,Maluku,0.833,IMERG-L,10,0.827,1191
+97430,Sultan Babullah,Maluku,0.833,IMERG-L,20,0.558,695
+97430,Sultan Babullah,Maluku,0.833,IMERG-L,50,0.217,157
+97430,Sultan Babullah,Maluku,0.833,IMERG-L,100,0.0,14
+97430,Sultan Babullah,Maluku,0.833,LSEQM+DL,1,1.052,2827
+97430,Sultan Babullah,Maluku,0.833,LSEQM+DL,5,1.019,1735
+97430,Sultan Babullah,Maluku,0.833,LSEQM+DL,10,1.064,1191
+97430,Sultan Babullah,Maluku,0.833,LSEQM+DL,20,1.115,695
+97430,Sultan Babullah,Maluku,0.833,LSEQM+DL,50,1.369,157
+97430,Sultan Babullah,Maluku,0.833,LSEQM+DL,100,1.357,14
+97432,Geofisika Ternate,Maluku,0.772,IMERG-L,1,1.715,723
+97432,Geofisika Ternate,Maluku,0.772,IMERG-L,5,1.682,377
+97432,Geofisika Ternate,Maluku,0.772,IMERG-L,10,1.452,252
+97432,Geofisika Ternate,Maluku,0.772,IMERG-L,20,1.202,124
+97432,Geofisika Ternate,Maluku,0.772,IMERG-L,50,0.429,35
+97432,Geofisika Ternate,Maluku,0.772,IMERG-L,100,,4
+97432,Geofisika Ternate,Maluku,0.772,LSEQM+DL,1,1.12,723
+97432,Geofisika Ternate,Maluku,0.772,LSEQM+DL,5,1.462,377
+97432,Geofisika Ternate,Maluku,0.772,LSEQM+DL,10,1.587,252
+97432,Geofisika Ternate,Maluku,0.772,LSEQM+DL,20,2.21,124
+97432,Geofisika Ternate,Maluku,0.772,LSEQM+DL,50,2.457,35
+97432,Geofisika Ternate,Maluku,0.772,LSEQM+DL,100,,4
+97460,Oesman Sadik,Maluku,-0.638,IMERG-L,1,1.208,3067
+97460,Oesman Sadik,Maluku,-0.638,IMERG-L,5,1.113,1807
+97460,Oesman Sadik,Maluku,-0.638,IMERG-L,10,0.967,1184
+97460,Oesman Sadik,Maluku,-0.638,IMERG-L,20,0.733,619
+97460,Oesman Sadik,Maluku,-0.638,IMERG-L,50,0.37,119
+97460,Oesman Sadik,Maluku,-0.638,IMERG-L,100,0.0,14
+97460,Oesman Sadik,Maluku,-0.638,LSEQM+DL,1,0.943,3067
+97460,Oesman Sadik,Maluku,-0.638,LSEQM+DL,5,0.97,1807
+97460,Oesman Sadik,Maluku,-0.638,LSEQM+DL,10,0.949,1184
+97460,Oesman Sadik,Maluku,-0.638,LSEQM+DL,20,1.061,619
+97460,Oesman Sadik,Maluku,-0.638,LSEQM+DL,50,0.983,119
+97460,Oesman Sadik,Maluku,-0.638,LSEQM+DL,100,0.143,14
+97502,Domine Eduard Osok,Papua,-0.891,IMERG-L,1,1.252,3650
+97502,Domine Eduard Osok,Papua,-0.891,IMERG-L,5,1.151,2456
+97502,Domine Eduard Osok,Papua,-0.891,IMERG-L,10,1.052,1739
+97502,Domine Eduard Osok,Papua,-0.891,IMERG-L,20,0.803,986
+97502,Domine Eduard Osok,Papua,-0.891,IMERG-L,50,0.383,253
+97502,Domine Eduard Osok,Papua,-0.891,IMERG-L,100,0.2,25
+97502,Domine Eduard Osok,Papua,-0.891,LSEQM+DL,1,0.797,3650
+97502,Domine Eduard Osok,Papua,-0.891,LSEQM+DL,5,0.864,2456
+97502,Domine Eduard Osok,Papua,-0.891,LSEQM+DL,10,0.913,1739
+97502,Domine Eduard Osok,Papua,-0.891,LSEQM+DL,20,1.023,986
+97502,Domine Eduard Osok,Papua,-0.891,LSEQM+DL,50,1.466,253
+97502,Domine Eduard Osok,Papua,-0.891,LSEQM+DL,100,1.96,25
+97530,Rendani,Papua,-0.892,IMERG-L,1,1.179,2430
+97530,Rendani,Papua,-0.892,IMERG-L,5,1.323,1354
+97530,Rendani,Papua,-0.892,IMERG-L,10,1.339,880
+97530,Rendani,Papua,-0.892,IMERG-L,20,1.167,466
+97530,Rendani,Papua,-0.892,IMERG-L,50,0.611,131
+97530,Rendani,Papua,-0.892,IMERG-L,100,0.304,23
+97530,Rendani,Papua,-0.892,LSEQM+DL,1,0.871,2430
+97530,Rendani,Papua,-0.892,LSEQM+DL,5,0.995,1354
+97530,Rendani,Papua,-0.892,LSEQM+DL,10,1.07,880
+97530,Rendani,Papua,-0.892,LSEQM+DL,20,1.189,466
+97530,Rendani,Papua,-0.892,LSEQM+DL,50,1.443,131
+97530,Rendani,Papua,-0.892,LSEQM+DL,100,1.739,23
+97560,Frans Kaisiepo,Papua,-1.191,IMERG-L,1,1.551,3535
+97560,Frans Kaisiepo,Papua,-1.191,IMERG-L,5,1.415,2370
+97560,Frans Kaisiepo,Papua,-1.191,IMERG-L,10,1.201,1655
+97560,Frans Kaisiepo,Papua,-1.191,IMERG-L,20,0.911,909
+97560,Frans Kaisiepo,Papua,-1.191,IMERG-L,50,0.534,176
+97560,Frans Kaisiepo,Papua,-1.191,IMERG-L,100,0.6,10
+97560,Frans Kaisiepo,Papua,-1.191,LSEQM+DL,1,0.875,3535
+97560,Frans Kaisiepo,Papua,-1.191,LSEQM+DL,5,0.888,2370
+97560,Frans Kaisiepo,Papua,-1.191,LSEQM+DL,10,0.902,1655
+97560,Frans Kaisiepo,Papua,-1.191,LSEQM+DL,20,1.149,909
+97560,Frans Kaisiepo,Papua,-1.191,LSEQM+DL,50,1.324,176
+97560,Frans Kaisiepo,Papua,-1.191,LSEQM+DL,100,1.3,10
+97570,Sudjarwo Tjondro Negoro,Papua,-1.875,IMERG-L,1,1.528,3012
+97570,Sudjarwo Tjondro Negoro,Papua,-1.875,IMERG-L,5,1.644,1968
+97570,Sudjarwo Tjondro Negoro,Papua,-1.875,IMERG-L,10,1.556,1373
+97570,Sudjarwo Tjondro Negoro,Papua,-1.875,IMERG-L,20,1.252,802
+97570,Sudjarwo Tjondro Negoro,Papua,-1.875,IMERG-L,50,0.634,216
+97570,Sudjarwo Tjondro Negoro,Papua,-1.875,IMERG-L,100,0.2,40
+97570,Sudjarwo Tjondro Negoro,Papua,-1.875,LSEQM+DL,1,0.917,3012
+97570,Sudjarwo Tjondro Negoro,Papua,-1.875,LSEQM+DL,5,0.917,1968
+97570,Sudjarwo Tjondro Negoro,Papua,-1.875,LSEQM+DL,10,0.912,1373
+97570,Sudjarwo Tjondro Negoro,Papua,-1.875,LSEQM+DL,20,1.021,802
+97570,Sudjarwo Tjondro Negoro,Papua,-1.875,LSEQM+DL,50,1.083,216
+97570,Sudjarwo Tjondro Negoro,Papua,-1.875,LSEQM+DL,100,0.475,40
+97580,Mararena,Papua,-1.85,IMERG-L,1,1.13,1580
+97580,Mararena,Papua,-1.85,IMERG-L,5,1.215,997
+97580,Mararena,Papua,-1.85,IMERG-L,10,1.18,707
+97580,Mararena,Papua,-1.85,IMERG-L,20,1.225,396
+97580,Mararena,Papua,-1.85,IMERG-L,50,0.982,109
+97580,Mararena,Papua,-1.85,IMERG-L,100,1.182,11
+97580,Mararena,Papua,-1.85,LSEQM+DL,1,0.722,1580
+97580,Mararena,Papua,-1.85,LSEQM+DL,5,0.763,997
+97580,Mararena,Papua,-1.85,LSEQM+DL,10,0.806,707
+97580,Mararena,Papua,-1.85,LSEQM+DL,20,0.962,396
+97580,Mararena,Papua,-1.85,LSEQM+DL,50,1.266,109
+97580,Mararena,Papua,-1.85,LSEQM+DL,100,2.545,11
+97600,Emalamo,Maluku,-2.052,IMERG-L,1,1.814,2661
+97600,Emalamo,Maluku,-2.052,IMERG-L,5,1.381,1498
+97600,Emalamo,Maluku,-2.052,IMERG-L,10,1.126,951
+97600,Emalamo,Maluku,-2.052,IMERG-L,20,0.963,464
+97600,Emalamo,Maluku,-2.052,IMERG-L,50,0.467,92
+97600,Emalamo,Maluku,-2.052,IMERG-L,100,0.25,8
+97600,Emalamo,Maluku,-2.052,LSEQM+DL,1,0.881,2661
+97600,Emalamo,Maluku,-2.052,LSEQM+DL,5,0.902,1498
+97600,Emalamo,Maluku,-2.052,LSEQM+DL,10,1.023,951
+97600,Emalamo,Maluku,-2.052,LSEQM+DL,20,1.489,464
+97600,Emalamo,Maluku,-2.052,LSEQM+DL,50,2.239,92
+97600,Emalamo,Maluku,-2.052,LSEQM+DL,100,3.0,8
+97630,Torea,Papua,-2.919,IMERG-L,1,1.346,3878
+97630,Torea,Papua,-2.919,IMERG-L,5,1.28,2492
+97630,Torea,Papua,-2.919,IMERG-L,10,1.137,1793
+97630,Torea,Papua,-2.919,IMERG-L,20,0.872,1084
+97630,Torea,Papua,-2.919,IMERG-L,50,0.444,311
+97630,Torea,Papua,-2.919,IMERG-L,100,0.275,51
+97630,Torea,Papua,-2.919,LSEQM+DL,1,0.868,3878
+97630,Torea,Papua,-2.919,LSEQM+DL,5,0.925,2492
+97630,Torea,Papua,-2.919,LSEQM+DL,10,0.924,1793
+97630,Torea,Papua,-2.919,LSEQM+DL,20,1.012,1084
+97630,Torea,Papua,-2.919,LSEQM+DL,50,1.421,311
+97630,Torea,Papua,-2.919,LSEQM+DL,100,1.608,51
+97682,Moanamani,Papua,-3.352,IMERG-L,1,1.215,3906
+97682,Moanamani,Papua,-3.352,IMERG-L,5,1.288,2749
+97682,Moanamani,Papua,-3.352,IMERG-L,10,1.245,2077
+97682,Moanamani,Papua,-3.352,IMERG-L,20,1.006,1361
+97682,Moanamani,Papua,-3.352,IMERG-L,50,0.457,486
+97682,Moanamani,Papua,-3.352,IMERG-L,100,0.423,78
+97682,Moanamani,Papua,-3.352,LSEQM+DL,1,1.0,3906
+97682,Moanamani,Papua,-3.352,LSEQM+DL,5,0.968,2749
+97682,Moanamani,Papua,-3.352,LSEQM+DL,10,0.929,2077
+97682,Moanamani,Papua,-3.352,LSEQM+DL,20,0.795,1361
+97682,Moanamani,Papua,-3.352,LSEQM+DL,50,0.724,486
+97682,Moanamani,Papua,-3.352,LSEQM+DL,100,0.59,78
+97686,Wamena Jaya Wijaya,Papua,-4.07,IMERG-L,1,1.059,3056
+97686,Wamena Jaya Wijaya,Papua,-4.07,IMERG-L,5,1.105,1772
+97686,Wamena Jaya Wijaya,Papua,-4.07,IMERG-L,10,1.136,1054
+97686,Wamena Jaya Wijaya,Papua,-4.07,IMERG-L,20,1.269,364
+97686,Wamena Jaya Wijaya,Papua,-4.07,IMERG-L,50,2.25,20
+97686,Wamena Jaya Wijaya,Papua,-4.07,IMERG-L,100,,0
+97686,Wamena Jaya Wijaya,Papua,-4.07,LSEQM+DL,1,0.812,3056
+97686,Wamena Jaya Wijaya,Papua,-4.07,LSEQM+DL,5,0.857,1772
+97686,Wamena Jaya Wijaya,Papua,-4.07,LSEQM+DL,10,0.866,1054
+97686,Wamena Jaya Wijaya,Papua,-4.07,LSEQM+DL,20,1.228,364
+97686,Wamena Jaya Wijaya,Papua,-4.07,LSEQM+DL,50,2.3,20
+97686,Wamena Jaya Wijaya,Papua,-4.07,LSEQM+DL,100,,0
+97690,Sentani,Papua,-2.57,IMERG-L,1,1.415,2629
+97690,Sentani,Papua,-2.57,IMERG-L,5,1.465,1544
+97690,Sentani,Papua,-2.57,IMERG-L,10,1.46,1031
+97690,Sentani,Papua,-2.57,IMERG-L,20,1.275,563
+97690,Sentani,Papua,-2.57,IMERG-L,50,0.88,133
+97690,Sentani,Papua,-2.57,IMERG-L,100,0.75,12
+97690,Sentani,Papua,-2.57,LSEQM+DL,1,1.003,2629
+97690,Sentani,Papua,-2.57,LSEQM+DL,5,1.049,1544
+97690,Sentani,Papua,-2.57,LSEQM+DL,10,1.097,1031
+97690,Sentani,Papua,-2.57,LSEQM+DL,20,1.137,563
+97690,Sentani,Papua,-2.57,LSEQM+DL,50,1.316,133
+97690,Sentani,Papua,-2.57,LSEQM+DL,100,1.833,12
+97692,Jayapura,Papua,-2.592,IMERG-L,1,0.986,1329
+97692,Jayapura,Papua,-2.592,IMERG-L,5,0.957,844
+97692,Jayapura,Papua,-2.592,IMERG-L,10,0.912,579
+97692,Jayapura,Papua,-2.592,IMERG-L,20,0.755,339
+97692,Jayapura,Papua,-2.592,IMERG-L,50,0.467,90
+97692,Jayapura,Papua,-2.592,IMERG-L,100,0.095,21
+97692,Jayapura,Papua,-2.592,LSEQM+DL,1,0.801,1329
+97692,Jayapura,Papua,-2.592,LSEQM+DL,5,0.727,844
+97692,Jayapura,Papua,-2.592,LSEQM+DL,10,0.696,579
+97692,Jayapura,Papua,-2.592,LSEQM+DL,20,0.652,339
+97692,Jayapura,Papua,-2.592,LSEQM+DL,50,0.667,90
+97692,Jayapura,Papua,-2.592,LSEQM+DL,100,0.286,21
+97694,Manokwari Selatan,Papua,-1.47,IMERG-L,1,1.379,2124
+97694,Manokwari Selatan,Papua,-1.47,IMERG-L,5,1.557,1152
+97694,Manokwari Selatan,Papua,-1.47,IMERG-L,10,1.671,700
+97694,Manokwari Selatan,Papua,-1.47,IMERG-L,20,1.696,316
+97694,Manokwari Selatan,Papua,-1.47,IMERG-L,50,1.075,67
+97694,Manokwari Selatan,Papua,-1.47,IMERG-L,100,1.286,7
+97694,Manokwari Selatan,Papua,-1.47,LSEQM+DL,1,0.969,2124
+97694,Manokwari Selatan,Papua,-1.47,LSEQM+DL,5,1.096,1152
+97694,Manokwari Selatan,Papua,-1.47,LSEQM+DL,10,1.24,700
+97694,Manokwari Selatan,Papua,-1.47,LSEQM+DL,20,1.592,316
+97694,Manokwari Selatan,Papua,-1.47,LSEQM+DL,50,2.104,67
+97694,Manokwari Selatan,Papua,-1.47,LSEQM+DL,100,4.0,7
+97698,Dok II Jayapura,Papua,-2.53,IMERG-L,1,1.312,3605
+97698,Dok II Jayapura,Papua,-2.53,IMERG-L,5,1.327,2214
+97698,Dok II Jayapura,Papua,-2.53,IMERG-L,10,1.239,1554
+97698,Dok II Jayapura,Papua,-2.53,IMERG-L,20,1.061,913
+97698,Dok II Jayapura,Papua,-2.53,IMERG-L,50,0.664,253
+97698,Dok II Jayapura,Papua,-2.53,IMERG-L,100,0.438,48
+97698,Dok II Jayapura,Papua,-2.53,LSEQM+DL,1,0.864,3605
+97698,Dok II Jayapura,Papua,-2.53,LSEQM+DL,5,0.895,2214
+97698,Dok II Jayapura,Papua,-2.53,LSEQM+DL,10,0.887,1554
+97698,Dok II Jayapura,Papua,-2.53,LSEQM+DL,20,0.911,913
+97698,Dok II Jayapura,Papua,-2.53,LSEQM+DL,50,0.81,253
+97698,Dok II Jayapura,Papua,-2.53,LSEQM+DL,100,0.479,48
+97700,Namlea,Maluku,-3.25,IMERG-L,1,1.39,2393
+97700,Namlea,Maluku,-3.25,IMERG-L,5,1.333,1335
+97700,Namlea,Maluku,-3.25,IMERG-L,10,1.19,881
+97700,Namlea,Maluku,-3.25,IMERG-L,20,1.027,475
+97700,Namlea,Maluku,-3.25,IMERG-L,50,0.657,105
+97700,Namlea,Maluku,-3.25,IMERG-L,100,0.5,16
+97700,Namlea,Maluku,-3.25,LSEQM+DL,1,1.066,2393
+97700,Namlea,Maluku,-3.25,LSEQM+DL,5,1.07,1335
+97700,Namlea,Maluku,-3.25,LSEQM+DL,10,1.075,881
+97700,Namlea,Maluku,-3.25,LSEQM+DL,20,1.192,475
+97700,Namlea,Maluku,-3.25,LSEQM+DL,50,1.438,105
+97700,Namlea,Maluku,-3.25,LSEQM+DL,100,0.938,16
+97722,Amahai,Maluku,-3.346,IMERG-L,1,1.21,2903
+97722,Amahai,Maluku,-3.346,IMERG-L,5,1.178,1780
+97722,Amahai,Maluku,-3.346,IMERG-L,10,1.06,1226
+97722,Amahai,Maluku,-3.346,IMERG-L,20,0.819,709
+97722,Amahai,Maluku,-3.346,IMERG-L,50,0.642,187
+97722,Amahai,Maluku,-3.346,IMERG-L,100,0.69,42
+97722,Amahai,Maluku,-3.346,LSEQM+DL,1,1.01,2903
+97722,Amahai,Maluku,-3.346,LSEQM+DL,5,1.072,1780
+97722,Amahai,Maluku,-3.346,LSEQM+DL,10,1.04,1226
+97722,Amahai,Maluku,-3.346,LSEQM+DL,20,1.042,709
+97722,Amahai,Maluku,-3.346,LSEQM+DL,50,1.064,187
+97722,Amahai,Maluku,-3.346,LSEQM+DL,100,1.167,42
+97724,Pattimura,Maluku,-3.711,IMERG-L,1,3.697,1679
+97724,Pattimura,Maluku,-3.711,IMERG-L,5,3.157,1118
+97724,Pattimura,Maluku,-3.711,IMERG-L,10,2.358,822
+97724,Pattimura,Maluku,-3.711,IMERG-L,20,1.72,485
+97724,Pattimura,Maluku,-3.711,IMERG-L,50,1.041,169
+97724,Pattimura,Maluku,-3.711,IMERG-L,100,0.586,58
+97724,Pattimura,Maluku,-3.711,LSEQM+DL,1,1.885,1679
+97724,Pattimura,Maluku,-3.711,LSEQM+DL,5,1.817,1118
+97724,Pattimura,Maluku,-3.711,LSEQM+DL,10,1.77,822
+97724,Pattimura,Maluku,-3.711,LSEQM+DL,20,2.087,485
+97724,Pattimura,Maluku,-3.711,LSEQM+DL,50,2.349,169
+97724,Pattimura,Maluku,-3.711,LSEQM+DL,100,2.0,58
+97726,Seram Bagian Barat,Maluku,-3.25,IMERG-L,1,1.197,3242
+97726,Seram Bagian Barat,Maluku,-3.25,IMERG-L,5,1.222,1929
+97726,Seram Bagian Barat,Maluku,-3.25,IMERG-L,10,1.169,1311
+97726,Seram Bagian Barat,Maluku,-3.25,IMERG-L,20,0.925,720
+97726,Seram Bagian Barat,Maluku,-3.25,IMERG-L,50,0.672,174
+97726,Seram Bagian Barat,Maluku,-3.25,IMERG-L,100,0.552,29
+97726,Seram Bagian Barat,Maluku,-3.25,LSEQM+DL,1,1.057,3242
+97726,Seram Bagian Barat,Maluku,-3.25,LSEQM+DL,5,1.19,1929
+97726,Seram Bagian Barat,Maluku,-3.25,LSEQM+DL,10,1.169,1311
+97726,Seram Bagian Barat,Maluku,-3.25,LSEQM+DL,20,1.131,720
+97726,Seram Bagian Barat,Maluku,-3.25,LSEQM+DL,50,1.092,174
+97726,Seram Bagian Barat,Maluku,-3.25,LSEQM+DL,100,1.345,29
+97730,Ambon,Maluku,-3.791,IMERG-L,1,1.554,404
+97730,Ambon,Maluku,-3.791,IMERG-L,5,1.372,288
+97730,Ambon,Maluku,-3.791,IMERG-L,10,1.22,214
+97730,Ambon,Maluku,-3.791,IMERG-L,20,1.008,130
+97730,Ambon,Maluku,-3.791,IMERG-L,50,0.628,43
+97730,Ambon,Maluku,-3.791,IMERG-L,100,0.133,15
+97730,Ambon,Maluku,-3.791,LSEQM+DL,1,1.01,404
+97730,Ambon,Maluku,-3.791,LSEQM+DL,5,1.083,288
+97730,Ambon,Maluku,-3.791,LSEQM+DL,10,1.164,214
+97730,Ambon,Maluku,-3.791,LSEQM+DL,20,1.377,130
+97730,Ambon,Maluku,-3.791,LSEQM+DL,50,1.744,43
+97730,Ambon,Maluku,-3.791,LSEQM+DL,100,1.2,15
+97748,Geser,Maluku,-3.883,IMERG-L,1,1.301,3035
+97748,Geser,Maluku,-3.883,IMERG-L,5,1.102,1761
+97748,Geser,Maluku,-3.883,IMERG-L,10,0.987,1187
+97748,Geser,Maluku,-3.883,IMERG-L,20,0.875,640
+97748,Geser,Maluku,-3.883,IMERG-L,50,0.633,166
+97748,Geser,Maluku,-3.883,IMERG-L,100,0.727,22
+97748,Geser,Maluku,-3.883,LSEQM+DL,1,0.945,3035
+97748,Geser,Maluku,-3.883,LSEQM+DL,5,0.881,1761
+97748,Geser,Maluku,-3.883,LSEQM+DL,10,0.89,1187
+97748,Geser,Maluku,-3.883,LSEQM+DL,20,1.075,640
+97748,Geser,Maluku,-3.883,LSEQM+DL,50,1.428,166
+97748,Geser,Maluku,-3.883,LSEQM+DL,100,1.955,22
+97760,Utarom,Papua,-3.657,IMERG-L,1,1.052,1172
+97760,Utarom,Papua,-3.657,IMERG-L,5,1.039,697
+97760,Utarom,Papua,-3.657,IMERG-L,10,0.998,451
+97760,Utarom,Papua,-3.657,IMERG-L,20,0.768,246
+97760,Utarom,Papua,-3.657,IMERG-L,50,0.382,55
+97760,Utarom,Papua,-3.657,IMERG-L,100,0.0,5
+97760,Utarom,Papua,-3.657,LSEQM+DL,1,0.753,1172
+97760,Utarom,Papua,-3.657,LSEQM+DL,5,0.786,697
+97760,Utarom,Papua,-3.657,LSEQM+DL,10,0.825,451
+97760,Utarom,Papua,-3.657,LSEQM+DL,20,0.874,246
+97760,Utarom,Papua,-3.657,LSEQM+DL,50,1.218,55
+97760,Utarom,Papua,-3.657,LSEQM+DL,100,2.0,5
+97780,Enarotali,Papua,-3.927,IMERG-L,1,1.62,2674
+97780,Enarotali,Papua,-3.927,IMERG-L,5,1.714,1789
+97780,Enarotali,Papua,-3.927,IMERG-L,10,1.643,1170
+97780,Enarotali,Papua,-3.927,IMERG-L,20,1.53,517
+97780,Enarotali,Papua,-3.927,IMERG-L,50,1.426,54
+97780,Enarotali,Papua,-3.927,IMERG-L,100,,2
+97780,Enarotali,Papua,-3.927,LSEQM+DL,1,1.266,2674
+97780,Enarotali,Papua,-3.927,LSEQM+DL,5,1.291,1789
+97780,Enarotali,Papua,-3.927,LSEQM+DL,10,1.38,1170
+97780,Enarotali,Papua,-3.927,LSEQM+DL,20,1.721,517
+97780,Enarotali,Papua,-3.927,LSEQM+DL,50,3.759,54
+97780,Enarotali,Papua,-3.927,LSEQM+DL,100,,2
+97790,Bandaneira,Maluku,-4.523,IMERG-L,1,0.912,3332
+97790,Bandaneira,Maluku,-4.523,IMERG-L,5,0.851,2019
+97790,Bandaneira,Maluku,-4.523,IMERG-L,10,0.816,1359
+97790,Bandaneira,Maluku,-4.523,IMERG-L,20,0.779,750
+97790,Bandaneira,Maluku,-4.523,IMERG-L,50,0.774,190
+97790,Bandaneira,Maluku,-4.523,IMERG-L,100,0.562,32
+97790,Bandaneira,Maluku,-4.523,LSEQM+DL,1,0.904,3332
+97790,Bandaneira,Maluku,-4.523,LSEQM+DL,5,1.032,2019
+97790,Bandaneira,Maluku,-4.523,LSEQM+DL,10,0.88,1359
+97790,Bandaneira,Maluku,-4.523,LSEQM+DL,20,0.723,750
+97790,Bandaneira,Maluku,-4.523,LSEQM+DL,50,0.711,190
+97790,Bandaneira,Maluku,-4.523,LSEQM+DL,100,0.844,32
+97796,Mozez Kilangin,Papua,-4.53,IMERG-L,1,1.031,4999
+97796,Mozez Kilangin,Papua,-4.53,IMERG-L,5,1.037,3631
+97796,Mozez Kilangin,Papua,-4.53,IMERG-L,10,0.992,2774
+97796,Mozez Kilangin,Papua,-4.53,IMERG-L,20,0.842,1832
+97796,Mozez Kilangin,Papua,-4.53,IMERG-L,50,0.46,667
+97796,Mozez Kilangin,Papua,-4.53,IMERG-L,100,0.207,135
+97796,Mozez Kilangin,Papua,-4.53,LSEQM+DL,1,0.997,4999
+97796,Mozez Kilangin,Papua,-4.53,LSEQM+DL,5,1.019,3631
+97796,Mozez Kilangin,Papua,-4.53,LSEQM+DL,10,1.008,2774
+97796,Mozez Kilangin,Papua,-4.53,LSEQM+DL,20,0.921,1832
+97796,Mozez Kilangin,Papua,-4.53,LSEQM+DL,50,0.744,667
+97796,Mozez Kilangin,Papua,-4.53,LSEQM+DL,100,0.459,135
+97810,Karel Sadsuitubun,Maluku,-5.664,IMERG-L,1,1.555,2032
+97810,Karel Sadsuitubun,Maluku,-5.664,IMERG-L,5,1.388,1325
+97810,Karel Sadsuitubun,Maluku,-5.664,IMERG-L,10,1.124,936
+97810,Karel Sadsuitubun,Maluku,-5.664,IMERG-L,20,0.848,553
+97810,Karel Sadsuitubun,Maluku,-5.664,IMERG-L,50,0.45,131
+97810,Karel Sadsuitubun,Maluku,-5.664,IMERG-L,100,0.182,11
+97810,Karel Sadsuitubun,Maluku,-5.664,LSEQM+DL,1,0.802,2032
+97810,Karel Sadsuitubun,Maluku,-5.664,LSEQM+DL,5,0.86,1325
+97810,Karel Sadsuitubun,Maluku,-5.664,LSEQM+DL,10,0.957,936
+97810,Karel Sadsuitubun,Maluku,-5.664,LSEQM+DL,20,1.141,553
+97810,Karel Sadsuitubun,Maluku,-5.664,LSEQM+DL,50,1.672,131
+97810,Karel Sadsuitubun,Maluku,-5.664,LSEQM+DL,100,2.818,11
+97812,Geofisika Nabire,Maluku,-5.64,IMERG-L,1,1.776,277
+97812,Geofisika Nabire,Maluku,-5.64,IMERG-L,5,1.494,180
+97812,Geofisika Nabire,Maluku,-5.64,IMERG-L,10,1.053,132
+97812,Geofisika Nabire,Maluku,-5.64,IMERG-L,20,0.805,87
+97812,Geofisika Nabire,Maluku,-5.64,IMERG-L,50,0.625,24
+97812,Geofisika Nabire,Maluku,-5.64,IMERG-L,100,,1
+97812,Geofisika Nabire,Maluku,-5.64,LSEQM+DL,1,0.874,277
+97812,Geofisika Nabire,Maluku,-5.64,LSEQM+DL,5,0.833,180
+97812,Geofisika Nabire,Maluku,-5.64,LSEQM+DL,10,0.932,132
+97812,Geofisika Nabire,Maluku,-5.64,LSEQM+DL,20,1.046,87
+97812,Geofisika Nabire,Maluku,-5.64,LSEQM+DL,50,1.542,24
+97812,Geofisika Nabire,Maluku,-5.64,LSEQM+DL,100,,1
+97876,Tanah Merah,Papua,-6.1,IMERG-L,1,1.093,3611
+97876,Tanah Merah,Papua,-6.1,IMERG-L,5,1.069,2552
+97876,Tanah Merah,Papua,-6.1,IMERG-L,10,1.071,1882
+97876,Tanah Merah,Papua,-6.1,IMERG-L,20,0.963,1216
+97876,Tanah Merah,Papua,-6.1,IMERG-L,50,0.676,479
+97876,Tanah Merah,Papua,-6.1,IMERG-L,100,0.659,91
+97876,Tanah Merah,Papua,-6.1,LSEQM+DL,1,0.904,3611
+97876,Tanah Merah,Papua,-6.1,LSEQM+DL,5,0.886,2552
+97876,Tanah Merah,Papua,-6.1,LSEQM+DL,10,0.901,1882
+97876,Tanah Merah,Papua,-6.1,LSEQM+DL,20,0.897,1216
+97876,Tanah Merah,Papua,-6.1,LSEQM+DL,50,1.042,479
+97876,Tanah Merah,Papua,-6.1,LSEQM+DL,100,1.495,91
+97900,Mathilda Batlayeri,Maluku,-7.98,IMERG-L,1,3.215,1003
+97900,Mathilda Batlayeri,Maluku,-7.98,IMERG-L,5,2.985,588
+97900,Mathilda Batlayeri,Maluku,-7.98,IMERG-L,10,3.005,370
+97900,Mathilda Batlayeri,Maluku,-7.98,IMERG-L,20,2.692,214
+97900,Mathilda Batlayeri,Maluku,-7.98,IMERG-L,50,2.489,47
+97900,Mathilda Batlayeri,Maluku,-7.98,IMERG-L,100,,4
+97900,Mathilda Batlayeri,Maluku,-7.98,LSEQM+DL,1,1.983,1003
+97900,Mathilda Batlayeri,Maluku,-7.98,LSEQM+DL,5,2.037,588
+97900,Mathilda Batlayeri,Maluku,-7.98,LSEQM+DL,10,2.373,370
+97900,Mathilda Batlayeri,Maluku,-7.98,LSEQM+DL,20,2.766,214
+97900,Mathilda Batlayeri,Maluku,-7.98,LSEQM+DL,50,5.872,47
+97900,Mathilda Batlayeri,Maluku,-7.98,LSEQM+DL,100,,4
+97978,Merauke,Papua,-8.387,IMERG-L,1,0.82,267
+97978,Merauke,Papua,-8.387,IMERG-L,5,0.825,160
+97978,Merauke,Papua,-8.387,IMERG-L,10,0.833,108
+97978,Merauke,Papua,-8.387,IMERG-L,20,0.629,62
+97978,Merauke,Papua,-8.387,IMERG-L,50,0.312,16
+97978,Merauke,Papua,-8.387,IMERG-L,100,,0
+97978,Merauke,Papua,-8.387,LSEQM+DL,1,0.592,267
+97978,Merauke,Papua,-8.387,LSEQM+DL,5,0.656,160
+97978,Merauke,Papua,-8.387,LSEQM+DL,10,0.685,108
+97978,Merauke,Papua,-8.387,LSEQM+DL,20,0.742,62
+97978,Merauke,Papua,-8.387,LSEQM+DL,50,0.812,16
+97978,Merauke,Papua,-8.387,LSEQM+DL,100,,0
+97980,Mopah,Papua,-8.52,IMERG-L,1,0.985,2268
+97980,Mopah,Papua,-8.52,IMERG-L,5,1.111,1337
+97980,Mopah,Papua,-8.52,IMERG-L,10,1.131,914
+97980,Mopah,Papua,-8.52,IMERG-L,20,1.002,561
+97980,Mopah,Papua,-8.52,IMERG-L,50,0.616,185
+97980,Mopah,Papua,-8.52,IMERG-L,100,0.364,33
+97980,Mopah,Papua,-8.52,LSEQM+DL,1,0.751,2268
+97980,Mopah,Papua,-8.52,LSEQM+DL,5,0.856,1337
+97980,Mopah,Papua,-8.52,LSEQM+DL,10,0.93,914
+97980,Mopah,Papua,-8.52,LSEQM+DL,20,1.011,561
+97980,Mopah,Papua,-8.52,LSEQM+DL,50,1.486,185
+97980,Mopah,Papua,-8.52,LSEQM+DL,100,1.879,33
