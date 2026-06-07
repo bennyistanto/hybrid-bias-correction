@@ -23,7 +23,7 @@ The correct procedure for a new region is to run **nb00** to define the AOI mask
 
 ::: {.callout-warning}
 - **`region_mapping`** - The province-to-island grouping is Indonesia-specific. For a new country you need a parallel administrative-division to region map, or you can collapse it to a single region.
-- **`station_density.saturation_count`** - The value 2-3 was chosen for Indonesia's ~180-station network. A denser network may want a higher saturation (5-10); a sparser network may want lower (1).
+- **`station_density.saturation_count`** - The shipped default is 2 (suited to Indonesia's ~180-station network). A denser network may want a higher saturation (5-10); a sparser network may want lower (1).
 - **`statistical_params.gpd_threshold_percentile`** - The 80th percentile is reasonable for tropical regions with frequent heavy rainfall. In a region with few wet days per dekad (sub-tropical dry), you may not have enough exceedances above the 80th percentile to fit a stable GPD; raise the wet-day threshold or lower the GPD threshold.
 :::
 

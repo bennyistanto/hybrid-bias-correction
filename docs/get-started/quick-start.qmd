@@ -20,7 +20,7 @@ All five live in [notebooks/](https://github.com/bennyistanto/hybrid-bias-correc
 You have two options. Both use the same notebooks. The only difference is which config file you point them at.
 
 ::: {.feature-card}
-**Option A - Bali example (recommended for first run).** Uses `config_bali.yml` and the 11 MB Bali bundle that ships in the repository under [data/example_bali/](https://github.com/bennyistanto/hybrid-bias-correction/tree/main/data/example_bali). End-to-end on a free Colab CPU in under an hour.
+**Option A - Bali example (recommended for first run).** Uses `config_bali.yml` and the 11 MB Bali bundle that ships in the repository under [data/example_bali/](https://github.com/bennyistanto/hybrid-bias-correction/tree/main/data/example_bali). The nb02 bias-correction step finishes in ~15 minutes on a free Colab CPU; the full nb02-nb06 chain takes a bit longer.
 :::
 
 ::: {.feature-card}

@@ -86,7 +86,7 @@ Three parameters are known to be influential and were not formally optimized in 
 |-----------|---------|--------|
 | `deep_learning.blend_alpha` | 0.70 | Mixing weight between LSEQM and the CNN output at full confidence |
 | `statistical_params.gpd_threshold_percentile` | 80 | Percentile above which the GPD tail takes over from the gamma body |
-| `station_density.saturation_count` | 2-3 | Smoothed station count at which the confidence mask saturates to 1.0 |
+| `station_density.saturation_count` | 2 | Smoothed station count at which the confidence mask saturates to 1.0 |
 
 For a discussion of how these were chosen, see [Methodology > GPD Tail](../methodology/gpd-tail.qmd) and [Methodology > Confidence Mask](../methodology/confidence-mask.qmd).
 

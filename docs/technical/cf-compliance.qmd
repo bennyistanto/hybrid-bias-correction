@@ -3,7 +3,7 @@ title: "CF Compliance"
 description: "NetCDF attribute conventions and encoding."
 ---
 
-All NetCDF outputs follow [CF Conventions 1.8](https://cfconventions.org/Data/cf-conventions/cf-conventions-1.8/cf-conventions.html). This ensures the files are readable by CDO, NCO, xarray, netCDF4, GDAL, and any other CF-aware tool without custom handling.
+All NetCDF outputs follow [CF Conventions 1.8](https://cfconventions.org/Data/cf-conventions/cf-conventions-1.8/cf-conventions.html), so the files are readable by CDO, NCO, xarray, netCDF4, GDAL, and any other CF-aware tool without custom handling.
 
 ## Encoding
 
@@ -18,7 +18,7 @@ netcdf_encoding:
 
 - `float32` keeps file size manageable (half of `float64`) without losing meaningful precision for precipitation in mm.
 - `zlib` compression gives typically 3-5x reduction on precipitation fields.
-- `NaN` is the fill value for ocean and outside-AOI cells. This is more portable than `-9999` and works seamlessly with xarray's masked operations.
+- `NaN` is the fill value for ocean and outside-AOI cells. This is more portable than `-9999` and works directly with xarray's masked operations.
 
 ## Required CF attributes
 
@@ -40,7 +40,7 @@ Every output NetCDF carries:
 | Global | `title` | `Hybrid Bias Correction - LSEQM+DL` |
 | Global | `source` | `IMERG Late Run V07 corrected with CPC-UNI` |
 | Global | `history` | timestamped processing record |
-| Global | `references` | DOI of the companion paper |
+| Global | `references` | Zenodo dataset DOI (and manuscript DOI once available) |
 | Global | `method` | one of `ls`, `lseqm`, `lseqmdl` |
 
 ## Reproducibility metadata

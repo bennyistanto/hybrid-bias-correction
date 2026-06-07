@@ -8,7 +8,7 @@ A reproducible Python framework for daily satellite precipitation bias correctio
 
 ![LSEQM+DL](docs/images/lseqmdl-banner.png "LSEQM+DL")
 
-[![DOI (code)](https://zenodo.org/badge/DOI/10.5281/zenodo.20473508.svg)](https://doi.org/10.5281/zenodo.20473508)
+[![DOI (code)](https://img.shields.io/badge/code-10.5281%2Fzenodo.20473508-blue.svg)](https://doi.org/10.5281/zenodo.20473508)
 [![DOI (data)](https://img.shields.io/badge/data-10.5281%2Fzenodo.20287847-blue.svg)](https://doi.org/10.5281/zenodo.20287847)
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-FF7139.svg)](https://www.mozilla.org/en-US/MPL/2.0/)
 
@@ -21,7 +21,7 @@ Full documentation site: [https://bennyistanto.github.io/hybrid-bias-correction]
 | [Methodology](https://bennyistanto.github.io/hybrid-bias-correction/methodology/) | Theory behind each correction stage |
 | [Implementation](https://bennyistanto.github.io/hybrid-bias-correction/implementation/) | Algorithm view: which `src/` function does what |
 | [Tutorials](https://bennyistanto.github.io/hybrid-bias-correction/tutorials/) | Full pipeline walkthroughs against the Bali example |
-| [Executed Notebooks](https://bennyistanto.github.io/hybrid-bias-correction/example-bali/) | nb00-nb06 rendered with all outputs intact (data prep + Bali pipeline) |
+| [Case Studies](https://bennyistanto.github.io/hybrid-bias-correction/case-studies/) | Framework applied to real data: Indonesia (interactive figures) and the executed Bali notebooks |
 | [FAQ](https://bennyistanto.github.io/hybrid-bias-correction/faq.html) | Basics + honest answers to reviewer-style questions |
 | [API Reference](https://bennyistanto.github.io/hybrid-bias-correction/technical/api-reference/) | Auto-generated module docs |
 
@@ -74,7 +74,7 @@ If the TensorFlow check fails, the LS and LSEQM stages will still run but the LS
 
 ## Prerequisites
 
-- Python 3.10 or newer (3.11 recommended).
+- Python 3.10 to 3.12 (3.11 or 3.12 recommended).
 - Familiarity with Jupyter notebooks and `xarray` / NetCDF.
 - Basic understanding of precipitation statistics (quantile mapping, extreme value theory) helps but is not required.
 
@@ -135,6 +135,6 @@ Mozilla Public License 2.0. See [LICENSE](LICENSE) or [https://www.mozilla.org/e
 
   Applied Climatology Study Program, Department of Geophysics and Meteorology</br>
   [Bogor Agricultural University](https://www.ipb.ac.id/), Indonesia</br>
-  bennyistanto@apps.ipb.ac.id
+  Email: [bennyistanto@apps.ipb.ac.id](mailto:bennyistanto@apps.ipb.ac.id)
 
 With supervision from [Prof. Rizaldi Boer](https://scholar.google.com/citations?user=jTPXEp8AAAAJ&hl=en) and [Dr. I Putu Santikayasa](https://scholar.google.com/citations?user=DcQ58z8AAAAJ&hl=en) as part of the [MSc thesis](https://github.com/bennyistanto/msc-thesis).

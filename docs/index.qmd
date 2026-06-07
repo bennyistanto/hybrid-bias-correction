@@ -102,7 +102,7 @@ Satellite precipitation underestimates light rain, mis-shapes the upper tail, an
 
 - Run the full Bali pipeline in a free Colab session
 - No CUDA or TensorFlow install pain on the user side
-- The same code that ran the Indonesia paper runs the tutorial
+- The same code that ran the Indonesia evaluation runs the tutorial
 :::
 :::
 
@@ -131,9 +131,24 @@ Satellite precipitation underestimates light rain, mis-shapes the upper tail, an
 
 ---
 
-## Citation
+## Publication
 
-If this framework supports your work, please cite the [Zenodo data deposit](https://zenodo.org/records/20287847) (Indonesia inputs + masks + outputs, 2001-2025) and the companion manuscript (under review at *Remote Sensing* (MDPI)) once it is published. The full citation block lives in [`CITATION.cff`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/CITATION.cff) at the repo root.
+Companion manuscript: under review at *Remote Sensing* (MDPI). DOI and citation will be added on acceptance.
+
+## How to cite
+
+[![DOI (code)](https://img.shields.io/badge/code-10.5281%2Fzenodo.20473508-blue.svg)](https://doi.org/10.5281/zenodo.20473508)
+[![DOI (data)](https://img.shields.io/badge/data-10.5281%2Fzenodo.20287847-blue.svg)](https://doi.org/10.5281/zenodo.20287847)
+
+If you use this framework, please cite the archived software release:
+
+> Istanto, B., Boer, R., & Santikayasa, I. P. (2026). *Hybrid Bias Correction: Values, Distributions, Extremes - with Neural Refinement* (v2026.05). Zenodo. [https://doi.org/10.5281/zenodo.20473508](https://doi.org/10.5281/zenodo.20473508)
+
+If you use the bundled full-Indonesia data archive, please cite it separately:
+
+> Istanto, B., Boer, R., & Santikayasa, I. P. (2026). *Hybrid Bias Correction of IMERG Late Run V07 over Indonesia (2001-2025): Input Data, Land-Sea Masks, and Corrected Products* (Version 1) [Data set]. Zenodo. [https://doi.org/10.5281/zenodo.20287847](https://doi.org/10.5281/zenodo.20287847)
+
+Machine-readable metadata is in [`CITATION.cff`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/CITATION.cff); GitHub renders it as a "Cite this repository" button on the repo landing page.
 
 ## Author
 
@@ -141,7 +156,7 @@ If this framework supports your work, please cite the [Zenodo data deposit](http
 
 Applied Climatology Study Program, Department of Geophysics and Meteorology<br>
 [Bogor Agricultural University](https://www.ipb.ac.id/), Indonesia<br>
-bennyistanto@apps.ipb.ac.id
+Email: [bennyistanto@apps.ipb.ac.id](mailto:bennyistanto@apps.ipb.ac.id)
 
 With supervision from [Prof. Rizaldi Boer](https://scholar.google.com/citations?user=jTPXEp8AAAAJ&hl=en) and [Dr. I Putu Santikayasa](https://scholar.google.com/citations?user=DcQ58z8AAAAJ&hl=en) as part of the MSc thesis.
 

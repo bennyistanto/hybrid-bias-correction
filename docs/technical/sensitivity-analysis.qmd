@@ -70,13 +70,13 @@ Three things follow from these fifteen settings:
 1. **Every parameter produces a monotone, locally smooth response.** None
    of the fifteen settings reverses the headline pattern that LSEQM+DL
    moves value adjustment, distribution alignment, and tail preservation
-   toward the gauge target. The framework is robust to parameter
+   toward the gauge target. The framework is stable under parameter
    perturbation in the explored range.
 2. **Pearson $r$ stays in the narrow band $[0.332, 0.348]$** across all
    fifteen settings, a spread of $0.015$. No setting shifts the daily
    correlation by more than half a single-pixel sampling-uncertainty
    interval. This is the empirical expression of the theoretical bound
-   discussed in the [companion paper](https://github.com/bennyistanto/hybrid-bias-correction):
+   discussed on the [Validation](validation.qmd) page and in the companion manuscript (under review):
    marginal correction methods are not designed to lift day-by-day
    timing skill.
 3. **The amplitude metrics (RB, SDR, RMSE, NSE) shift coherently.**

@@ -48,7 +48,7 @@ No for the Bali example (CPU finishes in ~15 minutes). For the full Indonesia ru
 - **IMERG Late Run V07** (NASA GPM) - the satellite product being corrected.
 - **IMERG Final Run V07** - a gauge-adjusted satellite product, used only as a comparison baseline in Taylor diagrams.
 - **CPC-UNI** (NOAA PSL) - the gauge-based reference. Both at 0.5 deg native and downscaled to 0.1 deg.
-- **BMKG station observations** - 180 stations across Indonesia (4 in the Bali bundle), used only for independent validation.
+- **BMKG station observations** - 180 archived stations across Indonesia (171 validated; 4 in the Bali bundle), used only for independent validation.
 
 See [Data Model](get-started/data-model.qmd) for the full table.
 
@@ -86,7 +86,7 @@ This is a design feature: where there is no ground truth to validate against, th
 
 No. The framework is daily-only. Three reasons:
 
-1. The dekad parameter-fitting strategy assumes enough samples per cell per dekad (~220 daily samples for 22 years; sub-daily would push this up but the *parameter* would be unchanged because the dekad windowing is a property of the meteorology, not the sampling).
+1. The dekad parameter-fitting strategy assumes enough samples per cell per dekad (~250 daily samples for 25 years; sub-daily would push this up but the *parameter* would be unchanged because the dekad windowing is a property of the meteorology, not the sampling).
 2. CPC-UNI is a daily product. Any sub-daily reference would require a different gridded product (e.g. ERA5 hourly), which has its own biases.
 3. The diurnal cycle of precipitation is highly local; a single per-dekad correction parameter cannot capture it.
 
@@ -132,11 +132,11 @@ This is intentional, not a bug. The code evaluates **seven** WMO thresholds (1, 
 
 1. **WMO/TD-1485 (WWRP 2009-1) suppresses scores at sparse thresholds.** When fewer than 10 observed events at a station fall above the threshold within the evaluation window, the framework writes NaN for that station-threshold-method combination. POD / FAR / CSI computed on 1-2 events are not stable enough to report as skill.
 
-2. **Bali's 4 stations don't accumulate enough heavy-rain events.** Across the full 2001-2025 record, the four BMKG Bali stations show on average ~1.75 daily events >= 100 mm per dekad - well below the 10-event minimum. Inspecting `data/example_bali/output/station_validation/multi_threshold_summary_lseqmdl_month01_dekad01.csv` confirms: 100 mm has `n_stations: 0`, 150 mm same.
+2. **Bali's 4 stations don't accumulate enough heavy-rain events.** Across the full 2001-2021 gauge record, the four BMKG Bali stations show on average ~1.75 daily events >= 100 mm per dekad - well below the 10-event minimum. Inspecting `data/example_bali/output/station_validation/multi_threshold_summary_lseqmdl_month01_dekad01.csv` confirms: 100 mm has `n_stations: 0`, 150 mm same.
 
 The figure plotting function drops thresholds that are NaN across the entire panel, so the curve ends where the data stops. The 100 / 150 mm POD / FAR / CSI numbers exist in the per-station CSVs as NaN cells.
 
-On the **full-Indonesia run** with 180 BMKG stations, the upper thresholds populate and the curve extends to 150 mm (visible in the manuscript figure). The framework's behaviour is identical; only the sample size changes.
+On the **full-Indonesia run** with 171 validated BMKG stations, the upper thresholds populate and the curve extends to 150 mm (visible in the manuscript figure). The framework's behaviour is identical; only the sample size changes.
 
 If you adapt to your own AOI and want to see the upper thresholds, you need either (a) more stations, (b) a longer record, or (c) a wetter climate. There is no override - relaxing the 10-event minimum would produce noisy curves that misrepresent skill.
 
@@ -153,7 +153,7 @@ The dekad windowing is fixed to calendar days (1-10, 11-20, 21-end of month). If
 Mitigations:
 
 - Use the temporal QA component to identify which dekads have the most year-to-year variability - those are the ones to interpret most cautiously.
-- Aggregate the corrected output to monthly or seasonal totals downstream; the dekadal fitting still uses the correct daily structure, but the headline product is more robust.
+- Aggregate the corrected output to monthly or seasonal totals downstream; the dekadal fitting still uses the correct daily structure, but the headline product is more stable.
 - For truly bimodal monsoon regimes, a custom dekad calendar aligned to climatological onset would help. This is not currently in the framework; it would be a custom config + a per-dekad timestamp remapping in `aggregate_data_across_years`.
 
 ### What does "correlation low" tell me when the distribution components score high?

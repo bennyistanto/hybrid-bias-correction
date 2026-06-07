@@ -150,8 +150,8 @@ website:
       contents:
         - case-studies/index.qmd
         - case-studies/reading-the-results.qmd
-        - case-studies/indonesia.qmd
         - text: "---"
+        - case-studies/indonesia.qmd
         - section: "Bali Example (executed notebooks)"
           contents:
             - example-bali/index.qmd

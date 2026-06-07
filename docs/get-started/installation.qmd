@@ -15,7 +15,7 @@ If you insist on a local install, make sure your TensorFlow install actually wor
 
 ## Requirements
 
-- Python 3.10 to 3.12 (3.12 recommended)
+- Python 3.10 to 3.12 (3.11 or 3.12 recommended)
 - ~2 GB free disk for the Bali example bundle and its outputs
 - Optional: a CUDA-capable GPU for faster CNN training (a CPU finishes the Bali example in ~15 minutes)
 

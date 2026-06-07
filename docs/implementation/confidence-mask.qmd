@@ -32,7 +32,7 @@ The result is a `(n_lat, n_lon)` DataArray at 0.1 deg resolution with values in 
 
 ## The saturation parameter
 
-`DENSITY_SATURATION_COUNT` is read from `config.station_density.saturation_count` at `initialize_config()` time. The Bali config sets it to 2; the Indonesia operational config to 3. Increasing it makes DL contribute over a smaller area.
+`DENSITY_SATURATION_COUNT` is read from `config.station_density.saturation_count` at `initialize_config()` time. Both the Bali and Indonesia configs ship with it set to 2. Increasing it makes DL contribute over a smaller area.
 
 ## The smoothing sigma
 

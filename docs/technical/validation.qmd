@@ -3,7 +3,7 @@ title: "Validation"
 description: "How the framework was validated against held-out BMKG stations."
 ---
 
-The training reference is CPC-UNI. Independent validation uses 180 BMKG weather stations across Indonesia, whose records are not in the CPC pipeline.
+The training reference is CPC-UNI. Independent validation uses BMKG weather stations whose records are not in the CPC pipeline: 180 are archived, of which 171 pass the land-mask and minimum-paired-days filters and enter validation.
 
 ## Validation protocol
 
@@ -30,7 +30,7 @@ Each station produces one point on the Taylor diagram, encoding correlation (ang
 ## Headline results
 
 ::: {.callout-note}
-Quantitative headline numbers from the full-Indonesia run will be inserted here once the companion paper is finalised. The Bali tutorial bundle produces 4-station numbers that are directional but not statistically robust on their own.
+Quantitative headline numbers from the full-Indonesia run will be inserted here once the companion paper is finalised. The Bali tutorial bundle produces 4-station numbers that are directional but not statistically reliable on their own.
 :::
 
 For the paper's full station validation, see the companion manuscript (under review at *Remote Sensing*; DOI to be added on publication).

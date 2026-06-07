@@ -25,7 +25,7 @@ The small, **runnable** case. 4 BMKG stations, ships with the repo, runs end-to-
 ::: {.feature-card}
 ### Indonesia
 
-The full operational case. 171 validated BMKG stations across 7 regions, 2001-2025. Inputs and outputs are on Zenodo (too large for the repo), so this case is presented as curated figures and analysis.
+The full operational case. Inputs and outputs span 2001-2025 (on Zenodo, too large for the repo); validation is against 171 independent BMKG stations whose gauge record runs 2001-2021. Presented as curated figures and analysis.
 
 [Open the Indonesia study](indonesia.qmd){.btn .btn-outline-primary role="button"}
 :::
@@ -40,5 +40,5 @@ The Indonesia study is what the framework was built for: a sparse-gauge tropical
 Both cases use the same `src/` code and the same `config` structure. Swapping region is a matter of pointing the config at different inputs - see [Data Preparation](../tutorials/data-preparation.qmd) and [Configuration](../get-started/configuration.qmd).
 
 ::: {.callout-note}
-The two cases are not directly comparable on headline numbers. Bali has 4 stations clustered in the south; Indonesia has 171 spread across the archipelago. The Bali figures are useful for checking the toolchain, not for drawing statistically robust conclusions on their own.
+The two cases are not directly comparable on headline numbers. Bali has 4 stations clustered in the south; Indonesia has 171 spread across the archipelago. The Bali figures are useful for checking the toolchain, not for drawing statistically reliable conclusions on their own.
 :::

@@ -18,18 +18,18 @@ A small 2-layer convolutional network:
 
 Trained per dekad. Input is the LSEQM-corrected field for that dekad across all years; target is the CPC field for the same days. Optimizer: Adam. Early stopping with patience 5 on a 20% validation split.
 
-This is intentionally small. On a 0.1 deg Indonesia grid (171 x 461) the Flatten -> Dense layer already produces a ~10 M parameter weight matrix; going deeper would balloon the parameter count without meaningfully improving skill for this task.
+This is intentionally small. On a 0.1 deg Indonesia grid (171 x 461) the Flatten -> Dense layer already dominates the parameter count, and it grows with AOI size; going deeper would inflate it further without meaningfully improving skill for this task.
 
 ## Why not a U-Net
 
-A U-Net would skip the Flatten -> Dense bottleneck and preserve spatial dimensions throughout. It would also produce a tighter parameter budget. The current architecture predates that design choice and has been validated against the held-out BMKG stations; switching to U-Net is a planned improvement, tracked in the [Changelog](../changelog.qmd).
+A U-Net would skip the Flatten -> Dense bottleneck and preserve spatial dimensions throughout. It would also produce a tighter parameter budget. The current architecture predates that design choice and has been evaluated against the held-out BMKG stations; switching to U-Net is a planned improvement, tracked in the [Changelog](../changelog.qmd).
 
 ## What the CNN actually learns
 
 In practice the CNN learns three things:
 
 1. **Coastal and orographic bias.** LSEQM tends to over-smooth gradients near coasts and steep terrain; the CNN sharpens them.
-2. **Convective extreme refinement.** Heavy-rain pixels often get pushed by 5-15% to better match CPC's spatial coherence on convection days.
+2. **Convective extreme refinement.** Heavy-rain pixels can be nudged by several percent to better match CPC's spatial coherence on convection days.
 3. **Diffuse-precipitation suppression.** Pixels with very light precipitation that LSEQM nudges upward sometimes get pulled back down.
 
 The amount of correction is modest by design - see [Blending](blending.qmd).

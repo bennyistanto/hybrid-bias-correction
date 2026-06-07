@@ -15,7 +15,7 @@ The input is the gauge network (left); the output is a smooth confidence field t
 
 1. **Count:** Stations are assigned to CPC 0.5 deg cells. Each cell gets a raw count.
 2. **Smooth:** A Gaussian kernel with $\sigma = 1.0$ cell ($\approx$ 55 km at 0.5 deg) blurs the counts to avoid hard cell boundaries.
-3. **Saturate:** The smoothed count is divided by a saturation parameter (default 2 - 3) and clipped to 1.0. This is the confidence value.
+3. **Saturate:** The smoothed count is divided by a saturation parameter (default 2) and clipped to 1.0. This is the confidence value.
 4. **Regrid:** Linear interpolation from 0.5 deg to the 0.1 deg working grid.
 
 ## The saturation parameter
@@ -25,10 +25,10 @@ The input is the gauge network (left); the output is a smooth confidence field t
 
 - `saturation_count = 1`: any station presence gives full confidence. This can be too aggressive when a single station's record is noisy.
 - `saturation_count = 2` (recommended for Indonesia's ~180-station network): a balanced middle ground. The Bali example config uses this value.
-- `saturation_count = 3`: conservative. Outside Java, the CNN barely contributes. The full-Indonesia run for the paper used 3 by default.
+- `saturation_count = 3`: conservative. Outside Java, the CNN barely contributes.
 - `saturation_count = 5+`: very conservative; effectively disables the CNN outside the densest clusters.
 
-The Indonesia operational config currently sets this to 3 and the paper acknowledges this as a sensitivity parameter that was not formally optimized.
+The shipped Indonesia config sets this to 2, acknowledged as a sensitivity parameter that was not formally optimized.
 :::
 
 The choice directly controls how far the CNN reaches. The curve below shows the effective blend weight as a function of smoothed station count for three saturation values: lowering it from 3 to 2 lets the CNN activate beyond Java without forcing full weight on single-station cells.

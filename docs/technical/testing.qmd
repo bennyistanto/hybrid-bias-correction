@@ -14,7 +14,7 @@ is documented in [Validation](validation.qmd) and is on the
 
 ## What is covered
 
-The suite at `tests/test_smoke.py` covers four code paths:
+The suite at `tests/test_smoke.py` covers five code paths:
 
 1. **Import surface.** Every top-level `src/` module loads cleanly on a stock
    scientific-Python install (no missing dependency, no circular import).

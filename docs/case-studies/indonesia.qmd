@@ -1,11 +1,12 @@
 ---
 title: "Indonesia"
-description: "The full operational evaluation: 171 validated BMKG stations, 2001-2025, across seven regions."
+description: "The full operational evaluation: IMERG-L corrected over 2001-2025, validated against 171 independent BMKG stations (gauge record 2001-2021)."
 resources:
   - station-data/*.csv
+  - extremes-events/*.png
 ---
 
-This is the case the framework was built for: daily satellite precipitation over a sparse-gauge tropical archipelago. The figures below are from the full Indonesia run (IMERG-L corrected against CPC-UNI, validated against independent BMKG stations, 2001-2025). The inputs and outputs are deposited on Zenodo (<https://doi.org/10.5281/zenodo.20287847>); they are too large to ship in the repo, so this study is presented as curated figures and analysis rather than a runnable notebook.
+This is the case the framework was built for: daily satellite precipitation over a sparse-gauge tropical archipelago. The figures below are from the full Indonesia run (IMERG-L corrected against CPC-UNI, validated against independent BMKG stations whose gauge record runs 2001-2021). The inputs and outputs are deposited on Zenodo (<https://doi.org/10.5281/zenodo.20287847>); they are too large to ship in the repo, so this study is presented as curated figures and analysis rather than a runnable notebook.
 
 ::: {.callout-note}
 The full LSEQM+DL run over Indonesia takes about four days of compute. This page documents that run; it is not regenerated when the docs build. To reproduce it, download the Zenodo bundle, point `config.yml` at it, and run nb02-nb06. For a runnable end-to-end example, use the [Bali case](../example-bali/index.qmd) instead.
@@ -194,7 +195,7 @@ viewof regProduct = Inputs.radio(new Map([["IMERG-L (raw)", "imergl"], ["LSEQM+D
 }
 ```
 
-A notable point from the regional breakdown: daily correlation (0.17-0.33 across regions) does **not** track gauge density. Maluku and Papua, with far fewer stations than Java, are not systematically worse. This tells us the ceiling on daily correlation is set by something other than how many gauges are nearby - again, see below.
+One point from the regional breakdown: daily correlation (0.17-0.33 across regions) does **not** track gauge density. Maluku and Papua, with far fewer stations than Java, are not systematically worse. This tells us the ceiling on daily correlation is set by something other than how many gauges are nearby - again, see below.
 
 ## Extreme values
 
@@ -253,6 +254,28 @@ The same correction read as detection and intensity metrics for heavy days:
 And as a calendar view of where and when the heaviest events land after LSEQM+DL correction:
 
 ![Calendar of corrected extreme events (LSEQM+DL).](../images/indonesia/extremes_calendar.png){#fig-extremes-calendar fig-align="center"}
+
+### Event-level view, by station
+
+Zooming all the way in: the daily series around each station's heaviest rain days, comparing the gauge with the raw and corrected products. Pick a station to see how the correction handles its biggest events. These six span the archipelago, from Aceh to Papua.
+
+```{ojs}
+//| echo: false
+exEventStations = new Map([
+  ["FL Tobing - North Sumatra", "fltobing"],
+  ["Malikussaleh - Aceh", "malikussaleh"],
+  ["Bima - West Nusa Tenggara", "bima"],
+  ["Betoambari - Southeast Sulawesi", "betoambari"],
+  ["Sultan Aji (Balikpapan) - Kalimantan", "sultanaji"],
+  ["Timika - Papua", "timika"]
+])
+viewof exEventStn = Inputs.select(exEventStations, {label: "Station", value: "timika"})
+```
+
+```{ojs}
+//| echo: false
+html`<img src="extremes-events/${exEventStn}.png" alt="Extreme-event series" style="width:100%;max-width:1000px;display:block;margin:0 auto;">`
+```
 
 ## The correlation ceiling
 
@@ -485,7 +508,7 @@ A useful comparison: switch between **IMERG-L Pearson r** and **LSEQM+DL Pearson
 
 ### Spatial pattern across all stations
 
-Pooling all 171 stations, the spatial pattern of heavy-day preservation is consistent across thresholds - the correction does not just work on average, it works at most individual stations:
+Across the validated stations, the spatial pattern of heavy-day preservation is consistent across thresholds - the correction does not just work on average, it works at most individual stations:
 
 ![All-station spatial pattern of heavy-day preservation (corrected / gauge ratio) at 20, 50, 100 mm/day.](../images/indonesia/allstation_spatial.png){#fig-allstation-spatial fig-align="center"}
 

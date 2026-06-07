@@ -44,7 +44,7 @@ model, history = train_cnn_for_dekad(
 )
 ```
 
-Inputs are `(n_samples, n_lat, n_lon)` arrays - one sample per (year, day-in-dekad) combination. For Indonesia 2001-2025 that is ~22 years x 10 days = ~220 samples per dekad. For Bali the same.
+Inputs are `(n_samples, n_lat, n_lon)` arrays - one sample per (year, day-in-dekad) combination. For Indonesia 2001-2025 that is ~25 years x 10 days = ~250 samples per dekad. For Bali the same.
 
 Training stops on `val_loss` early-stopping (patience 5). On Bali / Colab CPU, a single dekad completes in ~40-90 seconds.
 
@@ -75,7 +75,7 @@ TensorFlow / Keras can pin process memory across calls. If you batch all 36 deka
 
 ## Cost
 
-Per dekad: training is dominated by the ~50 epochs over ~220 samples on the AOI grid. For Bali (9 x 14), the Flatten -> Dense weight matrix is small (~16k params); training takes ~40-90 seconds CPU. For Indonesia (171 x 461), the same Dense layer balloons to ~10 M params; training takes ~5-10 minutes per dekad on CPU.
+Per dekad: training is dominated by the ~50 epochs over ~220 samples on the AOI grid. For Bali (9 x 14), the Flatten -> Dense weight matrix is small and training takes ~40-90 seconds on CPU. For Indonesia (171 x 461), the same Dense layer is far larger and training takes ~5-10 minutes per dekad on CPU.
 
 ## Related code
 

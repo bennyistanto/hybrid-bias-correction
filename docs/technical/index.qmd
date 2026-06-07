@@ -26,5 +26,5 @@ This section is for people implementing against the framework, reviewing it, or 
 :::
 
 ::: {.feature-card}
-**[CF Compliance](cf-compliance.qmd)** - NetCDF attribute conventions, encoding, and reproducibility guarantees.
+**[CF Compliance](cf-compliance.qmd)** - NetCDF attribute conventions, encoding, and reproducibility conventions.
 :::

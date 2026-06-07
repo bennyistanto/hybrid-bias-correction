@@ -39,7 +39,7 @@ For the *theory* of each stage - what it does and why - read the pages below. Fo
 
 ## Why this layering, in one paragraph
 
-A pure statistical method works distribution-by-distribution and ignores neighbouring pixels - that is fine for the body but produces visible block boundaries at the CPC native resolution and underestimates the spatial coherence of heavy rain events. A pure CNN handles spatial structure beautifully but is happy to hallucinate rain where no gauge ever saw any. Keeping LSEQM as the floor and only adding CNN where stations are dense gives you a correction that degrades gracefully toward LSEQM in poorly observed areas, instead of degrading toward a CNN's best guess.
+A pure statistical method works distribution-by-distribution and ignores neighbouring pixels - that is fine for the body but produces visible block boundaries at the CPC native resolution and underestimates the spatial coherence of heavy rain events. A pure CNN captures spatial structure but can introduce rainfall in cells where no gauge ever constrained it. Keeping LSEQM as the floor and adding the CNN only where stations are dense gives a correction that falls back to LSEQM in poorly observed areas rather than to a CNN's unconstrained estimate.
 
 ## Where the parameters come from
 
@@ -49,7 +49,7 @@ Three parameters control the trade-off between aggressiveness and conservatism:
 |-----------|---------|-------|
 | `blend_alpha` | 0.70 | LSEQM share at full confidence (0.70 = 70% LSEQM, 30% CNN) |
 | `gpd_threshold_percentile` | 80 | Where the GPD tail takes over from the gamma body |
-| `saturation_count` | 2 - 3 | Station count at which the confidence mask saturates |
+| `saturation_count` | 2 | Station count at which the confidence mask saturates |
 
 These were chosen by inspection rather than formal optimization. Sensitivity to each is documented in the corresponding methodology page and acknowledged as a limitation in the companion manuscript (under review at *Remote Sensing*).
 

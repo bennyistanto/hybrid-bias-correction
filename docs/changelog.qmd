@@ -24,10 +24,11 @@ package for the broader community.
   validation, and visualisation.
 - **Bali example bundle** (`data/example_bali/`, 11 MB) - ships with the
   repo and runs end to end in ~15 minutes on a free Colab CPU.
-- **Indonesia data bundle** - 2001-2025 inputs, masks, and outputs (~42 GB)
+- **Indonesia data bundle** - 2001-2025 inputs, masks, and outputs (~40 GB)
   published at [Zenodo 10.5281/zenodo.20287847](https://zenodo.org/records/20287847).
 - **Documentation** (this site) - Methodology, Implementation, Tutorials,
-  Bali Results, FAQ, and auto-generated API Reference.
+  Case Studies (Bali + Indonesia, with interactive figures), FAQ, and
+  auto-generated API Reference.
 
 ### Companion publications
 
@@ -38,8 +39,5 @@ package for the broader community.
 ## Backlog
 
 - Replace the CNN architecture with a U-Net to avoid the Flatten -> Dense bottleneck.
-- Formal sensitivity analysis over `blend_alpha`, `gpd_threshold_percentile`,
-  and `saturation_count`.
-- Continuous-integration smoke test that runs the Bali pipeline on every PR.
 - `tf.keras.backend.clear_session()` between dekads in nb02 for memory
   predictability on Indonesia-scale runs.
