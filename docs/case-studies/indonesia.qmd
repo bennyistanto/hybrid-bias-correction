@@ -567,73 +567,17 @@ viewof dryMetric = Inputs.radio(
 
 For **correct-dry**, most stations sit above the 1:1 line: the median moves from **0.547** (raw) to **0.681** (corrected), matching the 171-station thesis headline (~56% → ~69%). For **wet-day frequency ratio**, the cloud moves from above 1.0 (raw over-detects, median 1.23) toward 1.0 (median 0.97) - the EQM stage doing its job. A handful of stations *cross under* 1.0 (LSEQM+DL slightly under-detects), an honest cost of matching the reference dry-day fraction.
 
-The second chart breaks down **what the product reports on each gauge-dry day**, by intensity bin. Pick a station to see its composition (sum to 100%), or switch to the all-station median:
+The simplest way to read the dry-day result is the scorecard below. Each row asks one plain question and shows the raw IMERG-L value alongside the corrected LSEQM+DL value, with the change between them.
 
-```{ojs}
-//| echo: false
-drymix = FileAttachment("../data/case-studies/drymix.csv").csv({typed: true})
-```
+![Reader-friendly summary: four questions about dry / no-rain days, raw IMERG-L vs LSEQM+DL. Numbers are the median across the 175-station network, 2001-2021. On gauge-dry days the product agrees more often (correct-dry: 55% to 70%); on the days the gauge records exactly zero, the product also reports zero far more often (32% to 73%); false-alarm rate drops (36% to 30%); and the wet-day frequency ratio moves from over-detection (1.23) toward the gauge target (0.97).](../images/indonesia/dryday_scorecard.png){#fig-dryday-scorecard fig-align="center"}
 
-```{ojs}
-//| echo: false
-mixStationOptions = new Map([
-  ["All stations (median)", "__all__"],
-  ...meta
-    .slice()
-    .sort((a, b) => d3.ascending(a.region, b.region) || d3.ascending(a.name, b.name))
-    .map(d => [`${d.region} - ${d.name} (${d.wmo})`, String(d.wmo)])
-])
-viewof mixStation = Inputs.select(mixStationOptions, {label: "Station", value: "__all__"})
-```
+The biggest single gain is **exact-zero match**: on the 49% of days when the gauge reports a true zero, raw IMERG-L matches with a true zero only 32% of the time (it usually reports drizzle or light rain), while LSEQM+DL matches with an exact zero 73% of the time. This is the EQM dry-day reclassification visible at its sharpest.
 
-```{ojs}
-//| echo: false
-{
-  const bins = ["dry", "drizzle", "light", "heavy"];
-  const labels = {dry: "Dry (< 1 mm)", drizzle: "Drizzle (1-5 mm)", light: "Light (5-20 mm)", heavy: "Heavy (>= 20 mm)"};
-  let sub;
-  if (mixStation === "__all__") {
-    sub = ["IMERG-L", "LSEQM+DL"].flatMap(p => {
-      const rows = drymix.filter(d => d.product === p);
-      return bins.map(b => ({product: p, bin: labels[b], value: d3.median(rows, d => d[b])}));
-    });
-  } else {
-    sub = drymix.filter(d => String(d.wmo) === String(mixStation))
-      .flatMap(d => bins.map(b => ({product: d.product, bin: labels[b], value: d[b]})));
-  }
-  const labelOrder = Object.values(labels);
-  // Sort once so Plot's auto-stack preserves Dry -> Drizzle -> Light -> Heavy order.
-  const ordered = sub.slice().sort((a, b) =>
-    labelOrder.indexOf(a.bin) - labelOrder.indexOf(b.bin));
-  // Precompute label midpoints in the same order.
-  const withMid = [];
-  for (const product of ["IMERG-L", "LSEQM+DL"]) {
-    let cum = 0;
-    for (const lbl of labelOrder) {
-      const row = ordered.find(d => d.product === product && d.bin === lbl);
-      if (!row || !Number.isFinite(row.value)) continue;
-      withMid.push({...row, mid: cum + row.value / 2});
-      cum += row.value;
-    }
-  }
-  return Plot.plot({
-    width: 720, height: 280, marginLeft: 100, marginRight: 30, marginBottom: 50,
-    x: {label: "Share of gauge-dry days (%)", percent: true, grid: true, domain: [0, 1]},
-    y: {label: null, domain: ["IMERG-L", "LSEQM+DL"]},
-    color: {legend: true, domain: labelOrder,
-      range: ["#27ae60", "#f1c40f", "#e67e22", "#c0392b"]},
-    marks: [
-      Plot.barX(ordered, {y: "product", x: "value", fill: "bin", tip: true}),
-      Plot.text(withMid.filter(d => d.value > 0.05), {
-        y: "product", x: "mid", text: d => Math.round(d.value * 100) + "%",
-        fill: "white", fontWeight: 700, fontSize: 11
-      })
-    ]
-  });
-}
-```
+For a more technical breakdown of *what* the product reports instead of zero - the four-bin composition of gauge-dry days, and how the per-station improvement is distributed - the figure below shows both:
 
-Reading the all-stations median: on the days the gauge records as dry, **IMERG-L is dry only 55% of the time** and reports drizzle / light / heavy on the rest. **LSEQM+DL pushes the dry bin to 68%**, shrinking the drizzle and light slices. The heavy slice barely moves (5% before, 5% after) - those are the rare big-event mismatches that EQM does not try to suppress. Pick an individual station to see how the same pattern looks at single sites.
+![(a) Median composition on gauge-dry days, IMERG-L vs LSEQM+DL: the EQM stage grows the dry slice and shrinks the drizzle / light slices. (b) Per-station shift in correct-dry rate: median +0.134, and 95% of stations improve. 175-station basis, 2001-2021.](../images/indonesia/dryday_composition.png){#fig-dryday-composition fig-align="center"}
+
+On the days the gauge records as dry, **IMERG-L is dry only 55% of the time** and reports drizzle / light / heavy on the rest. **LSEQM+DL pushes the dry bin to 68%**, shrinking the drizzle and light slices. The heavy slice barely moves (5% before, 5% after) - those are the rare big-event mismatches that EQM does not try to suppress. The right panel shows this is not driven by a few stations: the per-station shift is positive at **95% of the 175 stations**, with a median improvement of **+0.134** in correct-dry rate.
 
 ### Spatial pattern across all stations
 
