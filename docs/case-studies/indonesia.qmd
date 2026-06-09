@@ -601,18 +601,32 @@ viewof mixStation = Inputs.select(mixStationOptions, {label: "Station", value: "
     sub = drymix.filter(d => String(d.wmo) === String(mixStation))
       .flatMap(d => bins.map(b => ({product: d.product, bin: labels[b], value: d[b]})));
   }
+  // Pre-compute the midpoint x of each segment so the text mark does not
+  // depend on Plot.stackX's internal "z" channel (which Plot.text cannot read).
+  const labelOrder = Object.values(labels);
+  const withMid = [];
+  for (const product of ["IMERG-L", "LSEQM+DL"]) {
+    let cum = 0;
+    for (const lbl of labelOrder) {
+      const row = sub.find(d => d.product === product && d.bin === lbl);
+      if (!row) continue;
+      withMid.push({...row, mid: cum + row.value / 2});
+      cum += row.value;
+    }
+  }
   return Plot.plot({
     width: 720, height: 280, marginLeft: 90, marginRight: 40, marginBottom: 50,
     x: {label: "Share of gauge-dry days (%)", percent: true, grid: true, domain: [0, 1]},
     y: {label: null, domain: ["IMERG-L", "LSEQM+DL"]},
-    color: {legend: true, domain: Object.values(labels),
+    color: {legend: true, domain: labelOrder,
       range: ["#27ae60", "#f1c40f", "#e67e22", "#c0392b"]},
     marks: [
-      Plot.barX(sub, {y: "product", x: "value", fill: "bin", order: Object.values(labels),
-        tip: {format: {x: d => (d * 100).toFixed(1) + "%"}}}),
-      Plot.text(sub.filter(d => d.value > 0.05), {y: "product", x: "value", text: d => (d.value * 100).toFixed(0) + "%",
-        fill: "white", fontWeight: 600, fontSize: 11,
-        ...Plot.stackX({y: "product", x: "value", order: Object.values(labels)})})
+      Plot.barX(sub, Plot.stackX({y: "product", x: "value", fill: "bin", order: labelOrder,
+        tip: {format: {x: d => (d * 100).toFixed(1) + "%"}}})),
+      Plot.text(withMid.filter(d => d.value > 0.05), {
+        y: "product", x: "mid", text: d => (d.value * 100).toFixed(0) + "%",
+        fill: "white", fontWeight: 600, fontSize: 11
+      })
     ]
   });
 }
