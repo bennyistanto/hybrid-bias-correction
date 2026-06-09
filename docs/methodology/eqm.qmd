@@ -30,7 +30,16 @@ To prevent both, the body is fit with a parametric Gamma distribution (which pro
 
 ## Wet / dry handling
 
-Days with $P^{LS} < 1.0$ mm are treated as dry and mapped to zero before fitting, to avoid spurious drizzle on the right-hand tail of the gamma. The 1.0 mm threshold is the value used in WMO categorical metrics; it is also the default `wet_day_threshold` in `config.yml`.
+Days below the 1.0 mm wet-day threshold are treated as dry. The threshold is the value used in WMO categorical metrics and the default `wet_day_threshold` in `config.yml`. EQM handles dry days in two ways:
+
+- **A dry input stays dry.** Quantile mapping is applied only to above-threshold IMERG days; the output array is zero-initialised, so a day the satellite already reports as dry comes out as exactly zero.
+- **Over-detected drizzle is suppressed to dry.** Raw IMERG rains on too many days. EQM matches the corrected product's dry-day fraction to the reference (Cannon 2015, §3.2): the smallest over-detected wet values, whose position in the unconditional distribution falls below the reference dry-day fraction, are set to zero.
+
+This is a first-order property, not a corner case: **dry days are about half the validated record.** The effect is a clear gain in dry-day agreement. On a day the gauge records as dry, the corrected product is also dry about **69%** of the time, up from **~56%** before the distribution step, and the wet-day-frequency ratio moves from **1.21** (over-detecting) toward **0.95**.
+
+::: {.callout-note}
+The same mechanism that removes false drizzle also costs a little hit rate: probability of detection drops from about 0.78 to 0.65 as the over-detected light-rain days are reclassified as dry. Fewer false alarms at the cost of some light-rain hits - not a free win. The CNN refinement stage leaves dry days untouched; this is purely the EQM stage. (Numbers from the 171-station Indonesia validation.)
+:::
 
 ## Implementation
 

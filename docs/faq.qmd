@@ -82,6 +82,15 @@ When `confidence == 0` (no nearby stations), `effective_alpha == 1.0`, output eq
 
 This is a design feature: where there is no ground truth to validate against, the framework does not invent improvements.
 
+### How does it handle dry / no-rain days?
+
+Dry days are about half the validated record, so this is a first-order property rather than a corner case. Two things happen:
+
+- **A dry input stays dry.** Quantile mapping is applied only to above-threshold (>= 1 mm) satellite days, on a zero-initialised output, so a day the satellite already reports as dry comes out as exactly zero.
+- **Over-detected drizzle is suppressed.** Raw IMERG rains on too many days. The EQM stage matches the corrected product's dry-day fraction to the gauge-based reference (Cannon 2015), setting the smallest over-detected wet values back to zero.
+
+The result is better dry-day agreement: on a day the gauge records as dry, the corrected product is also dry about **69%** of the time, up from **~56%** before the distribution step, and the wet-day-frequency ratio moves from **1.21** (over-detecting) toward **0.95** (171-station Indonesia validation). The trade-off is honest: the same reclassification drops probability of detection from about 0.78 to 0.65 - fewer false alarms at the cost of some light-rain hits. The CNN refinement leaves dry days untouched; this is purely the EQM stage. Implementation detail in [Methodology > EQM](methodology/eqm.qmd#wet-dry-handling) and [Implementation > EQM](implementation/eqm.qmd#dry-day-handling-correct-zero).
+
 ### Does this work for sub-daily timescales (hourly, 30-minute)?
 
 No. The framework is daily-only. Three reasons:

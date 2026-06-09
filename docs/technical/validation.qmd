@@ -23,6 +23,19 @@ Per station and per region, the following are computed for each correction stage
 - Percentile errors at 50, 75, 90, 95, 99
 - Standard deviation ratio (corrected / observed)
 
+## Dry-day agreement
+
+Dry days are about half the validated record, so dry-day skill is a first-order property. The EQM stage matches the corrected wet-day frequency to the gauge-based reference, which improves agreement on no-rain days:
+
+| Metric | LS | LSEQM+DL | Target | Basis |
+|--------|---:|---------:|:------:|-------|
+| Wet-day frequency ratio | 1.21 | 0.95 | 1.0 | 171 stations |
+| Correct-dry rate (gauge dry -> product dry) | ~56% | ~69% | higher | 171 stations |
+| False-alarm rate on dry days | ~44% | ~31% | lower | complement |
+| Probability of detection (cost) | 0.78 | 0.65 | higher | 171 stations |
+
+The first three rows are the intended gain; the last is the honest cost - suppressing over-detected drizzle reclassifies some light-rain hits as dry. The gain is the EQM stage; the CNN refinement leaves dry days untouched. See [Methodology > EQM](../methodology/eqm.qmd#wet-dry-handling) for the mechanism.
+
 ## Reading the Taylor diagrams
 
 Each station produces one point on the Taylor diagram, encoding correlation (angle), standard deviation ratio (radius), and centred RMSE (distance to the reference point). The desired pattern is movement toward the reference point as you go from IMERG-L -> LS -> LSEQM -> LSEQM+DL.

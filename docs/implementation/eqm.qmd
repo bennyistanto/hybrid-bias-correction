@@ -53,6 +53,24 @@ and the same form is used to invert through CPC's three-distribution model.
 
 This is Cannon-style dry-day handling combined with a parametric tail correction. The full formula and derivation is in the docstring of `gamma_quantile_mapping_precomputed`.
 
+## Dry-day handling (correct-zero)
+
+Two distinct paths produce a zero output, both inside `gamma_quantile_mapping` / `gamma_quantile_mapping_precomputed`:
+
+1. **Dry input stays dry.** The output array is zero-initialised (`out = np.zeros_like(...)`), and only above-threshold IMERG days are remapped (`out[is_wet_imerg] = out_wet`). A day the satellite already reports below `WET_DAY_THRESHOLD` is never touched and emerges as exactly `0.0`.
+2. **Over-detected drizzle is killed.** The Cannon 2015 §3.2 step builds the unconditional CDF position of each wet IMERG value, `y_uncond = p_dry_imerg + (1 - p_dry_imerg) * F_wet(x)`, and sets to zero every value whose position falls below the reference dry-day fraction: `kill = y_uncond < p_dry_cpc`. This is what matches the corrected wet-day frequency to CPC.
+
+```python
+out = np.zeros_like(imerg_valid)            # dry days and killed drizzle -> 0
+y_uncond = p_dry_imerg + (1 - p_dry_imerg) * gamma.cdf(imerg_wet, shape1, scale=scale1)
+kill = y_uncond < p_dry_cpc                 # over-detected drizzle
+...
+out_wet = np.where(kill, 0.0, out_wet)
+out[is_wet_imerg] = out_wet                 # only wet inputs are remapped
+```
+
+`p_dry_cpc` (the reference dry-day fraction) is computed in `fit_cpc_parameters_on_native_grid` as `1.0 - len(wet)/len(valid)`. LS is multiplicative, so it preserves exact zeros on its own (`0 * factor = 0`); the reclassification of *over-detected* drizzle is entirely the EQM stage, and the CNN refinement leaves dry days untouched. See [Methodology > Wet / dry handling](../methodology/eqm.qmd#wet-dry-handling) for the verified dry-day agreement numbers.
+
 ## Where CPC parameters come from
 
 Two code paths, picked by whether `cpc_native_ds` is passed:
@@ -66,7 +84,7 @@ The notebooks default to the smooth path.
 
 ## Cost
 
-For Indonesia (171 x 461 cells, ~22 years x 10 days per dekad = ~220 daily samples per cell):
+For Indonesia (171 x 461 cells, ~25 years x 10 days per dekad = ~250 daily samples per cell):
 
 - Smooth path: dominated by the 79k cells x ~10 ms quantile mapping = ~13 min per dekad. Times 36 dekads = ~8 hours of nb02 compute on CPU.
 - Per-pixel path: adds ~2-3 ms per cell for the Gamma fit; ~25 min per dekad.

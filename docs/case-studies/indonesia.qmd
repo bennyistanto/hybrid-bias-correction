@@ -159,7 +159,9 @@ regOptions = new Map([
   ["Pearson r", {imergl: "imergl_r", lseqmdl: "lseqmdl_r"}],
   ["Relative bias", {imergl: "imergl_bias", lseqmdl: "lseqmdl_bias"}],
   ["RMSE (mm/day)", {imergl: "imergl_rmse", lseqmdl: "lseqmdl_rmse"}],
-  ["NSE", {imergl: "imergl_nse", lseqmdl: "lseqmdl_nse"}]
+  ["NSE", {imergl: "imergl_nse", lseqmdl: "lseqmdl_nse"}],
+  ["Correct-dry rate", {imergl: "correctdry_imergl", lseqmdl: "correctdry_lseqmdl"}],
+  ["Wet-day frequency ratio", {imergl: "wetfreq_imergl", lseqmdl: "wetfreq_lseqmdl"}]
 ])
 viewof regMetricName = Inputs.select([...regOptions.keys()], {label: "Metric", value: "Pearson r"})
 ```
@@ -466,6 +468,10 @@ metricOptions = new Map([
   ["IMERG-L (raw) - Pearson r", {key: "imergl_r", scheme: "viridis", domain: [0, 0.6], label: "Pearson r"}],
   ["LSEQM+DL - relative bias", {key: "lseqmdl_bias", scheme: "RdBu", domain: [-0.3, 0.3], label: "relative bias"}],
   ["LSEQM+DL - RMSE (mm/day)", {key: "lseqmdl_rmse", scheme: "YlOrRd", domain: [5, 25], label: "RMSE"}],
+  ["LSEQM+DL - correct-dry rate", {key: "correctdry_lseqmdl", scheme: "BuGn", domain: [0.4, 0.9], label: "correct-dry"}],
+  ["IMERG-L (raw) - correct-dry rate", {key: "correctdry_imergl", scheme: "BuGn", domain: [0.4, 0.9], label: "correct-dry"}],
+  ["LSEQM+DL - wet-day freq ratio", {key: "wetfreq_lseqmdl", scheme: "RdBu", domain: [0.5, 1.5], label: "wet-freq ratio"}],
+  ["IMERG-L (raw) - wet-day freq ratio", {key: "wetfreq_imergl", scheme: "RdBu", domain: [0.5, 1.5], label: "wet-freq ratio"}],
   ["Record completeness (%)", {key: "completeness", scheme: "BuGn", domain: [0, 100], label: "% complete"}]
 ])
 viewof metricChoice = Inputs.select(metricOptions, {label: "Colour by", value: metricOptions.get("LSEQM+DL - Pearson r")})
@@ -505,6 +511,114 @@ viewof metricChoice = Inputs.select(metricOptions, {label: "Colour by", value: m
 ```
 
 A useful comparison: switch between **IMERG-L Pearson r** and **LSEQM+DL Pearson r** and note how little the colours change - correlation is set before correction. Then switch to **relative bias**: the same stations move clearly toward neutral (white) after correction. This is the spatial echo of the [correlation ceiling](#the-correlation-ceiling): bias correction moves what it can (the colour on the bias map), not the day-to-day timing (the colour on the r map).
+
+### Dry-day skill
+
+Dry days are about half the validated record, so getting the no-rain days right matters as much as getting the wet days right. The two charts below show **what the products actually do when the gauge says it is dry**.
+
+The first chart is the before-vs-after scatter for two dry-day metrics: each point is one of the 175 stations, x-axis = raw IMERG-L, y-axis = corrected LSEQM+DL. **Points above the dashed 1:1 line** are stations where the correction improved that metric.
+
+```{ojs}
+//| echo: false
+viewof dryMetric = Inputs.radio(
+  new Map([
+    ["Correct-dry rate (higher better, target 1.0)", "correctdry"],
+    ["Wet-day frequency ratio (target 1.0)", "wetfreq"]
+  ]),
+  {label: "Metric", value: "correctdry"}
+)
+```
+
+```{ojs}
+//| echo: false
+{
+  const k = dryMetric;
+  const pts = meta.filter(d => d[`${k}_imergl`] != null && d[`${k}_lseqmdl`] != null)
+    .map(d => ({wmo: d.wmo, name: d.name, region: d.region,
+                x: d[`${k}_imergl`], y: d[`${k}_lseqmdl`]}));
+  const isRatio = k === "wetfreq";
+  // For correct-dry the target is 1.0 (higher better); for wet-freq ratio target is 1.0 (either side worse).
+  const lo = isRatio ? Math.min(0.4, d3.min(pts, d => Math.min(d.x, d.y))) : 0.3;
+  const hi = isRatio ? Math.max(2.2, d3.max(pts, d => Math.max(d.x, d.y))) : 1.0;
+  const axisLabel = isRatio ? "Wet-day frequency ratio" : "Correct-dry rate";
+  return Plot.plot({
+    width: 700, height: 480, marginLeft: 65, marginBottom: 55,
+    aspectRatio: 1,
+    x: {label: `IMERG-L (raw) - ${axisLabel}`, domain: [lo, hi], grid: true},
+    y: {label: `LSEQM+DL - ${axisLabel}`, domain: [lo, hi], grid: true},
+    color: {legend: true, label: "Region",
+      domain: ["Sumatra","Jawa","Kalimantan","Sulawesi","Bali Nusa Tenggara","Maluku","Papua"],
+      range: ["#1f77b4","#ff7f0e","#2ca02c","#d62728","#9467bd","#8c564b","#e377c2"]},
+    marks: [
+      // 1:1 line
+      Plot.line([[lo, lo], [hi, hi]], {stroke: "#888", strokeDasharray: "4 3"}),
+      // target line (correct-dry: y=1 is target; for ratio: cross at x=1, y=1)
+      isRatio ? Plot.ruleX([1], {stroke: "#444", strokeWidth: 1}) : null,
+      isRatio ? Plot.ruleY([1], {stroke: "#444", strokeWidth: 1}) : null,
+      Plot.dot(pts, {x: "x", y: "y", fill: "region", r: 4, stroke: "white", strokeWidth: 0.6,
+        channels: {Station: "name", Region: "region", WMO: "wmo"},
+        tip: {format: {Station: true, Region: true, WMO: true,
+          x: d => d.toFixed(3), y: d => d.toFixed(3)}}}),
+      Plot.frame()
+    ].filter(Boolean)
+  });
+}
+```
+
+For **correct-dry**, most stations sit above the 1:1 line: the median moves from **0.547** (raw) to **0.681** (corrected), matching the 171-station thesis headline (~56% → ~69%). For **wet-day frequency ratio**, the cloud moves from above 1.0 (raw over-detects, median 1.23) toward 1.0 (median 0.97) - the EQM stage doing its job. A handful of stations *cross under* 1.0 (LSEQM+DL slightly under-detects), an honest cost of matching the reference dry-day fraction.
+
+The second chart breaks down **what the product reports on each gauge-dry day**, by intensity bin. Pick a station to see its composition (sum to 100%), or switch to the all-station median:
+
+```{ojs}
+//| echo: false
+drymix = FileAttachment("../data/case-studies/drymix.csv").csv({typed: true})
+```
+
+```{ojs}
+//| echo: false
+mixStationOptions = new Map([
+  ["All stations (median)", "__all__"],
+  ...meta
+    .slice()
+    .sort((a, b) => d3.ascending(a.region, b.region) || d3.ascending(a.name, b.name))
+    .map(d => [`${d.region} - ${d.name} (${d.wmo})`, String(d.wmo)])
+])
+viewof mixStation = Inputs.select(mixStationOptions, {label: "Station", value: "__all__"})
+```
+
+```{ojs}
+//| echo: false
+{
+  const bins = ["dry", "drizzle", "light", "heavy"];
+  const labels = {dry: "Dry (< 1 mm)", drizzle: "Drizzle (1-5 mm)", light: "Light (5-20 mm)", heavy: "Heavy (>= 20 mm)"};
+  let sub;
+  if (mixStation === "__all__") {
+    sub = ["IMERG-L", "LSEQM+DL"].flatMap(p => {
+      const rows = drymix.filter(d => d.product === p);
+      return bins.map(b => ({product: p, bin: labels[b], value: d3.median(rows, d => d[b])}));
+    });
+  } else {
+    sub = drymix.filter(d => String(d.wmo) === String(mixStation))
+      .flatMap(d => bins.map(b => ({product: d.product, bin: labels[b], value: d[b]})));
+  }
+  return Plot.plot({
+    width: 720, height: 280, marginLeft: 90, marginRight: 40, marginBottom: 50,
+    x: {label: "Share of gauge-dry days (%)", percent: true, grid: true, domain: [0, 1]},
+    y: {label: null, domain: ["IMERG-L", "LSEQM+DL"]},
+    color: {legend: true, domain: Object.values(labels),
+      range: ["#27ae60", "#f1c40f", "#e67e22", "#c0392b"]},
+    marks: [
+      Plot.barX(sub, {y: "product", x: "value", fill: "bin", order: Object.values(labels),
+        tip: {format: {x: d => (d * 100).toFixed(1) + "%"}}}),
+      Plot.text(sub.filter(d => d.value > 0.05), {y: "product", x: "value", text: d => (d.value * 100).toFixed(0) + "%",
+        fill: "white", fontWeight: 600, fontSize: 11,
+        ...Plot.stackX({y: "product", x: "value", order: Object.values(labels)})})
+    ]
+  });
+}
+```
+
+Reading the all-stations median: on the days the gauge records as dry, **IMERG-L is dry only 55% of the time** and reports drizzle / light / heavy on the rest. **LSEQM+DL pushes the dry bin to 68%**, shrinking the drizzle and light slices. The heavy slice barely moves (5% before, 5% after) - those are the rare big-event mismatches that EQM does not try to suppress. Pick an individual station to see how the same pattern looks at single sites.
 
 ### Spatial pattern across all stations
 
