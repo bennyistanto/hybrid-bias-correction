@@ -601,32 +601,32 @@ viewof mixStation = Inputs.select(mixStationOptions, {label: "Station", value: "
     sub = drymix.filter(d => String(d.wmo) === String(mixStation))
       .flatMap(d => bins.map(b => ({product: d.product, bin: labels[b], value: d[b]})));
   }
-  // Pre-compute the midpoint x of each segment so the text mark gets a
-  // direct x coordinate (no stack transform to read internal channels from).
   const labelOrder = Object.values(labels);
+  // Sort once so Plot's auto-stack preserves Dry -> Drizzle -> Light -> Heavy order.
+  const ordered = sub.slice().sort((a, b) =>
+    labelOrder.indexOf(a.bin) - labelOrder.indexOf(b.bin));
+  // Precompute label midpoints in the same order.
   const withMid = [];
   for (const product of ["IMERG-L", "LSEQM+DL"]) {
     let cum = 0;
     for (const lbl of labelOrder) {
-      const row = sub.find(d => d.product === product && d.bin === lbl);
-      if (!row) continue;
-      withMid.push({...row, x0: cum, x1: cum + row.value, mid: cum + row.value / 2});
+      const row = ordered.find(d => d.product === product && d.bin === lbl);
+      if (!row || !Number.isFinite(row.value)) continue;
+      withMid.push({...row, mid: cum + row.value / 2});
       cum += row.value;
     }
   }
   return Plot.plot({
-    width: 720, height: 280, marginLeft: 90, marginRight: 40, marginBottom: 50,
+    width: 720, height: 280, marginLeft: 100, marginRight: 30, marginBottom: 50,
     x: {label: "Share of gauge-dry days (%)", percent: true, grid: true, domain: [0, 1]},
     y: {label: null, domain: ["IMERG-L", "LSEQM+DL"]},
     color: {legend: true, domain: labelOrder,
       range: ["#27ae60", "#f1c40f", "#e67e22", "#c0392b"]},
     marks: [
-      // Draw bars directly from the pre-computed (x0, x1) ranges; no stack transform.
-      Plot.rectX(withMid, {y: "product", x1: "x0", x2: "x1", fill: "bin",
-        tip: true, channels: {Product: "product", Bin: "bin", Share: d => (d.value * 100).toFixed(1) + "%"}}),
+      Plot.barX(ordered, {y: "product", x: "value", fill: "bin", tip: true}),
       Plot.text(withMid.filter(d => d.value > 0.05), {
-        y: "product", x: "mid", text: d => (d.value * 100).toFixed(0) + "%",
-        fill: "white", fontWeight: 600, fontSize: 11
+        y: "product", x: "mid", text: d => Math.round(d.value * 100) + "%",
+        fill: "white", fontWeight: 700, fontSize: 11
       })
     ]
   });
