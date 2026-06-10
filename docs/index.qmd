@@ -154,11 +154,11 @@ Machine-readable metadata is in [`CITATION.cff`](https://github.com/bennyistanto
 
 **Benny Istanto** - [https://benny.istan.to/about](https://benny.istan.to/about)
 
-Applied Climatology Study Program, Department of Geophysics and Meteorology<br>
+Department of Geophysics and Meteorology<br>
 [Bogor Agricultural University](https://www.ipb.ac.id/), Indonesia<br>
 Email: [bennyistanto@apps.ipb.ac.id](mailto:bennyistanto@apps.ipb.ac.id)
 
-With supervision from [Prof. Rizaldi Boer](https://scholar.google.com/citations?user=jTPXEp8AAAAJ&hl=en) and [Dr. I Putu Santikayasa](https://scholar.google.com/citations?user=DcQ58z8AAAAJ&hl=en) as part of the MSc thesis.
+With supervision from [Prof. Dr. Ir. Rizaldi Boer, M.S.](https://scholar.google.com/citations?user=jTPXEp8AAAAJ&hl=en) and [Dr. I Putu Santikayasa, S.Si., M.Sc.](https://scholar.google.com/citations?user=DcQ58z8AAAAJ&hl=en) as part of the MSc thesis.
 
 ::: {.text-muted .small}
 v2026.05 - First public release of the documentation site. Indonesia bundle on Zenodo: [10.5281/zenodo.20287847](https://zenodo.org/records/20287847).
