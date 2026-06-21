@@ -83,7 +83,31 @@ from .config import (DL_EPOCHS, DL_BATCH_SIZE, DL_VALIDATION_SPLIT,
                     DL_EARLY_STOPPING_PATIENCE, DL_DROPOUT_RATE_1, DL_DROPOUT_RATE_2,
                     DL_DROPOUT_RATE_DENSE, DL_FILTER_SIZE_1, DL_FILTER_SIZE_2,
                     DL_NUM_FILTERS_1, DL_NUM_FILTERS_2, DL_DENSE_LAYER_SIZE, DL_OPTIMIZER,
-                    DL_BLEND_ALPHA, GPD_THRESHOLD_PERCENTILE)
+                    DL_RANDOM_SEED, DL_BLEND_ALPHA, GPD_THRESHOLD_PERCENTILE)
+
+
+def _seed_dl_rngs(seed):
+    """Seed Python, NumPy and TensorFlow RNGs so training is reproducible.
+
+    Called by ``train_bias_correction_model`` before any model is built.
+    Pass ``None`` to skip seeding (restores the original stochastic behaviour).
+
+    Reproducibility scope
+    ---------------------
+    With ``seed`` set and a fixed TensorFlow version, two runs of
+    ``train_bias_correction_model`` on the same input + config produce
+    bit-identical ``.keras`` files on CPU. Full GPU determinism additionally
+    requires ``TF_DETERMINISTIC_OPS=1`` before TF import; this function does
+    not set that flag.
+    """
+    if seed is None:
+        return
+    import random as _random
+    os.environ.setdefault("PYTHONHASHSEED", str(seed))
+    _random.seed(seed)
+    np.random.seed(seed)
+    if _HAS_TENSORFLOW:
+        tf.random.set_seed(seed)
 
 
 def _require_tensorflow():
@@ -187,6 +211,15 @@ def train_bias_correction_model(
     """
     # Ensure TensorFlow is available before proceeding
     _require_tensorflow()
+
+    # Seed RNGs (no-op if DL_RANDOM_SEED is None - preserves the original stochastic
+    # behaviour). When seeded, repeated runs on the same input produce bit-identical
+    # .keras files on CPU. Configure via deep_learning.random_seed in config.yml.
+    _seed_dl_rngs(DL_RANDOM_SEED)
+    if DL_RANDOM_SEED is not None:
+        logging.info(f"DL training RNGs seeded with {DL_RANDOM_SEED} (reproducible).")
+    else:
+        logging.info("DL training RNGs not seeded (deep_learning.random_seed is null).")
 
     # Use config default if model_dir not provided
     if model_dir is None:
