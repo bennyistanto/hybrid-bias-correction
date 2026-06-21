@@ -151,6 +151,9 @@ DL_NUM_FILTERS_1 = 32
 DL_NUM_FILTERS_2 = 64
 DL_DENSE_LAYER_SIZE = 128
 DL_OPTIMIZER = 'adam'
+DL_RANDOM_SEED = 0         # Seed for weight init, validation-split shuffle, and dropout masks.
+                           # Set to None in config.yml (deep_learning.random_seed: null) to
+                           # restore the original stochastic behaviour.
 DL_BLEND_ALPHA = 0.7       # Weight for LSEQM in the DL blending step.
                            # final = alpha * LSEQM + (1 - alpha) * DL_predicted
                            # 1.0 = pure LSEQM (DL disabled), 0.0 = pure DL.
@@ -352,7 +355,7 @@ def initialize_config(config_path=None):
     global DL_DROPOUT_RATE_1, DL_DROPOUT_RATE_2, DL_DROPOUT_RATE_DENSE
     global DL_FILTER_SIZE_1, DL_FILTER_SIZE_2
     global DL_NUM_FILTERS_1, DL_NUM_FILTERS_2, DL_DENSE_LAYER_SIZE, DL_OPTIMIZER
-    global DL_BLEND_ALPHA
+    global DL_RANDOM_SEED, DL_BLEND_ALPHA
     global USE_CONFIDENCE_MASK, STATION_FILE, CONFIDENCE_MASK_FILE
     global DENSITY_CPC_RESOLUTION, DENSITY_SMOOTHING_SIGMA, DENSITY_SATURATION_COUNT
     global DENSITY_LAT_RANGE, DENSITY_LON_RANGE
@@ -524,6 +527,9 @@ def initialize_config(config_path=None):
     DL_NUM_FILTERS_2 = dl.get('num_filters_2', DL_NUM_FILTERS_2)
     DL_DENSE_LAYER_SIZE = dl.get('dense_layer_size', DL_DENSE_LAYER_SIZE)
     DL_OPTIMIZER = dl.get('optimizer', DL_OPTIMIZER)
+    # random_seed: integer for reproducibility, or null to keep the original
+    # stochastic behaviour (different weights + dropout on every run).
+    DL_RANDOM_SEED = dl.get('random_seed', DL_RANDOM_SEED)
     DL_BLEND_ALPHA = dl.get('blend_alpha', DL_BLEND_ALPHA)
 
     # --- Station density confidence mask ---
