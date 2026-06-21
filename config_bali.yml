@@ -78,6 +78,7 @@ deep_learning:
   validation_split: 0.2
   early_stopping_patience: 5
   optimizer: "adam"
+  random_seed: 0           # integer = reproducible runs; null = original stochastic behaviour
   dropout_rate_1: 0.2
   dropout_rate_2: 0.3
   dropout_rate_dense: 0.4
