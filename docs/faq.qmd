@@ -70,6 +70,24 @@ What bias correction *can* fix is the **systematic** part: the long-term mean, t
 
 So a Pearson r of 0.3-0.5 against daily gauge observations is normal for corrected satellite precipitation at daily resolution. The framework reports it honestly; we do not aggregate to monthly to inflate the headline number. Look at the **distribution** and **temporal** components of the CQI to see what the correction is actually moving.
 
+That said, a large part of the low daily r is a fixable *verification artefact*, not irreducible error - see the next question.
+
+### Can I recover the daily correlation? (the calendar-window fix)
+
+Partly, yes - and this is the single most actionable finding in the project.
+
+The low daily r is **not all irreducible**. Much of it comes from a timing mismatch between two definitions of "a day": IMERG accumulates on a **UTC day**, while a gauge "day" is a local morning-to-morning window. Indonesia spans three time zones, so the satellite day and the gauge day are offset by hours, and comparing them day-for-day penalises the satellite for rain it actually captured - just attributed to the adjacent calendar day.
+
+The diagnostic (Jan 2020, pooled across stations): shifting the satellite accumulation window relative to the gauge day moves correlation from **r = 0.19 at the UTC-day alignment the archive uses** to **r = 0.62 at roughly a 22-hour backward shift**. The optimal offset is organised by time zone, confirming it is a real windowing effect, not noise. See [the correlation ceiling](case-studies/indonesia.qmd#the-correlation-ceiling) for the full diagnostic and figures.
+
+**What you can do about it:**
+
+1. **Re-window before computing daily correlation.** If you have access to sub-daily IMERG (the native 30-minute product), re-accumulate it to the *local* day before pairing with gauges. This recovers most of the gap. The framework's daily corrected output is on the UTC day, so this is a re-aggregation step on your side, not a change to the correction.
+2. **Aggregate to a coarser timestep.** Pentad, dekad, or monthly totals are far less sensitive to the day-boundary offset, so correlation at those scales is already high. If your application is monthly (e.g. seasonal water balance), the daily r ceiling does not bind you.
+3. **Do not chase daily r by re-tuning the bias correction.** No setting of `blend_alpha`, `gpd_threshold_percentile`, or `saturation_count` moves daily r meaningfully - the [sensitivity sweep](technical/sensitivity-analysis.qmd) confirms r stays in [0.332, 0.348] across all variations. The ceiling is a property of the day definition, not of the correction parameters.
+
+The honest summary: bias correction fixes the **values, distribution, and extremes**; the daily **timing** correlation is bounded by how the two products define a day, and the largest single improvement available is to align that definition, not to tune the model.
+
 ### Why does LSEQM+DL look almost identical to LSEQM in my AOI?
 
 Most likely the **station-density confidence mask** is returning your pixels to LSEQM. The DL contribution is gated:
