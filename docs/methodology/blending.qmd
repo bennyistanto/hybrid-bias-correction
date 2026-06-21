@@ -23,6 +23,10 @@ with $\alpha_0$ the base blend weight (default 0.70) and $c_{i,j}$ the confidenc
 
 When $c = 0$ (no nearby stations), $\alpha = 1$ and the output is pure LSEQM. When $c = 1$ (dense gauge network), $\alpha = \alpha_0$ and the CNN contributes $(1 - \alpha_0)$ of the field.
 
+The figure makes the gate concrete: the LSEQM share (green) only ever drops to 70%, and the CNN share (orange) grows to at most 30%, reached only where the gauge network is dense. The grey histogram shows where Bali's pixels actually sit - clustered near zero confidence, so the CNN is barely active there (exactly the design intent for a sparsely gauged region).
+
+![Blend weight versus station-density confidence, with the real Bali confidence distribution overlaid (grey). The CNN share grows linearly from 0% (no gauges) to a maximum of 30% (dense gauges); most Bali pixels sit at low confidence, so the output is close to pure LSEQM.](../images/methodology/blending_weights.png){#fig-blending fig-align="center"}
+
 ## Selective application
 
 The blend is applied only to pixels above the GPD threshold - i.e., the upper tail of the LSEQM-corrected distribution. Below the threshold, the LSEQM value is kept unchanged. The reasoning:

@@ -63,6 +63,13 @@ error (mm/day); **NSE**: Nash-Sutcliffe efficiency.
 |                    | 4 | 0.334 | $-15.3$ | 0.902 | 5.90 | $-0.41$ |
 |                    | 5 | 0.333 | $-15.4$ | 0.901 | 5.91 | $-0.41$ |
 
+The $r$ column of that table is the same data plotted three ways below. The
+shaded band is the full $[0.332, 0.348]$ envelope across all fifteen settings;
+the star marks each operating default. The curves are monotone and shallow:
+no single parameter moves the daily correlation by more than $0.015$.
+
+![Daily Pearson $r$ against each of the three exposed parameters, Bali pooled over 36 dekads (2001 to 2025). Every sweep stays inside the shaded $[0.332, 0.348]$ envelope; the star is the operating default. The flatness is the point: marginal correction does not lift day-by-day timing skill, so these knobs are safe to leave at their defaults.](../images/technical/sensitivity_r.png){#fig-sensitivity fig-align="center"}
+
 ## Headline finding
 
 Three things follow from these fifteen settings:

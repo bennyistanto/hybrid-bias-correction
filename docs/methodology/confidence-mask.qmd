@@ -47,6 +47,10 @@ The CNN does not get a constant weight - it gets `confidence * (1 - blend_alpha)
 
 See [Blending](blending.qmd) for the exact formula.
 
+In the Indonesia run this plays out exactly as the construction predicts: mean confidence at gauge sites is highest over Jawa (0.36) and drops to roughly 0.12 to 0.20 elsewhere. Even at the peak the CNN share is modest - confidence of 0.36 means the CNN contributes about 11% of the field there, and far less in the sparse east.
+
+![Mean station-density confidence at gauge sites, by island. Jawa (0.36) dominates; the sparsely gauged islands sit near 0.12 to 0.20, so the CNN is gated down toward the east. Demonstration on the Indonesia run.](../images/methodology/confidence_by_region.png){#fig-confidence-region fig-align="center"}
+
 ## Implementation
 
 `src/station_density.py` - `build_confidence_mask()`. The mask is computed once and cached as `output/station_density/confidence_mask_station_density.nc4`.

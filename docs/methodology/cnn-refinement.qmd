@@ -40,6 +40,14 @@ The per-station change from LSEQM to LSEQM+DL is small and centred near zero: ac
 
 ![Per-station change from LSEQM to LSEQM+DL: change in Pearson r (left) and standard-deviation ratio (right). Demonstration on the Indonesia run.](../images/methodology/cnn_effect.png){#fig-cnn-effect fig-align="center"}
 
+Plotting the two changes jointly, coloured by region, shows the same point from a different angle: the cloud sits tight around the origin, and the stations that move furthest are the Jawa sites - exactly where the gauge network is densest and the confidence mask opens the CNN up. Everywhere else the move is barely distinguishable from zero.
+
+![The same per-station moves as a joint scatter (change in Pearson r against change in standard-deviation ratio), coloured by island. The cloud clusters near the origin; Jawa stations move most, consistent with their higher confidence weighting. Demonstration on the Indonesia run.](../images/methodology/cnn_scatter.png){#fig-cnn-scatter fig-align="center"}
+
+The same restraint shows up in categorical detection. Plotting POD and CSI against intensity threshold, the LSEQM and LSEQM+DL curves sit on top of each other: the CNN refines spread and tail shape, but it does not change *when* the product says it rains. Detection skill is set earlier in the chain and the CNN leaves it untouched.
+
+![POD and CSI versus intensity threshold for LSEQM and LSEQM+DL. The two curves are nearly indistinguishable: the CNN refines magnitude, not event detection. Demonstration on the Indonesia run.](../images/methodology/cnn_threshold.png){#fig-cnn-threshold fig-align="center"}
+
 This modest footprint is the intended behaviour. The deep-learning stage is gated by station density (see [Confidence Mask](confidence-mask.qmd)), so it only acts where gauge support justifies it, and the statistical core (LSEQM) remains the physical floor everywhere else.
 
 ## Implementation

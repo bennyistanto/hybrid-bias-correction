@@ -15,9 +15,13 @@ $$
 
 where $\overline{P}$ is the long-term mean of all matching days in dekad $d$. The corrected field is then $P^{LS} = k \cdot P^{IMERG}$.
 
+Because every value in a pixel is multiplied by the same factor, LS slides the whole distribution along the rainfall axis without changing its shape:
+
+![Linear Scaling on real Bali data (January dekad 1, land pixels). Every daily value is multiplied by one per-pixel factor (here a median of 1.15), so the distribution shifts but its shape is unchanged.](../images/methodology/ls_mean_shift.png){#fig-ls fig-align="center"}
+
 ## What it does not do
 
-LS preserves the shape of the IMERG distribution. If IMERG mis-shapes the upper tail or underestimates light rain, LS will not fix that - it just scales whatever IMERG produced. The EQM stage is what reshapes the distribution.
+LS preserves the shape of the IMERG distribution. If IMERG mis-shapes the upper tail or underestimates light rain, LS will not fix that - it just scales whatever IMERG produced (the two histograms above have the same shape, only rescaled). The EQM stage is what reshapes the distribution to match the gauge - see [EQM](eqm.qmd#the-transformation).
 
 ## When LS is enough
 

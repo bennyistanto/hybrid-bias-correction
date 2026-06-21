@@ -37,6 +37,16 @@ For the *theory* of each stage - what it does and why - read the pages below. Fo
 6. **Blending** combines LSEQM and the CNN output using the confidence mask. See [Blending](blending.qmd).
 :::
 
+The chain is easier to see on a map than to read as a list. The panels below show one day (1 January 2025) over Indonesia: raw IMERG-L and gauge-anchored IMERG-F at the top, the LS and EQM intermediates in the middle, and the final LSEQM+DL output next to the CPC-UNI reference. The correction tightens spatial structure stage by stage toward the reference field on the right.
+
+![One day (1 January 2025) through the chain: IMERG-L raw and IMERG-F (top), LS and EQM stages (middle), final LSEQM+DL output and CPC-UNI reference (bottom). Demonstration on the Indonesia run.](../images/six_product_comparison.png){#fig-six-product fig-align="center"}
+
+## Each stage, on a 60-day sample
+
+The map view shows the chain in space; the panel below shows it in time, at a single pixel over a 60-day window. It walks through every stage in order: LS matches the wet-day mean, EQM aligns the distribution body via quantile mapping, the GPD graft recovers the extreme tail, and the CNN nudges the extreme pixels. The bottom-right bar summarises how each stage moves the headline targets (relative bias toward 0, SDR and Q99 ratio toward 1).
+
+![The LSEQM+DL pipeline on a 60-day sample at one pixel: (a) raw IMERG vs reference, (b) LS mean-matching, (c-d) EQM quantile mapping and the aligned distribution, (e) GPD extreme-tail recovery, (f) wet-day CDFs across stages, (g) CNN refinement on extreme pixels, (h) final corrected series vs reference, (i) stage-skill summary. Demonstration on the Indonesia run.](../images/methodology/stage_demonstration.png){#fig-stage-demo fig-align="center"}
+
 ## Why this layering, in one paragraph
 
 A pure statistical method works distribution-by-distribution and ignores neighbouring pixels - that is fine for the body but produces visible block boundaries at the CPC native resolution and underestimates the spatial coherence of heavy rain events. A pure CNN captures spatial structure but can introduce rainfall in cells where no gauge ever constrained it. Keeping LSEQM as the floor and adding the CNN only where stations are dense gives a correction that falls back to LSEQM in poorly observed areas rather than to a CNN's unconstrained estimate.

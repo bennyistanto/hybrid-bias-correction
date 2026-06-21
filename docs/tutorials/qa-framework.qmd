@@ -13,15 +13,23 @@ $$
 
 with default weights $w_b = 0.4$, $w_d = 0.3$, $w_t = 0.3$.
 
+The full roll-up is a two-level tree: 31 raw metrics collapse into three normalised sub-scores, which collapse into the single CQI. The weights below are read directly from `config.yml` (the three component weights) and `src/qa_framework.py` (the within-component weights), so the figure and the code cannot drift:
+
+![How the CQI is built: 31 metrics roll into three normalised sub-scores (basic, distribution, temporal), then into one per-pixel score. Component weights come from `config.yml`; within-component weights from `src/qa_framework.py`.](../images/cqi_tree.png){#fig-cqi-tree fig-align="center"}
+
 ## The components
 
-| Component | What it measures | Underlying metrics |
-|-----------|------------------|--------------------|
-| **Basic** | Mean bias, correlation, error, efficiency | RMSE, MAE, Pearson r, NSE, Kling-Gupta efficiency |
-| **Distribution** | Whether the shape of the distribution is corrected, not just the mean | Quantile-quantile error, std-dev ratio, percentile matching at 50/75/90/95/99 |
-| **Temporal** | Whether the timing of wet and dry events is preserved | POD, FAR, CSI, wet-spell length match, dry-spell length match |
+| Component | What it measures | Scored metrics (within-component weight) |
+|-----------|------------------|------------------------------------------|
+| **Basic** | Mean bias and amplitude error | relative bias (0.30), RMSE (0.30), NSE (0.40) |
+| **Distribution** | Whether the full distribution shape is corrected, not just the mean | extreme percentiles p90/p95/p99 (0.45), general percentiles p25/p50/p75 (0.25), std-dev ratio (0.15), KS test (0.15) |
+| **Temporal** | Whether event timing and dry spells are preserved | CSI (0.40), event timing = POD and 1-FAR (0.30), dry-spell length (0.30) |
 
-Each component is normalised to [0, 1] before weighting.
+Each component is normalised to [0, 1] before weighting; the within-component weights above are the ones drawn in the tree figure and set in `src/qa_framework.py`.
+
+::: {.callout-note}
+Pearson correlation is deliberately **not** folded into the CQI. It is reported separately, alongside RMSE and NSE, as a timing diagnostic. This is the design choice that keeps the [correlation ceiling](../case-studies/indonesia.qmd#the-correlation-ceiling) visible: had daily r been averaged into a composite score, the flat-correlation result would have been masked.
+:::
 
 ### Component scores side-by-side
 

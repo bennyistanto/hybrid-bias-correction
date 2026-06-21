@@ -135,6 +135,8 @@ The pipeline correction parameters are fit **per dekad** (10-day window). Each c
 
 That gives **36 dekads per year**. Fitting independently per dekad lets the framework follow the wet-dry seasonal cycle without smearing the monsoon onset / retreat.
 
+![The dekad temporal unit: each month splits into three windows (days 1-10, 11-20, 21-end), giving 36 dekads per year. All correction parameters are fit independently per dekad.](../images/dekad_calendar.png){#fig-dekad fig-align="center"}
+
 ### Calibration period
 
 - The full overlap between IMERG and CPC time axes is used (typically 2001-onward).

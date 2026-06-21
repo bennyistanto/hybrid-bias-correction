@@ -313,9 +313,17 @@ Plot.plot({
 })
 ```
 
+Placing every product in the same two-axis skill space makes the pattern unmistakable. The horizontal axis is timing (Pearson r); the vertical axis is spread (standard-deviation ratio). Each correction stage moves products *vertically* - EQM lifts the spread ratio onto the gauge target - while they all stay pinned on the same vertical line of low correlation. No stage moves toward the r = 1 target on the right.
+
+![Skill space for the Indonesia run, plotted from the same stage numbers as above: LS, LSEQM, and LSEQM+DL move vertically (EQM pulls the std-dev ratio from 0.71 onto the gauge target near 1.0) but stay pinned at r near 0.34. The gauge target (r = 1, SDR = 1) is unreachable by marginal correction.](../images/indonesia/skill_space.png){#fig-skill-space fig-align="center"}
+
 The reason is structural, not a failure of the method. Quantile mapping is a monotone, rank-preserving transform applied per pixel: it changes the *values* but not the day-to-day *ordering* inherited from the satellite. Correlation depends only on the ordering. So once LS has set the rank structure, no amount of distribution correction can move correlation - it is bounded by the satellite's day-to-day timing.
 
 ![Theoretical bound under marginal correction: rank preservation means correlation is fixed while the variance ratio is free to move.](../images/indonesia/bound_schematic.png){#fig-bound fig-align="center"}
+
+The rank-preservation argument is not just theory. Tracing every day's global rank through the four pipeline stages, the lines stay almost perfectly horizontal: LS and EQM preserve rank exactly, and the CNN introduces only tiny perturbations. No horizontal motion means no change in correlation.
+
+![Rank trajectory: each day's global rank through raw IMERG-L, LS, LSEQM, and LSEQM+DL. The near-horizontal lines confirm that the chain preserves day-to-day ordering, so Pearson r cannot move.](../images/indonesia/rank_trajectory.png){#fig-rank-trajectory fig-align="center"}
 
 ### Where the ceiling comes from
 
@@ -330,6 +338,10 @@ Shifting the satellite accumulation window and recomputing correlation reveals a
 The optimal offset is spatially organised by time zone, confirming it is a real timing-window effect and not noise:
 
 ![Per-station optimal offset, organised by time zone across Indonesia.](../images/indonesia/subdaily_map.png){#fig-subdaily-map fig-align="center"}
+
+Repeating the window search at every station individually confirms it is not a pooled artefact. The optimal offset clusters near -20 hours across stations, and at its own matched window the typical station reaches a daily correlation of about 0.72 - higher than the 0.62 pooled peak above (pooling across heterogeneous stations dilutes correlation), and far above the 0.19 it shows at the naive UTC alignment. The timing limit is a window mismatch, not irreducible noise.
+
+![Per-station window diagnostics: (a) the offset where each station's correlation peaks, median around -20 h; (b) the peak correlation each station can reach at its own matched window, median about 0.72. The timing ceiling is a calendar-window artefact, recoverable per station.](../images/indonesia/subdaily_peak_offset.png){#fig-subdaily-peak fig-align="center"}
 
 The decomposition: of the headline daily correlation of about 0.34, roughly two-thirds of the achievable gain is a **calendar-window artefact** (fixable by aligning the accumulation window to the local day) and only the remainder is irreducible retrieval error. This is a methodological caveat that applies to any daily verification of UTC-accumulated satellite precipitation against locally-defined gauge days, not just this framework.
 
@@ -601,11 +613,37 @@ A full year at one pixel, all six products overlaid:
 
 ![Daily precipitation through 2020 at one pixel: all products.](../images/indonesia/corrected_year_daily.png){#fig-year-daily fig-align="center"}
 
+The same year as a running total tells the bias story cleanly: raw IMERG-L over-accumulates through the year, and the correction brings the cumulative curve back onto the CPC-UNI target, with the independent BMKG gauge corroborating it.
+
+![Cumulative 2020 rainfall at one station: raw IMERG-L over-catches; the correction brings the running total onto the CPC-UNI target, with the independent BMKG gauge as a check.](../images/indonesia/cumulative.png){#fig-cumulative fig-align="center"}
+
+Zooming back out to every day of the 25-year record at one station, raw above and corrected below as day-by-day heatmaps, the correction preserves the wet-dry rhythm while adjusting intensity - it does not invent or erase rain days:
+
+![Every day of 25 years at one station (Papua), raw IMERG-L above and LSEQM+DL below. The correction adjusts intensity without changing the day-to-day wet-dry pattern.](../images/indonesia/raster_compare.png){#fig-raster-compare fig-align="center"}
+
 Aggregated to monthly totals by region, and as a single-day spatial field, the corrected product is spatially coherent and seasonally consistent:
 
 ![Monthly totals by region.](../images/indonesia/corrected_regions_monthly.png){fig-align="center"}
 
 ![Single-day spatial field, all products.](../images/indonesia/corrected_spatial_day.png){fig-align="center"}
+
+### Stage effects across the archipelago
+
+The single-day maps above show the products; the maps below show what the *correction* does to them, mapped over Indonesia. First, the per-pixel difference fields for one day: where the correction adds rain (red) and where it removes it (blue), and the net LSEQM+DL minus IMERG-L effect.
+
+![Per-pixel difference maps for 1 January 2025: (a) raw IMERG-L minus CPC-UNI, (b) LSEQM+DL minus CPC-UNI, (c) the net correction effect (LSEQM+DL minus IMERG-L).](../images/indonesia/g1_differences.png){#fig-g1-diff fig-align="center"}
+
+Across three representative days, the corrected field tracks the CPC-UNI reference far more closely than raw IMERG-L, confirming the single-day view is not cherry-picked:
+
+![Day-to-day variation across three days (dekad-1 January 2025): raw IMERG-L, CPC-UNI reference, and LSEQM+DL corrected.](../images/indonesia/g2_three_days.png){#fig-g2-three-days fig-align="center"}
+
+Reading the same comparison through the four metric pillars - relative bias, KS p-value, Q99 ratio, and CSI - mapped per pixel for each correction stage, shows where each stage earns its keep across the archipelago:
+
+![Per-pixel climatological metrics by correction stage (LS, LSEQM, LSEQM+DL) for dekad-1 January: relative bias, KS p-value, Q99 ratio, and CSI.](../images/indonesia/g3_pillar_metrics.png){#fig-g3-pillar fig-align="center"}
+
+Finally, the dekad-1 January climatology with the BMKG station means overlaid as triangles, for each product. The corrected field's colours sit closest to the station markers, the spatial echo of the bias and distribution gains:
+
+![Dekad-1 January climatology with BMKG station means overlaid (triangles): CPC-UNI, IMERG-L, LSEQM+DL, and IMERG-F.](../images/indonesia/g5_station_overlay.png){#fig-g5-overlay fig-align="center"}
 
 ## Summary
 

@@ -13,6 +13,12 @@ CONFIG_FILE = 'config_bali.yml'   # or 'config.yml' for full Indonesia
 
 Keep all five notebooks (nb02 through nb06) on the same value when you switch.
 
+## The Bali subdomain
+
+The shipped example runs on a small, fully reproducible slice of the grid: a 9 x 14 cell window at 0.1 deg over Bali, of which 80 cells are land and 46 are ocean-masked. Four BMKG stations fall inside it and serve as the independent validation set. This is what keeps the example light enough to run end-to-end in a Colab session while exercising every stage of the pipeline.
+
+![The Bali reproducibility subdomain: a 9 x 14 grid at 0.1 deg, 80 land cells (green) and 46 ocean-masked, with the four BMKG validation stations.](../images/bali/bali_coverage.png){#fig-bali-coverage fig-align="center"}
+
 ## Notebooks involved
 
 | Notebook | What it does |
