@@ -193,6 +193,14 @@ deep_learning:
   # Alternatives: "sgd" (manual LR tuning needed), "rmsprop" (similar to adam).
   optimizer: "adam"
 
+  # Random seed for reproducibility (controls weight initialisation,
+  # validation-split shuffle, and dropout masks).
+  # - integer (e.g. 0, 42): same input + config produces a bit-identical
+  #   .keras file across runs (CPU; full GPU determinism additionally
+  #   requires TF_DETERMINISTIC_OPS=1 set before TF import).
+  # - null: original stochastic behaviour, results vary between runs.
+  random_seed: 0
+
   # Dropout rates: fraction of neurons randomly zeroed during each training step.
   # Regularization technique to prevent overfitting by forcing redundant representations.
   #   - 0.0: no regularization; highest risk of overfitting.
