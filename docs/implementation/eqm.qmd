@@ -80,7 +80,7 @@ Two code paths, picked by whether `cpc_native_ds` is passed:
 | Smooth (BCSD) | `fit_cpc_parameters_on_native_grid(cpc_native_dekad)` -> dict of DataArrays at 0.5 deg, then `interpolate_cpc_params_to_imerg_grid(...)` -> dict of DataArrays at 0.1 deg. **Bilinear + reindex(nearest) fillna.** |
 | Per-pixel | Fit on the fly inside `gamma_quantile_mapping()` for each (i, j) cell using `cpc_ts`. Slower; visible block-boundary artefact at the original CPC 0.5 deg resolution. |
 
-The notebooks default to the smooth path.
+The notebooks default to the smooth path. The smooth (BCSD) path is what the figure in [Methodology > BCSD](../methodology/eqm.qmd#matching-a-05-deg-reference-to-a-01-deg-product-bcsd) illustrates: parameters fit blocky at 0.5 deg, bilinearly disaggregated to smooth 0.1 deg, then per-pixel quantile mapping.
 
 ## Cost
 
