@@ -28,6 +28,14 @@ The empirical CDF is well behaved in the body of the distribution (frequent valu
 
 To prevent both, the body is fit with a parametric Gamma distribution (which provides a smooth interpolation) and the tail is replaced by a GPD fit above the 80th percentile. See [GPD Tail](gpd-tail.qmd).
 
+## Matching a 0.5 deg reference to a 0.1 deg product (BCSD)
+
+CPC-UNI is gauge-interpolated at **0.5 deg**, but IMERG is corrected at **0.1 deg** - one CPC cell spans a 5 x 5 block of IMERG pixels. The framework does not regrid the rainfall *data*; instead it follows the BCSD principle (Wood et al. 2004): fit the correction *parameters* on the native CPC grid, then disaggregate the parameters to the fine grid.
+
+![BCSD spatial disaggregation on the real Bali subdomain. (a) one CPC 0.5 deg cell covers a 5 x 5 block of IMERG 0.1 deg pixels; (b) the Gamma parameters (shown as wet-day mean rainfall) fit at native 0.5 deg are blocky; (c) bilinearly disaggregated to 0.1 deg they are smooth, with no block edges; (d) each 0.1 deg pixel is then quantile-mapped against its own interpolated CPC distribution.](../images/methodology/bcsd_disaggregation.png){#fig-bcsd fig-align="center"}
+
+The key idea: **the correction is disaggregated, not the rainfall.** IMERG keeps its native 0.1 deg spatial detail; only the climatological target (the Gamma shape and scale, the GPD threshold, the dry-day fraction) is interpolated down from the coarser reference. This is what `fit_cpc_parameters_on_native_grid` followed by `interpolate_cpc_params_to_imerg_grid` does in the code - see [Implementation > EQM](../implementation/eqm.qmd#where-cpc-parameters-come-from).
+
 ## Wet / dry handling
 
 Days below the 1.0 mm wet-day threshold are treated as dry. The threshold is the value used in WMO categorical metrics and the default `wet_day_threshold` in `config.yml`. EQM handles dry days in two ways:
@@ -48,3 +56,8 @@ The same mechanism that removes false drizzle also costs a little hit rate: prob
 ::: {.callout-tip}
 The full LSEQM correction (LS + EQM + GPD) is what the framework labels `lseqm`. The chain runs as one function call per dekad.
 :::
+
+## References
+
+- Wood, A. W., Leung, L. R., Sridhar, V., & Lettenmaier, D. P. (2004). Hydrologic implications of dynamical and statistical approaches to downscaling climate model outputs. *Climatic Change*, 62(1-3), 189-216. (BCSD parameter disaggregation.)
+- Cannon, A. J., Sobie, S. R., & Murdock, T. Q. (2015). Bias correction of GCM precipitation by quantile mapping: how well do methods preserve changes in quantiles and extremes? *Journal of Climate*, 28(17), 6938-6959. (Dry-day frequency matching, §3.2.)
