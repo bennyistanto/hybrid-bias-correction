@@ -22,6 +22,7 @@ Full documentation site: [https://bennyistanto.github.io/hybrid-bias-correction]
 | [Implementation](https://bennyistanto.github.io/hybrid-bias-correction/implementation/) | Algorithm view: which `src/` function does what |
 | [Tutorials](https://bennyistanto.github.io/hybrid-bias-correction/tutorials/) | Full pipeline walkthroughs against the Bali example |
 | [Case Studies](https://bennyistanto.github.io/hybrid-bias-correction/case-studies/) | Framework applied to real data: Indonesia (interactive figures) and the executed Bali notebooks |
+| [Interactive Dashboard](https://bennyistanto.github.io/hybrid-bias-correction/viz/) | Explore the Indonesia results: staged skill, the correlation ceiling, and the calendar-window recovery |
 | [FAQ](https://bennyistanto.github.io/hybrid-bias-correction/faq.html) | Basics + honest answers to reviewer-style questions |
 | [API Reference](https://bennyistanto.github.io/hybrid-bias-correction/technical/api-reference/) | Auto-generated module docs |
 
@@ -32,6 +33,7 @@ Full documentation site: [https://bennyistanto.github.io/hybrid-bias-correction]
 - `data/example_bali/` - 11 MB Bali example bundle (IMERG-L, IMERG-F, CPC-UNI at 0.1 deg and native 0.5 deg, BMKG stations, land/sea mask). Runs end to end in ~15 minutes on a free Colab CPU.
 - `data/mask/aoi/bali_subset.nc` - The Bali AOI definition.
 - `docs/` - Quarto site source.
+- `viz/` - Interactive results dashboard (Observable Framework), published at [`/viz`](https://bennyistanto.github.io/hybrid-bias-correction/viz/). See [`viz/README.md`](viz/README.md).
 - `config.yml` (Indonesia) and `config_bali.yml` (Bali example) - the two driver configs.
 
 ## Full-Indonesia data archive (Zenodo)
