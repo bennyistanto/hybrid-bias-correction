@@ -1,7 +1,8 @@
-name: Publish Quarto site
+name: Publish Quarto site + viz dashboard
 
 # Triggers on every push to main. The cache-wipe step makes every run
 # a fresh rebuild - no stale quartodoc API pages, no leftover freeze artefacts.
+# The Quarto docs are the site root; the Observable dashboard is added at /viz.
 on:
   push:
     branches: [main]
@@ -70,6 +71,28 @@ jobs:
         uses: quarto-dev/quarto-actions/render@v2
         with:
           path: docs
+
+      # The Observable dashboard is a separate static app in viz/. Build it and
+      # drop it into the Quarto _site at /viz so both share one Pages site. It
+      # reads only the committed viz/src/data files - no Python step needed.
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: viz/package-lock.json
+
+      - name: Build the Observable viz dashboard
+        working-directory: viz
+        run: |
+          npm ci
+          npm run build
+
+      - name: Add the viz dashboard to the site at /viz
+        run: |
+          mkdir -p _site/viz
+          cp -r viz/dist/. _site/viz/
+          echo "Copied viz/dist -> _site/viz"
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
