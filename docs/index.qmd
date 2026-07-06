@@ -125,6 +125,7 @@ Satellite precipitation underestimates light rain, mis-shapes the upper tail, an
 - [Install the package](get-started/installation.qmd) and reproduce the Bali quickstart
 - Open the [QA Framework](tutorials/qa-framework.qmd) and [Station Validation](tutorials/station-validation.qmd) tutorials to see what the framework actually produces
 - Explore the [Case Studies](case-studies/index.qmd): the runnable Bali example and the full Indonesia evaluation, including [the correlation ceiling](case-studies/indonesia.qmd#the-correlation-ceiling) diagnostic
+- Open the [interactive dashboard](https://bennyistanto.github.io/hybrid-bias-correction/viz/) to explore the Indonesia results directly: staged skill, the correlation ceiling, and the calendar-window recovery
 - Read the [methodology overview](methodology/index.qmd) to understand the LSEQM+DL design
 - See the [Changelog](changelog.qmd) for what's in v2026.05
 - Browse the [API reference](technical/api-reference/index.qmd) for module-level documentation
