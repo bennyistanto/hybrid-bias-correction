@@ -1,0 +1,104 @@
+{
+  "runtime": {
+    "total": 72.1,
+    "rows": [
+      {
+        "nb": "02",
+        "stage": "LSEQM+DL bias correction (per-dekad CNN training)",
+        "min": 16.3
+      },
+      {
+        "nb": "03",
+        "stage": "Verification metrics (31-metric catalogue)",
+        "min": 45.4
+      },
+      {
+        "nb": "04",
+        "stage": "Quality assessment (CQI sub-scores)",
+        "min": 6.9
+      },
+      {
+        "nb": "05",
+        "stage": "Station validation against BMKG",
+        "min": 0.5
+      },
+      {
+        "nb": "06",
+        "stage": "Visualisation",
+        "min": 3.0
+      }
+    ],
+    "env": "Python 3.12 \u00b7 TensorFlow 2.20.0 \u00b7 NumPy 2.0.2 \u00b7 netCDF4 1.7.4",
+    "domain": "Bali subdomain \u00b7 80 of 126 land pixels corrected \u00b7 24 of 24 CPC cells fitted \u00b7 all 36 dekads",
+    "hardware": "Free-tier Google Colab CPU \u00b7 no hardware accelerator"
+  },
+  "served": {
+    "true": {
+      "label": "Well-served",
+      "skill": "Distributional properties",
+      "metrics": "SDR \u00b7 KS p \u00b7 Q95/Q99 ratios \u00b7 wet-day frequency"
+    },
+    "false": {
+      "label": "Poorly-served",
+      "skill": "Day-by-day timing",
+      "metrics": "Pearson r \u00b7 RMSE \u00b7 NSE (bounded by raw satellite)"
+    }
+  },
+  "applications": [
+    {
+      "name": "SPI / SPEI drought monitoring",
+      "topic": "Drought",
+      "served": true
+    },
+    {
+      "name": "Flood-frequency analysis (multi-year record)",
+      "topic": "Flood",
+      "served": true
+    },
+    {
+      "name": "Threshold-exceedance climatology",
+      "topic": "Climate",
+      "served": true
+    },
+    {
+      "name": "Hydrological calibration vs multi-year statistics",
+      "topic": "Hydrology",
+      "served": true
+    },
+    {
+      "name": "Climate-risk insurance pricing",
+      "topic": "Risk",
+      "served": true
+    },
+    {
+      "name": "Agricultural dekadal water balance",
+      "topic": "Agriculture",
+      "served": true
+    },
+    {
+      "name": "Real-time flood-event nowcasting",
+      "topic": "Flood",
+      "served": false
+    },
+    {
+      "name": "Single-event / day-specific forecasting",
+      "topic": "Climate",
+      "served": false
+    },
+    {
+      "name": "Day-1 hydrological model initialisation",
+      "topic": "Hydrology",
+      "served": false
+    },
+    {
+      "name": "Day-specific agricultural field operations",
+      "topic": "Agriculture",
+      "served": false
+    }
+  ],
+  "links": {
+    "github": "https://github.com/bennyistanto/hybrid-bias-correction",
+    "zenodo": "https://doi.org/10.5281/zenodo.20287847",
+    "zenodo_doi": "10.5281/zenodo.20287847"
+  }
+}

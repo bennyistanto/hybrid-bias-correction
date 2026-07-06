@@ -1,0 +1,247 @@
+{
+  "stats": {
+    "stations": 172,
+    "archived": 180,
+    "pixels": 19395,
+    "cpc_cells": 1256,
+    "dekads": 36,
+    "period_cpc": "2001-2025",
+    "period_bmkg": "2001-2021",
+    "repro_min": 72.1,
+    "r_flat": 0.34,
+    "r_window_utc": 0.2,
+    "r_window_local": 0.57,
+    "offset_h": -23
+  },
+  "bmkg": [
+    {
+      "pillar": "Value Adjustment",
+      "metric": "Relative Bias",
+      "ls": -0.114,
+      "lseqm": 0.009,
+      "lseqmdl": -0.006,
+      "target": 0.0,
+      "goal": "zero"
+    },
+    {
+      "pillar": "Value Adjustment",
+      "metric": "SDR",
+      "ls": 0.71,
+      "lseqm": 1.03,
+      "lseqmdl": 1.0,
+      "target": 1.0,
+      "goal": "one"
+    },
+    {
+      "pillar": "Distribution Alignment",
+      "metric": "KS p-value (%)",
+      "ls": 0.01,
+      "lseqm": 19.07,
+      "lseqmdl": 19.07,
+      "target": 100.0,
+      "goal": "high"
+    },
+    {
+      "pillar": "Distribution Alignment",
+      "metric": "Wet-Day Freq. Ratio",
+      "ls": 1.21,
+      "lseqm": 0.96,
+      "lseqmdl": 0.95,
+      "target": 1.0,
+      "goal": "one"
+    },
+    {
+      "pillar": "Distribution Alignment",
+      "metric": "Wet-Day Int. Ratio",
+      "ls": 0.71,
+      "lseqm": 1.06,
+      "lseqmdl": 1.05,
+      "target": 1.0,
+      "goal": "one"
+    },
+    {
+      "pillar": "Extreme Preservation",
+      "metric": "Q95 Ratio",
+      "ls": 0.74,
+      "lseqm": 1.07,
+      "lseqmdl": 1.05,
+      "target": 1.0,
+      "goal": "one"
+    },
+    {
+      "pillar": "Extreme Preservation",
+      "metric": "Q99 Ratio",
+      "ls": 0.71,
+      "lseqm": 1.05,
+      "lseqmdl": 1.01,
+      "target": 1.0,
+      "goal": "one"
+    },
+    {
+      "pillar": "Event Detection",
+      "metric": "POD",
+      "ls": 0.78,
+      "lseqm": 0.65,
+      "lseqmdl": 0.65,
+      "target": 1.0,
+      "goal": "high"
+    },
+    {
+      "pillar": "Event Detection",
+      "metric": "CSI",
+      "ls": 0.53,
+      "lseqm": 0.49,
+      "lseqmdl": 0.49,
+      "target": 1.0,
+      "goal": "high"
+    },
+    {
+      "pillar": "Event Detection",
+      "metric": "FAR",
+      "ls": 0.36,
+      "lseqm": 0.32,
+      "lseqmdl": 0.32,
+      "target": 0.0,
+      "goal": "zero"
+    }
+  ],
+  "cpc": [
+    {
+      "pillar": "Value Adjustment",
+      "metric": "Relative Bias",
+      "ls": 0.0,
+      "lseqm": 0.07,
+      "lseqmdl": 0.065,
+      "target": 0.0,
+      "goal": "zero"
+    },
+    {
+      "pillar": "Value Adjustment",
+      "metric": "SDR",
+      "ls": 0.971,
+      "lseqm": 1.159,
+      "lseqmdl": 1.148,
+      "target": 1.0,
+      "goal": "one"
+    },
+    {
+      "pillar": "Distribution Alignment",
+      "metric": "KS p-value (%)",
+      "ls": 6.56,
+      "lseqm": 0.0,
+      "lseqmdl": 0.0,
+      "target": 100.0,
+      "goal": "high"
+    },
+    {
+      "pillar": "Distribution Alignment",
+      "metric": "Wet-Day Freq. Ratio",
+      "ls": 1.04,
+      "lseqm": 0.947,
+      "lseqmdl": 0.946,
+      "target": 1.0,
+      "goal": "one"
+    },
+    {
+      "pillar": "Distribution Alignment",
+      "metric": "Wet-Day Int. Ratio",
+      "ls": 0.961,
+      "lseqm": 1.157,
+      "lseqmdl": 1.152,
+      "target": 1.0,
+      "goal": "one"
+    },
+    {
+      "pillar": "Extreme Preservation",
+      "metric": "Q95 Ratio",
+      "ls": 0.946,
+      "lseqm": 1.171,
+      "lseqmdl": 1.163,
+      "target": 1.0,
+      "goal": "one"
+    },
+    {
+      "pillar": "Extreme Preservation",
+      "metric": "Q99 Ratio",
+      "ls": 0.967,
+      "lseqm": 1.212,
+      "lseqmdl": 1.196,
+      "target": 1.0,
+      "goal": "one"
+    },
+    {
+      "pillar": "Event Detection",
+      "metric": "POD",
+      "ls": 0.767,
+      "lseqm": 0.707,
+      "lseqmdl": 0.707,
+      "target": 1.0,
+      "goal": "high"
+    },
+    {
+      "pillar": "Event Detection",
+      "metric": "CSI",
+      "ls": 0.589,
+      "lseqm": 0.572,
+      "lseqmdl": 0.572,
+      "target": 1.0,
+      "goal": "high"
+    },
+    {
+      "pillar": "Event Detection",
+      "metric": "FAR",
+      "ls": 0.271,
+      "lseqm": 0.248,
+      "lseqmdl": 0.248,
+      "target": 0.0,
+      "goal": "zero"
+    },
+    {
+      "pillar": "Temporal Skill",
+      "metric": "Pearson r",
+      "ls": 0.343,
+      "lseqm": 0.345,
+      "lseqmdl": 0.348,
+      "target": 1.0,
+      "goal": "high"
+    },
+    {
+      "pillar": "Temporal Skill",
+      "metric": "RMSE (mm/day)",
+      "ls": 13.1,
+      "lseqm": 14.18,
+      "lseqmdl": 14.07,
+      "target": 0.0,
+      "goal": "zero"
+    },
+    {
+      "pillar": "Temporal Skill",
+      "metric": "NSE",
+      "ls": -0.273,
+      "lseqm": -0.548,
+      "lseqmdl": -0.524,
+      "target": 1.0,
+      "goal": "high"
+    }
+  ],
+  "temporal": [
+    {
+      "metric": "Pearson r",
+      "ls": 0.343,
+      "lseqm": 0.345,
+      "lseqmdl": 0.348
+    },
+    {
+      "metric": "RMSE (mm/day)",
+      "ls": 13.1,
+      "lseqm": 14.18,
+      "lseqmdl": 14.07
+    },
+    {
+      "metric": "NSE",
+      "ls": -0.273,
+      "lseqm": -0.548,
+      "lseqmdl": -0.524
+    }
+  ]
+}

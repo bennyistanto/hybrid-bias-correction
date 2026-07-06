@@ -1,0 +1,52 @@
+{
+  "recommended": "localday",
+  "paths": [
+    {
+      "key": "multivariate",
+      "name": "Multivariate QM",
+      "distance": "Moderate",
+      "distance_ord": 2,
+      "payoff": 1,
+      "lift": null,
+      "cost": "Larger calibration samples; tens of times more compute",
+      "effect": "Open question - depends on the joint structure of the reference",
+      "summary": "Correct the joint distribution across pixels and time lags, not each margin alone. Not bound by the rank-preservation argument, but the recoverable joint structure is limited by a 0.5 deg, 172-station reference."
+    },
+    {
+      "key": "subdaily",
+      "name": "Sub-daily disaggregation",
+      "distance": "Moderate",
+      "distance_ord": 2,
+      "payoff": 2,
+      "lift": null,
+      "cost": "Half-hourly archive + geostationary IR (Himawari-9)",
+      "effect": "Moderate - recovers within-day timing only",
+      "summary": "Redistribute the corrected daily total across the day via cloud-tracking on 10-minute Himawari-9 imagery. Keeps the daily distribution and adds a within-day timing signal on top."
+    },
+    {
+      "key": "stochastic",
+      "name": "Stochastic disaggregation",
+      "distance": "Large",
+      "distance_ord": 3,
+      "payoff": 1,
+      "lift": null,
+      "cost": "Ensemble verification stack on the downstream side",
+      "effect": "Reframes timing as uncertainty rather than removing it",
+      "summary": "Sample an ensemble of plausible daily timings consistent with the corrected distribution. Scoring shifts to CRPS and rank histograms. Best for users who are already ensemble-aware."
+    },
+    {
+      "key": "localday",
+      "name": "Local-day re-aggregation",
+      "distance": "Small",
+      "distance_ord": 1,
+      "payoff": 3,
+      "lift": [
+        0.34,
+        0.57
+      ],
+      "cost": "Re-run the pipeline on a re-aggregated archive (modest, archive-intensive)",
+      "effect": "Targets the UTC-vs-local-day artefact; most actionable for UTC+7 to UTC+9",
+      "summary": "Re-aggregate native half-hourly IMERG to a 24-hour window ending 07:00 local before correcting. Removes the calendar mismatch with no methodology change; expected lift r 0.34 to 0.57. The path the reproducible pipeline most directly enables."
+    }
+  ]
+}
