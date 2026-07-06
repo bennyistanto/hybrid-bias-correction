@@ -145,6 +145,7 @@ def train_bias_correction_model(
         num_filters_2=DL_NUM_FILTERS_2,
         dense_layer_size=DL_DENSE_LAYER_SIZE,
         optimizer=DL_OPTIMIZER,
+        architecture='dense',
         interactive=True
     ):
     """
@@ -310,26 +311,45 @@ def train_bias_correction_model(
     # This gives the model more spatial context - important for capturing spatial
     # correction patterns (orographic enhancement, convective clusters) rather
     # than just learning a smooth, low-frequency field through a tiny bottleneck.
-    def _build_model():
-        """Build and compile the CNN model."""
-        m = Sequential([
-            Input(shape=input_shape),
-            Conv2D(num_filters_1, filter_size_1, activation='relu', padding='same'),
-            MaxPooling2D((2, 2)),
-            Dropout(dropout_rate_1),
-            Conv2D(num_filters_2, filter_size_2, activation='relu', padding='same'),
-            MaxPooling2D((2, 2)),
-            Dropout(dropout_rate_2),
-            Flatten(),
-            Dense(dense_layer_size, activation='relu'),
-            Dropout(dropout_rate_dense),
-            Dense(int(np.prod(input_shape[:-1])), activation='linear'),
-            Reshape(input_shape[:-1])
-        ])
+    def _build_model(arch='dense'):
+        """Build and compile the CNN model.
+
+        ``arch='dense'`` (default) is the original Flatten -> Dense -> Dense
+        reconstruction head. ``arch='fcn'`` is a fully-convolutional,
+        translation-invariant network with no dense layers (about 900x fewer
+        parameters). Both keep the same ``(lat, lon)`` input/output interface,
+        so the training, alpha-blending, and confidence-gating code is shared.
+        """
+        if arch == 'fcn':
+            m = Sequential([
+                Input(shape=input_shape),
+                Conv2D(num_filters_1, filter_size_1, activation='relu', padding='same'),
+                Dropout(dropout_rate_1),
+                Conv2D(num_filters_2, filter_size_2, activation='relu', padding='same'),
+                Dropout(dropout_rate_2),
+                Conv2D(num_filters_2, filter_size_2, activation='relu', padding='same'),
+                Conv2D(1, (1, 1), activation='linear', padding='same'),
+                Reshape(input_shape[:-1])
+            ])
+        else:
+            m = Sequential([
+                Input(shape=input_shape),
+                Conv2D(num_filters_1, filter_size_1, activation='relu', padding='same'),
+                MaxPooling2D((2, 2)),
+                Dropout(dropout_rate_1),
+                Conv2D(num_filters_2, filter_size_2, activation='relu', padding='same'),
+                MaxPooling2D((2, 2)),
+                Dropout(dropout_rate_2),
+                Flatten(),
+                Dense(dense_layer_size, activation='relu'),
+                Dropout(dropout_rate_dense),
+                Dense(int(np.prod(input_shape[:-1])), activation='linear'),
+                Reshape(input_shape[:-1])
+            ])
         m.compile(optimizer=optimizer, loss='mean_squared_error', metrics=['mae'])
         return m
 
-    model = _build_model()
+    model = _build_model(architecture)
     model.summary(print_fn=logging.info)
 
     # Early stopping to avoid overfitting
@@ -372,7 +392,7 @@ def train_bias_correction_model(
         )
         # Rebuild model on CPU (GPU state may be corrupted after OOM)
         with tf.device('/CPU:0'):
-            model = _build_model()
+            model = _build_model(architecture)
         history = _train(device='/CPU:0')
 
     logging.info(f"Final training history: {history.history}")
