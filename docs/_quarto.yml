@@ -56,6 +56,9 @@ website:
             href: case-studies/indonesia.qmd
           - text: "Bali Example (executed notebooks)"
             href: example-bali/index.qmd
+          - text: "---"
+          - text: "Interactive Dashboard"
+            href: https://bennyistanto.github.io/hybrid-bias-correction/viz/
       - text: "Documentation"
         menu:
           - text: "Methodology"
@@ -150,6 +153,8 @@ website:
       contents:
         - case-studies/index.qmd
         - case-studies/reading-the-results.qmd
+        - text: "Interactive Dashboard"
+          href: https://bennyistanto.github.io/hybrid-bias-correction/viz/
         - text: "---"
         - case-studies/indonesia.qmd
         - section: "Bali Example (executed notebooks)"
