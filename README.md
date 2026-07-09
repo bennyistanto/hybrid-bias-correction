@@ -10,6 +10,7 @@ A reproducible Python framework for daily satellite precipitation bias correctio
 
 [![DOI (code)](https://img.shields.io/badge/code-10.5281%2Fzenodo.20473508-blue.svg)](https://doi.org/10.5281/zenodo.20473508)
 [![DOI (data)](https://img.shields.io/badge/data-10.5281%2Fzenodo.20287847-blue.svg)](https://doi.org/10.5281/zenodo.20287847)
+[![DOI (paper)](https://img.shields.io/badge/paper-10.3390%2Frs18142298-blue.svg)](https://doi.org/10.3390/rs18142298)
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-FF7139.svg)](https://www.mozilla.org/en-US/MPL/2.0/)
 
 ## Documentation
@@ -109,15 +110,19 @@ The framework's quality is verified along three independent dimensions:
 
 ## Publication
 
-Companion manuscript: under review at *Remote Sensing* (MDPI). DOI and citation will be added on acceptance.
+Companion paper: Istanto, B.; Boer, R.; Santikayasa, I.P. A Modular and Transferable Framework for Enhancing Satellite-Derived Daily Precipitation: Adjusting Values, Aligning Distributions, and Preserving Extremes. *Remote Sens.* **2026**, *18*, 2298. https://doi.org/10.3390/rs18142298
 
 ## How to cite
 
-If you use this framework, please cite the archived software release. The recommended citation is:
+If you use this framework in a publication, please cite the paper:
+
+> Istanto, B.; Boer, R.; Santikayasa, I.P. A Modular and Transferable Framework for Enhancing Satellite-Derived Daily Precipitation: Adjusting Values, Aligning Distributions, and Preserving Extremes. *Remote Sens.* **2026**, *18*, 2298. [https://doi.org/10.3390/rs18142298](https://doi.org/10.3390/rs18142298)
+
+To cite the archived software release:
 
 > Istanto, B., Boer, R., & Santikayasa, I. P. (2026). *Hybrid Bias Correction: Values, Distributions, Extremes - with Neural Refinement* (v2026.05). Zenodo. [https://doi.org/10.5281/zenodo.20473508](https://doi.org/10.5281/zenodo.20473508)
 
-If you use the bundled full-Indonesia data archive, please cite it separately:
+To cite the bundled full-Indonesia data archive:
 
 > Istanto, B., Boer, R., & Santikayasa, I. P. (2026). *Hybrid Bias Correction of IMERG Late Run V07 over Indonesia (2001-2025): Input Data, Land-Sea Masks, and Corrected Products* (Version 1) [Data set]. Zenodo. [https://doi.org/10.5281/zenodo.20287847](https://doi.org/10.5281/zenodo.20287847)
 
