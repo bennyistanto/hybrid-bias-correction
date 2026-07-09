@@ -61,7 +61,7 @@ Three parameters control the trade-off between aggressiveness and conservatism:
 | `gpd_threshold_percentile` | 80 | Where the GPD tail takes over from the gamma body |
 | `saturation_count` | 2 | Station count at which the confidence mask saturates |
 
-These were chosen by inspection rather than formal optimization. Sensitivity to each is documented in the corresponding methodology page and acknowledged as a limitation in the companion manuscript (under review at *Remote Sensing*).
+These were chosen by inspection rather than formal optimization. Sensitivity to each is documented in the corresponding methodology page and acknowledged as a limitation in the companion paper (*Remote Sens.* 2026, 18, 2298; https://doi.org/10.3390/rs18142298).
 
 ## Temporal unit
 
