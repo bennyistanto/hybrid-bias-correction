@@ -46,7 +46,7 @@ Each station produces one point on the Taylor diagram, encoding correlation (ang
 Quantitative headline numbers from the full-Indonesia run will be inserted here once the companion paper is finalised. The Bali tutorial bundle produces 4-station numbers that are directional but not statistically reliable on their own.
 :::
 
-For the paper's full station validation, see the companion manuscript (under review at *Remote Sensing*; DOI to be added on publication).
+For the paper's full station validation, see the companion paper (*Remote Sens.* 2026, 18, 2298; https://doi.org/10.3390/rs18142298).
 
 ## See also
 
