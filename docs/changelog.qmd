@@ -30,12 +30,6 @@ package for the broader community.
   Case Studies (Bali + Indonesia, with interactive figures), FAQ, and
   auto-generated API Reference.
 
-### Companion publications
-
-- MSc thesis (Istanto, in preparation).
-- Journal manuscript on the methodology and Indonesia validation: under review at *Remote Sensing* (MDPI).
-- Journal of Open Source Software paper on the framework itself (in preparation).
-
 ## Backlog
 
 - Replace the CNN architecture with a U-Net to avoid the Flatten -> Dense bottleneck.
