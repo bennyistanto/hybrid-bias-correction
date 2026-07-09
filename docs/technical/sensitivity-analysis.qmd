@@ -83,7 +83,7 @@ Three things follow from these fifteen settings:
    fifteen settings, a spread of $0.015$. No setting shifts the daily
    correlation by more than half a single-pixel sampling-uncertainty
    interval. This is the empirical expression of the theoretical bound
-   discussed on the [Validation](validation.qmd) page and in the companion manuscript (under review):
+   discussed on the [Validation](validation.qmd) page and in the companion paper (*Remote Sens.* 2026, 18, 2298):
    marginal correction methods are not designed to lift day-by-day
    timing skill.
 3. **The amplitude metrics (RB, SDR, RMSE, NSE) shift coherently.**
