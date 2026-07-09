@@ -44,6 +44,25 @@ identifiers:
     value: 10.5281/zenodo.20473508
     description: "Software release archived on Zenodo (v2026.05)"
 references:
+  - type: article
+    title: "A Modular and Transferable Framework for Enhancing Satellite-Derived Daily Precipitation: Adjusting Values, Aligning Distributions, and Preserving Extremes"
+    authors:
+      - family-names: Istanto
+        given-names: Benny
+        orcid: "https://orcid.org/0000-0001-6436-8574"
+      - family-names: Boer
+        given-names: Rizaldi
+        orcid: "https://orcid.org/0000-0001-5366-946X"
+      - family-names: Santikayasa
+        given-names: I Putu
+        orcid: "https://orcid.org/0000-0001-8223-0034"
+    journal: "Remote Sensing"
+    volume: 18
+    issue: 14
+    start: 2298
+    year: 2026
+    doi: 10.3390/rs18142298
+    url: "https://doi.org/10.3390/rs18142298"
   - type: data
     title: "Hybrid Bias Correction of IMERG Late Run V07 over Indonesia (2001-2025): Input Data, Land-Sea Masks, and Corrected Products"
     authors:
