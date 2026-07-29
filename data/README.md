@@ -17,7 +17,7 @@ These folders contain a README only. The actual files are either on Zenodo, down
 | Path | Source | Read by |
 |------|--------|---------|
 | [`downloads/`](downloads/) | nb01 (`01_data_acquisition.ipynb`) | nb01 only |
-| [`input/`](input/) | nb01 stitches downloads here, **or** unpack the [Zenodo bundle](https://doi.org/10.5281/zenodo.20287847) | nb02 onwards |
+| [`input/`](input/) | nb01 stitches downloads here, **or** unpack the [Zenodo bundle](https://doi.org/10.5281/zenodo.20287846) | nb02 onwards |
 | [`output/`](output/) | nb02-nb06 write here | nb03-nb06 chain results between stages |
 | [`subset/`](subset/) | nb00 / external boundary downloads | Visualisation overlays only |
 | `example_bali/output/` | Generated when you run the Bali example | nb03-nb06 (Bali mode) |
