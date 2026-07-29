@@ -8,8 +8,8 @@ A reproducible Python framework for daily satellite precipitation bias correctio
 
 ![LSEQM+DL](docs/images/lseqmdl-banner.png "LSEQM+DL")
 
-[![DOI (code)](https://img.shields.io/badge/code-10.5281%2Fzenodo.20473508-blue.svg)](https://doi.org/10.5281/zenodo.20473508)
-[![DOI (data)](https://img.shields.io/badge/data-10.5281%2Fzenodo.20287847-blue.svg)](https://doi.org/10.5281/zenodo.20287847)
+[![DOI (code)](https://img.shields.io/badge/code-10.5281%2Fzenodo.20473507-blue.svg)](https://doi.org/10.5281/zenodo.20473507)
+[![DOI (data)](https://img.shields.io/badge/data-10.5281%2Fzenodo.20287846-blue.svg)](https://doi.org/10.5281/zenodo.20287846)
 [![DOI (paper)](https://img.shields.io/badge/paper-10.3390%2Frs18142298-blue.svg)](https://doi.org/10.3390/rs18142298)
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-FF7139.svg)](https://www.mozilla.org/en-US/MPL/2.0/)
 
@@ -41,11 +41,11 @@ Full documentation site: [https://bennyistanto.github.io/hybrid-bias-correction]
 
 The repository ships the small Bali example bundle so the pipeline is runnable out of the box. The full-Indonesia operational input (IMERG + CPC + BMKG, 2001-2025, ~1.7 GB) and outputs (corrected NetCDFs, metrics, QA, station validation, figures, ~40 GB) are too large for the repository and are deposited separately on Zenodo with a citable DOI:
 
-[https://doi.org/10.5281/zenodo.20287847](https://doi.org/10.5281/zenodo.20287847)
+[https://doi.org/10.5281/zenodo.20287846](https://doi.org/10.5281/zenodo.20287846)
 
 To reproduce the Indonesia results: clone this repo, download the Zenodo bundle, point `config.yml` at the extracted directories, and run the notebooks.
 
-The framework source code itself (this repository, at the published release tag) is archived on Zenodo separately at [https://doi.org/10.5281/zenodo.20473508](https://doi.org/10.5281/zenodo.20473508). See "How to cite" below.
+The framework source code itself (this repository, at the published release tag) is archived on Zenodo separately at [https://doi.org/10.5281/zenodo.20473507](https://doi.org/10.5281/zenodo.20473507). See "How to cite" below.
 
 ## Quickstart
 
@@ -120,11 +120,11 @@ If you use this framework in a publication, please cite the paper:
 
 To cite the archived software release:
 
-> Istanto, B., Boer, R., & Santikayasa, I. P. (2026). *Hybrid Bias Correction: Values, Distributions, Extremes - with Neural Refinement* (v2026.05). Zenodo. [https://doi.org/10.5281/zenodo.20473508](https://doi.org/10.5281/zenodo.20473508)
+> Istanto, B., Boer, R., & Santikayasa, I. P. (2026). *Hybrid Bias Correction: Values, Distributions, Extremes - with Neural Refinement* (v2026.07). Zenodo. [https://doi.org/10.5281/zenodo.20473507](https://doi.org/10.5281/zenodo.20473507)
 
 To cite the bundled full-Indonesia data archive:
 
-> Istanto, B., Boer, R., & Santikayasa, I. P. (2026). *Hybrid Bias Correction of IMERG Late Run V07 over Indonesia (2001-2025): Input Data, Land-Sea Masks, and Corrected Products* (Version 1) [Data set]. Zenodo. [https://doi.org/10.5281/zenodo.20287847](https://doi.org/10.5281/zenodo.20287847)
+> Istanto, B., Boer, R., & Santikayasa, I. P. (2026). *Hybrid Bias Correction of IMERG Late Run V07 over Indonesia (2001-2025): Input Data, Land-Sea Masks, and Corrected Products* (latest version) [Data set]. Zenodo. [https://doi.org/10.5281/zenodo.20287846](https://doi.org/10.5281/zenodo.20287846)
 
 Machine-readable metadata is in [`CITATION.cff`](CITATION.cff); GitHub renders this as a "Cite this repository" button on the repo landing page.
 
@@ -144,4 +144,4 @@ Mozilla Public License 2.0. See [LICENSE](LICENSE) or [https://www.mozilla.org/e
   [Bogor Agricultural University](https://www.ipb.ac.id/), Indonesia</br>
   Email: [bennyistanto@apps.ipb.ac.id](mailto:bennyistanto@apps.ipb.ac.id)
 
-With supervision from [Prof. Dr. Ir. Rizaldi Boer, MS.](https://scholar.google.com/citations?user=jTPXEp8AAAAJ&hl=en) and [Dr. I Putu Santikayasa, S.Si., M.Sc.](https://scholar.google.com/citations?user=DcQ58z8AAAAJ&hl=en) as part of the [MSc thesis](https://github.com/bennyistanto/msc-thesis).
+With supervision from [Prof. Dr. Ir. Rizaldi Boer, M.S.](https://scholar.google.com/citations?user=jTPXEp8AAAAJ&hl=en) and [Dr. I Putu Santikayasa, S.Si., M.Sc.](https://scholar.google.com/citations?user=DcQ58z8AAAAJ&hl=en) as part of the [MSc thesis](https://github.com/bennyistanto/msc-thesis).
