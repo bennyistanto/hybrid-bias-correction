@@ -286,7 +286,7 @@ station_density:
 
   # Number of (smoothed) stations for full confidence (1.0)
   #   - 1: aggressive - any station presence = full confidence
-  #   - 3 (default): moderate - requires several nearby stations
+  #   - 2 (default): moderate - requires a nearby station or two
   #   - 5: conservative - only dense station clusters get full confidence
   saturation_count: 2
 
