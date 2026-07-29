@@ -37,12 +37,12 @@ keywords:
 license: MPL-2.0
 repository-code: "https://github.com/bennyistanto/hybrid-bias-correction"
 url: "https://bennyistanto.github.io/hybrid-bias-correction"
-version: "v2026.05"
-date-released: "2026-05-21"
+version: "v2026.07"
+date-released: "2026-07-29"
 identifiers:
   - type: doi
-    value: 10.5281/zenodo.20473508
-    description: "Software release archived on Zenodo (v2026.05)"
+    value: 10.5281/zenodo.20473507
+    description: "Software release archived on Zenodo (all-versions DOI)"
 references:
   - type: article
     title: "A Modular and Transferable Framework for Enhancing Satellite-Derived Daily Precipitation: Adjusting Values, Aligning Distributions, and Preserving Extremes"
@@ -75,7 +75,7 @@ references:
       - family-names: Santikayasa
         given-names: I Putu
         orcid: "https://orcid.org/0000-0001-8223-0034"
-    doi: 10.5281/zenodo.20287847
-    url: "https://zenodo.org/records/20287847"
+    doi: 10.5281/zenodo.20287846
+    url: "https://doi.org/10.5281/zenodo.20287846"
     version: "1"
     year: 2026
