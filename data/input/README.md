@@ -6,7 +6,7 @@ Stitched multi-year NetCDF inputs for the **full Indonesia** pipeline (or your o
 
 ## Option A - Indonesia from Zenodo
 
-The Indonesia operational inputs are deposited on Zenodo: <https://doi.org/10.5281/zenodo.20287847>.
+The Indonesia operational inputs are deposited on Zenodo: <https://doi.org/10.5281/zenodo.20287846>.
 
 Download the `input_*.tar` archives, extract them, and place the contents so they match the layout below. `config.yml` paths assume this exact structure.
 
