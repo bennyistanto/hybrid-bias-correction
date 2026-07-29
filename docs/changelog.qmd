@@ -23,15 +23,23 @@ describing a `saturation_count` default of 3 were corrected to 2.
 
 **Added.** Corrected precipitation files now carry `Conventions: CF-1.8`, a
 `references` DOI, and run-context attributes recording the release, commit and
-the three sensitivity parameters. The precipitation variable now uses the
-CF-valid `lwe_precipitation_rate` with units `mm day-1`. Data values are
-unchanged, and files in the archived Indonesia bundle predate this.
+the three sensitivity parameters. The precipitation variable no longer carries
+a `standard_name`: the previous value is not in the CF standard-name table, and
+CF treats the attribute as optional, so omitting it is correct when no
+controlled term applies. `units` now read `mm/day`, following the IMERG-L
+source. Data values are unchanged, and files in the archived Indonesia bundle
+predate this.
 
 **Changed.** Zenodo citations now use all-versions DOIs so they follow each
 release. Documentation was corrected throughout: function names that no longer
 existed, output filename patterns, the CNN architecture listing, the metric
 inventory, runtime figures, the validated-station count, and correlation
 values that had drifted from the value ledger.
+
+**Companion publication.** The journal manuscript on the methodology and
+Indonesia validation is now published in *Remote Sensing* 2026, 18, 2298
+([doi:10.3390/rs18142298](https://doi.org/10.3390/rs18142298)), superseding the
+under-review status recorded at v2026.05.
 
 ## v2026.05 - first public release
 
