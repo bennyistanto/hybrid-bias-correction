@@ -29,7 +29,7 @@ and io.py (save_corrected_precip).
 
   with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
-Update: 2026.03
+Update: 2026.07
 """
 # Import the library
 import os
@@ -189,7 +189,7 @@ def compute_confidence_map(station_counts,
        artifacts. With sigma=1.0 at 0.5° resolution, the e-folding distance
        is approximately 55 km - one neighboring cell in each direction.
     2. Normalize: confidence = min(count_smooth / saturation_count, 1.0).
-       A saturation_count of 3 means that 3 or more (smoothed) stations
+       A saturation_count of 2 means that 2 or more (smoothed) stations
        produce full confidence (1.0).
 
     Parameters
@@ -199,7 +199,7 @@ def compute_confidence_map(station_counts,
     smoothing_sigma : float, optional
         Gaussian filter sigma in grid-cell units (default 1.0).
     saturation_count : float, optional
-        Number of (smoothed) stations for full confidence (default 3).
+        Number of (smoothed) stations for full confidence (default 2).
 
     Returns
     -------
@@ -308,7 +308,7 @@ def build_confidence_mask(station_file, target_lat, target_lon,
     smoothing_sigma : float, optional
         Gaussian smoothing sigma in grid-cell units (default 1.0).
     saturation_count : float, optional
-        Number of (smoothed) stations for full confidence (default 3).
+        Number of (smoothed) stations for full confidence (default 2).
     lat_range, lon_range : tuple of float, optional
         Grid bounds for station counting.
 

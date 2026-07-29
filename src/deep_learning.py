@@ -36,7 +36,7 @@ The module imports configuration parameters from config.py.
 
   with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
-Update: 2026.03
+Update: 2026.07
 """
 # Import the library
 import os
@@ -239,8 +239,14 @@ def train_bias_correction_model(
                 "Use existing (U), Overwrite (O), or Abort (A)? "
             ).upper()
         else:
-            choice = 'U'  # Non-interactive: use existing model
-            logging.info("Non-interactive mode: using existing model")
+            # Non-interactive: honour existing_model_action from config.
+            # Read the module attribute at call time rather than a from-import,
+            # so a value set by initialize_config() after this module was
+            # imported is still seen.
+            from . import config as _cfg
+            action = getattr(_cfg, 'EXISTING_MODEL_ACTION', 'use_existing')
+            choice = {'use_existing': 'U', 'overwrite': 'O', 'abort': 'A'}.get(action, 'U')
+            logging.info(f"Non-interactive mode: existing_model_action = {action}")
 
         if choice == 'U':
             # Load the existing model and return it
@@ -409,7 +415,7 @@ def train_bias_correction_model(
 def apply_deeplearning_model(
         model,
         lseqm_data,
-        blend_alpha=DL_BLEND_ALPHA,
+        blend_alpha=None,
         confidence_mask=None
     ):
     """
@@ -471,6 +477,17 @@ def apply_deeplearning_model(
     # Ensure TensorFlow is available before proceeding
     _require_tensorflow()
 
+    # Resolve config-driven parameters at CALL time, not import time. A
+    # module-level `from .config import X` freezes the value as it was when this
+    # module was first imported, so an initialize_config() that runs afterwards
+    # would be silently ignored. Reading through the module keeps a mid-session
+    # config switch (or a parameter sweep) effective without callers having to
+    # patch module globals and function __defaults__.
+    from . import config as _cfg
+    if blend_alpha is None:
+        blend_alpha = getattr(_cfg, 'DL_BLEND_ALPHA', DL_BLEND_ALPHA)
+    gpd_percentile = getattr(_cfg, 'GPD_THRESHOLD_PERCENTILE', GPD_THRESHOLD_PERCENTILE)
+
     # Fill NaN with 0 for CNN processing (ocean pixels are NaN from upstream masking)
     lseqm_data_filled = lseqm_data.fillna(0)
 
@@ -496,7 +513,7 @@ def apply_deeplearning_model(
     with warnings.catch_warnings():
         warnings.filterwarnings("ignore", message="All-NaN slice encountered")
         threshold_2d = lseqm_data.quantile(
-            q = GPD_THRESHOLD_PERCENTILE / 100.0,
+            q = gpd_percentile / 100.0,
             dim = 'time'  # percentile across time only
         )
 
@@ -506,7 +523,7 @@ def apply_deeplearning_model(
         return lseqm_data
 
     logging.info(
-        f"Pixel-wise threshold map computed at {GPD_THRESHOLD_PERCENTILE}th percentile. "
+        f"Pixel-wise threshold map computed at {gpd_percentile}th percentile. "
         f"threshold_2d shape: {threshold_2d.shape}"
     )
     logging.info(

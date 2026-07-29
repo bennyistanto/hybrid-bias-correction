@@ -17,7 +17,7 @@ It also uses utility functions for applying a land-sea mask and prompting the us
 
   with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
-Update: 2026.03
+Update: 2026.07
 """
 # Import the library
 import os
@@ -45,6 +45,45 @@ class BiasCorrectAbort(Exception):
 
 # ----
 # Helper function to save precipitation data to NetCDF with consistent metadata
+def _run_provenance():
+    """Non-CF attributes recording which code and settings produced a file.
+
+    Every lookup is defensive: provenance is a convenience, so a missing git
+    binary or an uninitialised config must never break a pipeline run. Values
+    are read at call time so a mid-session initialize_config() is reflected.
+    """
+    prov = {'run_timestamp': pd.Timestamp.now().isoformat()}
+
+    try:
+        from importlib.metadata import version, PackageNotFoundError
+        try:
+            prov['framework_version'] = version('hybrid-bias-correction')
+        except PackageNotFoundError:
+            prov['framework_version'] = 'unknown'
+    except Exception:
+        prov['framework_version'] = 'unknown'
+
+    try:
+        import subprocess
+        prov['git_commit'] = subprocess.check_output(
+            ['git', 'rev-parse', '--short', 'HEAD'],
+            cwd=os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            stderr=subprocess.DEVNULL, text=True, timeout=5,
+        ).strip()
+    except Exception:
+        prov['git_commit'] = 'unknown'
+
+    for attr, key in (('CONFIG_FILE_PATH', 'config_file'),
+                      ('DL_BLEND_ALPHA', 'blend_alpha'),
+                      ('GPD_THRESHOLD_PERCENTILE', 'gpd_threshold_percentile'),
+                      ('DENSITY_SATURATION_COUNT', 'saturation_count')):
+        value = getattr(_cfg, attr, None)
+        if value is not None:
+            prov[key] = str(value)
+
+    return prov
+
+
 def save_corrected_precip(
         precip_data,
         ds,
@@ -141,28 +180,42 @@ def save_corrected_precip(
         # Below information will appear as metadata in the output file
         # Feel free to adjust or modify, especially on the creator name, role and email
         attrs={
+            'Conventions': 'CF-1.8',
             'cdm_data_type': 'GRID',
             'title': f'Bias Corrected IMERG Late Precipitation using {method_full}',
             'summary': f'Precipitation data corrected using {method_full}',
             'source': 'IMERG and CPC-UNI',
             'history': f'Created on {pd.Timestamp.now()}',
+            'references': 'https://doi.org/10.3390/rs18142298',
             'DOI': '10.5067/GPM/IMERGDL/DAY/07',
             'creator_name': 'Benny Istanto',
             'creator_role': 'Climate Geographer',
             'creator_email': 'bennyistanto@apps.ipb.ac.id',
-            'comment': f'This dataset has been bias corrected using {method_full}'
+            'comment': f'This dataset has been bias corrected using {method_full}',
+            **_run_provenance(),
         }
     )
 
-    # Update metadata attributes
+    # Update metadata attributes.
+    # No standard_name is set. The previous value 'corrected_precipitation' is
+    # not in the CF standard name table, and CF treats standard_name as
+    # optional: omitting it is correct when no controlled term applies, and is
+    # preferable to asserting one that may not match. long_name carries the
+    # description, and the correction method is in the filename and title.
+    # units follow the IMERG-L source ('mm/day'), which is what this product is
+    # derived from and what long_name describes. CPC-UNI labels the same
+    # quantity 'mm' as a daily total; the values are identical either way.
     corrected_ds['precipitation'].attrs.update({
-        'units': 'mm',
-        'long_name': 'Corrected daily mean precipitation rate estimate',
-        'standard_name': 'corrected_precipitation'
+        'units': 'mm/day',
+        'long_name': 'Corrected daily mean precipitation rate estimate'
     })
 
-    corrected_ds['lat'].attrs.update({'units': 'degrees_north', 'long_name': 'Latitude'})
-    corrected_ds['lon'].attrs.update({'units': 'degrees_east', 'long_name': 'Longitude'})
+    corrected_ds['lat'].attrs.update({
+        'units': 'degrees_north', 'long_name': 'Latitude', 'standard_name': 'latitude'
+    })
+    corrected_ds['lon'].attrs.update({
+        'units': 'degrees_east', 'long_name': 'Longitude', 'standard_name': 'longitude'
+    })
 
     # Apply land-sea mask to the `precipitation` variable only.
     # Use dynamic config lookup so a mid-session initialize_config() switch

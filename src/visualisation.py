@@ -38,7 +38,7 @@ print_batch_summary displays the collected results.
 
   with supervision from Prof. Rizaldi Boer and Dr. I Putu Santikayasa
 
-Update: 2026.03
+Update: 2026.07
 """
 
 import os
