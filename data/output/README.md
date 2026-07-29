@@ -2,7 +2,7 @@
 
 Everything the bias-correction pipeline (nb02-nb06) writes. **Placeholder in the repo - actual files are generated locally.** When you run the pipeline, this directory fills with NetCDFs, CSVs, and PNGs per the layout below.
 
-For Indonesia, the published results from the paper are on Zenodo: <https://doi.org/10.5281/zenodo.20287847> (~40 GB). Extract them here to inspect the paper's exact outputs without re-running anything.
+For Indonesia, the published results from the paper are on Zenodo: <https://doi.org/10.5281/zenodo.20287846> (~40 GB). Extract them here to inspect the paper's exact outputs without re-running anything.
 
 ## Expected layout (after running nb02-nb06)
 
