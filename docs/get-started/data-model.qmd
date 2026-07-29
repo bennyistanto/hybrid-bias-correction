@@ -282,7 +282,7 @@ All output NetCDFs follow [CF Conventions 1.8](https://cfconventions.org/Data/cf
 | `lat.standard_name` | `latitude`, units `degrees_north` |
 | `lon.standard_name` | `longitude`, units `degrees_east` |
 | `time.units` | `days since 2001-01-01` |
-| `precipitation.standard_name` | `lwe_precipitation_rate`, units `mm day-1` |
+| `precipitation` attributes | `long_name` and `units` (`mm/day`); no `standard_name`, since no CF controlled term matches |
 
 Reproducibility metadata on each output: `framework_version`, `git_commit`, `config_file`, `run_timestamp`, `blend_alpha`, `gpd_threshold_percentile`, `saturation_count`.
 
