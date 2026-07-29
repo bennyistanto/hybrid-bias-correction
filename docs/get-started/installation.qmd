@@ -17,7 +17,7 @@ If you insist on a local install, make sure your TensorFlow install actually wor
 
 - Python 3.10 to 3.12 (3.11 or 3.12 recommended)
 - ~2 GB free disk for the Bali example bundle and its outputs
-- Optional: a CUDA-capable GPU for faster CNN training (a CPU finishes the Bali example in ~15 minutes)
+- Optional: a CUDA-capable GPU for faster CNN training (on Colab CPU the Bali example takes about 72 minutes across notebooks 02 to 06; nb00 AOI definition and nb01 download are excluded, since both depend on your domain extent and network speed)
 
 ## Option 1 - Google Colab (recommended)
 
@@ -76,4 +76,4 @@ hybrid-bias-correction/
   docs/                   # This documentation site (Quarto source)
 ```
 
-The full-Indonesia inputs and outputs are not committed to the repository. They live on Zenodo at [zenodo.org/records/20287847](https://zenodo.org/records/20287847) - download the bundle, extract, and point `config.yml` at the extracted directories to reproduce the Indonesia results.
+The full-Indonesia inputs and outputs are not committed to the repository. They live on Zenodo at [doi.org/10.5281/zenodo.20287846](https://doi.org/10.5281/zenodo.20287846) - download the bundle, extract, and point `config.yml` at the extracted directories to reproduce the Indonesia results.

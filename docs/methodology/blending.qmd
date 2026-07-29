@@ -44,4 +44,4 @@ The companion paper acknowledges this as a parameter that was not formally optim
 
 ## Implementation
 
-`src/bias_correction.py` - the blending step inside `run_correction_pipeline()`. The confidence mask is loaded from `output/station_density/`; the CNN output comes from `apply_cnn()` in `src/deep_learning.py`.
+`src/deep_learning.py` - the blending step lives inside `apply_deeplearning_model()`, together with the CNN inference. The confidence mask is loaded from `output/station_density/` and passed in by `run_correction_pipeline()` in `src/bias_correction.py`.

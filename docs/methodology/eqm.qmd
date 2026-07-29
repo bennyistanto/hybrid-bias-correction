@@ -46,7 +46,7 @@ Days below the 1.0 mm wet-day threshold are treated as dry. The threshold is the
 This is a first-order property, not a corner case: **dry days are about half the validated record.** The effect is a clear gain in dry-day agreement. On a day the gauge records as dry, the corrected product is also dry about **69%** of the time, up from **~56%** before the distribution step, and the wet-day-frequency ratio moves from **1.21** (over-detecting) toward **0.95**.
 
 ::: {.callout-note}
-The same mechanism that removes false drizzle also costs a little hit rate: probability of detection drops from about 0.78 to 0.65 as the over-detected light-rain days are reclassified as dry. Fewer false alarms at the cost of some light-rain hits - not a free win. The CNN refinement stage leaves dry days untouched; this is purely the EQM stage. (Numbers from the 171-station Indonesia validation.)
+The same mechanism that removes false drizzle also costs a little hit rate: probability of detection drops from about 0.78 to 0.65 as the over-detected light-rain days are reclassified as dry. Fewer false alarms at the cost of some light-rain hits - not a free win. The CNN refinement stage leaves dry days untouched; this is purely the EQM stage. (Numbers from the 172-station Indonesia validation.)
 :::
 
 ## Implementation

@@ -3,20 +3,27 @@ title: "Troubleshooting"
 description: "Common errors and their fixes."
 ---
 
-## "Latitudes are descending; align_grids did not flip"
+## "Latitudes are descending; the grids did not align"
 
-CPC files use descending latitude; IMERG ascending. The loader checks and flips, but only if you go through `src/io.py`. If you opened a NetCDF directly with `xr.open_dataset` and bypassed the loader, you can end up with mis-aligned grids. Always use the loader functions.
+CPC files can use descending latitude; IMERG is ascending. There is no loader wrapper - the notebooks open the NetCDFs directly and then align CPC onto the IMERG coordinates with `reindex_and_align_with_monotonicity` from `src/utility.py`. If you hand-roll the alignment you can end up with mis-aligned grids. Follow the notebook pattern:
 
 ```python
-from src.io import load_imerg, load_cpc, align_grids
-imerg = load_imerg(config.imergl_file)
-cpc   = load_cpc(config.cpc_file)
-imerg, cpc = align_grids(imerg, cpc, mask_file=config.mask_file)
+import xarray as xr
+from src import config
+from src.utility import load_mask, reindex_and_align_with_monotonicity
+
+imerg_ds = xr.open_dataset(config.imergl_file, decode_times=True, engine=config.NETCDF_ENGINE)
+cpc_ds   = xr.open_dataset(config.cpc_file,    decode_times=True, engine=config.NETCDF_ENGINE)
+
+land_sea_mask = load_mask(config.mask_file)
+cpc_ds_aligned, _ = reindex_and_align_with_monotonicity(imerg_ds, cpc_ds, land_sea_mask)
 ```
+
+`src/metrics.py` and `src/qa_framework.py` additionally do an explicit `if ds.lat[0] > ds.lat[-1]: ds = ds.reindex(lat=ds.lat[::-1])` on every dataset they open, so those stages are safe on their own.
 
 ## Ocean cells dominate the mean
 
-If your corrected mean is suspiciously close to zero, the land/sea mask is probably not applied. The loader applies it at `align_grids`; if you wrote a custom pipeline, call:
+If your corrected mean is suspiciously close to zero, the land/sea mask is probably not applied. nb02 applies it to both datasets right after loading (Step 3), and `save_corrected_precip` applies it again at write time; if you wrote a custom pipeline, call:
 
 ```python
 from src.utility import apply_land_sea_mask
@@ -25,9 +32,11 @@ data = apply_land_sea_mask(data, config.mask_file)
 
 Ocean cells become NaN, not zero - this is intentional so that `nanmean` works without bias.
 
-## GPD K-fold raises "too few exceedances"
+## GPD K-fold silently skips cross-validation
 
-The 80th percentile of CPC has fewer than `n_splits_gpd_crossvalidate * minimum_per_fold` exceedances. Fixes:
+`cross_validate_gpd` does not raise on thin data. If a cell has fewer exceedances than `n_splits_gpd_crossvalidate` (default 5), it falls back to a single `fit_generalized_pareto_distribution` call on the whole sample and returns those parameters. The fit still happens; it just loses the variance-reduction benefit of the K-Fold average.
+
+There is no error to catch, so if you care about which cells took the fallback, count exceedances yourself. To widen the cross-validated sample:
 
 - Raise `wet_day_threshold` so dry days are excluded before fitting.
 - Lower `gpd_threshold_percentile` to 75 to bring in more exceedances.
@@ -37,7 +46,7 @@ This is most likely to bite very dry dekads (peak dry season in a strongly seaso
 
 ## CNN training stops at epoch 5 with val_loss noisy
 
-Early stopping is firing because `validation_split` is too small for the dataset. With 22 years x 10 days = 220 samples and a 20% split, you have 44 validation samples - low. Options:
+Early stopping is firing because `validation_split` is too small for the dataset. With 25 years x 10 days = 250 samples and a 20% split, you have 50 validation samples - low. Options:
 
 - Raise `validation_split` to 0.3 (smoother val_loss curve at the cost of less training data).
 - Raise `early_stopping_patience` to 10 (tolerate more noise).
@@ -83,7 +92,7 @@ After that, plain `python script.py` works.
 
 ## Colab session disconnects mid-training
 
-The full pipeline takes ~30-40 minutes on Colab CPU. The free tier sometimes disconnects on idle. Mitigations:
+Notebooks 02 to 06 take about 72 minutes on Colab CPU for the Bali subdomain, with notebook 03 the longest single step at about 45 minutes. The free tier sometimes disconnects on idle. Mitigations:
 
 - Run the notebook from top to bottom in one go - do not pause.
 - Save intermediate outputs to Google Drive (mount Drive at the start, point `output_dir` at a Drive path).

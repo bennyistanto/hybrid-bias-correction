@@ -19,7 +19,7 @@ A reproducible Python framework that combines **Linear Scaling**, **Empirical Qu
 
 <span class="badge-custom badge-python">Python 3.10+</span>
 <span class="badge-custom badge-license">MPL-2.0</span>
-<span class="badge-custom badge-status">v2026.05</span>
+<span class="badge-custom badge-status">v2026.07</span>
 
 [Quickstart](get-started/quick-start.qmd){.btn .btn-primary .btn-lg role="button"}
 [View on GitHub](https://github.com/bennyistanto/hybrid-bias-correction){.btn .btn-outline-light .btn-lg role="button"}
@@ -127,7 +127,7 @@ Satellite precipitation underestimates light rain, mis-shapes the upper tail, an
 - Explore the [Case Studies](case-studies/index.qmd): the runnable Bali example and the full Indonesia evaluation, including [the correlation ceiling](case-studies/indonesia.qmd#the-correlation-ceiling) diagnostic
 - Open the [interactive dashboard](https://bennyistanto.github.io/hybrid-bias-correction/viz/) to explore the Indonesia results directly: staged skill, the correlation ceiling, and the calendar-window recovery
 - Read the [methodology overview](methodology/index.qmd) to understand the LSEQM+DL design
-- See the [Changelog](changelog.qmd) for what's in v2026.05
+- See the [Changelog](changelog.qmd) for what's in v2026.07
 - Browse the [API reference](technical/api-reference/index.qmd) for module-level documentation
 
 ---
@@ -138,8 +138,8 @@ Companion paper: Istanto, B.; Boer, R.; Santikayasa, I.P. A Modular and Transfer
 
 ## How to cite
 
-[![DOI (code)](https://img.shields.io/badge/code-10.5281%2Fzenodo.20473508-blue.svg)](https://doi.org/10.5281/zenodo.20473508)
-[![DOI (data)](https://img.shields.io/badge/data-10.5281%2Fzenodo.20287847-blue.svg)](https://doi.org/10.5281/zenodo.20287847)
+[![DOI (code)](https://img.shields.io/badge/code-10.5281%2Fzenodo.20473507-blue.svg)](https://doi.org/10.5281/zenodo.20473507)
+[![DOI (data)](https://img.shields.io/badge/data-10.5281%2Fzenodo.20287846-blue.svg)](https://doi.org/10.5281/zenodo.20287846)
 [![DOI (paper)](https://img.shields.io/badge/paper-10.3390%2Frs18142298-blue.svg)](https://doi.org/10.3390/rs18142298)
 
 If you use this framework in a publication, please cite the paper:
@@ -148,11 +148,11 @@ If you use this framework in a publication, please cite the paper:
 
 To cite the archived software release:
 
-> Istanto, B., Boer, R., & Santikayasa, I. P. (2026). *Hybrid Bias Correction: Values, Distributions, Extremes - with Neural Refinement* (v2026.05). Zenodo. [https://doi.org/10.5281/zenodo.20473508](https://doi.org/10.5281/zenodo.20473508)
+> Istanto, B., Boer, R., & Santikayasa, I. P. (2026). *Hybrid Bias Correction: Values, Distributions, Extremes - with Neural Refinement* (v2026.07). Zenodo. [https://doi.org/10.5281/zenodo.20473507](https://doi.org/10.5281/zenodo.20473507)
 
 To cite the bundled full-Indonesia data archive:
 
-> Istanto, B., Boer, R., & Santikayasa, I. P. (2026). *Hybrid Bias Correction of IMERG Late Run V07 over Indonesia (2001-2025): Input Data, Land-Sea Masks, and Corrected Products* (Version 1) [Data set]. Zenodo. [https://doi.org/10.5281/zenodo.20287847](https://doi.org/10.5281/zenodo.20287847)
+> Istanto, B., Boer, R., & Santikayasa, I. P. (2026). *Hybrid Bias Correction of IMERG Late Run V07 over Indonesia (2001-2025): Input Data, Land-Sea Masks, and Corrected Products* (latest version) [Data set]. Zenodo. [https://doi.org/10.5281/zenodo.20287846](https://doi.org/10.5281/zenodo.20287846)
 
 Machine-readable metadata is in [`CITATION.cff`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/CITATION.cff); GitHub renders it as a "Cite this repository" button on the repo landing page.
 
@@ -167,5 +167,5 @@ Email: [bennyistanto@apps.ipb.ac.id](mailto:bennyistanto@apps.ipb.ac.id)
 With supervision from [Prof. Dr. Ir. Rizaldi Boer, M.S.](https://scholar.google.com/citations?user=jTPXEp8AAAAJ&hl=en) and [Dr. I Putu Santikayasa, S.Si., M.Sc.](https://scholar.google.com/citations?user=DcQ58z8AAAAJ&hl=en) as part of the MSc thesis.
 
 ::: {.text-muted .small}
-v2026.05 - First public release of the documentation site. Indonesia bundle on Zenodo: [10.5281/zenodo.20287847](https://zenodo.org/records/20287847).
+v2026.07 - Correctness and provenance release. Indonesia bundle on Zenodo: [10.5281/zenodo.20287846](https://doi.org/10.5281/zenodo.20287846).
 :::

@@ -9,40 +9,47 @@ For the theory, see [Methodology > CNN Refinement](../methodology/cnn-refinement
 
 ## Architecture in code
 
-The model is built in `build_cnn()` inside [`src/deep_learning.py`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/deep_learning.py):
+The model is built in the nested `_build_model()` helper inside `train_bias_correction_model()` in [`src/deep_learning.py`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/deep_learning.py):
 
 ```python
-model = Sequential([
-    Input(shape=input_shape + (1,)),
+m = Sequential([
+    Input(shape=input_shape),
     Conv2D(num_filters_1, filter_size_1, activation='relu', padding='same'),
+    MaxPooling2D((2, 2)),
     Dropout(dropout_rate_1),
     Conv2D(num_filters_2, filter_size_2, activation='relu', padding='same'),
+    MaxPooling2D((2, 2)),
     Dropout(dropout_rate_2),
     Flatten(),
     Dense(dense_layer_size, activation='relu'),
     Dropout(dropout_rate_dense),
-    Dense(np.prod(input_shape)),    # linear output
-    Reshape(input_shape),
+    Dense(int(np.prod(input_shape[:-1])), activation='linear'),
+    Reshape(input_shape[:-1])
 ])
-model.compile(optimizer=DL_OPTIMIZER, loss='mse')
+m.compile(optimizer=optimizer, loss='mean_squared_error', metrics=['mae'])
 ```
 
-`padding='same'` keeps the spatial dimensions through both Conv2D layers, so the output shape matches the input. The Flatten -> Dense bottleneck is where most of the parameters live - this is the "future U-Net" point in the [Changelog](../changelog.qmd#backlog) backlog.
+`padding='same'` keeps the spatial dimensions through the Conv2D layers; the two `MaxPooling2D` stages then halve them, and the final Dense -> Reshape head restores the original grid shape. The Flatten -> Dense bottleneck is where most of the parameters live - this is the "future U-Net" point in the [Changelog](../changelog.qmd#backlog) backlog.
 
 ## Per-dekad model
 
 A separate model is trained for each of the 36 dekads. The function is:
 
 ```python
-from src.deep_learning import train_cnn_for_dekad
+from src.deep_learning import train_bias_correction_model
 
-model, history = train_cnn_for_dekad(
-    lseqm_field, cpc_field, month, dekad,
+# dekad_str is '01', '11', or '21'
+model_name = f"bias_correction_model_month{month:02d}_dekad{dekad_str}"
+
+model = train_bias_correction_model(
+    lseqm_field, cpc_field, model_name,
     epochs=50, batch_size=64,
     validation_split=0.2,
-    early_stopping_patience=5,
+    interactive=False,
 )
 ```
+
+The function returns the trained `keras.Model` (reloaded from the best checkpoint). Early-stopping patience is not a call argument - it comes from `deep_learning.early_stopping_patience` in `config.yml`.
 
 Inputs are `(n_samples, n_lat, n_lon)` arrays - one sample per (year, day-in-dekad) combination. For Indonesia 2001-2025 that is ~25 years x 10 days = ~250 samples per dekad. For Bali the same.
 
@@ -54,17 +61,16 @@ Trained models are saved to `data/output/trained_models/`:
 
 ```
 trained_models/
-  {prefix}_cnn_month{MM}_dekad{D}.keras
-  {prefix}_cnn_month{MM}_dekad{D}_norm.json     # mean / std for input normalisation
+  bias_correction_model_month{MM}_dekad{DD}.keras
 ```
 
-The matching `_norm.json` is required for applying the model to new data - reloading the `.keras` alone is not enough.
+The `.keras` file is the whole artefact - there is no normalisation sidecar. Normalisation is per-sample: at inference each daily field is divided by its own maximum and the prediction is multiplied back by that same maximum, so no stored constants are needed.
 
 The notebooks (`02_lseqmdl_bias_correction.ipynb` Step 8) have a non-interactive switch via `existing_model_action` in config: `use_existing` reuses a previously trained model, `overwrite` retrains.
 
 ## Application
 
-`apply_cnn_to_field(model, lseqm_field, norm_stats)` runs inference. The result is a refined extreme field that the blend step combines with LSEQM.
+`apply_deeplearning_model(model, lseqm_field, blend_alpha=..., confidence_mask=...)` runs inference. It does the blend internally and returns the refined field directly.
 
 ## Memory notes for batch runs
 
@@ -75,10 +81,9 @@ TensorFlow / Keras can pin process memory across calls. If you batch all 36 deka
 
 ## Cost
 
-Per dekad: training is dominated by the ~50 epochs over ~220 samples on the AOI grid. For Bali (9 x 14), the Flatten -> Dense weight matrix is small and training takes ~40-90 seconds on CPU. For Indonesia (171 x 461), the same Dense layer is far larger and training takes ~5-10 minutes per dekad on CPU.
+Per dekad: training is dominated by the ~50 epochs over ~250 samples on the AOI grid. For Bali (9 x 14), the Flatten -> Dense weight matrix is small and training takes ~40-90 seconds on CPU. For Indonesia (171 x 461), the same Dense layer is far larger and training takes ~5-10 minutes per dekad on CPU.
 
 ## Related code
 
-- [`src/deep_learning.py::build_cnn`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/deep_learning.py) - model definition.
-- [`src/deep_learning.py::train_cnn_for_dekad`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/deep_learning.py) - training wrapper with early stopping.
-- [`src/deep_learning.py::apply_cnn_to_field`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/deep_learning.py) - inference.
+- [`src/deep_learning.py::train_bias_correction_model`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/deep_learning.py) - model definition (nested `_build_model`) plus the training loop with early stopping.
+- [`src/deep_learning.py::apply_deeplearning_model`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/src/deep_learning.py) - inference and blending.

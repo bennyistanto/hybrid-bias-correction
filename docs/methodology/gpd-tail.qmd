@@ -23,7 +23,7 @@ Raw IMERG and LS decay too fast in the tail: heavy days that the gauge records o
 
 ## Fitting protocol
 
-- **Threshold:** 80th percentile of the CPC field for the dekad (configurable via `gpd_threshold_percentile`).
+- **Threshold:** 80th percentile of the CPC **wet-day** values for the dekad (days above `wet_day_threshold`), configurable via `gpd_threshold_percentile`.
 - **Stability:** Fit is K-Fold cross-validated (default K=5) and the mean shape and scale are used. This reduces the variance of the estimate when exceedances are few.
 - **Upper cap:** After mapping, values are capped at the 99.9th percentile of the CPC reference (configurable via `upper_cap_threshold_percentile`) to avoid physically unrealistic extrapolation.
 
@@ -37,7 +37,7 @@ Sensitivity to this choice should be acknowledged when reporting results.
 
 ## Implementation
 
-`src/distribution_fitting.py` - `fit_gpd()` and `apply_gpd_correction()`. The fits run inside `lseqm()` from `src/bias_correction.py`.
+`src/distribution_fitting.py` - `fit_generalized_pareto_distribution()` and `cross_validate_gpd()`, called from `fit_cpc_parameters_on_native_grid()`. The mapping is applied inside `gamma_quantile_mapping_precomputed()`, which runs in the EQM loop of `lseqm()` in `src/bias_correction.py`.
 
 ## References
 

@@ -96,7 +96,7 @@ POD / FAR / CSI computed at WMO thresholds (1, 5, 10, 20, 50, 100, 150 mm) for e
 This is where the categorical impact of each correction stage is clearest: light-rain thresholds show LS already does most of the work; heavy-rain thresholds (20-50 mm) is where LSEQM+DL earns its keep.
 
 ::: {.callout-note}
-The Bali curve stops at 50 mm because the 4-station Bali sample doesn't accumulate enough observed events at 100 / 150 mm to pass the WMO/TD-1485 10-event minimum (per-station CSVs report NaN for those thresholds, and the plot drops empty levels). The framework still computes them; they populate when run against the full 171-station validated Indonesia network. See [FAQ - Why does the Bali multi-threshold curve only show up to 50 mm?](../faq.qmd#why-does-the-bali-multi-threshold-curve-only-show-up-to-50-mm-where-are-the-100-and-150-mm-points)
+The Bali curve stops at 50 mm because the 4-station Bali sample doesn't accumulate enough observed events at 100 / 150 mm to pass the WMO/TD-1485 10-event minimum (per-station CSVs report NaN for those thresholds, and the plot drops empty levels). The framework still computes them; they populate when run against the full 172-station validated Indonesia network. See [FAQ - Why does the Bali multi-threshold curve only show up to 50 mm?](../faq.qmd#why-does-the-bali-multi-threshold-curve-only-show-up-to-50-mm-where-are-the-100-and-150-mm-points)
 :::
 
 ### Regional box plots
@@ -146,5 +146,5 @@ Movement *toward* the reference point as you go from IMERG-L → LS → LSEQM �
 ## Headline numbers
 
 ::: {.callout-note}
-Quantitative headline numbers from the full-Indonesia run across the 171 validated BMKG stations will be filled in here when the companion paper is finalised. The Bali bundle's 4-station numbers are useful for sanity-checking the toolchain but are not statistically robust on their own.
+Quantitative headline numbers from the full-Indonesia run across the 172 validated BMKG stations will be filled in here when the companion paper is finalised. The Bali bundle's 4-station numbers are useful for sanity-checking the toolchain but are not statistically robust on their own.
 :::

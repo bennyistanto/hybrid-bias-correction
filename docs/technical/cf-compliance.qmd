@@ -12,7 +12,6 @@ netcdf_encoding:
   precipitation:
     dtype: "float32"
     zlib: true
-    complevel: 4
     _FillValue: .nan
 ```
 
@@ -22,38 +21,45 @@ netcdf_encoding:
 
 ## Required CF attributes
 
-Every output NetCDF carries:
+Every output NetCDF carries the following. Note that `precipitation` deliberately
+carries **no `standard_name`**: the quantity has no controlled CF term that matches it
+exactly, and CF treats `standard_name` as optional. Omitting it is correct; asserting a
+term that may not match would not be. `long_name` carries the description, and the
+correction method appears in the filename and the title. `units` follow the IMERG-L
+source. `time` carries no attributes beyond its coordinate values.
 
 | Variable / Global | Attribute | Example |
 |-------------------|-----------|---------|
-| `precipitation` | `standard_name` | `lwe_precipitation_rate` |
-| `precipitation` | `long_name` | `Bias-corrected daily precipitation` |
-| `precipitation` | `units` | `mm day-1` |
+| `precipitation` | `long_name` | `Corrected daily mean precipitation rate estimate` |
+| `precipitation` | `units` | `mm/day` |
 | `precipitation` | `_FillValue` | `NaN` |
 | `lat` | `standard_name` | `latitude` |
 | `lat` | `units` | `degrees_north` |
 | `lon` | `standard_name` | `longitude` |
 | `lon` | `units` | `degrees_east` |
-| `time` | `standard_name` | `time` |
-| `time` | `units` | `days since 2001-01-01` |
 | Global | `Conventions` | `CF-1.8` |
 | Global | `title` | `Hybrid Bias Correction - LSEQM+DL` |
 | Global | `source` | `IMERG Late Run V07 corrected with CPC-UNI` |
 | Global | `history` | timestamped processing record |
-| Global | `references` | Zenodo dataset DOI (and manuscript DOI once available) |
+| Global | `references` | Zenodo dataset DOI and manuscript DOI (`10.3390/rs18142298`) |
 | Global | `method` | one of `ls`, `lseqm`, `lseqmdl` |
 
 ## Reproducibility metadata
 
-Each output NetCDF also carries non-CF attributes recording the run context:
+Corrected precipitation files written by v2026.07 and later also carry non-CF
+attributes recording the run context:
 
-- `framework_version` - DateVer tag (e.g. `v2026.05`)
-- `git_commit` - short SHA of the source revision
-- `config_file` - path to the config used
-- `run_timestamp` - ISO 8601, UTC
-- `blend_alpha`, `gpd_threshold_percentile`, `saturation_count` - the three sensitivity parameters
+- `framework_version` - DateVer tag (e.g. `v2026.07`), or `unknown` if the package is not installed under its distribution name
+- `git_commit` - short SHA of the source revision, or `unknown` outside a git checkout
+- `run_timestamp` - ISO 8601
+- `blend_alpha`, `gpd_threshold_percentile`, `saturation_count` - the three sensitivity parameters, read from the active config at write time
 
 These are not required by CF but make a downstream user's life much easier when comparing files produced months apart.
+
+The archived Indonesia bundle on Zenodo was produced before this release, so
+its files do not carry these attributes. Every lookup degrades to `unknown`
+rather than failing, so a missing git binary or an uninstalled package never
+interrupts a run.
 
 ## How to inspect
 

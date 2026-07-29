@@ -21,6 +21,12 @@ The correct procedure for a new region is to run **nb00** to define the AOI mask
 
 ## What does not generalise without thought
 
+Two of the three items below are sensitivity parameters: `saturation_count` and
+`gpd_threshold_percentile` were chosen by inspection against Indonesia, not by formal
+optimisation, as was `blend_alpha`. Treat all three as starting points for a new domain.
+See [Sensitivity Analysis](../technical/sensitivity-analysis.qmd) for how the outputs move
+across their ranges.
+
 ::: {.callout-warning}
 - **`region_mapping`** - The province-to-island grouping is Indonesia-specific. For a new country you need a parallel administrative-division to region map, or you can collapse it to a single region.
 - **`station_density.saturation_count`** - The shipped default is 2 (suited to Indonesia's ~180-station network). A denser network may want a higher saturation (5-10); a sparser network may want lower (1).

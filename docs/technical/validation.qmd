@@ -3,7 +3,7 @@ title: "Validation"
 description: "How the framework was validated against held-out BMKG stations."
 ---
 
-The training reference is CPC-UNI. Independent validation uses BMKG weather stations whose records are not in the CPC pipeline: 180 are archived, of which 171 pass the land-mask and minimum-paired-days filters and enter validation.
+The training reference is CPC-UNI. Independent validation uses BMKG weather stations whose records are not in the CPC pipeline: 180 are archived, of which 172 pass the land-mask and minimum-paired-days filters and enter validation.
 
 ## Validation protocol
 
@@ -14,14 +14,18 @@ The training reference is CPC-UNI. Independent validation uses BMKG weather stat
 
 ## What is reported
 
-Per station and per region, the following are computed for each correction stage and for IMERG-L (raw) and IMERG-F (baseline):
+Per station and per region, `src/station_validation.py` computes the same 31-variable set that `src/metrics.py` computes per pixel, for each correction stage and for IMERG-L (raw) and IMERG-F (baseline):
 
-- RMSE, MAE, ME (mean error / bias)
-- Pearson r, Spearman rho
-- Nash-Sutcliffe Efficiency, Kling-Gupta Efficiency
+- RMSE, MAE, relative bias
+- Pearson r, Nash-Sutcliffe Efficiency
+- Observed and product standard deviation, and their ratio (product / observed)
 - POD, FAR, CSI (at `wet_day_threshold = 1.0` mm/day)
-- Percentile errors at 50, 75, 90, 95, 99
-- Standard deviation ratio (corrected / observed)
+- Wet-day frequency and mean wet-day precipitation, observed and product
+- Maximum dry-spell length, observed and product
+- Kolmogorov-Smirnov statistic and p-value
+- Percentile **values** at 25, 50, 75, 90, 95, 99, observed and product
+
+There is no Spearman rho, no Kling-Gupta Efficiency, and no standalone mean-error term in the set; relative bias carries the bias information.
 
 ## Dry-day agreement
 
@@ -29,10 +33,10 @@ Dry days are about half the validated record, so dry-day skill is a first-order 
 
 | Metric | LS | LSEQM+DL | Target | Basis |
 |--------|---:|---------:|:------:|-------|
-| Wet-day frequency ratio | 1.21 | 0.95 | 1.0 | 171 stations |
-| Correct-dry rate (gauge dry -> product dry) | ~56% | ~69% | higher | 171 stations |
+| Wet-day frequency ratio | 1.21 | 0.95 | 1.0 | 172 stations |
+| Correct-dry rate (gauge dry -> product dry) | ~56% | ~69% | higher | 172 stations |
 | False-alarm rate on dry days | ~44% | ~31% | lower | complement |
-| Probability of detection (cost) | 0.78 | 0.65 | higher | 171 stations |
+| Probability of detection (cost) | 0.78 | 0.65 | higher | 172 stations |
 
 The first three rows are the intended gain; the last is the honest cost - suppressing over-detected drizzle reclassifies some light-rain hits as dry. The gain is the EQM stage; the CNN refinement leaves dry days untouched. See [Methodology > EQM](../methodology/eqm.qmd#wet-dry-handling) for the mechanism.
 
@@ -50,6 +54,6 @@ For the paper's full station validation, see the companion paper (*Remote Sens.*
 
 ## See also
 
-For the robustness of these results under variation of the three exposed parameters (`blend_alpha`, `gpd_threshold_percentile`, `saturation_count`), see [Sensitivity Analysis](sensitivity-analysis.qmd). The sweep demonstrates that none of the fifteen tested settings reverses the headline pattern, and that the Pearson correlation stays in the narrow band $[0.332, 0.348]$ across all parameter variations.
+For the robustness of these results under variation of the three exposed parameters (`blend_alpha`, `gpd_threshold_percentile`, `saturation_count`), see [Sensitivity Analysis](sensitivity-analysis.qmd). The sweep demonstrates that none of the fifteen tested settings reverses the headline pattern, and that the Pearson correlation stays in the narrow band $[0.332, 0.348]$ across all parameter variations. That band is the per-pixel daily correlation against CPC-UNI on the Bali subdomain, dekad-sliced; it is not a station-referenced number, despite appearing on this page.
 
 For the engineering-side verification (continuous integration and the synthetic-data smoke suite), see [Testing](testing.qmd).

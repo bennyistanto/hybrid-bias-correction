@@ -29,7 +29,7 @@ For long-term climatologies and monthly aggregates over data-sparse regions, LS 
 
 ## Implementation
 
-`src/bias_correction.py` - the `linear_scaling()` function. Driven by the per-dekad call from `notebooks/02_lseqmdl_bias_correction.ipynb`.
+`src/bias_correction.py` - LS has no standalone function; it is computed inline at the top of `lseqm()`, before the EQM loop. Driven by the per-dekad call from `notebooks/02_lseqmdl_bias_correction.ipynb`.
 
 ::: {.callout-note}
 LS is computed on land cells only; the land/sea mask zeroes out ocean before the mean is taken.

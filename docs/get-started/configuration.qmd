@@ -49,7 +49,7 @@ Every notebook from nb02 onward exposes the same one-line toggle at the top of i
 #   'config_bali.yml' -> Bali example (ships with the repo, ~11 MB)
 # Edit this single line to switch the entire pipeline between the two.
 # ===========================================================================
-CONFIG_FILE = 'config_bali.yml'
+CONFIG_FILE = 'config.yml'
 ```
 
 Flipping the entire run from Indonesia to Bali (or vice versa) is a single character edit per notebook. Keep all five notebooks (nb02-nb06) on the same value when you switch.

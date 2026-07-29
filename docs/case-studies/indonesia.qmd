@@ -1,15 +1,15 @@
 ---
 title: "Indonesia"
-description: "The full operational evaluation: IMERG-L corrected over 2001-2025, validated against 171 independent BMKG stations (gauge record 2001-2021)."
+description: "The full operational evaluation: IMERG-L corrected over 2001-2025, validated against 172 independent BMKG stations (gauge record 2001-2021)."
 resources:
   - station-data/*.csv
   - extremes-events/*.png
 ---
 
-This is the case the framework was built for: daily satellite precipitation over a sparse-gauge tropical archipelago. The figures below are from the full Indonesia run (IMERG-L corrected against CPC-UNI, validated against independent BMKG stations whose gauge record runs 2001-2021). The inputs and outputs are deposited on Zenodo (<https://doi.org/10.5281/zenodo.20287847>); they are too large to ship in the repo, so this study is presented as curated figures and analysis rather than a runnable notebook.
+This is the case the framework was built for: daily satellite precipitation over a sparse-gauge tropical archipelago. The figures below are from the full Indonesia run (IMERG-L corrected against CPC-UNI, validated against independent BMKG stations whose gauge record runs 2001-2021). The inputs and outputs are deposited on Zenodo (<https://doi.org/10.5281/zenodo.20287846>); they are too large to ship in the repo, so this study is presented as curated figures and analysis rather than a runnable notebook.
 
 ::: {.callout-note}
-The full LSEQM+DL run over Indonesia takes about four days of compute. This page documents that run; it is not regenerated when the docs build. To reproduce it, download the Zenodo bundle, point `config.yml` at it, and run nb02-nb06. For a runnable end-to-end example, use the [Bali case](../example-bali/index.qmd) instead.
+The full LSEQM+DL run over Indonesia is a long batch job: expect hours to days depending on hardware. That is a rough estimate, not a benchmarked timing (the quantile-mapping stage alone is costed at roughly 8 hours of CPU in [the EQM implementation notes](../implementation/eqm.qmd)). This page documents that run; it is not regenerated when the docs build. To reproduce it, download the Zenodo bundle, point `config.yml` at it, and run nb02-nb06. For a runnable end-to-end example, use the [Bali case](../example-bali/index.qmd) instead.
 :::
 
 If you have not already, skim [Reading the Results](reading-the-results.qmd) first - it explains every metric used below.
@@ -20,15 +20,15 @@ The reference is CPC-UNI (gauge-interpolated). The independent check is the BMKG
 
 ![BMKG station network across Indonesia, coloured by region. 180 stations archived; the network is Java-heavy and sparse in the east.](../images/indonesia/station_network.png){#fig-station-network fig-align="center"}
 
-Not every archived station enters the validation. Two filters are applied before any metric is computed: a station must fall on the 0.1 deg land mask, and it must have at least 30 paired days per dekadal window. This takes the set from 180 archived stations to **171 validated** across all seven regions.
+Not every archived station enters the validation. Two filters are applied before any metric is computed: a station must fall on the 0.1 deg land mask, and it must have at least 30 paired days per dekadal window. This takes the set from 180 archived stations to **172 validated** across all seven regions.
 
-![Validation funnel: 180 archived stations to 171 validated, after the land-mask and minimum-paired-days filters.](../images/indonesia/validation_funnel.png){#fig-validation-funnel fig-align="center"}
+![Validation funnel: 180 archived stations to 172 validated, after the land-mask and minimum-paired-days filters.](../images/indonesia/validation_funnel.png){#fig-validation-funnel fig-align="center"}
 
 ## Overview: what improves
 
-The headline result, evaluated at the 171 independent stations, is a clear win on the **mean, variability, and extremes**:
+The headline result, evaluated at the 172 independent stations, is a clear win on the **mean, variability, and extremes**:
 
-![Stage-wise skill at 171 independent BMKG stations: relative bias, standard-deviation ratio, Q99 ratio, and CSI.](../images/indonesia/headline_bars.png){#fig-headline fig-align="center"}
+![Stage-wise skill at 172 independent BMKG stations: relative bias, standard-deviation ratio, Q99 ratio, and CSI.](../images/indonesia/headline_bars.png){#fig-headline fig-align="center"}
 
 Interactive version (same numbers; hover for values, dashed line marks the target):
 
@@ -135,11 +135,11 @@ The Taylor diagram summarises correlation, variability, and centred RMSE in one 
 
 ## Spatial skill
 
-Mapped across the archipelago, the Continuous Quality Index (CQI) is high and spatially coherent for all three methods. The honest finding is that the **median CQI does not rise** from LS (0.541) to LSEQM (0.505) to LSEQM+DL (0.508):
+Mapped across the archipelago, the Continuous Quality Index (CQI) is spatially coherent for all three methods, and sits in the **Fair** band on the [QA tier scale](../tutorials/qa-framework.qmd) (0.40 to 0.60: improves on the raw satellite, significant biases remain) rather than the Good band. The honest finding is that the **median CQI does not rise** from LS (0.541) to LSEQM (0.505) to LSEQM+DL (0.508):
 
 ![CQI spatial distribution by method (climatology over 36 dekads). Median CQI: LS 0.541, LSEQM 0.505, LSEQM+DL 0.508.](../images/indonesia/cqi_spatial.png){#fig-cqi-spatial fig-align="center"}
 
-This is not a defect, and it is worth stating plainly. The CQI weights the basic-statistics component (which includes correlation and NSE) at 0.4. Because those timing-sensitive metrics do not improve under marginal bias correction - and RMSE slightly worsens when EQM restores variance against a mistimed series - the composite index does not reward the distribution and extreme gains that LSEQM delivers. The improvement map makes the trade explicit: relative to LS, LSEQM+DL lowers CQI at most pixels.
+This is not a defect, and it is worth stating plainly. The CQI weights the basic-statistics component at 0.4, and that component is relative bias (0.30), RMSE (0.30) and NSE (0.40). Pearson correlation is deliberately not in it, because NSE already carries the linear-association term. Because those timing-sensitive metrics do not improve under marginal bias correction - and RMSE slightly worsens when EQM restores variance against a mistimed series - the composite index does not reward the distribution and extreme gains that LSEQM delivers. The improvement map makes the trade explicit: relative to LS, LSEQM+DL lowers CQI at most pixels.
 
 ![CQI improvement (LSEQM+DL minus LS) and the LSEQM+DL quality-category map. Mean change is about -0.03; most pixels move slightly down on the composite index even though distribution and extreme metrics improve.](../images/indonesia/cqi_improvement.png){#fig-cqi-improvement fig-align="center"}
 
@@ -147,7 +147,7 @@ The takeaway: **choose the product by what you need.** If you need the right dis
 
 Skill is stable across the seasonal cycle and does not collapse in any region:
 
-![Daily correlation by region (LSEQM+DL): it does not track gauge density.](../images/indonesia/region_corr.png){fig-align="center"}
+![Daily Pearson r for LSEQM+DL against the independent BMKG stations at the native window, taken as the per-station median of the dekadal values and then the median within each main-island region over the 171 stations that have one: the gauge-dense west (Sumatra 0.17, Jawa 0.20) sits below the sparse east (Papua 0.31, Maluku 0.33), so daily correlation does not track gauge density.](../images/indonesia/region_corr.png){fig-align="center"}
 
 ![Skill across the seasonal cycle.](../images/indonesia/seasonal_skill.png){fig-align="center"}
 
@@ -197,7 +197,7 @@ viewof regProduct = Inputs.radio(new Map([["IMERG-L (raw)", "imergl"], ["LSEQM+D
 }
 ```
 
-One point from the regional breakdown: daily correlation (0.17-0.33 across regions) does **not** track gauge density. Maluku and Papua, with far fewer stations than Java, are not systematically worse. This tells us the ceiling on daily correlation is set by something other than how many gauges are nearby - again, see below.
+One point from the regional breakdown: daily correlation does **not** track gauge density. Read off the chart above, the regional medians of per-station daily Pearson r against the BMKG gauges (LSEQM+DL, native window, whole 2001-2021 record, 175-station explorer set) span about 0.18 to 0.37. That range is a live reading of the explorer data on this page, not a headline validation figure. Maluku and Papua, with far fewer stations than Java, are not systematically worse. This tells us the ceiling on daily correlation is set by something other than how many gauges are nearby - again, see below.
 
 ## Extreme values
 
@@ -283,19 +283,19 @@ html`<img src="extremes-events/${exEventStn}.png" alt="Extreme-event series" sty
 
 This is the central diagnostic of the study, and the most important thing the framework reveals about daily satellite precipitation.
 
-Under marginal bias correction, **Pearson correlation barely moves**: 0.343 (LS) to 0.345 (LSEQM) to 0.348 (LSEQM+DL), a shift of +0.005. RMSE and NSE do not improve either. Only the distribution-shape metrics (SDR, Q99) move to target.
+Under marginal bias correction, **Pearson correlation barely moves**. Against the **CPC-UNI calibration reference** (daily, native window, per-pixel spatial median over land, and therefore in-sample), it goes 0.343 (LS) to 0.345 (LSEQM) to 0.348 (LSEQM+DL), a shift of +0.005. Against the **independent BMKG stations**, built the same way, the same correlation is lower and just as flat: 0.242 (LS), 0.236 (LSEQM), 0.239 (LSEQM+DL). RMSE and NSE do not improve either. Only the distribution-shape metrics (SDR, Q99) move to target.
 
-![What does and does not improve under marginal bias correction. Pearson r is flat; RMSE and NSE do not improve; only SDR moves to target.](../images/indonesia/paradox.png){#fig-paradox fig-align="center"}
+![What does and does not improve under marginal bias correction. Pearson r is flat; RMSE and NSE do not improve; only SDR moves to target. Reference note: r, RMSE and NSE here are per-pixel values against the in-sample CPC-UNI reference; the standard-deviation ratio is the per-station value against the independent BMKG network.](../images/indonesia/paradox.png){#fig-paradox fig-align="center"}
 
-Interactive version - each panel has its own y-axis so the *shape* of the trajectory is what matters. Watch Pearson r stay almost flat while the std-dev ratio climbs to its target:
+Interactive version - each panel has its own y-axis so the *shape* of the trajectory is what matters. Watch Pearson r stay almost flat while the std-dev ratio climbs to its target. The panels do not share a reference and the labels say which is which: the first three are per-pixel against CPC-UNI (in-sample), the std-dev ratio is per-station against the independent BMKG stations. Against CPC-UNI the std-dev ratio does not converge on 1.0, it overshoots (0.97 to 1.16 to 1.15), so the two references must not be read as one story.
 
 ```{ojs}
 //| echo: false
 paradox = [
-  {metric: "Pearson r", LS: 0.343, LSEQM: 0.345, "LSEQM+DL": 0.348},
-  {metric: "RMSE (mm/day)", LS: 13.10, LSEQM: 14.18, "LSEQM+DL": 14.07},
-  {metric: "NSE", LS: -0.27, LSEQM: -0.55, "LSEQM+DL": -0.52},
-  {metric: "Std-dev ratio", LS: 0.71, LSEQM: 1.03, "LSEQM+DL": 1.00}
+  {metric: "Pearson r (vs CPC-UNI)", LS: 0.343, LSEQM: 0.345, "LSEQM+DL": 0.348},
+  {metric: "RMSE mm/day (vs CPC-UNI)", LS: 13.10, LSEQM: 14.18, "LSEQM+DL": 14.07},
+  {metric: "NSE (vs CPC-UNI)", LS: -0.27, LSEQM: -0.55, "LSEQM+DL": -0.52},
+  {metric: "Std-dev ratio (vs BMKG)", LS: 0.71, LSEQM: 1.03, "LSEQM+DL": 1.00}
 ].flatMap(r => ["LS", "LSEQM", "LSEQM+DL"].map(m => ({metric: r.metric, method: m, value: r[m]})))
 
 Plot.plot({
@@ -313,17 +313,17 @@ Plot.plot({
 })
 ```
 
-Placing every product in the same two-axis skill space makes the pattern unmistakable. The horizontal axis is timing (Pearson r); the vertical axis is spread (standard-deviation ratio). Each correction stage moves products *vertically* - EQM lifts the spread ratio onto the gauge target - while they all stay pinned on the same vertical line of low correlation. No stage moves toward the r = 1 target on the right.
+Placing every product in the same two-axis skill space makes the pattern unmistakable. The horizontal axis is timing (Pearson r, per pixel against CPC-UNI); the vertical axis is spread (standard-deviation ratio, per station against the independent BMKG network). Each correction stage moves products *vertically* - EQM lifts the spread ratio onto the gauge target - while they all stay pinned on the same vertical line of low correlation. No stage moves toward the r = 1 target on the right.
 
-![Skill space for the Indonesia run, plotted from the same stage numbers as above: LS, LSEQM, and LSEQM+DL move vertically (EQM pulls the std-dev ratio from 0.71 onto the gauge target near 1.0) but stay pinned at r near 0.34. The gauge target (r = 1, SDR = 1) is unreachable by marginal correction.](../images/indonesia/skill_space.png){#fig-skill-space fig-align="center"}
+![Skill space for the Indonesia run, plotted from the same stage numbers as above: LS, LSEQM, and LSEQM+DL move vertically (EQM pulls the std-dev ratio, measured per station against the independent BMKG network, from 0.71 onto the gauge target near 1.0) but stay pinned at r near 0.35 against the in-sample CPC-UNI reference. The two axes use different references: measured against CPC-UNI instead, the std-dev ratio overshoots to about 1.15 rather than settling on 1.0. The gauge target (r = 1, SDR = 1) is unreachable by marginal correction.](../images/indonesia/skill_space.png){#fig-skill-space fig-align="center"}
 
-The reason is structural, not a failure of the method. Quantile mapping is a monotone, rank-preserving transform applied per pixel: it changes the *values* but not the day-to-day *ordering* inherited from the satellite. Correlation depends only on the ordering. So once LS has set the rank structure, no amount of distribution correction can move correlation - it is bounded by the satellite's day-to-day timing.
+The reason is structural, not a failure of the method. Quantile mapping is a monotone non-decreasing transform applied per pixel: it changes the *values* and introduces no rank reversals, so the day-to-day *ordering* inherited from the satellite survives largely intact. The exception is dry-day matching, which ties about 43% of days at zero and does reshuffle the pairing slightly. So once LS has set the rank structure, distribution correction leaves Pearson r pinned close to the value the satellite's own day-to-day timing sets, moving it only within sampling noise.
 
-![Theoretical bound under marginal correction: rank preservation means correlation is fixed while the variance ratio is free to move.](../images/indonesia/bound_schematic.png){#fig-bound fig-align="center"}
+![Theoretical bound under marginal correction: because the transform introduces no rank reversals, correlation stays pinned close to its raw value while the variance ratio is free to move.](../images/indonesia/bound_schematic.png){#fig-bound fig-align="center"}
 
-The rank-preservation argument is not just theory. Tracing every day's global rank through the four pipeline stages, the lines stay almost perfectly horizontal: LS and EQM preserve rank exactly, and the CNN introduces only tiny perturbations. No horizontal motion means no change in correlation.
+The rank argument is not just theory. Tracing every day's global rank through the four pipeline stages, the lines stay almost perfectly horizontal: LS and EQM introduce no rank reversals (dry-day tying aside), and the CNN adds only tiny perturbations. With the ordering left largely intact, correlation moves only within sampling noise.
 
-![Rank trajectory: each day's global rank through raw IMERG-L, LS, LSEQM, and LSEQM+DL. The near-horizontal lines confirm that the chain preserves day-to-day ordering, so Pearson r cannot move.](../images/indonesia/rank_trajectory.png){#fig-rank-trajectory fig-align="center"}
+![Rank trajectory: each day's global rank through raw IMERG-L, LS, LSEQM, and LSEQM+DL. The near-horizontal lines confirm that the chain leaves day-to-day ordering largely intact, so Pearson r stays pinned close to its raw value.](../images/indonesia/rank_trajectory.png){#fig-rank-trajectory fig-align="center"}
 
 ### Where the ceiling comes from
 
@@ -331,19 +331,19 @@ A natural question is whether the ceiling is intrinsic to the satellite retrieva
 
 ![The satellite UTC day and the BMKG gauge day are not the same window.](../images/indonesia/subdaily_timing.png){#fig-subdaily-timing fig-align="center"}
 
-Shifting the satellite accumulation window and recomputing correlation reveals a clear peak well away from zero offset: correlation rises from about 0.19 at the UTC-day alignment that the archive uses to about 0.62 at roughly a 22-hour backward shift.
+Shifting the satellite accumulation window and recomputing correlation reveals a clear peak well away from zero offset. Against the independent BMKG stations, the single pooled daily correlation rises from **0.20** at the native UTC-day alignment the archive uses (h = 0) to **0.57** at the harmonised window (h = -23, a 23-hour backward shift).
 
-![Pearson r as a function of hour-offset between the satellite window and the gauge day. The curve peaks near -22 h, not at 0.](../images/indonesia/subdaily_lag.png){#fig-subdaily-lag fig-align="center"}
+![Daily Pearson r against the BMKG stations (single pooled correlation over all station-days) as a function of hour-offset between the satellite window and the gauge day. The curve peaks at h = -23, not at h = 0.](../images/indonesia/subdaily_lag.png){#fig-subdaily-lag fig-align="center"}
 
 The optimal offset is spatially organised by time zone, confirming it is a real timing-window effect and not noise:
 
 ![Per-station optimal offset, organised by time zone across Indonesia.](../images/indonesia/subdaily_map.png){#fig-subdaily-map fig-align="center"}
 
-Repeating the window search at every station individually confirms it is not a pooled artefact. The optimal offset clusters near -20 hours across stations, and at its own matched window the typical station reaches a daily correlation of about 0.72 - higher than the 0.62 pooled peak above (pooling across heterogeneous stations dilutes correlation), and far above the 0.19 it shows at the naive UTC alignment. The timing limit is a window mismatch, not irreducible noise.
+Repeating the window search at every station individually confirms it is not a pooled artefact. At the harmonised window the typical station reaches a daily correlation of **0.56** (the median of the per-station peak r over the 178 stations with half-hourly coverage, inter-quartile range 0.51 to 0.62, GPM era 2015-2021), in line with the 0.57 single pooled value above and far above the 0.20 pooled at the native UTC alignment. The timing limit is a window mismatch, not irreducible noise.
 
-![Per-station window diagnostics: (a) the offset where each station's correlation peaks, median around -20 h; (b) the peak correlation each station can reach at its own matched window, median about 0.72. The timing ceiling is a calendar-window artefact, recoverable per station.](../images/indonesia/subdaily_peak_offset.png){#fig-subdaily-peak fig-align="center"}
+![Per-station window diagnostics: (a) the offset where each station's correlation peaks; (b) the daily correlation each station reaches once its window is harmonised - the per-station median is 0.56 (IQR 0.51 to 0.62), against a pooled 0.20 at the native window. The timing ceiling is a calendar-window artefact, recoverable per station. The per-station peak offset has a median of -23 h with an inter-quartile range of -23 to -21 h.](../images/indonesia/subdaily_peak_offset.png){#fig-subdaily-peak fig-align="center"}
 
-The decomposition: of the headline daily correlation of about 0.34, roughly two-thirds of the achievable gain is a **calendar-window artefact** (fixable by aligning the accumulation window to the local day) and only the remainder is irreducible retrieval error. This is a methodological caveat that applies to any daily verification of UTC-accumulated satellite precipitation against locally-defined gauge days, not just this framework.
+Harmonising the accumulation window therefore lifts the pooled daily correlation against the independent stations from 0.20 to 0.57, so a large part of the apparent timing ceiling is a **calendar-window artefact** (fixable by aligning the accumulation window to the local day) rather than irreducible retrieval error. This is a methodological caveat that applies to any daily verification of UTC-accumulated satellite precipitation against locally-defined gauge days, not just this framework.
 
 ::: {.callout-important}
 The practical implication: do not judge daily satellite precipitation - corrected or raw - on Pearson r alone. A low daily r is partly a timing-window artefact. Judge the correction on the distribution and extreme metrics, which is what the bias correction can actually move, and re-aggregate or re-window before computing correlation if timing fidelity matters for your application.
@@ -357,7 +357,7 @@ The chart below is interactive. Pick a station and a year to see the daily serie
 
 ::: {.callout-note collapse="true"}
 ## About this data
-This explorer covers **175 stations** over the **full 2001-2021 record** - every BMKG station with at least one full year of valid gauge data (close to the 171 validated in the headline pipeline; the small difference is a simpler completeness filter). Completeness varies by station and is shown in the dropdown and on the map - sparse stations have visible gaps in the daily series. Each station's daily record (~120 KB) is fetched only when you select it, so the page stays light. Per-station metrics are computed over 2001-2021, so they are close to but not identical to the headline figures above (which use the full pipeline's pairing rules).
+This explorer covers **175 stations** over the **full 2001-2021 record** - every BMKG station with at least one full year of valid gauge data (close to the 172 validated in the headline pipeline; the small difference is a simpler completeness filter). Completeness varies by station and is shown in the dropdown and on the map - sparse stations have visible gaps in the daily series. Each station's daily record (~120 KB) is fetched only when you select it, so the page stays light. Per-station metrics are computed over 2001-2021, so they are close to but not identical to the headline figures above (which use the full pipeline's pairing rules).
 :::
 
 ```{ojs}
@@ -471,7 +471,7 @@ The pattern to look for: LSEQM+DL pulls the **intensity and bias** toward the ga
 
 ### Network skill map
 
-Where does each metric sit geographically? Pick a metric to recolour the 49-station subset on the map below. Hover a marker for the station name, region, and value; the station selected in the dropdown above is ringed.
+Where does each metric sit geographically? Pick a metric to recolour the 175 explorer stations on the map below. Hover a marker for the station name, region, and value; the station selected in the dropdown above is ringed.
 
 ```{ojs}
 //| echo: false
@@ -577,7 +577,7 @@ viewof dryMetric = Inputs.radio(
 }
 ```
 
-For **correct-dry**, most stations sit above the 1:1 line: the median moves from **0.547** (raw) to **0.681** (corrected), matching the 171-station thesis headline (~56% → ~69%). For **wet-day frequency ratio**, the cloud moves from above 1.0 (raw over-detects, median 1.23) toward 1.0 (median 0.97) - the EQM stage doing its job. A handful of stations *cross under* 1.0 (LSEQM+DL slightly under-detects), an honest cost of matching the reference dry-day fraction.
+For **correct-dry**, most stations sit above the 1:1 line: the median across the 175 explorer stations moves from **0.547** (raw IMERG-L) to **0.681** (LSEQM+DL). That is a per-station median from raw to corrected, and it is a different construction from the headline validation figure, which is a **pooled contingency** rate over 5,899 station-dekad records at the 172 validated stations and runs 56.2% (LS) to 69.3% (LSEQM+DL). The two land in the same place but are not the same quantity, so read them side by side rather than as a match. For **wet-day frequency ratio**, the cloud moves from above 1.0 (raw over-detects, median 1.23) toward 1.0 (median 0.97) - the EQM stage doing its job. A handful of stations *cross under* 1.0 (LSEQM+DL slightly under-detects), an honest cost of matching the reference dry-day fraction.
 
 The simplest way to read the dry-day result is the scorecard below. Each row asks one plain question and shows the raw IMERG-L value alongside the corrected LSEQM+DL value, with the change between them.
 
@@ -587,7 +587,7 @@ The biggest single gain is **exact-zero match**: on the 49% of days when the gau
 
 For a more technical breakdown of *what* the product reports instead of zero - the four-bin composition of gauge-dry days, and how the per-station improvement is distributed - the figure below shows both:
 
-![(a) Median composition on gauge-dry days, IMERG-L vs LSEQM+DL: the EQM stage grows the dry slice and shrinks the drizzle / light slices. (b) Per-station shift in correct-dry rate: median +0.134, and 95% of stations improve. 175-station basis, 2001-2021.](../images/indonesia/dryday_composition.png){#fig-dryday-composition fig-align="center"}
+![(a) Median composition on gauge-dry days, IMERG-L vs LSEQM+DL: the EQM stage grows the dry slice and shrinks the drizzle / light slices. (b) Per-station shift in correct-dry rate: the median of the per-station differences is +0.124, and 162 of the 175 stations improve (93%). 175-station explorer basis, 2001-2021.](../images/indonesia/dryday_composition.png){#fig-dryday-composition fig-align="center"}
 
 On the days the gauge records as dry, **IMERG-L is dry only 55% of the time** and reports drizzle / light / heavy on the rest. **LSEQM+DL pushes the dry bin to 68%**, shrinking the drizzle and light slices. The heavy slice barely moves (5% before, 5% after) - those are the rare big-event mismatches that EQM does not try to suppress. The right panel shows this is not driven by a few stations: the per-station shift is positive at **95% of the 175 stations**, with a median improvement of **+0.134** in correct-dry rate.
 
@@ -652,10 +652,10 @@ Finally, the dekad-1 January climatology with the BMKG station means overlaid as
 | Does the mean improve? | Yes - relative bias near zero after LSEQM. |
 | Does the distribution improve? | Yes - SDR 0.71 to 1.00, KS gap shrinks. |
 | Do extremes improve? | Yes - Q99 ratio 0.71 to 1.01; heavy-day ratios move to 1.0. |
-| Does daily correlation improve? | No - it is bounded near 0.34 by timing, mostly a calendar-window artefact. |
-| Does the composite CQI rise? | No - it is dominated by timing-sensitive components that cannot move. |
+| Does daily correlation improve? | No - it stays pinned near 0.35 against the in-sample CPC-UNI reference (near 0.24 against the independent stations), held there by timing; a large part of that limit is a calendar-window artefact. |
+| Does the composite CQI rise? | No - it is dominated by timing-sensitive components that marginal correction barely moves. |
 | Does the CNN help? | Marginally and only where gauges are dense; it is a refinement, gated by station density. |
 
-The framework's contribution is therefore twofold: a working, transferable correction that fixes what marginal bias correction *can* fix (values, distributions, extremes), and an honest diagnostic of the ceiling on what it *cannot* (daily timing), with evidence that most of that ceiling is a fixable windowing artefact rather than irreducible error.
+The framework's contribution is therefore twofold: a working, transferable correction that fixes what marginal bias correction *can* fix (values, distributions, extremes), and an honest diagnostic of the ceiling on what it *cannot* (daily timing), with evidence that a large part of that ceiling is a fixable windowing artefact rather than irreducible error.
 
-For the data and code behind these figures, see the [Zenodo deposit](https://doi.org/10.5281/zenodo.20287847) and the [GitHub repository](https://github.com/bennyistanto/hybrid-bias-correction).
+For the data and code behind these figures, see the [Zenodo deposit](https://doi.org/10.5281/zenodo.20287846) and the [GitHub repository](https://github.com/bennyistanto/hybrid-bias-correction).

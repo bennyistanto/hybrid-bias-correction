@@ -15,7 +15,7 @@ pipeline for their own region.
 | Parameter (`config.yml` key) | Default | Sweep range | What it controls |
 | ---------------------------- | ------- | ----------- | ---------------- |
 | `deep_learning.blend_alpha` ($\alpha$) | **0.70** | 0.50 to 0.90 | The LSEQM weight at full station-density confidence. Higher $\alpha$ leans the output toward the LSEQM intermediate; lower $\alpha$ lets the CNN refinement contribute more. The effective weight $\alpha_{\mathrm{eff}} = 1 - C\,(1-\alpha)$ is then modulated by the station-density mask $C$. See [Blending](../methodology/blending.qmd). |
-| `statistics.gpd_threshold_percentile` | **80** | 70 to 90 | The wet-day percentile above which the Generalized Pareto tail is fitted. Lower percentiles give more exceedances per pixel (more stable fit) but conflate extreme rain with moderate rain that the Gamma EQM already captures; higher percentiles isolate the extreme regime but reduce the sample size at which the fit becomes noisy. See [GPD Tail](../methodology/gpd-tail.qmd). |
+| `statistical_params.gpd_threshold_percentile` | **80** | 70 to 90 | The wet-day percentile above which the Generalized Pareto tail is fitted. Lower percentiles give more exceedances per pixel (more stable fit) but conflate extreme rain with moderate rain that the Gamma EQM already captures; higher percentiles isolate the extreme regime but reduce the sample size at which the fit becomes noisy. See [GPD Tail](../methodology/gpd-tail.qmd). |
 | `station_density.saturation_count` ($c_{\mathrm{sat}}$) | **2** | 1 to 5 | The number of (smoothed) stations per CPC 0.5 deg cell at which the confidence mask reaches 1.0. Lower $c_{\mathrm{sat}}$ activates the CNN over more of the domain (less conservative); higher $c_{\mathrm{sat}}$ restricts the CNN contribution to densely gauged regions (more conservative). See [Confidence Mask](../methodology/confidence-mask.qmd). |
 
 ## Sweep design
@@ -53,7 +53,7 @@ error (mm/day); **NSE**: Nash-Sutcliffe efficiency.
 | *GPD threshold percentile* | | | | | | |
 | Pctl | 70 | 0.345 | $-13.0$ | 0.923 | 5.96 | $-0.42$ |
 |      | 75 | 0.342 | $-13.7$ | 0.919 | 5.96 | $-0.41$ |
-|      | **80** | **0.339** | **$-15.0$** | **0.904** | **5.89** | **$-0.41$** |
+|      | **80** | **0.340** | **$-15.0$** | **0.905** | **5.89** | **$-0.41$** |
 |      | 85 | 0.337 | $-16.2$ | 0.891 | 5.82 | $-0.40$ |
 |      | 90 | 0.335 | $-18.0$ | 0.867 | 5.72 | $-0.39$ |
 | *Density saturation count* $c_{\mathrm{sat}}$ | | | | | | |
@@ -80,7 +80,7 @@ Three things follow from these fifteen settings:
    toward the gauge target. The framework is stable under parameter
    perturbation in the explored range.
 2. **Pearson $r$ stays in the narrow band $[0.332, 0.348]$** across all
-   fifteen settings, a spread of $0.015$. No setting shifts the daily
+   fifteen settings, a spread of $0.016$. No setting shifts the daily
    correlation by more than half a single-pixel sampling-uncertainty
    interval. This is the empirical expression of the theoretical bound
    discussed on the [Validation](validation.qmd) page and in the companion paper (*Remote Sens.* 2026, 18, 2298):

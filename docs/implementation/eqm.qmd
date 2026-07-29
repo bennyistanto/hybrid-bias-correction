@@ -93,9 +93,9 @@ Bali (9 x 14 = 126 cells) is sub-second per dekad either way.
 
 ## Failure modes and skips
 
-- All-NaN IMERG cells (ocean) are skipped (`continue` at line 211 in `bias_correction.py`).
-- Cells where any CPC parameter is NaN return all-NaN (line 528-530 in `distribution_fitting.py`).
-- Cells with fewer than 5 wet days return all-zero (line 549-553). This is conservative - the alternative is to propagate IMERG raw, which may be wetter than the climatology supports.
+- All-NaN IMERG cells (ocean) are skipped (`continue` at line 217 in `bias_correction.py`).
+- Cells where any CPC parameter is NaN return all-NaN (line 529-531 in `distribution_fitting.py`).
+- Cells with fewer than 5 wet days return all-zero (line 550-554). This is conservative - the alternative is to propagate IMERG raw, which may be wetter than the climatology supports.
 
 ## Related code
 

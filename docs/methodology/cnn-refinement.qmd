@@ -11,8 +11,8 @@ After LSEQM, the marginal distribution matches CPC at each pixel. What remains i
 
 A small 2-layer convolutional network:
 
-- **Conv2D #1:** 32 filters, 3 x 3 kernel, ReLU, dropout 0.2
-- **Conv2D #2:** 64 filters, 3 x 3 kernel, ReLU, dropout 0.3
+- **Conv2D #1:** 32 filters, 3 x 3 kernel, ReLU, followed by 2 x 2 max-pooling, dropout 0.2
+- **Conv2D #2:** 64 filters, 3 x 3 kernel, ReLU, followed by 2 x 2 max-pooling, dropout 0.3
 - **Flatten + Dense:** 128 units, ReLU, dropout 0.4
 - **Output:** linear, one value per pixel
 
@@ -52,4 +52,4 @@ This modest footprint is the intended behaviour. The deep-learning stage is gate
 
 ## Implementation
 
-`src/deep_learning.py` - `build_cnn()`, `train_cnn_for_dekad()`, `apply_cnn()`. Trained models land in `output/trained_models/`.
+`src/deep_learning.py` - `train_bias_correction_model()` (which builds and fits the network) and `apply_deeplearning_model()`. Trained models land in `output/trained_models/`.

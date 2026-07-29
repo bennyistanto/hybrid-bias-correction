@@ -46,13 +46,13 @@ After GPD-mapping, values are capped at the 99.9th percentile of the CPC referen
 
 ## Failure modes
 
-- **Fewer than `n_splits_gpd_crossvalidate * minimum_per_fold` exceedances**: the K-Fold split fails. Mitigations in [Troubleshooting](../user-guide/troubleshooting.qmd).
-- **Negative gamma shape or scale** from the fit: the cell returns all-NaN (line 557-558 in `distribution_fitting.py`).
+- **Fewer exceedances than `n_splits_gpd_crossvalidate` (default 5)**: `cross_validate_gpd` does not fail. It silently falls back to a single `fit_generalized_pareto_distribution` on the whole sample and returns those parameters. Discussion in [Troubleshooting](../user-guide/troubleshooting.qmd).
+- **Negative gamma shape or scale** from the fit: the cell returns all-NaN (line 558-559 in `distribution_fitting.py`).
 - **Shape parameter close to zero**: the GPD becomes exponential. This is numerically stable but flags an underdetermined tail.
 
 ## Cost
 
-Per cell, per dekad: 5 fits of a 2-parameter distribution on ~30-50 exceedances. Sub-millisecond. Across Indonesia (~79k land cells) the K-Fold GPD step adds ~1-2 minutes per dekad to nb02 - a small fraction of total runtime.
+Per cell, per dekad: 5 fits of a 2-parameter distribution on ~30-50 exceedances. Sub-millisecond. Across Indonesia (~19.4k land cells inside a 78,831-cell grid) the K-Fold GPD step adds ~1-2 minutes per dekad to nb02 - a small fraction of total runtime.
 
 ## Sensitivity
 

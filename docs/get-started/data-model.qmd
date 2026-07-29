@@ -114,7 +114,7 @@ The pipeline enforces these minimums during fitting. If a pixel fails any check,
 |-------|-----------|--------------------------|
 | Non-NaN IMERG time series | any non-NaN day | Pixel skipped (NaN output) |
 | Wet days in IMERG | >= 5 (above `wet_day_threshold = 1.0 mm/day`) | Output forced to zero (preserves dry climatology) |
-| GPD exceedances | >= 30 recommended | K-Fold split may fail; configurable via `n_splits_gpd_crossvalidate` |
+| GPD exceedances | >= `n_splits_gpd_crossvalidate` (default 5) | Below that, `cross_validate_gpd` silently falls back to a single GPD fit on the whole sample - no error, just no K-Fold averaging |
 | Gamma fit shape / scale | > 0 | Pixel returns NaN |
 
 ::: {.callout-warning}
@@ -148,11 +148,10 @@ That gives **36 dekads per year**. Fitting independently per dekad lets the fram
 Trained CNN models are written to disk so subsequent runs can skip the training step:
 
 ```
-output/trained_models/{prefix}_cnn_month{MM}_dekad{D}.keras
-output/trained_models/{prefix}_cnn_month{MM}_dekad{D}_norm.json
+output/trained_models/bias_correction_model_month{MM}_dekad{DD}.keras
 ```
 
-When a model file already exists, `runtime.existing_model_action` decides whether to reuse it (`use_existing`, default), overwrite, or abort. The matching `_norm.json` carries the input normalisation constants and is required to apply the model to new data.
+When a model file already exists, `runtime.existing_model_action` decides whether to reuse it (`use_existing`, default), overwrite, or abort. There is no normalisation sidecar: normalisation is per-sample (each daily field is divided by its own maximum and the prediction is multiplied back by it), so the `.keras` file is all you need.
 
 ---
 
@@ -165,7 +164,7 @@ data/output/
   corrected_ls/         per-dekad NetCDF (Linear Scaling)
   corrected_lseqm/      per-dekad NetCDF (LS + EQM + GPD)
   corrected_lseqmdl/    per-dekad NetCDF (LSEQM + CNN refinement)
-  trained_models/       .keras + .json per dekad
+  trained_models/       one .keras per dekad
   station_density/      confidence_mask_station_density.nc4
   metrics_{method}/     per-dekad metrics NetCDF
   quality_{method}/     per-dekad QA NetCDF
@@ -192,11 +191,10 @@ Global attributes record the correction method (`ls` / `lseqm` / `lseqmdl`), sou
 
 ```
 trained_models/
-  {prefix}_cnn_month{MM}_dekad{D}.keras       # Keras model
-  {prefix}_cnn_month{MM}_dekad{D}_norm.json   # Normalisation constants
+  bias_correction_model_month{MM}_dekad{DD}.keras   # Keras model
 ```
 
-Load with `tf.keras.models.load_model(path)`. Both files are required to apply the model.
+Load with `tf.keras.models.load_model(path)`. The model name carries no filename prefix and needs no companion file.
 
 ### Confidence mask
 
@@ -207,37 +205,43 @@ Load with `tf.keras.models.load_model(path)`. Both files are required to apply t
 One per-dekad NetCDF per method:
 
 ```
-metrics_{method}/{prefix}_metrics_{method}_month{MM}_dekad{D}.nc4
+metrics_{method}/{prefix}_metricssd_{ref}_imergl_{method}_month{MM}_dekad{DD}.nc4
 ```
 
-Contains the full WMO/TD-1485 + WMO-1317 metric set: RMSE, MAE, ME, Pearson r, Spearman rho, NSE, KGE, POD, FAR, CSI, percentile errors at 50/75/90/95/99, standard deviation ratio.
+`{ref}` is `cpc`, `imergl`, or `imergf`; `sd` marks single-dekad mode (timeseries mode writes `metricsts`).
+
+Contains a 31-variable set drawn from WMO/TD-1485 + WMO-1317: relative bias, Pearson r, RMSE, MAE, reference and test standard deviation plus their ratio, POD, FAR, CSI, wet-day frequency and mean wet-day precipitation (reference and test), NSE, maximum dry-spell length (reference and test), KS statistic and KS p-value, and the 25th / 50th / 75th / 90th / 95th / 99th percentile **values** for reference and test.
 
 ### QA framework (CQI)
 
 One per-dekad NetCDF per method:
 
 ```
-quality_{method}/{prefix}_quality_{method}_month{MM}_dekad{D}.nc4
+quality_{method}/{prefix}_qualitysd_{ref}_imergl_{method}_month{MM}_dekad{DD}.nc4
 ```
 
 | Variable | Range | Meaning |
 |----------|-------|---------|
-| `basic_statistical_quality` | 0-1 | Bias / correlation / efficiency component |
+| `basic_statistical_quality` | 0-1 | Relative bias / RMSE / NSE component (no correlation term) |
 | `distribution_quality` | 0-1 | Distribution-shape component |
 | `temporal_quality` | 0-1 | Event-timing component |
 | `continuous_quality` (CQI) | 0-1 | Weighted sum of the three components |
 | `categorical_quality` | 1-4 | Poor / Fair / Good / Excellent classification |
-| `confidence_level` | 0-1 | Station-density confidence |
+| `confidence_level` | 0-1 | Confidence in the assessment itself: metric consistency, KS p-value, and sample size. Unrelated to gauge density |
 
 ### Station validation
 
+Written by `05_station_validation.ipynb`; these filenames carry no prefix.
+
 ```
 station_validation/
-  {prefix}_validation_by_station_{method}.csv         # 31 metrics x stations
-  {prefix}_validation_by_region_{method}.csv          # aggregated by region
-  {prefix}_multi_threshold_summary_{method}_month{MM}_dekad{D}.csv
-  {prefix}_taylor_by_station_{method}.png
+  station_validation_{method}_month{MM}_dekad{DD}.csv        # 31 metrics x stations
+  station_validation_summary_month{MM}_dekad{DD}.csv         # all methods, one dekad
+  station_multi_threshold_{method}_month{MM}_dekad{DD}.csv   # WMO threshold scores per station
+  multi_threshold_summary_{method}_month{MM}_dekad{DD}.csv   # threshold scores aggregated
 ```
+
+Taylor diagram PNGs are written to `figures/taylor/`, not here.
 
 ### Figures
 
@@ -261,7 +265,7 @@ figures/
 | `{output_dir}` | `{main_dir}/data/output` (or override) |
 | `{method}` | Expanded per call: `ls` / `lseqm` / `lseqmdl` |
 
-So `metrics_path_template: "{output_dir}/metrics_{method}"` becomes `data/output/metrics_lseqm/` when the pipeline runs for `method='lseqm'`.
+So the YAML key `output_dirs.metrics: "{output_dir}/metrics_{method}"` is read by `initialize_config()` into the `src.config.metrics_path_template` attribute, which becomes `data/output/metrics_lseqm/` when the pipeline runs for `method='lseqm'`.
 
 ---
 

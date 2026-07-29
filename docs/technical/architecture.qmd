@@ -22,11 +22,11 @@ Notebooks import from `src/`. `src/` modules read from `src.config` (populated b
 ```
 src/
   config.py                # Loads YAML, resolves placeholders, exposes attrs
-  io.py                    # NetCDF loading, grid alignment, mask application
+  io.py                    # save_corrected_precip(), dekad + aggregation helpers
   utility.py               # Small helpers (mask apply, dekad helpers, decorators)
-  bias_correction.py       # linear_scaling(), lseqm(), run_correction_pipeline()
+  bias_correction.py       # lseqm() (LS inline + EQM), run_correction_pipeline()
   distribution_fitting.py  # Gamma + GPD fits, K-Fold cross-validation
-  deep_learning.py         # build_cnn(), train_cnn_for_dekad(), apply_cnn()
+  deep_learning.py         # train_bias_correction_model(), apply_deeplearning_model()
   station_density.py       # build_confidence_mask()
   metrics.py               # 31 WMO metrics + run_metrics_pipeline()
   qa_framework.py          # CQI components + run_qa_pipeline()
@@ -42,20 +42,18 @@ config.yml
 initialize_config('config.yml')
    |
    v
-load_imerg / load_cpc / align_grids (src/io.py)
-   |
-   v
-linear_scaling (src/bias_correction.py)
+open IMERG / CPC NetCDFs, align + mask (notebook Step 3-5, src/utility.py)
    |
    v
 lseqm (src/bias_correction.py)
-   ^   uses fit_gamma + fit_gpd from src/distribution_fitting.py
+   ^   LS is inline at the top of lseqm(); the EQM loop uses
+   ^   fit_gamma_distribution + cross_validate_gpd from src/distribution_fitting.py
    |
    v
-train_cnn_for_dekad (src/deep_learning.py)
+train_bias_correction_model (src/deep_learning.py)
    |
    v
-apply_cnn + blend (src/bias_correction.py)
+apply_deeplearning_model = CNN inference + blend (src/deep_learning.py)
    ^   uses confidence_mask from src/station_density.py
    |
    v
@@ -74,7 +72,7 @@ The `run_correction_pipeline(imerg, cpc, month, dekad)` wrapper in `src/bias_cor
 | `03_measuring_performances.ipynb` | `src.metrics.run_metrics_pipeline` |
 | `04_qa_framework.ipynb` | `src.qa_framework.run_qa_pipeline` |
 | `05_station_validation.ipynb` | `src.station_validation.*` |
-| `06_visualisation_hub.ipynb` | self-contained plotting |
+| `06_visualisation_hub.ipynb` | `src.visualisation.*`, `src.taylor_diagram.*`, `src.station_validation.*` |
 
 ## Colab mirror
 

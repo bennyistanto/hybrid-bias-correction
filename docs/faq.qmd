@@ -41,14 +41,14 @@ Reach for a local install only if you have a working TensorFlow environment alre
 
 ### Do I need a GPU?
 
-No for the Bali example (CPU finishes in ~15 minutes). For the full Indonesia run, training 36 dekadal CNN models on CPU takes several hours; a GPU brings it down to about 30-60 minutes. The CNN is small (two Conv2D layers + a Flatten -> Dense bottleneck). Colab's free GPU runtime is enough for the Bali example and most regional runs.
+No for the Bali example (CPU finishes notebooks 02 to 06 in about 72 minutes). For the full Indonesia run, training 36 dekadal CNN models on CPU takes several hours; a GPU brings it down to about 30-60 minutes. The CNN is small (two Conv2D layers + a Flatten -> Dense bottleneck). Colab's free GPU runtime is enough for the Bali example and most regional runs.
 
 ### What's the input data?
 
 - **IMERG Late Run V07** (NASA GPM) - the satellite product being corrected.
 - **IMERG Final Run V07** - a gauge-adjusted satellite product, used only as a comparison baseline in Taylor diagrams.
 - **CPC-UNI** (NOAA PSL) - the gauge-based reference. Both at 0.5 deg native and downscaled to 0.1 deg.
-- **BMKG station observations** - 180 archived stations across Indonesia (171 validated; 4 in the Bali bundle), used only for independent validation.
+- **BMKG station observations** - 180 archived stations across Indonesia (172 validated; 4 in the Bali bundle), used only for independent validation.
 
 See [Data Model](get-started/data-model.qmd) for the full table.
 
@@ -68,7 +68,7 @@ Daily precipitation is a notoriously low-correlation field. The processes that p
 
 What bias correction *can* fix is the **systematic** part: the long-term mean, the distribution shape, the categorical wet-dry behaviour. It cannot fix the daily timing of individual rain events that satellite missed entirely.
 
-So a Pearson r of 0.3-0.5 against daily gauge observations is normal for corrected satellite precipitation at daily resolution. The framework reports it honestly; we do not aggregate to monthly to inflate the headline number. Look at the **distribution** and **temporal** components of the CQI to see what the correction is actually moving.
+So a sub-0.5 Pearson r against daily gauge observations is the normal regime for satellite precipitation over this domain. The published tropical anchor is Ramadhan et al. (2022), who report daily correlations of **0.39 to 0.44** for IMERG V6 against Indonesian gauges over 2016-2020 (monthly totals rise to 0.62-0.79 for the same product and stations). Denser mid-latitude networks score much higher - Tang et al. (2020) report a median daily correlation near 0.75 for IMERG over **China** - so the Chinese figure is a contrast, not the yardstick to hold an Indonesian result against. The framework reports its own value honestly; we do not aggregate to monthly to inflate the headline number. Look at the **distribution** and **temporal** components of the CQI to see what the correction is actually moving.
 
 That said, a large part of the low daily r is a fixable *verification artefact*, not irreducible error - see the next question.
 
@@ -78,15 +78,15 @@ Partly, yes - and this is the single most actionable finding in the project.
 
 The low daily r is **not all irreducible**. Much of it comes from a timing mismatch between two definitions of "a day": IMERG accumulates on a **UTC day**, while a gauge "day" is a local morning-to-morning window. Indonesia spans three time zones, so the satellite day and the gauge day are offset by hours, and comparing them day-for-day penalises the satellite for rain it actually captured - just attributed to the adjacent calendar day.
 
-The diagnostic (Jan 2020, pooled across stations): shifting the satellite accumulation window relative to the gauge day moves correlation from **r = 0.19 at the UTC-day alignment the archive uses** to **r = 0.62 at roughly a 22-hour backward shift**. The optimal offset is organised by time zone, confirming it is a real windowing effect, not noise. See [the correlation ceiling](case-studies/indonesia.qmd#the-correlation-ceiling) for the full diagnostic and figures.
+The diagnostic (daily, against the independent BMKG stations, GPM era 2015-2021, a single pooled r over all station-days): shifting the satellite accumulation window relative to the gauge day moves correlation from **r = 0.20 at the native UTC-day alignment the archive uses (h = 0)** to **r = 0.57 at the harmonised window, a 23-hour backward shift (h = -23)**. The optimal offset is organised by time zone, confirming it is a real windowing effect, not noise. See [the correlation ceiling](case-studies/indonesia.qmd#the-correlation-ceiling) for the full diagnostic and figures.
 
 **What you can do about it:**
 
 1. **Re-window before computing daily correlation.** If you have access to sub-daily IMERG (the native 30-minute product), re-accumulate it to the *local* day before pairing with gauges. This recovers most of the gap. The framework's daily corrected output is on the UTC day, so this is a re-aggregation step on your side, not a change to the correction.
 2. **Aggregate to a coarser timestep.** Pentad, dekad, or monthly totals are far less sensitive to the day-boundary offset, so correlation at those scales is already high. If your application is monthly (e.g. seasonal water balance), the daily r ceiling does not bind you.
-3. **Do not chase daily r by re-tuning the bias correction.** No setting of `blend_alpha`, `gpd_threshold_percentile`, or `saturation_count` moves daily r meaningfully - the [sensitivity sweep](technical/sensitivity-analysis.qmd) confirms r stays in [0.332, 0.348] across all variations. The ceiling is a property of the day definition, not of the correction parameters.
+3. **Do not chase daily r by re-tuning the bias correction.** No setting of `blend_alpha`, `gpd_threshold_percentile`, or `saturation_count` moves daily r meaningfully - the [sensitivity sweep](technical/sensitivity-analysis.qmd) confirms r stays in [0.332, 0.348] across all fifteen variations (that band is the per-pixel daily r against CPC-UNI on the Bali subdomain, not a station number). The ceiling is a property of the day definition, not of the correction parameters.
 
-The honest summary: bias correction fixes the **values, distribution, and extremes**; the daily **timing** correlation is bounded by how the two products define a day, and the largest single improvement available is to align that definition, not to tune the model.
+The honest summary: bias correction fixes the **values, distribution, and extremes**; the daily **timing** correlation is governed mostly by how the two products define a day, and the largest single improvement available is to align that definition, not to tune the model.
 
 ### Why does LSEQM+DL look almost identical to LSEQM in my AOI?
 
@@ -107,7 +107,7 @@ Dry days are about half the validated record, so this is a first-order property 
 - **A dry input stays dry.** Quantile mapping is applied only to above-threshold (>= 1 mm) satellite days, on a zero-initialised output, so a day the satellite already reports as dry comes out as exactly zero.
 - **Over-detected drizzle is suppressed.** Raw IMERG rains on too many days. The EQM stage matches the corrected product's dry-day fraction to the gauge-based reference (Cannon 2015), setting the smallest over-detected wet values back to zero.
 
-The result is better dry-day agreement: on a day the gauge records as dry, the corrected product is also dry about **69%** of the time, up from **~56%** before the distribution step, and the wet-day-frequency ratio moves from **1.21** (over-detecting) toward **0.95** (171-station Indonesia validation). The trade-off is honest: the same reclassification drops probability of detection from about 0.78 to 0.65 - fewer false alarms at the cost of some light-rain hits. The CNN refinement leaves dry days untouched; this is purely the EQM stage. Implementation detail in [Methodology > EQM](methodology/eqm.qmd#wet-dry-handling) and [Implementation > EQM](implementation/eqm.qmd#dry-day-handling-correct-zero).
+The result is better dry-day agreement: on a day the gauge records as dry, the corrected product is also dry about **69%** of the time, up from **~56%** before the distribution step, and the wet-day-frequency ratio moves from **1.21** (over-detecting) toward **0.95** (172-station Indonesia validation). The trade-off is honest: the same reclassification drops probability of detection from about 0.78 to 0.65 - fewer false alarms at the cost of some light-rain hits. The CNN refinement leaves dry days untouched; this is purely the EQM stage. Implementation detail in [Methodology > EQM](methodology/eqm.qmd#wet-dry-handling) and [Implementation > EQM](implementation/eqm.qmd#dry-day-handling-correct-zero).
 
 ### Does this work for sub-daily timescales (hourly, 30-minute)?
 
@@ -149,7 +149,7 @@ Always run a sensitivity test of your hydrological model against both raw IMERG 
 
 Open `output/station_density/confidence_mask_station_density.nc4` and inspect the spatial distribution of confidence values. Rules of thumb:
 
-- If less than 10% of your AOI has `confidence > 0.5`, the DL stage is barely active anywhere. Consider lowering `saturation_count` from 3 to 2, or accept that LSEQM+DL ≈ LSEQM for your region.
+- If less than 10% of your AOI has `confidence > 0.5`, the DL stage is barely active anywhere. Consider lowering `saturation_count` below its shipped default of 2 (at 1, any station presence gives full confidence, which may be too aggressive), or accept that LSEQM+DL ≈ LSEQM for your region.
 - If essentially the whole AOI has `confidence == 1.0`, your network is dense enough that `saturation_count` may be too low - the DL is acting uniformly when you might want spatial weighting. Consider raising it.
 - The Bali example sits at confidence around 0.4-0.8 in southern Bali (4 stations clustered there) and near zero in the north. This is the regime where the confidence mask is most visible in the output.
 
@@ -159,11 +159,11 @@ This is intentional, not a bug. The code evaluates **seven** WMO thresholds (1, 
 
 1. **WMO/TD-1485 (WWRP 2009-1) suppresses scores at sparse thresholds.** When fewer than 10 observed events at a station fall above the threshold within the evaluation window, the framework writes NaN for that station-threshold-method combination. POD / FAR / CSI computed on 1-2 events are not stable enough to report as skill.
 
-2. **Bali's 4 stations don't accumulate enough heavy-rain events.** Across the full 2001-2021 gauge record, the four BMKG Bali stations show on average ~1.75 daily events >= 100 mm per dekad - well below the 10-event minimum. Inspecting `data/example_bali/output/station_validation/multi_threshold_summary_lseqmdl_month01_dekad01.csv` confirms: 100 mm has `n_stations: 0`, 150 mm same.
+2. **Bali's 4 stations don't accumulate enough heavy-rain events.** Across the full 2001-2021 gauge record, the four BMKG Bali stations never come close to 10 observed days >= 100 mm inside a single dekad window, which is the minimum the scoring requires. Inspecting `data/example_bali/output/station_validation/multi_threshold_summary_lseqmdl_month01_dekad01.csv` confirms: 100 mm has `n_stations: 0`, 150 mm same.
 
 The figure plotting function drops thresholds that are NaN across the entire panel, so the curve ends where the data stops. The 100 / 150 mm POD / FAR / CSI numbers exist in the per-station CSVs as NaN cells.
 
-On the **full-Indonesia run** with 171 validated BMKG stations, the upper thresholds populate and the curve extends to 150 mm (visible in the manuscript figure). The framework's behaviour is identical; only the sample size changes.
+The **full-Indonesia run** with 172 validated BMKG stations does not rescue the upper thresholds either. Of its 5,899 station-dekad records, only **6** clear the 10-event minimum at 100 mm, and their median CSI is 0.000 for both methods - enough to plot a point, not enough to order the methods against each other. At 150 mm **no** record qualifies at all, so the class is omitted. Fifty mm is the highest threshold at which these curves carry information, at national scale as well as on Bali; the framework's behaviour is identical, and the extra sample size buys resolution below 50 mm rather than above it.
 
 If you adapt to your own AOI and want to see the upper thresholds, you need either (a) more stations, (b) a longer record, or (c) a wetter climate. There is no override - relaxing the 10-event minimum would produce noisy curves that misrepresent skill.
 
@@ -188,6 +188,6 @@ Mitigations:
 It tells you the *timing* of individual rain events is not well captured, even though the *climatological distribution* at each pixel is correct. This is the normal expected pattern for satellite bias correction:
 
 - Distribution component score 0.8-0.9: the framework is producing the right kind of rain in the right amounts.
-- Pearson r against gauge observations 0.3-0.5: the framework is not producing rain on the same individual days the gauge saw rain.
+- Pearson r against daily gauge observations below 0.5, in the neighbourhood of the 0.39-0.44 that Ramadhan et al. (2022) report for IMERG V6 against Indonesian gauges: the framework is not producing rain on the same individual days the gauge saw rain.
 
 For applications that care about climatology (irrigation planning, drought monitoring, seasonal forecast verification) the distribution component is what matters. For applications that care about specific dates (event-based flood forecasting), the temporal correlation is the limiting factor and bias correction alone cannot fix it - you need a better satellite product or a deterministic model.

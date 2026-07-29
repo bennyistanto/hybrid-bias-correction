@@ -16,7 +16,7 @@ The input is the gauge network (top); the output is a smooth confidence field th
 1. **Count:** Stations are assigned to CPC 0.5 deg cells. Each cell gets a raw count.
 2. **Smooth:** A Gaussian kernel with $\sigma = 1.0$ cell ($\approx$ 55 km at 0.5 deg) blurs the counts to avoid hard cell boundaries.
 3. **Saturate:** The smoothed count is divided by a saturation parameter (default 2) and clipped to 1.0. This is the confidence value.
-4. **Regrid:** Linear interpolation from 0.5 deg to the 0.1 deg working grid.
+4. **Regrid:** Nearest-neighbour interpolation from 0.5 deg to the 0.1 deg working grid, with edge NaN filled as zero confidence.
 
 ## The saturation parameter
 

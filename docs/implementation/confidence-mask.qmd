@@ -50,7 +50,7 @@ This means: across a multi-dekad batch run, the mask is built once. Across sessi
 
 ## Application
 
-`load_confidence_mask(confidence_mask_file)` returns the DataArray, which the blending step in `src/bias_correction.py` uses to compute the per-pixel `effective_alpha`:
+`load_confidence_mask(confidence_mask_file)` returns the DataArray. `run_correction_pipeline()` passes it to `apply_deeplearning_model()` in `src/deep_learning.py`, which is where the per-pixel `effective_alpha` is computed:
 
 ```python
 effective_alpha = 1.0 - confidence * (1.0 - DL_BLEND_ALPHA)

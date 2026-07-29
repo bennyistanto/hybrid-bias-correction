@@ -6,6 +6,33 @@ description: "Release notes for the framework and the documentation site."
 The framework uses [DateVer](https://github.com/datever/datever) (`vYYYY.MM`)
 for releases. Patches within a release use `vYYYY.MM.N`.
 
+## v2026.07 - correctness and provenance
+
+Corrections found while reconciling this documentation site against the code
+and against the thesis value ledger. The correction algorithm itself did not
+change, so results produced with v2026.05 remain valid.
+
+**Fixed.** The batch cells in notebooks 02 and 03 were left at development
+ranges, covering 9 and 3 of the 36 dekadal windows while reporting that they
+covered all 36; both now run the full year. `existing_model_action` was read
+from `config.yml` but never consulted, so `overwrite` silently reused a cached
+model. `apply_deeplearning_model` froze `blend_alpha` at import time, so a
+value set by a later `initialize_config()` had no effect; it and the GPD
+threshold percentile are now resolved when the function runs. Docstrings
+describing a `saturation_count` default of 3 were corrected to 2.
+
+**Added.** Corrected precipitation files now carry `Conventions: CF-1.8`, a
+`references` DOI, and run-context attributes recording the release, commit and
+the three sensitivity parameters. The precipitation variable now uses the
+CF-valid `lwe_precipitation_rate` with units `mm day-1`. Data values are
+unchanged, and files in the archived Indonesia bundle predate this.
+
+**Changed.** Zenodo citations now use all-versions DOIs so they follow each
+release. Documentation was corrected throughout: function names that no longer
+existed, output filename patterns, the CNN architecture listing, the metric
+inventory, runtime figures, the validated-station count, and correlation
+values that had drifted from the value ledger.
+
 ## v2026.05 - first public release
 
 The first public release of the Hybrid Bias Correction framework. This is
@@ -23,9 +50,9 @@ package for the broader community.
   and data acquisition through bias correction, metrics, QA, station
   validation, and visualisation.
 - **Bali example bundle** (`data/example_bali/`, 11 MB) - ships with the
-  repo and runs end to end in ~15 minutes on a free Colab CPU.
+  repo and runs in about 72 minutes across notebooks 02 to 06 on a free Colab CPU.
 - **Indonesia data bundle** - 2001-2025 inputs, masks, and outputs (~40 GB)
-  published at [Zenodo 10.5281/zenodo.20287847](https://zenodo.org/records/20287847).
+  published at [Zenodo 10.5281/zenodo.20287846](https://doi.org/10.5281/zenodo.20287846).
 - **Documentation** (this site) - Methodology, Implementation, Tutorials,
   Case Studies (Bali + Indonesia, with interactive figures), FAQ, and
   auto-generated API Reference.

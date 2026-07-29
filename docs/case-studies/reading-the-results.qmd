@@ -5,7 +5,7 @@ description: "A visual glossary of every metric the framework reports - what it 
 
 Before looking at the Bali or Indonesia results, it helps to know how to read the numbers. The framework reports metrics in several families, following WMO verification guidance (WMO/TD-1485, WMO-No. 1317). Each card below places the three correction stages (LS, LSEQM, LSEQM+DL) on a number line, with the **target** value and the **"better" direction** marked.
 
-The values shown on the cards are from the full Indonesia run (171 validated stations). They are illustrative of the *shape* of each metric, not the headline result - for that, see the [Indonesia study](indonesia.qmd).
+The values shown on the cards are from the full Indonesia run (172 validated stations). They are illustrative of the *shape* of each metric, not the headline result - for that, see the [Indonesia study](indonesia.qmd).
 
 ## Mean and bias
 
@@ -33,9 +33,9 @@ The Kolmogorov-Smirnov statistic measures the largest gap between the corrected 
 
 ## Correlation
 
-Pearson correlation of daily values against the gauge. Higher is better, but for daily satellite precipitation this metric is **bounded well below 1** by factors the correction cannot touch - see [the correlation ceiling](indonesia.qmd#the-correlation-ceiling).
+Pearson correlation of daily values against the gauge. Higher is better, but for daily satellite precipitation this metric **stays well below 1**, held down by factors the correction cannot touch - see [the correlation ceiling](indonesia.qmd#the-correlation-ceiling).
 
-![Pearson correlation - higher is better, but bounded for daily fields.](../images/metric-cards/card_corr.png){fig-align="center"}
+![Pearson correlation - higher is better, but it stays low for daily fields.](../images/metric-cards/card_corr.png){fig-align="center"}
 
 ## Wet-day frequency
 

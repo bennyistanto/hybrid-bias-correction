@@ -30,7 +30,7 @@ statistical_params:
   gpd_threshold_percentile: 90   # was 80
 ```
 
-Higher thresholds give a cleaner separation between the gamma body and the GPD tail but reduce the number of exceedances per dekad. If you hit "too few exceedances" errors, lower the threshold or raise `wet_day_threshold` so that dry days are excluded.
+Higher thresholds give a cleaner separation between the gamma body and the GPD tail but reduce the number of exceedances per dekad. There is no "too few exceedances" error - below `n_splits_gpd_crossvalidate` exceedances the fit silently drops to a single non-cross-validated GPD fit. To keep the K-Fold average, lower the threshold or raise `wet_day_threshold` so that dry days are excluded.
 
 ## Switch to non-interactive (batch) mode
 

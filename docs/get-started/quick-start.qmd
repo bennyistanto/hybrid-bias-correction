@@ -3,7 +3,7 @@ title: "Quickstart"
 description: "Run the existing pipeline notebooks against the Bali example or the full-Indonesia bundle."
 ---
 
-There is no separate quickstart notebook. The same notebooks that produced the manuscript results are the entry points for everything: only the config you point them at changes.
+There is a short quickstart notebook for the Bali example at [`notebooks/example_bali/quickstart_bali.ipynb`](https://github.com/bennyistanto/hybrid-bias-correction/blob/main/notebooks/example_bali/quickstart_bali.ipynb). For everything beyond that, the same notebooks that produced the manuscript results are the entry points: only the config you point them at changes.
 
 | Notebook | Stage |
 |----------|-------|
@@ -20,7 +20,7 @@ All five live in [notebooks/](https://github.com/bennyistanto/hybrid-bias-correc
 You have two options. Both use the same notebooks. The only difference is which config file you point them at.
 
 ::: {.feature-card}
-**Option A - Bali example (recommended for first run).** Uses `config_bali.yml` and the 11 MB Bali bundle that ships in the repository under [data/example_bali/](https://github.com/bennyistanto/hybrid-bias-correction/tree/main/data/example_bali). The nb02 bias-correction step finishes in ~15 minutes on a free Colab CPU; the full nb02-nb06 chain takes a bit longer.
+**Option A - Bali example (recommended for first run).** Uses `config_bali.yml` and the 11 MB Bali bundle that ships in the repository under [data/example_bali/](https://github.com/bennyistanto/hybrid-bias-correction/tree/main/data/example_bali). The nb02 bias-correction step finishes in about 16 minutes on a free Colab CPU; the full nb02 to nb06 chain takes about 72 minutes, most of it in nb03.
 :::
 
 ::: {.feature-card}
@@ -112,7 +112,7 @@ data/example_bali/output/
   corrected_ls/        36 NetCDFs
   corrected_lseqm/     36 NetCDFs
   corrected_lseqmdl/   36 NetCDFs
-  trained_models/      36 .keras + normalisation JSONs
+  trained_models/      36 .keras models
   station_density/     confidence mask NetCDF
 ```
 

@@ -44,11 +44,10 @@ Global attributes record the method (`ls`, `lseqm`, `lseqmdl`), the source IMERG
 
 ```
 trained_models/
-  {prefix}_cnn_month{MM}_dekad{D}.keras
-  {prefix}_cnn_month{MM}_dekad{D}_norm.json     # mean / std for input normalization
+  bias_correction_model_month{MM}_dekad{DD}.keras
 ```
 
-Loading: `tf.keras.models.load_model(path)`. The matching `_norm.json` is required for applying the model to new data.
+Loading: `tf.keras.models.load_model(path)`. The model name carries no filename prefix, and there is no normalisation sidecar: each daily field is normalised by its own maximum at inference time and denormalised by the same value, so the `.keras` file is self-sufficient.
 
 ## Confidence mask
 
@@ -64,28 +63,36 @@ For each method:
 
 ```
 metrics_{method}/
-  {prefix}_metrics_{method}_month{MM}_dekad{D}.nc4    # 31 WMO metrics per pixel
+  {prefix}_metricssd_{ref}_imergl_{method}_month{MM}_dekad{DD}.nc4    # 31 metrics per pixel
 quality_{method}/
-  {prefix}_quality_{method}_month{MM}_dekad{D}.nc4    # CQI + 3 components
+  {prefix}_qualitysd_{ref}_imergl_{method}_month{MM}_dekad{DD}.nc4    # CQI + 3 components
 ```
 
-The metrics NetCDF holds the full WMO/TD-1485 + WMO-1317 set: RMSE, MAE, ME, Pearson r, NSE, KGE, POD, FAR, CSI, percentile errors, etc. The quality NetCDF is the aggregated CQI for plotting.
+`{ref}` is the reference dataset (`cpc`, `imergl`, or `imergf`), so each method gets nine metric files per dekad. The `sd` tag marks single-dekad mode; timeseries mode writes `metricsts` / `qualityts` instead.
+
+The metrics NetCDF holds the 31-variable set drawn from WMO/TD-1485 + WMO-1317: relative bias, Pearson r, RMSE, MAE, reference and test standard deviation and their ratio, POD, FAR, CSI, wet-day frequency and mean wet-day precipitation (reference and test), NSE, maximum dry-spell length (reference and test), the KS statistic and its p-value, and the 25th / 50th / 75th / 90th / 95th / 99th percentile **values** for reference and test. The quality NetCDF is the aggregated CQI for plotting.
 
 ## Station validation
 
+Written by `05_station_validation.ipynb`. These filenames carry no prefix:
+
 ```
 station_validation/
-  {prefix}_validation_by_station_{method}.csv     # one row per station, per method
-  {prefix}_validation_by_region_{method}.csv      # aggregated by region_mapping
-  {prefix}_taylor_by_station_{method}.png         # Taylor diagram
-  {prefix}_taylor_monthly_{method}.png            # monthly Taylor by region
+  station_validation_{method}_month{MM}_dekad{DD}.csv          # one row per station, 31 metrics
+  station_validation_summary_month{MM}_dekad{DD}.csv           # all methods, one dekad
+  station_multi_threshold_{method}_month{MM}_dekad{DD}.csv      # WMO threshold scores per station
+  multi_threshold_summary_{method}_month{MM}_dekad{DD}.csv      # threshold scores aggregated
 ```
+
+Taylor diagram PNGs do not land here - they go to `figures/taylor/`.
 
 ## Figures
 
 ```
 figures/
-  {prefix}_<plot_type>_month{MM}_dekad{D}.png
+  qa/                  QA spatial maps, one subdirectory per plot type
+  taylor/              Pooled and per-dekad Taylor diagrams
+  station_validation/  Per-station scatter, threshold curves, regional boxplots
 ```
 
-Plot types include spatial comparison strips, CQI maps, station scatter, and Taylor diagrams. The visualisation hub notebook (`06_visualisation_hub.ipynb`) generates these.
+Under `figures/qa/` each plot type gets its own subdirectory named `{quality_prefix}_{plot_type}/`. Plot types include spatial comparison strips, CQI maps, and station scatter. The visualisation hub notebook (`06_visualisation_hub.ipynb`) generates all of these.

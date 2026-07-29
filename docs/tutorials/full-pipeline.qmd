@@ -46,11 +46,14 @@ Each batch cell wraps every period in `try/except` so a single bad dekad does no
 
 | Stage | Bali (Colab CPU) | Indonesia (local GPU, for reference) |
 |-------|------------------|--------------------------------------|
-| nb02 batch (36 dekads, including CNN train) | ~30-40 min | ~3-4 h |
-| nb03 metrics | ~5 min | ~30 min |
-| nb04 QA | ~5 min | ~30 min |
-| nb05 station validation | <2 min | ~5 min |
-| nb06 unified batch (all visualisations + Taylor) | ~10-15 min | ~30-60 min |
+| nb02 batch (36 dekads, including CNN train) | 16.3 min | ~3-4 h |
+| nb03 metrics | 45.4 min | ~30 min |
+| nb04 QA | 6.9 min | ~30 min |
+| nb05 station validation | 0.5 min | ~5 min |
+| nb06 unified batch (all visualisations + Taylor) | 3.0 min | ~30-60 min |
+| **nb02 to nb06 total** | **72.1 min** | |
+
+The Bali column is measured, not estimated. nb03 dominates: metrics are computed for nine reference / method pairs per dekad. nb00 (AOI definition) and nb01 (download) are excluded, because both depend on the extent of the domain you request and on network throughput.
 
 ## What you get out
 
@@ -61,7 +64,7 @@ output/
   corrected_ls/         36 NetCDFs
   corrected_lseqm/      36 NetCDFs
   corrected_lseqmdl/    36 NetCDFs
-  trained_models/       36 .keras models + normalisation JSONs
+  trained_models/       36 .keras models
   metrics_ls/           per-dekad metrics NetCDFs
   metrics_lseqm/        per-dekad metrics NetCDFs
   metrics_lseqmdl/      per-dekad metrics NetCDFs
