@@ -39,7 +39,9 @@ npm run build    # static build into dist/
 
 The pages never compute results in the browser; every number comes from a committed file in
 `src/data/`. Those files are produced by the scripts in `extract/`, which read the framework's
-own outputs and reuse the thesis figure helpers so the dashboard cannot drift from the paper:
+own outputs and reuse the thesis figure helpers, the aim being to keep the dashboard aligned with
+the paper. Shared helpers reduce drift but do not prevent it: prose values still have to be checked
+against the numbers ledger by hand. The scripts are:
 
 - `extract_core.py` - headline stats, staged scorecards, Taylor and monthly-Taylor, seasonal cycle.
 - `extract_maps.py` - per-stage QA and station-density map tiles (PNG).
