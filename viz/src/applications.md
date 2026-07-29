@@ -13,7 +13,7 @@ title: Who it serves
 
 # What it is good for - and what it is not
 
-The corrected product moves the daily **distribution** to the gauge but inherits raw satellite **timing** (the [r ≈ 0.34 ceiling](./ceiling)). So the useful question is not "is it accurate?" but "does your application need the distribution or the calendar day?" Pick one:
+The corrected product moves the daily **distribution** to the gauge but inherits raw satellite **timing** (the [r ≈ 0.35 ceiling](./ceiling), measured against CPC-UNI at daily resolution, native window, per-pixel spatial median then averaged over the 36 dekads). So the useful question is not "is it accurate?" but "does your application need the distribution or the calendar day?" Pick one:
 
 ```js
 const repro = await FileAttachment("data/repro.json").json();
@@ -31,7 +31,7 @@ const app = view(Inputs.select(repro.applications, {
 const sm = repro.served[String(app.served)];
 display(html`<div class="card">
   <span class="verdict ${app.served ? "good" : "bad"}">${sm.label}</span>
-  <p style="margin:0.7rem 0 0.3rem"><b>${app.name}</b> depends on <b>${sm.skill.toLowerCase()}</b>${app.served ? ", which the correction moves to the gauge target (typically within 1-5%)." : ", which no marginal correction can add - the Pearson r ceiling of 0.34 is inherited from the satellite."}</p>
+  <p style="margin:0.7rem 0 0.3rem"><b>${app.name}</b> depends on <b>${sm.skill.toLowerCase()}</b>${app.served ? ", which the correction moves to the gauge target - to within 1-5% against the independent BMKG stations (bias −0.6%, SDR 1.00, Q99 1.01). Against CPC-UNI, the in-sample target it was fitted to, the upper tail overshoots instead, by 15-20% (SDR 1.15, Q99 1.20)." : ", which marginal correction barely moves - against CPC-UNI the daily Pearson r stays pinned close to its raw value, holding near 0.35 across all three stages (0.343 / 0.345 / 0.348)."}</p>
   <p style="margin:0; font-size:13px; color:var(--theme-foreground-muted)">Judge it by: ${sm.metrics}</p>
 </div>`);
 ```

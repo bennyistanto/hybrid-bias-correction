@@ -41,7 +41,7 @@
     "false": {
       "label": "Poorly-served",
       "skill": "Day-by-day timing",
-      "metrics": "Pearson r \u00b7 RMSE \u00b7 NSE (bounded by raw satellite)"
+      "metrics": "Pearson r \u00b7 RMSE \u00b7 NSE (pinned close to the raw value)"
     }
   },
   "applications": [
@@ -98,7 +98,7 @@
   ],
   "links": {
     "github": "https://github.com/bennyistanto/hybrid-bias-correction",
-    "zenodo": "https://doi.org/10.5281/zenodo.20287847",
-    "zenodo_doi": "10.5281/zenodo.20287847"
+    "zenodo": "https://doi.org/10.5281/zenodo.20287846",
+    "zenodo_doi": "10.5281/zenodo.20287846"
   }
 }

@@ -70,7 +70,7 @@ const sdLabels = SD.map((s) => ({s, x: s * Math.cos(Math.PI / 4), y: s * Math.si
 const indivPts = indivStations.map((s) => { const p = s.prod[stageKeyT]; return {...s, r: p.r, sdr: p.sdr, ...toXY(p.r, p.sdr)}; });
 const sel = indivPts.find((d) => d.id === selected.id);
 const greyPts = taylor.stations.filter((s) => s.prod.lseqmdl.r != null).map((s) => toXY(s.prod.lseqmdl.r, s.prod.lseqmdl.sdr));
-const summaryPts = taylor.products.map((pr) => { const po = taylor.pooled[pr.key]; return {key: pr.key, label: pr.label, r: po.r, sdr: po.sdr, ...toXY(po.r, po.sdr)}; });
+const summaryPts = taylor.products.map((pr) => { const po = taylor.median_across_stations[pr.key]; return {key: pr.key, label: pr.label, r: po.r, sdr: po.sdr, ...toXY(po.r, po.sdr)}; });
 ```
 
 ```js
@@ -110,7 +110,7 @@ display(Plot.plot({
   const box = html`<div></div>`;
   if (isSummary) {
     const P = taylor.products;
-    const pooled = taylor.pooled;
+    const pooled = taylor.median_across_stations;
     const ROWS = [
       {label: "Pearson r", key: "r", goal: "high"},
       {label: "Std-dev ratio", key: "sdr", goal: "one"},
@@ -129,7 +129,7 @@ display(Plot.plot({
     </table>`);
     box.append(html`<div class="keyfinding" style="margin-top:1.2rem">
       <span class="kf-label">Finding</span>
-      Every product correlates only <b>${pooled.cpc.r}</b> to <b>${pooled.imergf.r}</b> with the gauges - the timing ceiling holds for the raw satellites and the corrected stages alike. What the correction fixes is spread: LSEQM+DL lands at SDR <b>${pooled.lseqmdl.sdr}</b>, closer to the gauge than even CPC-UNI (<b>${pooled.cpc.sdr}</b>), which under-catches variance.
+      Across all six products the per-station median daily correlation against BMKG spans only <b>${pooled.cpc.r}</b> to <b>${pooled.imergf.r}</b> at the archived UTC day label - the timing limit holds for the raw satellites and the corrected stages alike. What the correction fixes is spread: LSEQM+DL lands at SDR <b>${pooled.lseqmdl.sdr}</b>, closer to the gauge than even CPC-UNI (<b>${pooled.cpc.sdr}</b>), which under-catches variance. CPC-UNI scoring lowest on correlation here is a property of the day label, not of the product: re-paired to the gauge day its per-station median rises to <b>0.86</b>.
     </div>`);
   } else {
     const info = selected;
@@ -163,7 +163,7 @@ display(Plot.plot({
 ```
 
 <div class="note" style="margin-top: 1.5rem">
-Correlation and standard-deviation ratio are whole-record statistics against BMKG (the Taylor source); the detection scores (POD, CSI, FAR, KS) in the individual card are the dekad-pooled medians.
+Correlation and standard-deviation ratio are daily, whole-record statistics against BMKG at the archived UTC day label, summarised as the median across stations (the Taylor source); the detection scores (POD, CSI, FAR, KS) in the individual card are the dekad-pooled medians.
 </div>
 
 ## Seasonal stability
@@ -211,7 +211,7 @@ const sdrVals = seasonal.lseqmdl.map((m) => m.sdr);
 
 <div class="keyfinding">
 <span class="kf-label">Finding</span>
-Every metric is flat across the seasonal cycle: LSEQM+DL's SDR holds within <b>${Math.min(...sdrVals).toFixed(2)}</b> to <b>${Math.max(...sdrVals).toFixed(2)}</b> all year and the stage ordering never flips. RMSE tracks rainfall magnitude - peak in the <b>DJF</b> wet season, trough in <b>August</b> - not method skill. The pooled headline is not driven by a handful of dekads.
+Every metric is flat across the seasonal cycle: LSEQM+DL's SDR holds within <b>${Math.min(...sdrVals).toFixed(2)}</b> to <b>${Math.max(...sdrVals).toFixed(2)}</b> all year and the stage ordering never flips. RMSE tracks rainfall magnitude - peak in the <b>DJF</b> wet season, trough in <b>August</b> - not method skill. The whole-record summary is not driven by a handful of dekads.
 </div>
 
 <div class="note" style="margin-top: 1rem">

@@ -63,15 +63,28 @@ name_by_wmo = {int(s["wmo"]): s["name"]
 # 4.5a: GPM-era r(h) by band, mean + IQR across stations
 rps = r_from_stats(A.sum(axis=0))            # (n_st, n_h)
 rh_bands = []
+# `n` must count stations that actually carry a correlation, not every row on the station
+# axis. Counting the raw axis gave 91 + 53 + 36 = 180 while the `stations` array below
+# holds 178 (ledger C2), so the same file disagreed with itself.
+valid_st = np.isfinite(rps).any(axis=1)
 for z, name in BANDS:
-    sel = tz == z
+    sel = (tz == z) & valid_st
     mr = np.nanmean(rps[sel], axis=0)
     pi = int(np.nanargmax(mr))
+    # peakR is the ledgered band quantity, R7: the MEDIAN of the per-station peak r, not
+    # the peak of the cross-station mean curve. The two differ by about 0.01 per band,
+    # which is what let the old R7 (0.56 / 0.62) go unchallenged - those values were in
+    # fact copied from R6 and R6a and had never been computed per band at all.
+    per_station_peak = np.nanmax(rps[sel], axis=1)
+    per_station_peak = per_station_peak[np.isfinite(per_station_peak)]
     rh_bands.append({"tz": int(z), "name": name, "n": int(sel.sum()),
                      "mean": rnd(mr, 3),
                      "q25": rnd(np.nanpercentile(rps[sel], 25, axis=0), 3),
                      "q75": rnd(np.nanpercentile(rps[sel], 75, axis=0), 3),
-                     "peakH": int(H[pi]), "peakR": round(float(mr[pi]), 3)})
+                     "peakH": int(H[pi]),
+                     "peakR": round(float(np.median(per_station_peak)), 3),
+                     "peakR_pooling": "median of the per-station peak r (ledger R7)",
+                     "meanCurvePeakR": round(float(mr[pi]), 3)})
 
 # 4.5b: h*(season) - pooled + per-band median across the 12 running seasons
 pooled_h, band_h = [], {7: [], 8: [], 9: []}
@@ -160,14 +173,18 @@ def _curves(tag):
     return o
 
 
-gpm, trmm = _curves("2015_2021"), _curves("2001_2014")
+# The pre-GPM era is 2001-2013: GPM launched in February 2014, so 2014 is a transition
+# year and the ledger's pre-GPM rows (R11a, R11b) exclude it. Building these curves from
+# the 2001-2014 sweep while labelling them only "TRMM" published a span the ledger does
+# not cover. Labels now carry the span so no reader has to infer it.
+gpm, trmm = _curves("2015_2021"), _curves("2001_2013")
 CURVES = [
-    ("native, gauged, GPM",      "#111111", False, 2.6, gpm["native_gauged"]),
-    ("native, gauged, TRMM",     "#111111", True,  2.0, trmm["native_gauged"]),
-    ("native, whole, GPM",       "#9a9a9a", False, 1.5, gpm["native_whole"]),
-    ("native, whole, TRMM",      "#9a9a9a", True,  1.3, trmm["native_whole"]),
-    ("harmonised, gauged, GPM",  "#882255", False, 2.6, gpm["harmonised_gauged"]),
-    ("harmonised, gauged, TRMM", "#882255", True,  2.0, trmm["harmonised_gauged"]),
+    ("native, gauged, GPM 2015-2021",   "#111111", False, 2.6, gpm["native_gauged"]),
+    ("native, gauged, TRMM 2001-2013",  "#111111", True,  2.0, trmm["native_gauged"]),
+    ("native, whole, GPM 2015-2021",    "#9a9a9a", False, 1.5, gpm["native_whole"]),
+    ("native, whole, TRMM 2001-2013",   "#9a9a9a", True,  1.3, trmm["native_whole"]),
+    ("harmonised, gauged, GPM 2015-2021",  "#882255", False, 2.6, gpm["harmonised_gauged"]),
+    ("harmonised, gauged, TRMM 2001-2013", "#882255", True,  2.0, trmm["harmonised_gauged"]),
 ]
 window_gridded = {
     "h": [int(x) for x in H],

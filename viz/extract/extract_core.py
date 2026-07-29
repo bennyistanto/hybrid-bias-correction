@@ -86,11 +86,25 @@ headline = {
     "stats": {
         "stations": 172, "archived": 180, "pixels": 19395, "cpc_cells": 1256,
         "dekads": 36, "period_cpc": "2001-2025", "period_bmkg": "2001-2021",
-        "repro_min": 72.1, "r_flat": 0.34,
+        "repro_min": 72.1,
+        # r_flat is CPC-UNI (in-sample), per-pixel spatial median then averaged over the
+        # 36 dekads: ledger R1a/S23 = 0.3476. The thesis renders it at 2 dp as 0.35, so
+        # this must too. The like-for-like BMKG value under the identical recipe is
+        # R14a = 0.24 and is emitted beside it, because quoting either alone is what
+        # produced the reference swaps this site has already shipped once.
+        "r_flat_cpc": 0.35, "r_flat_bmkg": 0.24,
+        # These two are BMKG, single pooled r over all station-days, GPM era: R4 and R5.
+        # Different reference AND different pooling from r_flat_*: do not draw them on
+        # the same axis.
         "r_window_utc": 0.20, "r_window_local": 0.57, "offset_h": -23,
     },
-    # Table 4.1 - out-of-sample skill vs 172 BMKG stations
+    # Table 4.1 - out-of-sample skill vs 172 BMKG stations.
+    # The Pearson row is ledger R14a: the mean of 36 dekadal cross-station medians, which
+    # is the IDENTICAL recipe to the CPC-UNI Pearson row in the "cpc" block below (R1a).
+    # They are the like-for-like pair, and the only honest way to show a daily r on this
+    # site is to show both together.
     "bmkg": [
+        {"pillar": "Temporal Skill",         "metric": "Pearson r",           "ls": 0.242, "lseqm": 0.236, "lseqmdl": 0.239, "target": 1.0,  "goal": "high"},
         {"pillar": "Value Adjustment",       "metric": "Relative Bias",       "ls": -0.114, "lseqm": 0.009, "lseqmdl": -0.006, "target": 0.0,  "goal": "zero"},
         {"pillar": "Value Adjustment",       "metric": "SDR",                 "ls": 0.71,  "lseqm": 1.03,  "lseqmdl": 1.00,  "target": 1.0,  "goal": "one"},
         {"pillar": "Distribution Alignment", "metric": "KS p-value (%)",      "ls": 0.01,  "lseqm": 19.07, "lseqmdl": 19.07, "target": 100.0,"goal": "high"},
@@ -177,6 +191,12 @@ for skey in ["ls", "lseqm", "lseqmdl"]:
             rec[m] = jnum(r[f"{m}_median"], 3)
             rec[f"{m}_lo"] = jnum(r[f"{m}_p25"], 3)
             rec[f"{m}_hi"] = jnum(r[f"{m}_p75"], 3)
+        # Above 50 mm the sample is too thin to order the stages. Ledger D2a: only 6 of
+        # 5,899 station-dekad records clear the 10-event minimum at 100 mm and the median
+        # CSI is 0.000 for both methods, so "no ordering is supportable at 100 mm";
+        # D2b records 0 qualifying at 150 mm. The 150 class was already nulled, but 100
+        # was still shipping a plottable, ordered point that the data does not support.
+        rec["supported"] = int(thr) <= 50
         rows.append(rec)
     threshold_curves[skey] = rows
     print(f"  threshold_curves[{skey}]: {len(rows)} thresholds")
@@ -203,7 +223,7 @@ repro = {
         "true":  {"label": "Well-served", "skill": "Distributional properties",
                   "metrics": "SDR · KS p · Q95/Q99 ratios · wet-day frequency"},
         "false": {"label": "Poorly-served", "skill": "Day-by-day timing",
-                  "metrics": "Pearson r · RMSE · NSE (bounded by raw satellite)"},
+                  "metrics": "Pearson r · RMSE · NSE (pinned close to the raw value)"},
     },
     # served flag tracks whether the application needs the daily distribution
     # (yes = well-served) or day-specific timing (no); topic repeats on both sides.
@@ -221,8 +241,8 @@ repro = {
     ],
     "links": {
         "github": "https://github.com/bennyistanto/hybrid-bias-correction",
-        "zenodo": "https://doi.org/10.5281/zenodo.20287847",
-        "zenodo_doi": "10.5281/zenodo.20287847",
+        "zenodo": "https://doi.org/10.5281/zenodo.20287846",
+        "zenodo_doi": "10.5281/zenodo.20287846",
     },
 }
 write_json("repro.json", repro, indent=2)
@@ -234,7 +254,12 @@ write_json("repro.json", repro, indent=2)
 sensitivity = {
     "envelope": [0.332, 0.348],
     "span": 0.016,
-    "note": "Bali subdomain, pooled per-pixel metrics over 36 dekads",
+    "note": "Bali subdomain, against CPC-UNI, daily, native window, per-pixel spatial "
+            "median then averaged over the 36 dekads (ledger R13). The reference was not "
+            "stated here before, so the 75 values could be read as station-referenced.",
+    "caveat": "blend_alpha 0.70, gpd_threshold_percentile 80 and saturation_count 2 were "
+              "chosen by inspection, not formally optimised. paper/NUMBERS.md requires "
+              "this caveat wherever the three are quoted.",
     "metrics": [
         {"key": "r", "label": "Pearson r", "goal": "high"},
         {"key": "rb", "label": "Relative bias (%)", "goal": "zero"},
@@ -279,7 +304,7 @@ paths = {
          "distance": "Moderate", "distance_ord": 2, "payoff": 1, "lift": None,
          "cost": "Larger calibration samples; tens of times more compute",
          "effect": "Open question - depends on the joint structure of the reference",
-         "summary": "Correct the joint distribution across pixels and time lags, not each margin alone. Not bound by the rank-preservation argument, but the recoverable joint structure is limited by a 0.5 deg, 172-station reference."},
+         "summary": "Correct the joint distribution across pixels and time lags, not each margin alone. Not bound by the rank-preservation argument, but the recoverable joint structure is limited by the 0.5 deg CPC-UNI reference."},
         {"key": "subdaily", "name": "Sub-daily disaggregation",
          "distance": "Moderate", "distance_ord": 2, "payoff": 2, "lift": None,
          "cost": "Half-hourly archive + geostationary IR (Himawari-9)",
@@ -291,10 +316,10 @@ paths = {
          "effect": "Reframes timing as uncertainty rather than removing it",
          "summary": "Sample an ensemble of plausible daily timings consistent with the corrected distribution. Scoring shifts to CRPS and rank histograms. Best for users who are already ensemble-aware."},
         {"key": "localday", "name": "Local-day re-aggregation",
-         "distance": "Small", "distance_ord": 1, "payoff": 3, "lift": [0.34, 0.57],
+         "distance": "Small", "distance_ord": 1, "payoff": 3, "lift": [0.20, 0.57],
          "cost": "Re-run the pipeline on a re-aggregated archive (modest, archive-intensive)",
          "effect": "Targets the UTC-vs-local-day artefact; most actionable for UTC+7 to UTC+9",
-         "summary": "Re-aggregate native half-hourly IMERG to a 24-hour window ending 07:00 local before correcting. Removes the calendar mismatch with no methodology change; expected lift r 0.34 to 0.57. The path the reproducible pipeline most directly enables."},
+         "summary": "Re-aggregate native half-hourly IMERG to a 24-hour window ending 07:00 local before correcting. Removes the calendar mismatch with no methodology change; against the BMKG stations this lifts the pooled daily r from 0.20 at the archived UTC label to 0.57 at the matched window. The path the reproducible pipeline most directly enables."},
     ],
 }
 write_json("paths.json", paths, indent=2)
@@ -319,13 +344,22 @@ for r in tdf.itertuples():
     t_stations.append({"id": int(r.station_id), "name": str(r.station_name),
                        "region": str(r.region), "lon": round(float(r.lon), 3),
                        "lat": round(float(r.lat), 3), "prod": prod})
-pooled = {}
+# NOTE the pooling word matters. This is the arithmetic MEAN across stations, which is
+# not one of the five pooling phrases paper/NUMBERS.md allows, and "pooled" is banned by
+# name in its Section 0. The ledgered quantity (R15) is the per-station MEDIAN, so both
+# are emitted under self-describing keys and pages must state which one they render.
+mean_across_stations, median_across_stations = {}, {}
 for key, _ in TPRODUCTS:
     grab = lambda m: [s["prod"][key][m] for s in t_stations if s["prod"][key][m] is not None]
-    pooled[key] = {"r": round(float(np.mean(grab("r"))), 3), "sdr": round(float(np.mean(grab("sdr"))), 3),
-                   "rmse": round(float(np.mean(grab("rmse"))), 2), "bias": round(float(np.mean(grab("bias"))), 3)}
+    mean_across_stations[key] = {"r": round(float(np.mean(grab("r"))), 3), "sdr": round(float(np.mean(grab("sdr"))), 3),
+                                 "rmse": round(float(np.mean(grab("rmse"))), 2), "bias": round(float(np.mean(grab("bias"))), 3)}
+    median_across_stations[key] = {"r": round(float(np.median(grab("r"))), 3), "sdr": round(float(np.median(grab("sdr"))), 3),
+                                   "rmse": round(float(np.median(grab("rmse"))), 2), "bias": round(float(np.median(grab("bias"))), 3)}
 write_json("taylor.json", {"products": [{"key": k, "label": l} for k, l in TPRODUCTS],
-                           "stations": t_stations, "pooled": pooled})
+                           "stations": t_stations,
+                           "mean_across_stations": mean_across_stations,
+                           "median_across_stations": median_across_stations})
+pooled = median_across_stations  # for the print below only
 print(f"  taylor: {len(t_stations)} stations x {len(TPRODUCTS)} products; "
       f"pooled r lseqmdl={pooled['lseqmdl']['r']} imergl={pooled['imergl']['r']}")
 

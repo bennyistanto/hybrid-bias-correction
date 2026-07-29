@@ -8,7 +8,7 @@ title: Whole-domain & era
 
 # The window offset: whole-domain & era
 
-The [calendar-window](./window) recovery rests on a robust diagnostic. This page carries the depth behind it: when the offset emerged, that it holds in every timezone band and season, station by station, and across the whole 0.5&deg; domain.
+The [calendar-window](./window) recovery rests on one window-offset diagnostic, re-run on every slice of the record. This page carries the depth behind it: when the offset emerged, that it holds in every timezone band and season, station by station, and across the whole 0.5&deg; domain.
 
 ## The satellite-era reveal
 
@@ -60,7 +60,7 @@ display(Plot.plot({
 
 <div class="keyfinding">
 <span class="kf-label">Finding</span>
-Before the 2014/15 GPM transition the UTC-day <i>r</i> and the best-window <i>r</i> sit almost on top of each other, and the optimal offset <b>h★</b> wanders - the sub-daily timing signal is undetectable. After it, the window-aligned <i>r</i> pulls clear of the UTC-day <i>r</i> (the shaded gain, <b>0.20</b> → <b>0.57</b>) and h★ locks to <b>−22/−23 h</b>. The calendar-window recovery only exists once IMERG resolves the diurnal cycle.
+Before the 2014/15 GPM transition the UTC-day <i>r</i> and the best-window <i>r</i> sit almost on top of each other, and the optimal offset <b>h★</b> wanders - the sub-daily timing signal is undetectable. After it, the window-aligned <i>r</i> pulls clear of the UTC-day <i>r</i> (the shaded gain, <b>0.20</b> → <b>0.57</b>: daily <i>r</i> against the independent BMKG stations, a single correlation pooled over all station-days of the GPM era, 2015-2021) and h★ locks to <b>−22/−23 h</b>. The calendar-window recovery only exists once IMERG resolves the diurnal cycle.
 </div>
 
 ## Season and timezone
@@ -112,7 +112,9 @@ display(Plot.plot({
 
 ## Per-station offset & lift
 
-Every station's own best offset, and the correlation it unlocks. Median h★ is **${wg.summary.median_hstar} h** (IQR ${wg.summary.iqr_hstar[0]} to ${wg.summary.iqr_hstar[1]}); the median lift from the UTC day to the matched window is **Δr = ${wg.summary.median_lift}**, taking the typical station's peak *r* to **${wg.summary.median_peakr}**.
+Every station's own best offset, and the correlation it unlocks. Median h★ is **${wg.summary.median_hstar} h** (IQR ${wg.summary.iqr_hstar[0]} to ${wg.summary.iqr_hstar[1]}). The lift from the UTC day to **each station's own** best offset, taken per station and then median over the 178 stations, is **Δr = ${wg.summary.median_lift}** (IQR 0.318 to 0.444), putting the typical station's peak daily *r* against BMKG at **${wg.summary.median_peakr}** (IQR 0.51 to 0.62).
+
+This is a *different* quantity from the **0.20 → 0.57** on the [calendar-window page](./window), which is one correlation pooled over all station-days at a single fixed offset of −23 h. The two land close together here, but they are not the same measurement and should not be quoted for each other.
 
 ```js
 const idnAdm1w = FileAttachment("data/idn_adm1.geojson").json();
@@ -192,7 +194,7 @@ display(html`<img src=${gharm} style=${imgStyle} alt="harmonised h*">`);
 
 ## Gridded r(h): gauged vs whole domain
 
-Pooling the offset sweep confirms the two levels: over the **gauged cells** the window-matched *r* reaches the per-station **≈ 0.57**; over the **whole domain** it settles at **≈ 0.34**, diluted by the data-sparse east. The peak offset is identical in the GPM and TRMM-input eras.
+Pooling the offset sweep confirms the two levels: over the **134 gauge-hosting cells** the sweep peaks at **0.566**, against **0.335** over the **whole domain**, diluted by the data-sparse east. Both are gridded CPC-UNI cell values, not the BMKG per-station figure, and both peak at **h = +1** rather than at the −23 h the gauges show. Each sits within 0.003 of its value at the archived **h = 0** (0.564 and 0.334), which is the point: CPC-UNI dates its totals to the UTC day as IMERG does, so re-windowing barely moves it. The peak offset agrees to within an hour between the GPM and TRMM-input eras.
 
 ```js
 display(html`<div style="display:flex;flex-wrap:wrap;gap:12px;font-size:12px;margin-bottom:4px">${wgrid.curves.map((c) => html`<span style="display:inline-flex;align-items:center;gap:5px"><svg width=24 height=8><line x1=0 y1=4 x2=24 y2=4 stroke=${c.color} stroke-width=${Math.min(c.width, 2.5)} stroke-dasharray=${c.dash ? "4,3" : "0"}></line></svg>${c.label}</span>`)}</div>`);
@@ -218,9 +220,9 @@ display(Plot.plot({
 
 <div class="keyfinding">
 <span class="kf-label">Finding</span>
-Native CPC-UNI shares IMERG-L's UTC day, so its peak sits at <b>h = 0</b>; harmonised to the local day it moves to <b>h = −23</b> - the same clock offset the gauges show. Gauged cells reach <b>${wgrid.summary.gauged_peak}</b>, the whole domain <b>${wgrid.summary.whole_peak}</b>. Solid = GPM era, dashed = TRMM-input era: the offset is era-identical, so the calendar mismatch is a fixed convention, not a retrieval artefact.
+Native CPC-UNI shares IMERG-L's UTC day, so its peak sits at <b>h = 0</b>; harmonised to the local day it moves to <b>h = −23</b> - the same clock offset the gauges show. Gauged cells reach <b>${wgrid.summary.gauged_peak}</b>, the whole domain <b>${wgrid.summary.whole_peak}</b>. Solid = GPM era, dashed = TRMM-input era: the offset agrees to within an hour across the two, so the calendar mismatch is a fixed convention, not a retrieval artefact.
 </div>
 
 <div class="note" style="margin-top: 1.5rem">
-Every curve here is computed with the same window-offset diagnostic that produced the [calendar-window dial](./window) - the recovery is real, robust across space, season and satellite era, and reproducible from the released code.
+Every curve here is computed with the same window-offset diagnostic that produced the [calendar-window dial](./window) - the recovery is real, it holds in every timezone band, season and satellite era tested as well as across the whole domain, and it is reproducible from the released code.
 </div>

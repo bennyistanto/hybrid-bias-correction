@@ -12,7 +12,7 @@ title: Detection by threshold
 
 # Detection skill across rainfall thresholds
 
-The pooled event-detection numbers on the [scorecard](./staged-skill) show POD falling from **0.78** (LS) to **0.65** after correction - which looks like a loss. It is not: it is a **crossover**. Raw LS wins at drizzle by over-forecasting wet days; the corrected product gives that back in exchange for a calibrated wet-day frequency and better skill at the heavy rain that actually matters. Move across the threshold axis and watch it flip.
+The event-detection numbers on the [scorecard](./staged-skill) - the per-station median across the 172 BMKG stations - show POD falling from **0.78** (LS) to **0.65** after correction, which looks like a loss. It is not: it is a **crossover**. LS wins at drizzle by over-forecasting wet days; the corrected product gives that back in exchange for a calibrated wet-day frequency and higher skill from 20 mm/day upward, the ETCCDI very-heavy-rain threshold. Move across the threshold axis and watch it flip.
 
 ```js
 import {STAGE_KEY, STAGE_COLORS} from "./components/util.js";
@@ -39,8 +39,9 @@ const showBand = view(Inputs.toggle({label: "Show station IQR band", value: fals
 
 ```js
 const STAGES = ["LS", "LSEQM", "LSEQM+DL"];
+// `supported` is false at 100 and 150 mm: too few gauge exceedances to order the stages.
 const long = STAGES.flatMap((s) => curves[STAGE_KEY[s]]
-  .filter((d) => d[metric] != null)
+  .filter((d) => d.supported && d[metric] != null)
   .map((d) => ({stage: s, thr: d.thr, label: d.label, v: d[metric], lo: d[`${metric}_lo`], hi: d[`${metric}_hi`]})));
 ```
 
@@ -49,8 +50,8 @@ display(Plot.plot({
   width,
   height: 430,
   marginRight: 20,
-  x: {type: "log", label: "rainfall threshold (mm/day) →", domain: [0.85, 130],
-      ticks: [1, 5, 10, 20, 50, 100], tickFormat: (d) => `${d}`, grid: true},
+  x: {type: "log", label: "rainfall threshold (mm/day) →", domain: [0.85, 62],
+      ticks: [1, 5, 10, 20, 50], tickFormat: (d) => `${d}`, grid: true},
   y: {label: `↑ ${METRIC_META[metric].label}`, grid: true,
       domain: metric === "fbi" ? [0, 1.55] : [0, 1]},
   color: {legend: true, domain: STAGES, range: STAGES.map((s) => STAGE_COLORS[s])},
@@ -83,7 +84,7 @@ display(html`<blockquote>${READ[metric]} LSEQM and LSEQM+DL track almost identic
 ```
 
 <div class="note">
-Skill is pooled as the cross-station median per dekad, then averaged over the 36 dekads (172 BMKG stations). Above 50 mm/day events become rare - roughly 7 per dekad at 50 mm, ~1 at 100 mm - so the curves thin out and the 150 mm "extreme" class is omitted as unstable. Toggle the IQR band to see the across-station spread.
+Skill is pooled as the cross-station median per dekad, then averaged over the 36 dekads (172 BMKG stations, daily totals paired on the archived day labels, that is the native h = 0 window). Above 50 mm/day the sample thins out fast: inside a given dekad-of-year window a station averages about <b>5</b> gauge exceedances at 50 mm over the whole 2001-2021 record, but only about <b>0.7</b> at 100 mm. WMO/TD-1485's ten-event minimum is then almost never met - only 6 of 5,899 station-dekad records qualify at 100 mm, with a median CSI of 0.000 for every stage, and none qualify at 150 mm. Both classes are therefore omitted from the curves rather than plotted as if they ranked the stages. Toggle the IQR band to see the across-station spread.
 <br><br>
 The pooled version of this trade-off is the event-detection pillar on the [staged scorecard](./staged-skill); the flat timing track it cannot fix is [the timing ceiling](./ceiling).
 </div>

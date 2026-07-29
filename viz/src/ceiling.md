@@ -7,13 +7,13 @@ title: The timing ceiling
 .callout { border-left: 3px solid var(--theme-foreground-focus); padding: 0.4rem 0 0.4rem 1rem; margin: 1rem 0; }
 </style>
 
-# The r ≈ 0.34 timing ceiling
+# Why correcting the distribution does not fix daily timing
 
-Every stage lands Pearson *r* near **0.34** against the gauge. This is not a shortcoming of the correction - it is the **predicted** behaviour of any marginal correction. The pipeline's quantile mapping is strictly monotonic, so if the satellite reports more rain on day *i* than day *j* before correction, it still does after. The day-by-day pairing is fixed by the satellite; no marginal step can move rain from one day to its neighbour. You can reshape the **distribution** all you like - the **timing** does not move.
+Every stage lands daily Pearson *r* near **0.35** against CPC-UNI and near **0.24** against the independent BMKG stations. This is the expected behaviour of a marginal correction, not a shortcoming of this one. Each stage maps a pixel's value through a monotone non-decreasing function, so it introduces no rank reversals between days: if the satellite reported more rain on day *i* than day *j*, it still does after correction. Ordering is not preserved exactly, because dry-day matching ties about 43% of days at zero and ties can be created or broken there, but the effect on *r* is small. The day-by-day pairing is set by the satellite retrieval, and a marginal step cannot move rain from one day to its neighbour. You can reshape the **distribution** all you like - the **timing** does not move.
 
 <div class="keyfinding">
 <span class="kf-label">Key finding</span>
-Across all three correction stages, pooled daily Pearson <i>r</i> moves just <b>0.005</b> - from <b>0.343</b> (LS) to <b>0.345</b> (LSEQM) to <b>0.348</b> (LSEQM+DL). The correction reshapes the distribution; it does not touch the timing.
+Against CPC-UNI, daily Pearson <i>r</i> moves just <b>0.005</b> across the three stages - from <b>0.343</b> (LS) to <b>0.345</b> (LSEQM) to <b>0.348</b> (LSEQM+DL), as a per-pixel spatial median averaged over the 36 dekads. Against the independent BMKG stations, under the identical recipe, it moves from <b>0.242</b> to <b>0.236</b> to <b>0.239</b>. The correction reshapes the distribution; it does not touch the timing, against either reference.
 </div>
 
 ```js
@@ -71,7 +71,7 @@ const ks = ksStat(corrected, gauge);
   <div class="card">
     <h2>Correlation with gauge</h2>
     <span class="big">${rCorr.toFixed(3)}</span>
-    raw ${rRaw.toFixed(3)} → corrected ${rCorr.toFixed(3)} · essentially unchanged
+    raw ${rRaw.toFixed(3)} → corrected ${rCorr.toFixed(3)} · pinned close to the raw value
   </div>
   <div class="card">
     <h2>Distribution mismatch (KS)</h2>
@@ -100,11 +100,16 @@ Slide λ from 0 to 1: KS falls toward 0 (the corrected distribution meets the ga
 
 ## The same thing on the real numbers
 
-Pooled daily *r* against the 172 BMKG stations, by stage - flat by construction. The dashed line is what the **same data** reaches once re-aggregated to the local-day window: the real headroom is not in the correction stages, it is in the [calendar-window convention](./window).
+Daily *r* by stage, against both references. The recipe is the same in structure: a median taken across the reference's own units within each dekad - over the 19,393 land pixels for CPC-UNI, over the stations for BMKG - then averaged across the 36 dekads. CPC-UNI is the dataset the correction was fitted to, so it is the in-sample number; the 172 BMKG stations are held out of the fitting. Both are flat across the stages, which is the point of the page.
 
 ```js
-const rrow = headline.temporal.find((t) => /Pearson/.test(t.metric));
-const rbars = [["LS", rrow.ls], ["LSEQM", rrow.lseqm], ["LSEQM+DL", rrow.lseqmdl]].map(([stage, r]) => ({stage, r}));
+const rcpc = headline.cpc.find((t) => /Pearson/.test(t.metric));
+const rbmkg = headline.bmkg.find((t) => /Pearson/.test(t.metric));
+const rbars = ["LS", "LSEQM", "LSEQM+DL"].flatMap((stage) => {
+  const k = stage === "LSEQM+DL" ? "lseqmdl" : stage.toLowerCase();
+  return [{stage, reference: "vs CPC-UNI (in-sample)", r: rcpc[k]},
+          {stage, reference: "vs BMKG (independent)", r: rbmkg[k]}];
+});
 const s = headline.stats;
 ```
 
@@ -113,14 +118,15 @@ display(Plot.plot({
   width: width,
   height: 300,
   marginLeft: 90,
-  x: {domain: ["LS", "LSEQM", "LSEQM+DL"], label: null},
-  y: {domain: [0, 0.65], grid: true, label: "↑ daily Pearson r vs BMKG"},
-  color: {domain: ["LS", "LSEQM", "LSEQM+DL"], range: ["LS", "LSEQM", "LSEQM+DL"].map((k) => STAGE_COLORS[k])},
+  x: {axis: null},
+  fx: {domain: ["LS", "LSEQM", "LSEQM+DL"], label: null},
+  y: {domain: [0, 0.42], grid: true, label: "↑ daily Pearson r (dekad-averaged median)"},
+  color: {legend: true, domain: ["vs CPC-UNI (in-sample)", "vs BMKG (independent)"], range: ["#4477aa", "#cc6677"]},
   marks: [
-    Plot.barY(rbars, {x: "stage", y: "r", fill: "stage", tip: true, channels: {stage: "stage", "Pearson r": "r"}}),
-    Plot.text(rbars, {x: "stage", y: "r", text: (d) => d.r.toFixed(3), dy: -8, fontSize: 12}),
-    Plot.ruleY([s.r_window_local], {stroke: "#b2182b", strokeDasharray: "5,4"}),
-    Plot.text([{}], {frameAnchor: "top-right", dx: -6, dy: -2, y: s.r_window_local, text: [`${s.r_window_local} with local-day window →`], fontSize: 11, fill: "#b2182b", textAnchor: "end"}),
+    Plot.barY(rbars, {fx: "stage", x: "reference", y: "r", fill: "reference", tip: true,
+                      channels: {stage: "stage", reference: "reference", "Pearson r": "r"}}),
+    Plot.text(rbars, {fx: "stage", x: "reference", y: "r", text: (d) => d.r.toFixed(3),
+                      dy: -8, fontSize: 11}),
     Plot.ruleY([0])
   ]
 }));
@@ -128,7 +134,7 @@ display(Plot.plot({
 
 ## The monthly Taylor
 
-The bound is not a one-off pooled number. Every product's Taylor position - all six, in all twelve months - sits at the same low correlation. The correction slides the cloud **along the standard-deviation axis** (LS under-spread → LSEQM/LSEQM+DL on the reference circle) but never **toward the correlation axis**. Each grey dot is one BMKG station (all six products pooled); the coloured dots are the per-product medians. The cloud concentrates in the low-correlation wedge - a median near *r* ≈ 0.23, most stations below 0.5 - so the ceiling is a property of the whole network, not an artefact of pooling. A thin tail of stations reaches higher, but no product median does. Pick a month:
+The limit is not an artefact of one summary statistic. Every product's Taylor position - all six, in all twelve months - sits at a similarly low correlation. The correction slides the cloud **along the standard-deviation axis** (LS under-spread → LSEQM/LSEQM+DL on the reference circle) but never **toward the correlation axis**. Each grey dot is one BMKG station (all six products pooled); the coloured dots are the per-product medians. The cloud concentrates in the low-correlation wedge - product medians between *r* = 0.20 and 0.24, most stations below 0.5 - so the limit is a property of the whole network, not of how the summary was taken. A thin tail of stations reaches higher, but no product median does. Pick a month:
 
 ```js
 const mtaylor = await FileAttachment("data/monthly_taylor.json").json();
@@ -182,9 +188,9 @@ display(Plot.plot({
 
 <div class="keyfinding">
 <span class="kf-label">Headline proposition</span>
-A marginal (per-cell) correction is a monotonic remap of each day's value; it cannot move rain from one day to its neighbour. So Pearson <i>r</i> is <b>bounded by the raw retrieval</b> - and on the Taylor diagram every product, every month, clusters near <b>r ≈ 0.22</b>. What the correction fixes is the radius: the standard-deviation ratio goes from LS <b>0.72</b> to LSEQM+DL <b>≈ 1.0</b>. The cloud moves out to the reference circle, never around toward the perfect corner.
+A marginal (per-cell) correction is a monotone remap of each day's value; it cannot move rain from one day to its neighbour. So Pearson <i>r</i> stays <b>pinned close to the raw retrieval</b> - and on the Taylor diagram all six products cluster between <b>0.20</b> and <b>0.24</b>, taken as the per-station median of the dekadal correlation across the 171 stations that have one. What the correction fixes is the radius: on that same basis the standard-deviation ratio moves from <b>0.72</b> for LS to <b>1.00</b> for LSEQM+DL. The cloud moves out to the reference circle, never around toward the perfect corner.
 </div>
 
 <div class="note" style="margin-top:1.5rem">
-The ceiling is real but conventional, not fundamental. For a fixed UTC-day pairing the stages cannot beat ~<b>${s.r_flat}</b>; re-labelling to the local day lifts the <i>same</i> product to <b>${s.r_window_local}</b> (see <a href="./window">5.2</a>). Beyond that, closing the gap needs methods outside the marginal-correction family - the <a href="./paths">four paths</a>.
+The limit is real, and part of it is conventional rather than fundamental. Held to a fixed UTC-day pairing, no stage moves daily <i>r</i> away from <b>${s.r_flat_cpc}</b> against CPC-UNI or <b>${s.r_flat_bmkg}</b> against BMKG. How much of that is a day-label artefact can only be measured against BMKG, because CPC-UNI dates its totals to the UTC day exactly as IMERG does and so carries no offset: re-pairing IMERG-L to the BMKG gauge day raises the pooled daily correlation there from <b>${s.r_window_utc}</b> to <b>${s.r_window_local}</b> (see <a href="./window">the window diagnostic</a>). Beyond that, closing the remaining gap needs methods outside the marginal-correction family - the <a href="./paths">four paths</a>.
 </div>

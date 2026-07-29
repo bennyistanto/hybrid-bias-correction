@@ -25,7 +25,7 @@ const env = sens.envelope;
 ```
 
 <div class="callout">
-Across all <b>15</b> settings, pooled Pearson <span class="big">r</span> spans only <span class="big">${sens.span}</span> - the whole envelope is <b>[${env[0]}, ${env[1]}]</b>. Daily correlation is nearly invariant to every knob the pipeline exposes.
+Across all <b>15</b> settings, Pearson <span class="big">r</span> against CPC-UNI (daily, native window, per-pixel spatial median then dekad-averaged, Bali subdomain) spans only <span class="big">${sens.span}</span> - the whole envelope is <b>[${env[0]}, ${env[1]}]</b>. Daily correlation stays pinned close to its raw value under every knob the pipeline exposes, moving only within sampling noise.
 </div>
 
 ```js
@@ -37,7 +37,7 @@ function panel(p) {
   return Plot.plot({
     width: 300, height: 250, marginBottom: 44, marginLeft: 48, marginTop: 24,
     x: {label: `${p.label} →`, domain: [xmin - pad, xmax + pad], ticks: p.values, tickFormat: (d) => `${d}`},
-    y: {label: p.key === "alpha" ? "↑ Pearson r (pooled)" : null, domain: [0.30, 0.36], grid: true},
+    y: {label: p.key === "alpha" ? "↑ Pearson r vs CPC-UNI (daily, per-pixel median)" : null, domain: [0.30, 0.36], grid: true},
     marks: [
       Plot.rect([{}], {x1: xmin - pad, x2: xmax + pad, y1: env[0], y2: env[1], fill: "#1f78b4", fillOpacity: 0.10}),
       Plot.line(pts, {x: "x", y: "r", stroke: "#1f78b4", strokeWidth: 2}),
@@ -55,7 +55,7 @@ The shaded band is the full sweep envelope; every curve stays inside it, and eac
 
 ## The full sweep
 
-All fifteen settings, pooled per-pixel over the Bali subdomain. The operating default of each parameter is shaded. Pearson *r* holds in **[${env[0]}, ${env[1]}]**, but the distribution metrics do respond - the **GPD threshold** drives the most movement (SDR **0.923 → 0.867** across its range), which is why it is the one setting a downstream user would most need to revisit.
+All fifteen settings, against CPC-UNI daily at the native window, per-pixel spatial median over the Bali subdomain then dekad-averaged. The operating default of each parameter is shaded. Pearson *r* holds in **[${env[0]}, ${env[1]}]**, but the distribution metrics do respond - the **GPD threshold** drives the most movement (SDR **0.923 → 0.867** across its range, read off the SDR column of the table below), which is why it is the one setting a downstream user would most need to revisit.
 
 ```js
 display(html`<table class="sweeptable">
@@ -74,6 +74,6 @@ display(html`<table class="sweeptable">
 
 ## Why this is the expected result, not a lucky one
 
-The parameters shape *how* the marginal correction is applied, but none of them add day-to-day timing information. Pearson *r* is bounded by the satellite retrieval (the [r ≈ 0.34 ceiling](./ceiling)), so tuning α, the GPD threshold, or the saturation count moves skill only within the noise. Formal optimisation would not lift the ceiling - that needs the [calendar-window fix](./window) or a different [class of method](./paths).
+The parameters shape *how* the marginal correction is applied, but none of them add day-to-day timing information. Pearson *r* stays pinned close to the raw satellite value (the [r ≈ 0.35 ceiling](./ceiling) against CPC-UNI), so tuning α, the GPD threshold, or the saturation count moves skill only within sampling noise. Formal optimisation would not lift the ceiling - that needs the [calendar-window fix](./window) or a different [class of method](./paths).
 
-The one place a parameter matters more than this chart suggests is **spatial**: the [density saturation count](./density) barely moves pooled *r*, but it decides *where* the CNN is allowed to act. Invariance in the pooled number is not the same as invariance in the map. The thesis flags all three as reasonable-but-unoptimised settings, and this sweep is the evidence that the choice is safe within its range.
+The one place a parameter matters more than this chart suggests is **spatial**: the [density saturation count](./density) barely moves the spatial-median *r*, but it decides *where* the CNN is allowed to act. Stability in the spatial-median number is not the same as stability in the map. The thesis flags all three as reasonable-but-unoptimised settings, and this sweep supports only a narrow claim: varying one parameter at a time, over the 80 land pixels of the Bali subdomain, daily *r* does not respond across the range tested. It is not a joint optimisation, and it says nothing about the parameters at full-domain scale.

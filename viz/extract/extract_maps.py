@@ -98,8 +98,14 @@ for dk, (var, label, kind) in DIMS.items():
         grids[stg] = g
     extent = [float(lon.min()), float(lon.max()), float(lat.min()), float(lat.max())]
 
-    # domain means are computed on the RAW grids; only the display is smoothed
-    meta["means"][dk] = {stg: round(float(np.nanmean(g)), 3) for stg, g in grids.items()}
+    # Domain statistics are computed on the RAW grids; only the display is smoothed.
+    # Pooling must match paper/NUMBERS.md S24: the spatial MEDIAN over finite pixels
+    # within each dekad, then the mean of those 36 medians. A spatial nanmean was used
+    # here previously and produced a third published CQI triple (0.536 / 0.500 / 0.503)
+    # alongside the ledger's and the docs site's, for what a reader takes to be one
+    # quantity. Emitted under an explicit key so the pooling travels with the number.
+    meta["means"][dk] = {stg: round(float(np.nanmedian(g)), 3) for stg, g in grids.items()}
+    meta.setdefault("pooling", {})[dk] = "spatial median over finite pixels, dekad-averaged"
 
     cat = kind == "cat"
     interp = "nearest" if cat else "bilinear"

@@ -4,7 +4,8 @@
     0.348
   ],
   "span": 0.016,
-  "note": "Bali subdomain, pooled per-pixel metrics over 36 dekads",
+  "note": "Bali subdomain, against CPC-UNI, daily, native window, per-pixel spatial median then averaged over the 36 dekads (ledger R13). The reference was not stated here before, so the 75 values could be read as station-referenced.",
+  "caveat": "blend_alpha 0.70, gpd_threshold_percentile 80 and saturation_count 2 were chosen by inspection, not formally optimised. paper/NUMBERS.md requires this caveat wherever the three are quoted.",
   "metrics": [
     {
       "key": "r",

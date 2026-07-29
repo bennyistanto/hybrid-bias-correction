@@ -10,7 +10,7 @@
       "lift": null,
       "cost": "Larger calibration samples; tens of times more compute",
       "effect": "Open question - depends on the joint structure of the reference",
-      "summary": "Correct the joint distribution across pixels and time lags, not each margin alone. Not bound by the rank-preservation argument, but the recoverable joint structure is limited by a 0.5 deg, 172-station reference."
+      "summary": "Correct the joint distribution across pixels and time lags, not each margin alone. Not bound by the rank-preservation argument, but the recoverable joint structure is limited by the 0.5 deg CPC-UNI reference."
     },
     {
       "key": "subdaily",
@@ -41,12 +41,12 @@
       "distance_ord": 1,
       "payoff": 3,
       "lift": [
-        0.34,
+        0.2,
         0.57
       ],
       "cost": "Re-run the pipeline on a re-aggregated archive (modest, archive-intensive)",
       "effect": "Targets the UTC-vs-local-day artefact; most actionable for UTC+7 to UTC+9",
-      "summary": "Re-aggregate native half-hourly IMERG to a 24-hour window ending 07:00 local before correcting. Removes the calendar mismatch with no methodology change; expected lift r 0.34 to 0.57. The path the reproducible pipeline most directly enables."
+      "summary": "Re-aggregate native half-hourly IMERG to a 24-hour window ending 07:00 local before correcting. Removes the calendar mismatch with no methodology change; against the BMKG stations this lifts the pooled daily r from 0.20 at the archived UTC label to 0.57 at the matched window. The path the reproducible pipeline most directly enables."
     }
   ]
 }

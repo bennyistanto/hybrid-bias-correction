@@ -10,7 +10,7 @@ title: Raising the ceiling
 .lift { font-size: 1.4rem; font-weight: 700; color: #b2182b; }
 </style>
 
-# Four paths beyond r ≈ 0.34
+# Four paths beyond the daily timing limit
 
 The marginal correction reaches its timing ceiling by design. Raising it means adding timing information the satellite did not carry - a different class of method. The thesis surveys four, positioned here by how far each sits from the current pipeline against how much ceiling lift it can be expected to deliver. One sits alone in the cheap-and-high-payoff corner - and it is the one this dashboard already quantifies.
 
@@ -58,7 +58,7 @@ display(html`<div class="card">
 
 ## The low-hanging fruit is already on the dashboard
 
-Three of the four paths are moderate-to-large departures with uncertain or partial payoff. The fourth - **local-day re-aggregation** - is a *small* change (re-window the input before the unchanged pipeline) with the only **quantified** lift: **r 0.34 → 0.57**, the recovery you can slide through yourself on the [calendar-window page](./window). It is the path the reproducibility contribution most directly enables: the daily-aggregation window is an exposed pipeline parameter, so any user can re-aggregate the archive and re-verify against the same BMKG set.
+Three of the four paths are moderate-to-large departures with uncertain or partial payoff. The fourth - **local-day re-aggregation** - is a *small* change (re-window the input before the unchanged pipeline) with the only **quantified** lift: against the BMKG stations, pooled daily **r 0.20 → 0.57**, the recovery you can slide through yourself on the [calendar-window page](./window). It is the path the reproducibility contribution most directly enables: the daily-aggregation window is an exposed pipeline parameter, so any user can re-aggregate the archive and re-verify against the same BMKG set.
 
 <div class="note" style="margin-top:1.5rem">
 All four paths leave the LSEQM+DL pipeline intact for the [well-served applications](./applications) - users who need the distribution, not the calendar day, already have their product. These routes matter only for the timing-critical class, and the cheapest of them targets exactly the [convention artefact](./window) this work diagnosed.

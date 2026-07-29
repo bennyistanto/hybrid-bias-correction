@@ -14,7 +14,7 @@ table.scorecard tr.rule td { border-top: 2px solid var(--theme-foreground-muted)
 
 # Staged skill against the gauge
 
-The correction is built in three stages - Linear Scaling (LS), then LS + Empirical Quantile Mapping + a GPD tail (LSEQM), then a CNN refinement (LSEQM+DL). It is scored two ways: **out-of-sample** against the 172 independent BMKG stations (the strongest claim), and **in-sample** against the CPC-UNI target the correction was trained on. Together they show the marginal distribution moving to the gauge while the day-by-day timing does not.
+The correction is built in three stages - Linear Scaling (LS), then LS + Empirical Quantile Mapping + a GPD tail (LSEQM), then a CNN refinement (LSEQM+DL). It is scored two ways: **out-of-sample** against the 172 BMKG stations, which are independent of the fitting but not of the reference dataset (CPC-UNI ingests BMKG-derived GTS reports, so the two share some source observations), and **in-sample** against the CPC-UNI target the correction was trained on. Together they show the marginal distribution moving to the gauge while the day-by-day timing does not.
 
 ```js
 import {fmt, STAGE_KEY, STAGE_COLORS} from "./components/util.js";
@@ -31,7 +31,7 @@ Each stage moves the metrics matched to its design dimension and leaves the othe
 const ATTR = [
   {stage: "LS", add: html`Matches the dekadal mean - it fixes the level, not the shape. SDR <b>0.71</b>, wet-day frequency <b>1.21</b> (over-detects drizzle), upper tail truncated at Q99 <b>0.71</b>.`},
   {stage: "LSEQM", add: html`The largest single jump. EQM plus a GPD tail rescale the whole distribution: SDR <b>0.71 → 1.03</b>, KS p <b>0.01% → 19%</b>, Q99 <b>0.71 → 1.05</b>. The cost is a designed detection trade-off, POD <b>0.78 → 0.65</b>.`},
-  {stage: "LSEQM+DL", add: html`Targeted tail refinement. The CNN acts only above the 80th percentile: Q99 <b>1.05 → 1.01</b>, SDR <b>1.03 → 1.00</b>. The bulk distribution and the detection scores are essentially unchanged.`}
+  {stage: "LSEQM+DL", add: html`Targeted tail refinement. The CNN acts only above the 80th percentile - a design setting, not a formally optimised one (<a href="./sensitivity">sensitivity</a>): Q99 <b>1.05 → 1.01</b>, SDR <b>1.03 → 1.00</b>. The bulk distribution and the detection scores barely move.`}
 ];
 display(html`<div class="grid grid-cols-3">${ATTR.map((a) => html`<div class="finding-card">
   <span class="stage-tag" style=${`background:${STAGE_COLORS[a.stage]}`}>${a.stage}</span>
@@ -106,7 +106,7 @@ function scoretable(rows) {
 
 ## Out-of-sample: vs 172 BMKG stations
 
-The strongest claim: the BMKG network is independent of the correction reference. Three pillars move to target; event detection is a designed trade-off (unpacked in [detection by threshold](./skill)).
+The BMKG stations are held out of the fitting entirely, so this is an out-of-sample test. They are not fully independent of the reference dataset, however: CPC-UNI is a gauge analysis that ingests BMKG-derived GTS reports, so the two share some source observations. Three pillars move to target; event detection is a designed trade-off (unpacked in [detection by threshold](./skill)).
 
 ```js
 display(scoretable(headline.bmkg));
@@ -121,5 +121,5 @@ display(scoretable(headline.cpc));
 ```
 
 <div class="note" style="margin-top:1.5rem">
-The paradox in one place: across the four distributional pillars the corrected product reaches the gauge to within a few percent, but the Temporal Skill rows barely move - Pearson <i>r</i> holds near <b>${s.r_flat}</b>, RMSE and NSE do not improve. That flat timing track is the subject of [the timing ceiling](./ceiling), and most of it is a fixable [calendar-window artefact](./window).
+The pattern in one place, and the two tables above are against <i>different</i> references, so read them separately. Against the independent BMKG stations the corrected product lands close to the gauge on the distributional pillars: the standard-deviation ratio reaches <b>1.00</b> and the Q99 ratio <b>1.01</b>. Against CPC-UNI, the dataset the correction was fitted to, the same ratios <i>overshoot</i> to <b>1.15</b> and <b>1.20</b>. Timing does not improve against either: daily Pearson <i>r</i> at the native window holds near <b>${s.r_flat_cpc}</b> against CPC-UNI and <b>${s.r_flat_bmkg}</b> against BMKG, both built the same way - a median across the reference's own units (land pixels for CPC-UNI, stations for BMKG) within each dekad, then averaged over the 36 dekads - and RMSE and NSE, which are computed against CPC-UNI only, do not improve. Why the timing track stays flat is the subject of [the timing ceiling](./ceiling); part of it is a [calendar-window artefact](./window) in the BMKG comparison specifically.
 </div>

@@ -51,34 +51,34 @@
   },
   "means": {
     "cqi": {
-      "ls": 0.536,
-      "lseqm": 0.5,
-      "lseqmdl": 0.503
+      "ls": 0.541,
+      "lseqm": 0.505,
+      "lseqmdl": 0.508
     },
     "confidence": {
-      "ls": 0.468,
-      "lseqm": 0.395,
-      "lseqmdl": 0.395
+      "ls": 0.461,
+      "lseqm": 0.392,
+      "lseqmdl": 0.392
     },
     "categorical": {
-      "ls": 2.11,
-      "lseqm": 1.963,
-      "lseqmdl": 1.972
+      "ls": 2.083,
+      "lseqm": 2.0,
+      "lseqmdl": 2.0
     },
     "basic": {
-      "ls": 0.346,
+      "ls": 0.334,
       "lseqm": 0.3,
       "lseqmdl": 0.302
     },
     "distribution": {
-      "ls": 0.679,
-      "lseqm": 0.64,
-      "lseqmdl": 0.646
+      "ls": 0.694,
+      "lseqm": 0.653,
+      "lseqmdl": 0.658
     },
     "temporal": {
-      "ls": 0.646,
-      "lseqm": 0.628,
-      "lseqmdl": 0.628
+      "ls": 0.656,
+      "lseqm": 0.634,
+      "lseqmdl": 0.634
     }
   },
   "stage_label": {
@@ -87,6 +87,14 @@
     "lseqmdl": "LSEQM+DL"
   },
   "diff_pair": "LSEQM+DL \u2212 LS",
+  "pooling": {
+    "cqi": "spatial median over finite pixels, dekad-averaged",
+    "confidence": "spatial median over finite pixels, dekad-averaged",
+    "categorical": "spatial median over finite pixels, dekad-averaged",
+    "basic": "spatial median over finite pixels, dekad-averaged",
+    "distribution": "spatial median over finite pixels, dekad-averaged",
+    "temporal": "spatial median over finite pixels, dekad-averaged"
+  },
   "extent": [
     95.05000305175781,
     141.0500030517578,

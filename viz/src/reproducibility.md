@@ -12,7 +12,7 @@ title: Reproducibility
 
 # Reproducible on free infrastructure
 
-The whole LSEQM+DL pipeline re-runs end-to-end on a **free Google Colab CPU** - no GPU, no paid tier. The Bali subdomain, all 36 dekads of the 2001-2025 record, completes in **72.1 minutes**, well inside one free-tier session.
+The LSEQM+DL pipeline re-runs on a **free Google Colab CPU** - no GPU, no paid tier. For the Bali subdomain, all 36 dekads of the 2001-2025 record, **notebooks 02 to 06** - correction, metrics, quality assessment, station validation and visualisation - complete in **72.1 minutes**, well inside one free-tier session. The figure excludes notebook 00 (AOI definition) and notebook 01 (data download), whose cost is set by the requested domain extent and network throughput rather than by the method.
 
 ```js
 const repro = await FileAttachment("data/repro.json").json();
@@ -20,7 +20,7 @@ const rt = repro.runtime;
 ```
 
 <div class="grid grid-cols-3">
-  <div class="card"><h2>End-to-end runtime</h2><span class="big">${rt.total}</span> min · Bali, all 36 dekads</div>
+  <div class="card"><h2>Runtime, notebooks 02-06</h2><span class="big">${rt.total}</span> min · Bali, all 36 dekads</div>
   <div class="card"><h2>Hardware</h2>${rt.hardware}</div>
   <div class="card"><h2>Coverage</h2>${rt.domain}</div>
 </div>

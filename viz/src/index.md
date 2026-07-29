@@ -15,12 +15,12 @@ title: Start here
 
 <div class="hero">
   <h1>Hybrid bias correction of daily satellite precipitation over Indonesia</h1>
-  <h2>An interactive look at what a four-stage bias correction does to daily satellite rainfall - what it fixes, what it structurally cannot, and where the ceiling turns out to be a fixable calendar-window artefact.</h2>
+  <h2>An interactive look at what a four-stage bias correction does to daily satellite rainfall - what it fixes, what it structurally cannot, and how much of the daily timing gap against the station network is a calendar-window artefact.</h2>
 </div>
 
 This dashboard presents the findings of a **hybrid bias-correction framework** for daily satellite precipitation, worked through the Indonesian archipelago as a case study. Satellite rainfall from IMERG-L is corrected toward gauge observations in four stages - Linear Scaling, Empirical Quantile Mapping, a Generalized Pareto tail, and a Convolutional Neural Network refinement (together, **LSEQM+DL**) - then validated against an independent network of BMKG stations.
 
-The pages let you explore what the correction achieves and where its limits lie: the daily **distribution** moves onto the gauge, the day-by-day **timing** does not, and much of that timing ceiling turns out to be a fixable **calendar-window** artefact rather than a fundamental limit. Every figure is computed from the same processing pipeline.
+The pages let you explore what the correction achieves and where its limits lie: the daily **distribution** moves onto the gauge, the day-by-day **timing** does not, and a large part of the timing gap measured against the station network turns out to be a fixable **calendar-window** artefact rather than a retrieval limit. Every figure is computed from the same processing pipeline.
 
 ```js
 const headline = FileAttachment("data/headline.json").json();
@@ -37,12 +37,14 @@ const s = headline.stats;
   <div class="card"><h2>BMKG stations validated</h2><span class="big">${s.stations}</span> of ${s.archived} archived</div>
   <div class="card"><h2>IMERG-L land pixels</h2><span class="big">${s.pixels.toLocaleString("en")}</span> at 0.1&deg; (~11 km)</div>
   <div class="card"><h2>Record</h2><span class="big">${s.dekads}</span> dekads &middot; ${s.period_cpc}</div>
-  <div class="card"><h2>Reproducible on Colab</h2><span class="big">${s.repro_min}</span> min for the Bali subdomain</div>
+  <div class="card"><h2>Reproducible on Colab</h2><span class="big">${s.repro_min}</span> min for the Bali subdomain, notebooks 02-06 (AOI setup and data download excluded)</div>
 </div>
 
 ## What the correction fixes - and what it structurally cannot
 
-The corrected product moves to the gauge **distribution**, but the day-by-day **timing** does not improve: Pearson *r* stays near **${s.r_flat}** across every stage. Most of that ceiling, though, is a fixable **calendar-window** artefact - re-aggregating IMERG-L to the local-day window lifts *r* against BMKG from **${s.r_window_utc}** to **${s.r_window_local}** (at ${s.offset_h} h).
+The corrected product moves to the gauge **distribution**, but the day-by-day **timing** does not improve. Daily Pearson *r* stays near **${s.r_flat_cpc}** against CPC-UNI, the calibration target, and near **${s.r_flat_bmkg}** against the independent BMKG stations, and neither moves across the three stages. Both use the same construction - a median across the reference's own units within each dekad, then averaged over the 36 dekads - so they are directly comparable.
+
+Part of that daily timing limit is a **calendar-window** artefact, and it is measurable separately. IMERG-L accumulates on a UTC day while a BMKG gauge day ends at the morning observation, so the two are offset. Re-pairing IMERG-L to the gauge day lifts the pooled daily *r* against BMKG from **${s.r_window_utc}** to **${s.r_window_local}** (at ${s.offset_h} h). That is a different measurement from the two above - a single pooled correlation over station-days rather than a spatial median - and it applies only to the BMKG comparison. CPC-UNI dates its totals to the UTC day like IMERG, so it carries no such offset. See [the window diagnostic](./window).
 
 ## Study area & data coverage
 
@@ -85,7 +87,7 @@ A slide deck can carry the introduction and methods; these pages carry the findi
   <div class="card">
     <b>The ceiling - and the fix</b>
     <ul class="toc">
-      <li><a href="./ceiling">The timing ceiling</a> - why <i>r</i> ≈ 0.34</li>
+      <li><a href="./ceiling">The timing ceiling</a> - why <i>r</i> ≈ 0.35</li>
       <li><a href="./window">The calendar window</a> - the convention dial</li>
       <li><a href="./window-detail">Whole-domain &amp; era</a> - the evidence behind it</li>
     </ul>
@@ -103,5 +105,5 @@ A slide deck can carry the introduction and methods; these pages carry the findi
 </div>
 
 <div class="note" style="margin-top:2rem; font-size:13px; color:var(--theme-foreground-muted)">
-Built with <a href="https://observablehq.com/framework/" target="_blank" rel="noopener">Observable Framework</a> - a static, self-contained data app. Data: IMERG-L (GPM / NASA), CPC-UNI (NOAA), and the BMKG station network. Open code &amp; data: <a href="https://github.com/bennyistanto/hybrid-bias-correction" target="_blank" rel="noopener">GitHub</a> &middot; <a href="https://doi.org/10.5281/zenodo.20287847" target="_blank" rel="noopener">Zenodo</a>.
+Built with <a href="https://observablehq.com/framework/" target="_blank" rel="noopener">Observable Framework</a> - a static, self-contained data app. Data: IMERG-L (GPM / NASA), CPC-UNI (NOAA), and the BMKG station network. Open code &amp; data: <a href="https://github.com/bennyistanto/hybrid-bias-correction" target="_blank" rel="noopener">GitHub</a> &middot; <a href="https://doi.org/10.5281/zenodo.20287846" target="_blank" rel="noopener">Zenodo</a>.
 </div>

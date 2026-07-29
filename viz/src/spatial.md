@@ -13,7 +13,7 @@ title: Spatial quality
 
 # Spatial quality
 
-Per-pixel QA **climatology** - the annual mean over the 36 dekads of the gauge-referenced quality grid (`qualitysd_cpc`, 0.1&deg;, **19,393** land pixels). Pick a dimension and toggle the stage: the colour scale is fixed across stages, so any change you see between LS, LSEQM and LSEQM+DL is real, not rescaled.
+Per-pixel QA **climatology** - the annual mean over the 36 dekads of the gauge-referenced quality grid (`qualitysd_cpc`, 0.1&deg;, **19,395** land pixels). Pick a dimension and toggle the stage: the colour scale is fixed across stages, so any change you see between LS, LSEQM and LSEQM+DL is real, not rescaled.
 
 ```js
 const mapMeta = FileAttachment("data/map_meta.json").json();
@@ -58,7 +58,7 @@ const diffSrc = await TILE[`${dimKey}_diff`].url();
     ${html`<img class="maptile" src=${mapSrc} alt=${`${dim.label} ${stage}`}>`}
     ${seqLegend(dim)}
     <p style="font-size:13px; margin-top:0.8rem">
-      Domain mean by stage:
+      Spatial <b>median</b> of the climatology by stage - the mean over the 36 dekads first, then the median over land pixels:
       ${["LS", "LSEQM", "LSEQM+DL"].map((s) => html`<span class="chip ${s === stage ? "on" : ""}">${s} ${means[STAGE_FILE[s]]}</span> `)}
     </p>
   </div>
@@ -99,6 +99,6 @@ function diffLegend(dim) {
 ```
 
 <div class="note" style="margin-top:1.5rem">
-This grid QA is measured <b>in-sample against CPC-UNI</b>; it is a different lens from the out-of-sample <a href="./staged-skill">BMKG scorecard</a>, where the distribution gains appear. The composite here is detection-weighted, so LS - which keeps more of IMERG-L's raw hit rate - reads marginally higher on CQI. That is the same designed trade-off the scorecard shows as a POD drop.<br><br>
+This grid QA is measured <b>in-sample against CPC-UNI</b>; it is a different lens from the out-of-sample <a href="./staged-skill">BMKG scorecard</a>, where the distribution gains appear. The composite here is detection-weighted, so LS - which keeps more of IMERG-L's raw hit rate - reads marginally higher on CQI. <b>CQI therefore falls under correction, by about 0.03 from LS to LSEQM+DL; it does not rise.</b> That is the same designed trade-off the scorecard shows as a POD drop.<br><br>
 Next: a station-density overlay to answer "why is quality lower here?", and the seasonal (dekad) cycle of CQI.
 </div>

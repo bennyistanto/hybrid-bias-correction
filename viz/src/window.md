@@ -13,7 +13,7 @@ Daily satellite-gauge correlation is **convention-dependent**. IMERG-L is dated 
 
 <div class="keyfinding">
 <span class="kf-label">Key finding</span>
-Re-aggregating IMERG-L from the UTC day to the local-day window (offset <b>−23 h</b>) lifts the daily correlation against BMKG from <b>0.20</b> to <b>0.57</b> - with no change to the correction itself. Most of the r ≈ 0.34 ceiling was a calendar artefact, not a limit of the retrieval.
+Re-aggregating IMERG-L from the UTC day to the local-day window (offset <b>−23 h</b>) lifts the daily correlation against BMKG from <b>0.20</b> to <b>0.57</b> - a single correlation pooled over all station-days of the GPM era, 2015-2021 - with no change to the correction itself. A large part of the daily timing gap against the station network is therefore a calendar artefact rather than a limit of the retrieval. Note this applies to the BMKG comparison only: CPC-UNI dates its daily totals to the UTC day exactly as IMERG does, so it carries no offset and the same re-windowing degrades it instead.
 </div>
 
 ```js
@@ -113,7 +113,7 @@ display(html`<table style="border-collapse:collapse; font-size:14px; margin:0.6r
 
 <div class="keyfinding">
 <span class="kf-label">Finding</span>
-The same product scores <b>r = 0.20</b> daily but <b>0.80</b> monthly at the UTC-day window. Re-windowing to the local day lifts the daily <i>r</i> to <b>0.57</b> but leaves the monthly value essentially unchanged (<b>0.80 → 0.81</b>). The daily ceiling lives in the day-by-day <i>pairing</i> - the timing - not in how much rainfall the product captures.
+The same product scores <b>r = 0.20</b> daily but <b>0.80</b> monthly at the UTC-day window. Re-windowing to the local day lifts the daily <i>r</i> to <b>0.57</b> but barely moves the monthly value (<b>0.80 → 0.81</b>). The daily ceiling lives in the day-by-day <i>pairing</i> - the timing - not in how much rainfall the product captures.
 </div>
 
 <div class="note" style="margin-top: 1.5rem">

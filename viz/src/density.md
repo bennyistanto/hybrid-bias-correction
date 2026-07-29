@@ -12,7 +12,7 @@ title: Station-density mask
 
 # The station-density confidence mask
 
-The CNN refinement is not applied uniformly. A confidence field, built from the smoothed density of the CPC-UNI gauges, **gates the blend**: where gauges are dense the CNN contributes, where they are sparse the product falls back to pure LSEQM. This keeps the data-hungry step honest about where it has support.
+The CNN refinement is not applied uniformly. A confidence field, built from the smoothed density of the **BMKG station network** and used as a proxy for where the network contributing to CPC-UNI is dense, **gates the blend**: where gauges are dense the CNN contributes, where they are sparse the product falls back to pure LSEQM. This keeps the data-hungry step honest about where it has support.
 
 ```js
 const density = FileAttachment("data/density.json").json();
@@ -26,7 +26,7 @@ const base = d.base_alpha;
 
 ## Where the gauges are - and where the CNN activates
 
-Confidence over the 0.1&deg; land grid (Gaussian-smoothed, &sigma; ≈ ${d.sigma_km} km); the ${d.n_stations} gauges are overlaid as white dots. The network is heavily concentrated in Java - so is the confidence.
+Confidence over the 0.1&deg; land grid (Gaussian-smoothed, &sigma; ≈ ${d.sigma_km} km); the ${d.n_stations} BMKG station locations that define it are overlaid as white dots. The network is heavily concentrated in Java - so is the confidence.
 
 ```js
 display(html`<img class="maptile" src=${densityMap} alt="station-density confidence">`);
@@ -42,7 +42,7 @@ display(html`<img class="maptile" src=${densityMap} alt="station-density confide
   <div class="card"><h2>Max confidence</h2><span class="big">${d.max_confidence}</span> of 1.0 (dense Java)</div>
   <div class="card"><h2>Max DL weight</h2><span class="big">${d.max_dl_weight_pct}%</span> where densest</div>
   <div class="card"><h2>Mean DL weight</h2><span class="big">${d.mean_dl_weight_pct}%</span> over all land</div>
-  <div class="card"><h2>Land the CNN touches</h2><span class="big">${d.pct_dl_active}%</span> at any weight</div>
+  <div class="card"><h2>Land the CNN touches</h2><span class="big">${d.pct_dl_active}%</span> at a weight above 0.03%</div>
 </div>
 
 The mask never reaches full confidence: even the densest cell tops out at ${d.max_confidence}, so the CNN's share peaks near **${d.max_dl_weight_pct}%** in Java and averages just **${d.mean_dl_weight_pct}%** across Indonesia. The refinement is real but deliberately restrained.
@@ -53,7 +53,7 @@ The blend weight is a straight line in confidence:
 
 <div class="eqn">effective α = 1 − confidence × (1 − ${base}) &nbsp;&nbsp;→&nbsp;&nbsp; CNN weight = confidence × ${(1 - base).toFixed(2)}</div>
 
-Confidence 0 gives α = 1.0 (pure LSEQM, no CNN); confidence 1 would give α = ${base} (30% CNN). The dashed line marks the mask's actual ceiling.
+Confidence 0 gives α = 1.0 (pure LSEQM, no CNN); confidence 1 would give α = ${base} (30% CNN). The dashed line marks the mask's actual ceiling. The base α of ${base} is itself a judgement setting rather than an optimised one - like the saturation count below, it is one of the [sensitivity parameters](./sensitivity).
 
 ```js
 const conf = d3.range(0, 1.0001, 0.02);

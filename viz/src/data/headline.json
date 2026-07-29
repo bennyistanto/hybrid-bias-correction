@@ -8,12 +8,22 @@
     "period_cpc": "2001-2025",
     "period_bmkg": "2001-2021",
     "repro_min": 72.1,
-    "r_flat": 0.34,
+    "r_flat_cpc": 0.35,
+    "r_flat_bmkg": 0.24,
     "r_window_utc": 0.2,
     "r_window_local": 0.57,
     "offset_h": -23
   },
   "bmkg": [
+    {
+      "pillar": "Temporal Skill",
+      "metric": "Pearson r",
+      "ls": 0.242,
+      "lseqm": 0.236,
+      "lseqmdl": 0.239,
+      "target": 1.0,
+      "goal": "high"
+    },
     {
       "pillar": "Value Adjustment",
       "metric": "Relative Bias",
