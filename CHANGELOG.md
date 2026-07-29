@@ -61,6 +61,13 @@ itself, so results from v2026.05 remain valid.
   validated-station count, and correlation values that had drifted from the
   value ledger.
 
+### Companion publications
+
+- Journal manuscript on the methodology and Indonesia validation: **published**
+  in *Remote Sensing* 2026, 18, 2298
+  ([doi:10.3390/rs18142298](https://doi.org/10.3390/rs18142298)). This
+  supersedes the under-review status recorded under v2026.05.
+
 ## v2026.05 - 2026-05-31 - first public release
 
 First public release of the Hybrid Bias Correction framework. This is the
@@ -88,14 +95,9 @@ correction over Indonesia, refactored for the broader community.
 
 ### Companion publications
 
-- MSc thesis: *How Far Can Bias Correction Improve Daily Satellite
-  Precipitation?* (Istanto, IPB University, 2026).
-- Journal manuscript on the methodology and Indonesia validation:
-  published in *Remote Sensing* 2026, 18, 2298
-  ([doi:10.3390/rs18142298](https://doi.org/10.3390/rs18142298)).
-- Journal of Open Source Software paper on the framework itself
-  (in preparation; draft at `paper/joss/`).
-
+- Journal manuscript on the methodology and Indonesia validation: under
+  review at *Remote Sensing* (MDPI).
+  
 ---
 
 ## Backlog
