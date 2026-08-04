@@ -82,7 +82,7 @@ docs = [
 	# quartodoc 0.11.x calls parse_numpy(..., allow_section_blank_line=...)
 	# which newer griffe rejects, so pin both.
 	"quartodoc>=0.11,<0.12",
-	"griffe<1.0",
+	"griffe<3.0",
 ]
 dev = [
 	# Development extras: notebooks + linting + JupyterLab productivity
