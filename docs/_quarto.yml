@@ -214,6 +214,8 @@ format:
       dark: [cosmo, styles-dark.css]
     toc: true
     toc-depth: 3
+    include-in-header:
+      - gtag.txt
     code-copy: true
     code-fold: false
     code-tools:
